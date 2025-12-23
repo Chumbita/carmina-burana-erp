@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from src.application.middleware import setup_cors
-from src.application.api.routers import health_router
+from src.presentation.middleware import setup_cors
+from src.presentation.api.routers import health_router
 
 def create_app():
     app = FastAPI()
