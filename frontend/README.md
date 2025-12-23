@@ -1,16 +1,57 @@
-# React + Vite
+# Frontend Carmina Burana ERP
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Estructura de carpetas
 
-Currently, two official plugins are available:
+```bash
+frontend/
+├── public/
+│   └── assets/                 # Recursos
+│       ├── images/             # Imagenes
+│       └── icons/              # Iconos
+├── src/
+│   ├── app/                    # Configuración principal de la aplicación.
+│   │   ├── routes/             # Configuración de rutas usando React Router.
+│   │   │   └── index.jsx       
+│   │   ├── providers/          # Context providers que envuelven toda la aplicación.
+│   │   └── App.tsx             # Componente raíz.
+│   ├── components/             # Componentes reutilizables que se usan a través de toda la aplicación.
+│   │   ├── ui/                 # Compontes de UI.
+│   │   ├── forms/              # Componentes de formularios.
+│   │   ├── layout/             # Componentes estructurales.
+│   │   └── shared/             # Componentes generales.
+│   ├── features/               # Organización de las features como módulos funcionales.
+│   │   ├── featureX/           # Carpeta de la feature
+│   │   │   ├── components/     # Componentes específicos y no reutilizables para esta feature. 
+│   │   │   ├── hooks/          # Hooks específicos de esta feature. 
+│   │   │   ├── schemas/        # Schemas de validaciones de Zod específicas para los formularios del módulo.
+│   │   │   ├── services/       # Llamadas a la API.             
+│   │   │   └── pages/          # Páginas específicas del módulo.
+│   ├── hooks/                  # Hooks genéricos que son reutilziados en múltiples features.
+│   ├── lib/                    # Utilidades y configuraciones de bajo nivel.
+│   │   ├── api/                # Cliente HTTP y definición de los endpoints.
+│   │   └── utils/              # Funciones auxiliares.
+│   ├── styles/                 # Estilos globales de la aplicación. 
+│   │   └── globals.css
+│   ├── main.tsx 
+├── .env                        # Variables de entorno.
+├── .env.example                # Plantilla de las variables de entorno.
+├── index.html
+├── package.json
+└── vite.config.ts
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## React Compiler
+## 🚀 Cómo correr el proyecto
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Instalar dependencias: `npm install`
 
-## Expanding the ESLint configuration
+2. Crear archivo `.env` basado en `.env.example`
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+3. Desplegar Frontend: `npm run dev`
+
+
+## 🔗 Conexión con backend
+
+Asegurate de que `VITE_API_URL` en `.env` apunte al backend:
+
+Para usar las variables de entorno usar `import.meta.env.VARIABLE`
