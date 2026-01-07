@@ -51,3 +51,18 @@ En caso de que instales nuevas independencias, para actualizar el archvio `requi
 
 ## Lanzar programa
 Ejecutá `python run.py`
+
+## Alembic y migraciones
+Una vez que hayas creado tus modelos en `src/infrastructure/database/models`, hay que importarlos en Alembic en el archivo `alembic/env.py` --> `from src.infrastructure.database.models import tu_modelo` 
+
+Ahora deben serguir los siguientes pasos para generar la migración. En la consola:
+1. Generar la migración  
+`alembic revision --autogenerate -m "comentario_de_migración"`  
+Esto te va a generar automáticamente un archivo en `alembic/versions`.  
+
+2. Tenés que verificar que el archivo generado se haya generado correctamente con las especificacioes en tu modelo. En caso de haber inconsistencia debes corregirlas.  
+
+3. Aplicar la migración  
+`alembic upgrade head`  
+
+4. Verificar que la o las tablas se hayan generado en la base de datos.
