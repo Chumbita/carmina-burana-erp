@@ -9,11 +9,15 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    env_file:
+      - .env
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV:-development}
       - VITE_API_URL=http://localhost:8000
     stdin_open: true
     tty: true
+    depends_on:
+      - backend
     networks:
       - carmina-network
 
@@ -26,12 +30,38 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
+    env_file:
+      - .env
     environment:
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=sqlite:///./sql_app.db
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+    depends_on:
+      - db
+    networks:
+      - carmina-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: carmina-db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "${POSTGRES_PORT}:5432"
     networks:
       - carmina-network
 
 networks:
   carmina-network:
     driver: bridge
+
+volumes:
+  postgres_data:
