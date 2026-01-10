@@ -1,7 +1,4 @@
-from fastapi import FastAPI
+from src.presentation import create_app
+import uvicorn
 
-app = FastAPI()
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+app = create_app()
