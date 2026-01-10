@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALLOWED_ORIGINS: str
     
+    # Configuración de JWT
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRATION_MINUTES: int = 60 * 24 # -> 24 horas
+    
     @property
     def allowed_origins_list(self) -> List[str]:
         """Convierte el string de orígenes permitidos a una lista"""
