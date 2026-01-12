@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Cliente HTTP reutilizable
-const apiClient = axios.create({
+const privateClient = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
   timeout: 10000,
@@ -34,4 +34,4 @@ apiClient.interceptors.response.use(
   }
 );
 
-export default apiClient;
+export default privateClient;
