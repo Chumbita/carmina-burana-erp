@@ -1,5 +1,5 @@
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config
+from sqlalchemy import engine_from_config, create_engine
 from sqlalchemy import pool
 from alembic import context
 
@@ -7,11 +7,14 @@ from src.infrastructure.config.settings import settings
 from src.infrastructure.database.base import Base
 
 # Importar todos los modelos aquí debajo
+from src.infrastructure.database.models import UserModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
+
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+sync_url = settings.DATABASE_URL.replace("+asyncpg", "+psycopg2")
+config.set_main_option("sqlalchemy.url", sync_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
