@@ -4,6 +4,11 @@ from src.domain.entities.user import User
 class IUserRepository(Protocol):
     async def save(self, user: User) -> User:
         ...
+    
+    async def update(self, user: User) -> User:
+        """ 
+        Actualiza los datos del usuario
+        """
         
     async def find_by_username(self, username: str) -> Optional[User]:
         """ 

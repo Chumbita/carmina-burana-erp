@@ -39,6 +39,22 @@ class UserRepository:
         await self._session.refresh(user_model)
         return self._to_entity(user_model)
     
+    async def update(self, user: User) -> User:
+        stmt = select(UserModel).where(UserModel.id == user.id)
+        result = await self._session.execute(stmt)
+        user_model = result.scalar_one_or_none()
+        
+        user_model.username = user.username
+        user_model.full_name = user.full_name
+        user_model.password = user.hashed_password
+        user_model.role = user.role
+        user_model.is_active = user.is_active
+        user_model.created_at = user.created_at
+        
+        await self._session.commit()
+        await self._session.refresh(user_model)
+        return self._to_entity(user_model)
+    
     async def find_by_username(self, username: str) -> Optional[User]:
         stmt = select(UserModel).where(UserModel.username == username)
         result = await self._session.execute(stmt)

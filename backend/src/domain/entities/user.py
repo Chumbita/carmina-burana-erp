@@ -32,3 +32,20 @@ class User:
             hashed_password = hashed_password,
             role = role
         )
+    
+    def change_password(self, new_hashed_password: str):
+        """ 
+        Método que cambia la contraseña del usuario. 
+        """
+        
+        if not new_hashed_password:
+            raise ValueError("La nueva contraseña es requrida.")
+        if new_hashed_password == self.hashed_password:
+            raise ValueError("La nueva contraseña no puede ser igual a la anterior.")
+        if len(new_hashed_password) < 8:
+            raise ValueError("La nueva contraseña debe tener al menos 8 caracteres.")
+        if not self.is_active:
+            raise ValueError("Usuario inactivo: no puede realizar esta acción.")
+        
+        self.hashed_password = new_hashed_password
+        
