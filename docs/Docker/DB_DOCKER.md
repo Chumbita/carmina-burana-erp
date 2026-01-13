@@ -1,6 +1,6 @@
 # Dockerización de la Base de Datos PostgreSQL
 
-Este documento explica cómo se configuró la base de datos PostgreSQL en Docker para el proyecto Carmina Burana ERP.
+Este documento explica cómo se configuró la base de datos PostgreSQL en Docker para el proyecto Carmina Burana ERP y soluciona problemas comunes.
 
 ## Estructura de Archivos
 
@@ -8,6 +8,8 @@ Este documento explica cómo se configuró la base de datos PostgreSQL en Docker
 carmina-burana-erp/
 ├── docker-compose.yml    # Configuración de servicios Docker
 ├── .env                 # Variables de entorno
+└── backend/
+    └── alembic/         # Migraciones de la base de datos
 ```
 
 ## Configuración de PostgreSQL en Docker
@@ -15,9 +17,9 @@ carmina-burana-erp/
 ### 1. Archivo docker-compose.yml
 
 ```yaml
-services:
-  # ... otros servicios ...
+version: '3.8'
 
+services:
   db:
     image: postgres:15-alpine
     container_name: carmina-db
@@ -31,7 +33,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "5433:5432"  # Puerto 5433 en el host, 5432 en el contenedor
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - carmina-network
 
@@ -47,9 +54,16 @@ volumes:
 
 ```env
 # PostgreSQL Configuration
-POSTGRES_USER=postgres
+POSTGRES_USER=tu-usuario
 POSTGRES_PASSWORD=tu_contraseña_segura
-POSTGRES_DB=dbcarmina
+POSTGRES_DB=nombre_de_tu_db
+POSTGRES_PORT=5433
+
+# Backend Configuration
+DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+```
+POSTGRES_PASSWORD=tu_contraseña_segura
+POSTGRES_DB=nombre-de-tu-db
 POSTGRES_PORT=5433
 
 # Backend Configuration

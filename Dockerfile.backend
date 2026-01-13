@@ -1,7 +1,6 @@
-# Usar una imagen base de Python
+# Dockerfile.backend
 FROM python:3.11-slim
 
-# Establecer el directorio de trabajo
 WORKDIR /app
 
 # Instalar dependencias del sistema
@@ -15,11 +14,14 @@ COPY backend/requirements.txt .
 # Instalar dependencias de Python
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Instalar Alembic
+RUN pip install alembic
+
 # Copiar el código fuente
 COPY ./backend /app
 
 # Puerto expuesto
 EXPOSE 8000
 
-# Comando para ejecutar la aplicación
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Comando para ejecutar la aplicación (ahora manejado en docker-compose)
+# El comando se ha movido a docker-compose.yml para mejor gestión
