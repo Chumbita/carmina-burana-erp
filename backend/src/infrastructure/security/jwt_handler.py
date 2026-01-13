@@ -31,10 +31,10 @@ class JWTHandler:
         Decodifica y verifica el token JWT.
         """
         try:
-            payload = jwt.encode(
+            payload = jwt.decode(
                 token,
                 settings.SECRET_KEY,
-                algorithm=[settings.JWT_ALGORITHM]
+                algorithms=[settings.JWT_ALGORITHM]
             )
             return payload
         except JWTError as e:
