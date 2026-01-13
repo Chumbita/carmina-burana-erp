@@ -1,20 +1,23 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-
-// Lazy loading de páginas
+import AppLayout from "@/components/layout/AppLayout";
 import { lazy } from "react";
 
-// Error pages
-const NotFoundPage = lazy(() =>
-  import("@/features/errors/pages/NotFoundPage")
+const DashboardPage = lazy(() =>
+  import("@/features/dashboard/pages/DashboardPage")
 );
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Navigate to={"/dashboard"} />,
+    element: <AppLayout />,
+    children: [
+      {
+        path: "/dashboard",
+        element: <DashboardPage />,
+      },
+    ],
   },
   {
-    path: "*",
-    element: <NotFoundPage />,
+    path: "/",
+    element: <Navigate to="/dashboard" />,
   },
 ]);

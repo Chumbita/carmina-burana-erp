@@ -1,23 +1,25 @@
 "use client"
-
 import * as React from "react"
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
+  BarChart3,
+  Beer,
+  Boxes,
+  ClipboardList,
+  Home,
+  Package,
+  Settings,
+  TrendingUp,
+  Users,
+  Warehouse,
+  AlertCircle,
+  FileText,
+  Barrel,
+  Box,
+  LayoutDashboard
 } from "lucide-react"
 
 import { NavMain } from "@/components/layout/nav-main"
-import { NavProjects } from "@/components/layout/nav-projects"
 import { NavUser } from "@/components/layout/nav-user"
-import { TeamSwitcher } from "@/components/layout/team-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -25,146 +27,151 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { Separator } from "@/components/ui/separator"
 
-// 
+// Datos de navegación
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: "Aldo Olivera", // Esto viene del contexto de autenticación
+    email: "admin@carminaburana.com",
+    avatar: "/avatars/user.jpg",
   },
- 
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
   
   navMain: [
     {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboard,
       isActive: true,
+    },
+    {
+      title: "Producción",
+      url: "#",
+      icon: Beer,
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "Registro de Cocciones",
+          url: "/produccion/cocciones/nuevo",
         },
         {
-          title: "Starred",
-          url: "#",
+          title: "Historial de Cocciones",
+          url: "/produccion/cocciones",
         },
         {
-          title: "Settings",
-          url: "#",
+          title: "Recetas",
+          url: "/produccion/recetas",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Inventario",
       url: "#",
-      icon: Bot,
+      icon: Box,
       items: [
         {
-          title: "Genesis",
-          url: "#",
+          title: "Insumos",
+          url: "/inventario/insumos",
         },
         {
-          title: "Explorer",
-          url: "#",
+          title: "Productos",
+          url: "/inventario/productos",
         },
         {
-          title: "Quantum",
-          url: "#",
+          title: "Alertas de Stock",
+          url: "/inventario/alertas",
         },
       ],
     },
     {
-      title: "Documentation",
+      title: "Barriles",
       url: "#",
-      icon: BookOpen,
+      icon: Barrel,
       items: [
         {
-          title: "Introduction",
-          url: "#",
+          title: "Estado de Barriles",
+          url: "/barriles/estado",
         },
         {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
+          title: "Movimientos",
+          url: "/barriles/movimientos",
         },
       ],
     },
     {
-      title: "Settings",
+      title: "Reportes",
       url: "#",
-      icon: Settings2,
+      icon: BarChart3,
       items: [
         {
-          title: "General",
-          url: "#",
+          title: "Rendimiento de Recetas",
+          url: "/reportes/rendimiento",
         },
         {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
+          title: "Costos de Producción",
+          url: "/reportes/costos",
         },
       ],
     },
-  ],
-  projects: [
     {
-      name: "Design Engineering",
+      title: "Administración",
       url: "#",
-      icon: Frame,
+      icon: Settings,
+      items: [
+        {
+          title: "Usuarios",
+          url: "/admin/usuarios",
+        },
+        {
+          title: "Configuración",
+          url: "/admin/configuracion",
+        },
+        {
+          title: "Mi Perfil",
+          url: "/admin/perfil",
+        },
+      ],
     },
-    
   ],
 }
 
-export function AppSidebar({
-  ...props
-}) {
+export function AppSidebar({ ...props }) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        {/* Logo de Carmina */}
+        <div className="flex items-center justify-center py-2">
+          
+          {/* Cuando está expandido muestra logo */}
+          <div className="flex flex-col items-center gap-2 group-data-[collapsible=icon]:hidden transition-all">
+                      
+            { <img 
+              src="../public/images/logo_carmina.png" 
+              alt="Carmina Burana" 
+              className="h-12 w-auto -mt-1.5"
+            /> }          
+          </div>
+          
+          {/* Cuando está contraído solo muestra el isologo */}
+            <div className="hidden group-data-[collapsible=icon]:flex items-center justify-center transition-all">
+            
+              { <img 
+                src="../public/images/isologo_carmina.png" 
+                alt="CB" 
+                className="w-8 -mt-1"
+              /> }
+            </div>
+        </div>
       </SidebarHeader>
+    
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
       </SidebarContent>
+      
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
+      
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }

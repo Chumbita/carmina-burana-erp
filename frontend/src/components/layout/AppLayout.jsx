@@ -1,6 +1,4 @@
-import { Outlet } from "react-router-dom";
-import { useState } from "react";
-//import Sidebar from "./Sidebar";
+import { Outlet } from "react-router-dom"; 
 import Header from "./Header";
 import { AppSidebar } from "./app-sidebar"
 
@@ -11,7 +9,6 @@ import {
 
 
 export default function AppLayout() {
-  const [collapsed, setCollapsed] = useState(false);
 
   return (
         <SidebarProvider>
