@@ -5,6 +5,11 @@ import { lazy } from "react";
 const DashboardPage = lazy(() =>
   import("@/features/dashboard/pages/DashboardPage")
 );
+// Auth pages
+const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));
+
+// Error pages
+const NotFoundPage = lazy(() => import("@/features/errors/pages/NotFoundPage"));
 
 export const router = createBrowserRouter([
   {

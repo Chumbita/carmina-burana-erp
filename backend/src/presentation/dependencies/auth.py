@@ -14,7 +14,7 @@ async def get_current_user(
     db: AsyncSession = Depends(get_db)
 ) -> User: 
     """ 
-    Dependencia que verifica el toke y devuelve el usuario actual.
+    Dependencia que verifica el token y devuelve el usuario actual.
     
     Flujo: 
     1. Extraer el token desde el header Authorization: Bearer <token>.
