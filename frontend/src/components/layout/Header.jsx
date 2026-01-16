@@ -2,7 +2,7 @@ import { useLocation, Link } from "react-router-dom";
 import { Home } from "lucide-react";
 
 // Componentes shadcn
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/ui/Sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,7 +10,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from "@/components/ui/Breadcrumb";
 import NotificationsDropdown from "@/components/layout/NotificationsDropdown";
 
 // Configuración de nombres legibles para las rutas

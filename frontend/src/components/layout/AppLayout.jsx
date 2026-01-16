@@ -1,9 +1,9 @@
 import { Outlet } from "react-router-dom";
 import { Header } from "./Header";
-import { AppSidebar } from "./app-sidebar";
+import { AppSidebar } from "./AppSidebar";
 
 // Componentes shadcn
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/Sidebar";
 
 export default function AppLayout() {
   return (

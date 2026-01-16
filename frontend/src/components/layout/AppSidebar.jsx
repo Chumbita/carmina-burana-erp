@@ -1,6 +1,6 @@
 import * as React from "react";
-import { NavMain } from "@/components/layout/nav-main";
-import { NavUser } from "@/components/layout/nav-user";
+import { NavMain } from "@/components/layout/NavMain";
+import { NavUser } from "@/components/layout/NavUser";
 
 // Componentes de shadcn
 import {
@@ -9,7 +9,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar";
+} from "@/components/ui/Sidebar";
 
 // Iconos
 import {
@@ -22,7 +22,10 @@ import {
 } from "lucide-react";
 
 // Datos de usuario
-const user = JSON.parse(localStorage.getItem("user"));
+const user = JSON.parse(localStorage.getItem("user")) ?? {
+  full_name: "Usuario",
+  role: "Invitado",
+};
 
 // Datos de navegación
 const data = {

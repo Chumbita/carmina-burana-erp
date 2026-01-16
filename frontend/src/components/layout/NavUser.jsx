@@ -1,5 +1,5 @@
 // Componentes shadcn
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,13 +7,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/DropdownMenu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar";
+} from "@/components/ui/Sidebar";
 
 // Iconos
 import {
@@ -68,7 +68,7 @@ export function NavUser({ user }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem className="cursor-pointer text-red-600 font-medium">
+            <DropdownMenuItem className="cursor-pointer text-red-600 font-medium focus:bg-gray-200/70">
               <LogOut color="red"/>
               Cerrar sesión
             </DropdownMenuItem>
