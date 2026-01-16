@@ -1,42 +1,37 @@
-"use client"
-import * as React from "react"
-import {
-  BarChart3,
-  Beer,
-  Boxes,
-  ClipboardList,
-  Home,
-  Package,
-  Settings,
-  TrendingUp,
-  Users,
-  Warehouse,
-  AlertCircle,
-  FileText,
-  Barrel,
-  Box,
-  LayoutDashboard
-} from "lucide-react"
+import * as React from "react";
+import { NavMain } from "@/components/layout/nav-main";
+import { NavUser } from "@/components/layout/nav-user";
 
-import { NavMain } from "@/components/layout/nav-main"
-import { NavUser } from "@/components/layout/nav-user"
+// Componentes de shadcn
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/sidebar";
+
+// Iconos
+import {
+  BarChart3,
+  Beer,
+  Settings,
+  Barrel,
+  Box,
+  LayoutDashboard,
+} from "lucide-react";
+
+// Datos de usuario
+const user = JSON.parse(localStorage.getItem("user"));
 
 // Datos de navegación
 const data = {
   user: {
-    name: "Aldo Olivera", // Esto viene del contexto de autenticación
-    email: "admin@carminaburana.com",
+    full_name: user.full_name,
+    role: user.role,
     avatar: "/avatars/user.jpg",
   },
-  
+
   navMain: [
     {
       title: "Dashboard",
@@ -132,7 +127,7 @@ const data = {
       ],
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }) {
   return (
@@ -140,38 +135,39 @@ export function AppSidebar({ ...props }) {
       <SidebarHeader>
         {/* Logo de Carmina */}
         <div className="flex items-center justify-center py-2">
-          
           {/* Cuando está expandido muestra logo */}
           <div className="flex flex-col items-center gap-2 group-data-[collapsible=icon]:hidden transition-all">
-                      
-            { <img 
-              src="../public/images/logo_carmina.png" 
-              alt="Carmina Burana" 
-              className="h-12 w-auto -mt-1.5"
-            /> }          
+            {
+              <img
+                src="../public/images/logo_carmina.png"
+                alt="Carmina Burana"
+                className="h-12 w-auto -mt-1.5 select-none"
+              />
+            }
           </div>
-          
+
           {/* Cuando está contraído solo muestra el isologo */}
-            <div className="hidden group-data-[collapsible=icon]:flex items-center justify-center transition-all">
-            
-              { <img 
-                src="../public/images/isologo_carmina.png" 
-                alt="CB" 
+          <div className="hidden group-data-[collapsible=icon]:flex items-center justify-center transition-all">
+            {
+              <img
+                src="../public/images/isologo_carmina.png"
+                alt="CB"
                 className="w-8 -mt-1"
-              /> }
-            </div>
+              />
+            }
+          </div>
         </div>
       </SidebarHeader>
-    
+
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
-      
+
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
-      
+
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }
