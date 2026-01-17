@@ -12,10 +12,10 @@ import {
   FieldGroup,
   FieldLabel,
   FieldSet,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+} from "@/components/ui/Field";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
 
 export function LoginForm() {
   const [error, setError] = useState("");

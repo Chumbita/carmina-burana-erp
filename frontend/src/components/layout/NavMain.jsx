@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom"
-import { ChevronRight } from "lucide-react";
 
+// Componentes shadcn
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "@/components/ui/Collapsible"
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -15,7 +15,10 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/Sidebar"
+
+// Iconos
+import { ChevronRight } from "lucide-react";
 
 export function NavMain({
   items
@@ -34,7 +37,7 @@ export function NavMain({
               {/* Si no tiene items es un link directo */}
               {!item.items ? (
                 <SidebarMenuButton asChild tooltip={item.title}>
-                  <Link to={item.url}>
+                  <Link to={item.url}  className="cursor-pointer">
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                   </Link>
@@ -43,7 +46,7 @@ export function NavMain({
                 <>
                   {/* Si tiene items, es desplegable */}
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={item.title}>
+                    <SidebarMenuButton tooltip={item.title} className="cursor-pointer">
                       {item.icon && <item.icon />}
                       <span>{item.title}</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
