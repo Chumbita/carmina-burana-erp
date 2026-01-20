@@ -7,7 +7,7 @@ from src.infrastructure.config.settings import settings
 from src.infrastructure.database.base import Base
 
 # Importar todos los modelos aquí debajo
-from src.infrastructure.database.models import UserModel
+from src.infrastructure.database.models import UserModel, InputModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

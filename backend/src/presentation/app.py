@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from src.presentation.middleware import setup_cors
 from src.presentation.api.routers import health_router
 from src.presentation.api.routers import auth_router
+from src.presentation.api.routers import input_router
 
 def create_app():
     app = FastAPI()
@@ -15,5 +16,7 @@ def create_app():
     
     """ Healthcheck Route """
     app.include_router(health_router)
+
+    app.include_router(input_router)
     
     return app
