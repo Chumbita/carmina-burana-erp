@@ -1,0 +1,30 @@
+[
+   {
+      id: 1,
+      nombre: "Malta",
+      categoria: "Perecedero",
+      unidadMedida: "kg",
+      stockTotal: 120
+    },
+    {
+      id: 2,
+      nombre: "Lúpulo",
+      categoria: "Perecedero",
+      unidadMedida: "g",
+      stockTotal: 3200
+    },
+    {
+      id: 3,
+      nombre: "Levadura",
+      categoria: "Perecedero",
+      unidadMedida: "g",
+      stockTotal: 850
+    },
+    {
+      id: 4,
+      nombre: "Botellas",
+      categoria: "No perecedero",
+      unidadMedida: "unid",
+      stockTotal: 840
+    },
+]  
