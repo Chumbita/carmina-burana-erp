@@ -1,6 +1,7 @@
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from dataclasses import asdict
 
 from src.domain.repositories.input_repository import InputRepository
 from src.domain.entities.input import Input
@@ -65,7 +66,7 @@ class InputRepositoryImpl(InputRepository):
         if not model:
             return None
 
-        for key, value in input.__dict__.items():
+        for key, value in asdict(input).items():
             setattr(model, key, value)
 
         await self.db.commit()

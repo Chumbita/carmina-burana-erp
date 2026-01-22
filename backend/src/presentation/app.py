@@ -13,10 +13,12 @@ def create_app():
     """ Routes """
     # Auth routes
     app.include_router(auth_router)
+
+    # Input routes
+    app.include_router(input_router)
     
     """ Healthcheck Route """
     app.include_router(health_router)
 
-    app.include_router(input_router)
     
     return app
