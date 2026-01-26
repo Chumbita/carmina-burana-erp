@@ -28,3 +28,7 @@ class InputRepository(ABC):
     @abstractmethod
     async def exists_by_name(self, name: str) -> bool:
         pass
+
+    @abstractmethod
+    async def has_stock(self, input_id: int) -> bool:
+        pass
