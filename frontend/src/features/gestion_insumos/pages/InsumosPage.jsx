@@ -11,11 +11,13 @@ import { RefreshCcw, Plus } from "lucide-react";
 
 
 export default function InsumosPage() {
+  
     const [insumos, setInsumos] = useState([])
     const [openNewInsumo, setOpenNewInsumo] = useState(false);
     
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
+    
 
     useEffect(() => {
         getInsumos().then(data => {
@@ -71,14 +73,6 @@ export default function InsumosPage() {
         onSubmit={handleCreateInsumo}
       />
 
-
-      <Separator />
-            {/* Toolbar (simple por ahora) */}
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">
-          List View
-        </span>
-      </div>
 
         <InsumosTable insumos={insumosFiltrados} />
     </div>
