@@ -14,6 +14,16 @@ class InputRepositoryImpl(InputRepository):
         self.db = db
 
     # ======================
+    # VALIDACIONES DB
+    # ======================
+
+    async def exists_by_name(self, name: str) -> bool:
+        result = await self.db.execute(
+            select(InputModel).where(InputModel.name == name)
+        )
+        return result.scalar_one_or_none() is not None
+    
+    # ======================
     # MAPPERS
     # ======================
     def _to_entity(self, model: InputModel) -> Input:
@@ -26,6 +36,7 @@ class InputRepositoryImpl(InputRepository):
             image=model.image,
             status=model.status,
         )
+    
 
     # ======================
     # READ
@@ -84,3 +95,4 @@ class InputRepositoryImpl(InputRepository):
         model.status = False
         await self.db.commit()
         return True
+    

@@ -24,3 +24,7 @@ class InputRepository(ABC):
     @abstractmethod
     async def delete(self, input_id: int) -> bool:
         pass
+
+    @abstractmethod
+    async def exists_by_name(self, name: str) -> bool:
+        pass

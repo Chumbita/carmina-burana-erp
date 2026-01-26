@@ -7,5 +7,9 @@ class CreateInputUseCase:
         self.repository = repository
 
     async def execute(self, data: dict) -> Input:
+
+        if await self.repository.exists_by_name(data["name"]):
+            raise ValueError("Ya existe un insumo con ese nombre")
+
         input = Input(**data)
         return await self.repository.create(input)
