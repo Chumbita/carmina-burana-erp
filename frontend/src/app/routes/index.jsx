@@ -1,8 +1,10 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-
-// Lazy loading de páginas
+import AppLayout from "@/components/layout/AppLayout";
 import { lazy } from "react";
 
+const DashboardPage = lazy(() =>
+  import("@/features/dashboard/pages/DashboardPage")
+);
 // Auth pages
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));
 
@@ -11,15 +13,20 @@ const NotFoundPage = lazy(() => import("@/features/errors/pages/NotFoundPage"));
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Navigate to={"/dashboard"} />,
+    element: <AppLayout />,
+    children: [
+      {
+        path: "/dashboard",
+        element: <DashboardPage />,
+      },
+    ],
   },
   {
     path: "/auth/login",
     element: <LoginPage />,
   },
   {
-    path: "*",
-    element: <NotFoundPage />,
+    path: "/",
+    element: <Navigate to="/dashboard" />,
   },
 ]);
