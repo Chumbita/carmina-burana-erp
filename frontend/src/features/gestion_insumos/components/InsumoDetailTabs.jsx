@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import { InsumoDetailTable } from './InsumoDetailTable'
 import { Link } from 'react-router-dom'
+import { LotesTable } from './LotesTable'
 
 export function TabsDetailInsumo({ insumo }){
 
@@ -12,16 +13,16 @@ export function TabsDetailInsumo({ insumo }){
     value: 'insumos',
     content: (
       <>
-          <InsumoDetailTable insumo={insumo} />
+        <InsumoDetailTable insumo={insumo} />
       </>
     )
   },
   {
-    name: 'Lotes',
-    value: 'lotes',
+    name: 'Inventario',
+    value: 'inventario',
     content: (
       <>
-      <p>Tabla global de lotes</p>
+        <LotesTable lotes={insumo.insumos[0].lotes} />
       </>
     )
   },
@@ -55,7 +56,7 @@ export function TabsDetailInsumo({ insumo }){
 
         {tabs.map(tab => (
           <TabsContent key={tab.value} value={tab.value}>
-            <p className='text-muted-foreground text-sm'>{tab.content}</p>
+            <p className='text-sm'>{tab.content}</p>
           </TabsContent>
         ))}
       </Tabs>

@@ -12,6 +12,8 @@ import { ChevronDown } from "lucide-react"
 
 import { LotesTable } from "./LotesTable"
 import { cn } from "@/lib/utils"
+import { Label } from "@/components/ui/Label"
+import { Input } from "@/components/ui/Input"
 
 function getStockClass(stockTotal, stockMinimo) {
   if (stockTotal <= stockMinimo) return "bg-red-200 rounded-full text-red-600"
@@ -20,69 +22,38 @@ function getStockClass(stockTotal, stockMinimo) {
 }
 
 export function InsumoDetailTable({ insumo }) {
-  const [expandedId, setExpandedId] = useState(null)
+
   const { unidadMedida, insumos } = insumo
 
-  const toggleExpand = (id) => {
-    setExpandedId(expandedId === id ? null : id)
-  }
+ 
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Nombre</TableHead>
-          <TableHead>Marca</TableHead>
-          <TableHead>Cantidad disponible</TableHead>
-          <TableHead>Lotes</TableHead>
-        </TableRow>
-      </TableHeader>
+   <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="flex flex-col gap-2">
+        <Label>Nombre</Label>
+        <Input defaultValue={insumo.nombre} className="bg-neutral-100 border-none"/>
+      </div>
 
-      <TableBody className="text-black">
-        {insumos.map((insumoEspecifico) => (
-          <>
-            <TableRow
-              key={insumoEspecifico.id}
-              className="cursor-pointer"
-              onClick={() => toggleExpand(insumoEspecifico.id)}
-            >
-              <TableCell className="font-medium">
-                {insumoEspecifico.nombre}
-              </TableCell>
+      <div className="flex flex-col gap-2">
+        <Label>Marca</Label>
+        <Input defaultValue={insumo.marca} className="bg-neutral-100 border-none" />
+      </div>
 
-              <TableCell>{insumoEspecifico.marca ?? "-"}</TableCell>
+      <div className="flex flex-col gap-2">
+        <Label>Categoría</Label>
+        <Input defaultValue={insumo.categoria} className="bg-neutral-100 border-none" />
+      </div>
 
-              <TableCell>
-               
-               <span   className={cn(
-                  "font-medium p-1 px-3 ", 
-                  getStockClass(
-                    insumoEspecifico.stockTotal, 
-                    insumoEspecifico.stockMinimo
-                  )
-                )}>
-                 
-                  {insumoEspecifico.stockTotal} {unidadMedida} 
-                  </span> 
-              </TableCell>
+      <div className="flex flex-col gap-2">
+        <Label>Unidad de medida</Label>
+        <Input defaultValue={insumo.unidadMedida} className="bg-neutral-100 border-none" />
+      </div>
 
-              <TableCell className="text-md ">
-               <span className="flex flex-row gap-1 items-center">
-                {insumoEspecifico.lotesActivos} lotes<ChevronDown size={14} />
-               </span> 
-              </TableCell>
-            </TableRow>
+      <div className="flex flex-col gap-2">
+        <Label>Stock mínimo</Label>
+        <Input type="number" defaultValue={insumo.stockMinimo} className="bg-neutral-100 border-none " />
+      </div>
 
-            {expandedId === insumoEspecifico.id && (
-              <TableRow>
-                <TableCell colSpan={4}>
-                  <LotesTable lotes={insumoEspecifico.lotes} />
-                </TableCell>
-              </TableRow>
-            )}
-          </>
-        ))}
-      </TableBody>
-    </Table>
+</form>
   )
 }

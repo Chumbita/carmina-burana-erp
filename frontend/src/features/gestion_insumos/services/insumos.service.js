@@ -19,60 +19,10 @@ let INSUMOS =[
     "stockTotal": 1850,
     "stockMinimo": 200
   },
-  {
-    "id": "levadura-ale",
-    "nombre": "Levadura Ale Americana",
-    "marca": "Fermentis",
-    "categoria": "Levadura",
-    "unidadMedida": "kg",
-    "estadoStock": "bajo",
-    "stockTotal": 45,
-    "stockMinimo": 40
-  },
-  {
-    "id": "botella-330ml",
-    "nombre": "Botella 330ml Ámbar",
-    "marca": "Verallia",
-    "categoria": "Envases",
-    "unidadMedida": "un",
-    "estadoStock": "optimo",
-    "stockTotal": 15600,
-    "stockMinimo": 2000
-  },
-  {
-    "id": "sanitizante-acido",
-    "nombre": "Sanitizante Ácido Star San",
-    "marca": "Five Star",
-    "categoria": "Limpieza",
-    "unidadMedida": "litros",
-    "estadoStock": "critico",
-    "stockTotal": 12,
-    "stockMinimo": 20
-  },
-  {
-    "id": "adjunto-lactosa",
-    "nombre": "Lactosa Cervecera",
-    "marca": "Milkose",
-    "categoria": "Adjuntos",
-    "unidadMedida": "kg",
-    "estadoStock": "bajo",
-    "stockTotal": 25,
-    "stockMinimo": 30
-  },
-  {
-    "id": "lupulo-cascade",
-    "nombre": "Lúpulo Cascade",
-    "marca": "HopMaster",
-    "categoria": "Lúpulo",
-    "unidadMedida": "kg",
-    "estadoStock": "optimo",
-    "stockTotal": 234,
-    "stockMinimo": 30
-  },
-  {
-    "id": "malta-pilsen",
-    "nombre": "Malta Pilsen",
-    "marca": "Cargill",
+    {
+    "id": "malta-caramelo",
+    "nombre": "Malta Caramelo",
+    "marca": "Microsoft",
     "categoria": "Malta",
     "unidadMedida": "kg",
     "estadoStock": "optimo",
@@ -118,7 +68,8 @@ let INSUMOS =[
     "estadoStock": "bajo",
     "stockTotal": 25,
     "stockMinimo": 30
-  }
+  },
+
 ]
 
 export function getInsumos() {
@@ -143,7 +94,7 @@ export async function createInsumo(data) {
 //insumosDetail
 const INSUMOS_DETALLE = [
   {
-    "id": "lupulo",
+    "id": "lupulo-cascade",
     "nombre": "Lúpulo",
     "categoria": "Perecedero",
     "unidadMedida": "kg",
@@ -229,11 +180,14 @@ const INSUMOS_DETALLE = [
     ]
   },
   {
-    "id": "malta",
+    "id": "malta-caramelo",
     "nombre": "Malta",
     "categoria": "No Perecedero",
     "unidadMedida": "kg",
     "stockTotal": 1850,
+     "marca": "Cargill",
+    "imagen": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmtXD6-JwrzeJVK69V4XPYeiycJX6DgvBkOw&s",
+    "estadoStock": "optimo",    
     "stockMinimo": 200,
     "insumos": [
       {
@@ -250,7 +204,7 @@ const INSUMOS_DETALLE = [
             "cantidadInicial": 500,
             "cantidadDisponible": 500,
             "fechaIngreso": "2025-01-15",
-            "fechaVencimiento": "2026-01-15",
+            "fechaVencimiento": "2026-02-15",
             "proveedor": "Cargill Argentina",
             "costoTotal": 125000,
             "descripcion": "Malta base de alta calidad, ideal para cervezas rubias",
