@@ -3,88 +3,158 @@ import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 
-import { SelectPopup } from "./ComboboxUnits"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { insumoSchema } from "../schemas/insumo.schema"
+
 import { ImageUpload } from "./ImageUpload"
+
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export function NewInsumoModal({ open, onClose, onSubmit }) {
 
-    const unidades = [
-      { value: "kg", label: "Kilogramos" },
-      { value: "g", label: "Gramos" },
-      { value: "lt", label: "Litros" },
-      { value: "un", label: "Unidad" },
-    ]
+    const {
+        register,
+        handleSubmit,
+        control,
+        reset,
+        formState: { errors }
+        } = useForm({
+            resolver: zodResolver(insumoSchema),
+            defaultValues: {
+                nombre: "",
+                marca: "",
+                categoria: "",
+                unidadMedida: "",
+                stockMinimo: 0,
+                imagen: null
+                }
+            })
 
-    //Datos del nuevo insumo que se enviarán al back
-    function handleSubmit(e) {
-        e.preventDefault()
+    function handleClose() {
+        reset()
+        onClose()
+        }
 
-        const formData = new FormData(e.target)
-
-        const data = {
-        nombre: formData.get("nombre"),
-        categoria: formData.get("categoria"),
-        unidadMedida: formData.get("unidad"),
-        stockMinimo: Number(formData.get("stockMinimo")),
+    function onFormSubmit(data) {
+        onSubmit({
+        ...data,
         stockTotal: 0,
-        imagen: formData.get("imagen"),
-    }
-
-    onSubmit(data)
-    onClose()
-    }
+        })
+        
+        handleClose()
+        }
 
     return (
-        <Dialog open={open} onOpenChange={onClose}>
+        <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>Nuevo insumo</DialogTitle>
             </DialogHeader>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+                {/* Nombre */}
                 <div>
                     <Label className="mb-2">Nombre</Label>
-                    <Input name="nombre" required />
+                    <Input {...register("nombre")} required />
+                      {errors.nombre && (
+                        <p className="text-sm text-red-500">
+                        {errors.nombre.message}
+                        </p> )}
                 </div>
-
+                {/* Marca */} 
                 <div>
+                    <Label className="mb-2">Marca</Label>
+                    <Input {...register("marca")} />
+                      {errors.marca && (
+                        <p className="text-sm text-red-500">
+                        {errors.marca.message}
+                        </p> )}                    
+                </div>
+                {/* Categoría */}           
+                <div>   
                     <Label className="mb-2">Categoría</Label>
-                    <Input name="categoria" />
+                    <Input {...register("categoria")} />
+                    {errors.categoria && (
+                    <p className="text-sm text-red-500">
+                      {errors.categoria.message}
+                    </p> )}                    
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 ">
-                    {/* Columna izquierda: inputs */}
-                    <div className="col-span-1 space-y-4">
-                        <div>
-                            <Label className="mb-2">Stock mínimo</Label>
-                            <Input name="stockMinimo" type="number" />
-                        </div>
-                    
-                        <div>
-                            <Label className="mb-2">Unidad de medida</Label>
-                            <SelectPopup
-                                name="unidad"
-                                options={unidades}
-                            />
-                        </div>
-
-                    </div>
-
-                    {/* Columna derecha: imagen */}
+                <div className="grid grid-cols-2 gap-4 ">   
+                <div className="col-span-1 space-y-4">
+                {/* Stock minimo */}
                     <div>
-                       <Label className="mb-2">Imagen</Label>
-                        <ImageUpload name="imagen" />
+                        <Label className="mb-2">Stock mínimo</Label>
+                        <Input
+                        type="number"
+                        {...register("stockMinimo", { valueAsNumber: true })}
+                        />
+                        {errors.stockMinimo && (
+                            <p className="text-sm text-red-500">
+                            {errors.stockMinimo.message}
+                            </p> )}
+                    </div>
+
+                {/*Unidad de medida */}    
+                    <div>                 
+                        <Label className="mb-2">{errors.unidadMedida && (
+                        <p className="text-sm text-red-500 -mr-1.5">
+                            {errors.unidadMedida.message}
+                        </p>
+                        )}Unidad de medida</Label>
+                        <Controller
+                        control={control}
+                        name="unidadMedida"
+                        render={({ field }) => (
+                            <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Seleccione unidad..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                <SelectLabel>Unidades</SelectLabel>
+                                <SelectItem value="kg">kg</SelectItem>
+                                <SelectItem value="l">L</SelectItem>
+                                <SelectItem value="un">un</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                            </Select>
+                        )}
+                        />
+
+                    </div>
+                    </div>
+
+                {/* imagen */}
+                    <div>
+                    <Label className="mb-2">Imagen</Label>
+                    <Controller
+                        control={control}
+                        name="imagen"
+                        render={({ field }) => (
+                        <ImageUpload value={field.value} onChange={field.onChange} />
+                        )}
+                    />
                     </div>
                 </div>
-
-            <div className="flex justify-between gap-2">
-                <Button type="button" variant="outline" onClick={onClose}>
-                Cancelar
-                </Button>
-                <Button type="submit">
-                Guardar
-                </Button>
-            </div>
+                 {/* botones */}
+                <div className="flex justify-between gap-2">
+                    <Button type="button" variant="outline" onClick={handleClose} className="cursor-pointer">
+                        Cancelar
+                    </Button>
+                    <Button type="submit" className="cursor-pointer">
+                         Guardar
+                    </Button>
+                </div>
             </form>
         </DialogContent>
         </Dialog>

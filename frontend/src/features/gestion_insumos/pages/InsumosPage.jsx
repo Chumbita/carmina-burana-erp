@@ -63,17 +63,19 @@ export default function InsumosPage() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <header className="flex items-center justify-between gap-4">
-        <div className="flex gap-3 flex-1">
+      <header className="flex items-center justify-between gap-4 ">
+         {/* Filtros */}
+        <div className="flex gap-3 flex-1 ">
           <Input
             placeholder="Buscar por nombre o marca..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="max-w-sm"
+            className="max-w-sm border-none bg-neutral-100 
+            focus-visible:outline-none focus-visible:ring-2"
           />
           
           <Select value={categoriaFilter} onValueChange={setCategoriaFilter} >
-            <SelectTrigger className="w-50 cursor-s-resize">
+            <SelectTrigger className="w-50 cursor-crosshair bg-neutral-100 border-none text-muted-foreground">
               <SelectValue placeholder="Categoría" />
             </SelectTrigger>
             <SelectContent>
@@ -102,7 +104,7 @@ export default function InsumosPage() {
           )}
         </div>
 
-        <Button className="cursor-pointer" onClick={() => setOpenNewInsumo(true)}>
+        <Button size="sm"  className="cursor-pointer" onClick={() => setOpenNewInsumo(true)}>
           <Plus />Agregar insumo 
         </Button>
       </header>

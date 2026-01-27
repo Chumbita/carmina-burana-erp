@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { InsumoDetailTable } from './InsumoDetailTable'
+import { InsumoDetailTable } from './DetalleInsumoTab'
 import { Link } from 'react-router-dom'
 import { LotesTable } from './LotesTable'
 

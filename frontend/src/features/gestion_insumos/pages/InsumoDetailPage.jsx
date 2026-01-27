@@ -79,7 +79,7 @@ export default function InsumoDetailPage() {
         </div>
 
         <div className="flex items-center gap-3 ">
-          <Button onClick={handleBorrarInsumo} className="cursor-pointer bg-red-100 text-red-600 hover:bg-red-200">
+          <Button onClick={handleBorrarInsumo}  className="cursor-pointer bg-red-100 text-red-600 hover:bg-red-200">
             Eliminar insumo
           </Button>
 
