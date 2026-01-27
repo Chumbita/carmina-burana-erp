@@ -26,5 +26,5 @@ class InputRepository(ABC):
         pass
 
     @abstractmethod
-    async def exists_by_name(self, name: str) -> bool:
+    async def get_by_name(self, name: str) -> bool:
         pass
