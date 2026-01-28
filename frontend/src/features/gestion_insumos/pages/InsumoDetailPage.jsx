@@ -83,9 +83,6 @@ export default function InsumoDetailPage() {
             Eliminar insumo
           </Button>
 
-          <Button onClick={handleGuardarInsumo} className="cursor-pointer">
-            Guardar
-          </Button>
         </div>
       </header>
 
