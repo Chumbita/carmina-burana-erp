@@ -3,5 +3,9 @@ export const ENDPOINTS = {
     // Auth
     AUTH: {
         LOGIN: '/auth/login'
-    }
+    },
+    // Inputs
+    INPUTS: {
+        CREATE: '/inputs/'
+    },
 }

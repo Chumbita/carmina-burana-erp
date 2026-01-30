@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getInsumoById } from "../services/insumos.service";
+import { getInsumoById } from "../services/inputService";
 import { Button } from "@/components/ui/Button";
 
 import { 

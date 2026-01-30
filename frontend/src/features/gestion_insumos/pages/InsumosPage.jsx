@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getInsumos, createInsumo } from "../services/insumos.service"
+import { getInsumos, inputService } from "../services/inputService"
 import { InsumosTable } from "../components/InsumosTable"
 import { NewInsumoModal } from "../components/NewInsumoModal"
 import { Button } from "@/components/ui/Button"
@@ -15,7 +15,7 @@ export default function InsumosPage() {
   const [search, setSearch] = useState("")
   const [categoriaFilter, setCategoriaFilter] = useState("todas")
 
-  // Categorías disponibles, hasta conectar con backend.
+  // Categorías disponibles
   const categorias = [
     { value: "todas", label: "Categorías..." },
     { value: "Lúpulo", label: "Lúpulo" },
@@ -24,26 +24,52 @@ export default function InsumosPage() {
   ]
 
   useEffect(() => {
-    getInsumos().then(data => {
-      setInsumos(data)
-      setLoading(false)
-      console.log(data)
-    })
+    loadInsumos()
   }, [])
 
-  //crear insumo    
-  function handleCreateInsumo(data) {
-    createInsumo(data).then((nuevoInsumo) => {
+  // Función para cargar insumos
+  async function loadInsumos() {
+    try {
+      const data = await getInsumos()
+      setInsumos(data)
+    } catch (error) {
+      console.error("Error al cargar insumos:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Crear insumo    
+  async function handleCreateInsumo(insumoData) {
+    try {
+      const nuevoInsumo = await inputService.create(insumoData)
+      
+      // Actualizar el estado local con el nuevo insumo
       setInsumos(prev => [...prev, nuevoInsumo])
-    })
+      
+      // Cerrar el modal
+      setOpenNewInsumo(false)
+      
+      // Opcional: mostrar notificación de éxito . LUego 
+      console.log("Insumo creado exitosamente:", nuevoInsumo)
+      
+    } catch (error) {
+      console.error("Error al crear insumo:", error)
+      // Aquí podrías mostrar un toast o alerta de error
+      throw error // Re-lanzar el error para que el modal lo maneje si es necesario
+    }
   }
 
-  //manejar loading
+  // Manejar loading
   if (loading) {
-    return <p>Cargando insumos...</p>
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p>Cargando insumos...</p>
+      </div>
+    )
   }
 
-  //filtros
+  // Filtros
   const insumosFiltrados = insumos.filter(insumo => {
     const searchLower = search.trim().toLowerCase()
     
@@ -63,9 +89,9 @@ export default function InsumosPage() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <header className="flex items-center justify-between gap-4 ">
-         {/* Filtros */}
-        <div className="flex gap-3 flex-1 ">
+      <header className="flex items-center justify-between gap-4">
+        {/* Filtros */}
+        <div className="flex gap-3 flex-1">
           <Input
             placeholder="Buscar por nombre o marca..."
             value={search}
@@ -74,8 +100,8 @@ export default function InsumosPage() {
             focus-visible:outline-none focus-visible:ring-2"
           />
           
-          <Select value={categoriaFilter} onValueChange={setCategoriaFilter} >
-            <SelectTrigger className="w-50 cursor-crosshair bg-neutral-100 border-none text-muted-foreground">
+          <Select value={categoriaFilter} onValueChange={setCategoriaFilter}>
+            <SelectTrigger className="w-50 cursor-pointer bg-neutral-100 border-none text-muted-foreground">
               <SelectValue placeholder="Categoría" />
             </SelectTrigger>
             <SelectContent>
@@ -87,7 +113,7 @@ export default function InsumosPage() {
             </SelectContent>
           </Select>
 
-          {/* Botón para limpiar filtros (opcional) */}
+          {/* Botón para limpiar filtros */}
           {(search || categoriaFilter !== "todas") && (
             <Button 
               variant="outline" 
@@ -104,7 +130,11 @@ export default function InsumosPage() {
           )}
         </div>
 
-        <Button size="sm"  className="cursor-pointer" onClick={() => setOpenNewInsumo(true)}>
+        <Button 
+          size="sm" 
+          className="cursor-pointer" 
+          onClick={() => setOpenNewInsumo(true)}
+        >
           <Plus />Agregar insumo 
         </Button>
       </header>
@@ -115,7 +145,7 @@ export default function InsumosPage() {
         onSubmit={handleCreateInsumo}
       />
 
-      {/* Mostrar mensaje si no hay resultados después de filtrar */}
+      {/* Mostrar mensaje si no hay resultados */}
       {insumosFiltrados.length === 0 ? (
         <p className="text-center py-8 text-gray-500">
           {search || categoriaFilter !== "todas" 

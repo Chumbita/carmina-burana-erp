@@ -1,3 +1,42 @@
+import { ENDPOINTS } from "@/lib/api/endpoints";
+import privateClient from "@/lib/api/privateClient";
+
+// inputService.js
+export const inputService = {
+  create: async (data) => {
+    // Mapear frontend -> backend
+    const backendData = {
+      name: data.nombre,
+      brand: data.marca,
+      category: data.categoria,
+      unit: data.unidadMedida,
+      minimum_stock: data.stockMinimo,
+      image: data.imagen || null
+    }
+    
+    const response = await privateClient.post(
+      ENDPOINTS.INPUTS.CREATE,
+      backendData
+    )
+    
+    // ⭐ MAPEAR la respuesta backend -> frontend
+    const backendInsumo = response.data
+    return {
+      id: backendInsumo.id,
+      nombre: backendInsumo.name,
+      marca: backendInsumo.brand,
+      categoria: backendInsumo.category,
+      unidadMedida: backendInsumo.unit,
+      stockMinimo: backendInsumo.minimum_stock,
+      stockTotal: backendInsumo.stock_total || 0,
+      estadoStock: backendInsumo.stock_status || "optimo",
+      imagen: backendInsumo.image
+    }
+  },
+}
+
+
+//mocks
 let INSUMOS =[
     {
     "id": "lupulo-cascade",
