@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { replace, useNavigate } from "react-router-dom";
+import { replace, useNavigate, useLocation } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "../schemas/loginForm.schema";
 import { authService } from "../services/authService";
+import { useAuth } from "@/app/providers/AuthContext";
 
 // Componentes de shadcn
 import {
@@ -20,7 +21,10 @@ import { Spinner } from "@/components/ui/Spinner";
 export function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { isLoggedIn, login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/dashboard";
   const {
     register,
     handleSubmit,
@@ -32,8 +36,12 @@ export function LoginForm() {
       setError("");
       setLoading(true);
 
-      await authService.login(data.username, data.password);
-      navigate("/dashboard", { replace: true });
+      const response = await authService.login(data.username, data.password);
+      login(response.user, response.access_token);
+
+      if (isLoggedIn) {
+        navigate(from, { replace: true });
+      }
     } catch (error) {
       setError(error.message);
     } finally {
