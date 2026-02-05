@@ -10,6 +10,7 @@ class Input:
     minimum_stock: float = 0
     image: Optional[str] = None
     status: bool = True
+    id: Optional[int] = None
 
     def __post_init__(self):
         if self.minimum_stock < 0:
