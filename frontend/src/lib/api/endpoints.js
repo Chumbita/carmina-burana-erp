@@ -6,6 +6,7 @@ export const ENDPOINTS = {
     },
     // Inputs
     INPUTS: {
+        GET_ALL: '/inputs/',
         CREATE: '/inputs/'
     },
 }

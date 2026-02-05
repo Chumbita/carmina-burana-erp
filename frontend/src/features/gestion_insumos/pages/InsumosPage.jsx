@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getInsumos, inputService } from "../services/inputService"
+import { inputService } from "../services/inputService"
 import { InsumosTable } from "../components/InsumosTable"
 import { NewInsumoModal } from "../components/NewInsumoModal"
 import { Button } from "@/components/ui/Button"
@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/Separator"
 import { RefreshCcw, Plus, X } from "lucide-react"
 
+
+
 export default function InsumosPage() {
   const [insumos, setInsumos] = useState([])
   const [openNewInsumo, setOpenNewInsumo] = useState(false)
@@ -15,7 +17,7 @@ export default function InsumosPage() {
   const [search, setSearch] = useState("")
   const [categoriaFilter, setCategoriaFilter] = useState("todas")
 
-  // Categorías disponibles
+  // Categorías disponibles, hardcodeadas por ahora
   const categorias = [
     { value: "todas", label: "Categorías..." },
     { value: "Lúpulo", label: "Lúpulo" },
@@ -27,11 +29,13 @@ export default function InsumosPage() {
     loadInsumos()
   }, [])
 
-  // Función para cargar insumos
+  // OBTENER Y CARGAR INSUMOS 
   async function loadInsumos() {
     try {
-      const data = await getInsumos()
+      const data = await inputService.getAll()
+      console.log(data)
       setInsumos(data)
+     
     } catch (error) {
       console.error("Error al cargar insumos:", error)
     } finally {
@@ -39,7 +43,7 @@ export default function InsumosPage() {
     }
   }
 
-  // Crear insumo    
+  // CREAR INUSMO  
   async function handleCreateInsumo(insumoData) {
     try {
       const nuevoInsumo = await inputService.create(insumoData)
