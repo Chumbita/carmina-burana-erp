@@ -28,6 +28,7 @@ class InputRepositoryImpl(InputRepository):
     # ======================
     def _to_entity(self, model: InputModel) -> Input:
         return Input(
+            id=model.id,
             name=model.name,
             brand=model.brand,
             category=model.category,
@@ -41,7 +42,7 @@ class InputRepositoryImpl(InputRepository):
     # ======================
     # READ
     # ======================
-    async def get_all(self) -> List[Input]:
+    async def get_active_inputs(self) -> List[Input]:
         stmt = select(InputModel).where(InputModel.status == True)
         result = await self.db.execute(stmt)
         models = result.scalars().all()

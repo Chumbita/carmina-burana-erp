@@ -6,7 +6,7 @@ class InputRepository(ABC):
 
 
     @abstractmethod
-    async def get_all(self) -> List[Input]:
+    async def get_active_inputs(self) -> List[Input]:
         pass
 
     @abstractmethod
