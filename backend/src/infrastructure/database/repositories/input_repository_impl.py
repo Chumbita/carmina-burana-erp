@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from dataclasses import asdict
 
 from src.domain.repositories.input_repository import InputRepository
@@ -21,6 +21,17 @@ class InputRepositoryImpl(InputRepository):
         result = await self.db.execute(
             select(InputModel).where( InputModel.name == name )
         )
+        return result.scalar_one_or_none()
+    
+    async def find_by_identity(self, name: str, brand: str | None, category: str | None) -> InputModel | None:
+        stmt = select(InputModel).where(
+            and_(
+                InputModel.name == name,
+                InputModel.brand == brand,
+                InputModel.category == category
+            )
+        )
+        result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
     
     # ======================
@@ -90,6 +101,13 @@ class InputRepositoryImpl(InputRepository):
         await self.db.commit()
         await self.db.refresh(model)
         return self._to_entity(model) """
+    
+    async def reactivate(self, model: InputModel) -> Input:
+        model.status = True
+        await self.db.commit()
+        await self.db.refresh(model)
+        return self._to_entity(model)
+
 
     # ======================
     # DELETE (soft delete recomendado)

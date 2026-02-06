@@ -8,19 +8,22 @@ class CreateInputUseCase:
         self.repository = repository
 
     async def execute(self, data: dict) -> Input:
-        existing = await self.repository.get_by_name(data["name"])
+        new_input = Input(**data)
+
+        existing = await self.repository.find_by_identity(
+            new_input.name,
+            new_input.brand,
+            new_input.category
+        )
 
         if existing:
-            if existing.status is False:
-                for key, value in data.items():
-                    setattr(existing, key, value)
+            if not existing.status:
                 existing.status = True
-                return await self.repository.update(existing)
+                return await self.repository.reactivate(existing)
             else:
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
-                    detail="Ya existe un insumo activo con ese nombre"
+                    detail="Ya existe un insumo con ese nombre, marca y/o categoría"
                 )
 
-        input = Input(**data)
-        return await self.repository.create(input)
+        return await self.repository.create(new_input)
