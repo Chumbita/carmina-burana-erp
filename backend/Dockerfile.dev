@@ -1,0 +1,39 @@
+# Development Dockerfile for FastAPI Backend
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+# - postgresql-client: for pg_isready and psql commands
+# - curl: for healthcheck
+# - build-essential: for compiling Python packages
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    curl \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better layer caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy the entire backend code
+COPY . .
+
+# Make entrypoint script executable
+RUN chmod +x /app/entrypoint.sh
+
+# Expose port 8000 for FastAPI
+EXPOSE 8000
+
+# Set Python environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Use entrypoint script that handles migrations
+ENTRYPOINT ["/app/entrypoint.sh"]
