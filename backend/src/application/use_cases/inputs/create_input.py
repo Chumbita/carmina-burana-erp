@@ -1,3 +1,4 @@
+from fastapi import HTTPException, status
 from src.domain.entities.input import Input
 from src.domain.repositories.input_repository import InputRepository
 
@@ -7,9 +8,22 @@ class CreateInputUseCase:
         self.repository = repository
 
     async def execute(self, data: dict) -> Input:
+        new_input = Input(**data)
 
-        if await self.repository.exists_by_name(data["name"]):
-            raise ValueError("Ya existe un insumo con ese nombre")
+        existing = await self.repository.find_by_identity(
+            new_input.name,
+            new_input.brand,
+            new_input.category
+        )
 
-        input = Input(**data)
-        return await self.repository.create(input)
+        if existing:
+            if not existing.status:
+                existing.status = True
+                return await self.repository.reactivate(existing)
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Ya existe un insumo con ese nombre, marca y/o categoría"
+                )
+
+        return await self.repository.create(new_input)

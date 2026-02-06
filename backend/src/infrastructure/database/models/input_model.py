@@ -1,8 +1,12 @@
-from sqlalchemy import Column, Integer, String, Boolean, Numeric
+from sqlalchemy import Column, Integer, String, Boolean, Numeric, UniqueConstraint
 from src.infrastructure.database.base import Base
 
 class InputModel(Base):
     __tablename__ = "inputs"
+
+    __table_args__ = (
+        UniqueConstraint("name", "brand", "category", name="uq_input_identity"),
+    )
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
