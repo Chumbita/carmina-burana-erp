@@ -7,5 +7,5 @@ export const LoginSchema = z.object({
         .max(20, { message: "El nombre de usuario no puede superar los 20 caracteres." }),
     password: z
         .string()
-        .min(4, { message: "La contraseña debe tener al menos 6 caracteres." })
+        .min(1, { message: "La contraseña debe tener al menos 1 caracteres." })
 })

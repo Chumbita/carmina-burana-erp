@@ -1,3 +1,6 @@
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/app/providers/AuthContext";
+
 // Componentes shadcn
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import {
@@ -23,6 +26,7 @@ import {
 
 export function NavUser({ user }) {
   const { isMobile } = useSidebar();
+  const { logout } = useAuth();
 
   return (
     <SidebarMenu>
@@ -68,7 +72,7 @@ export function NavUser({ user }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem className="cursor-pointer text-red-600 font-medium focus:bg-gray-200/70">
+            <DropdownMenuItem onClick={logout} className="cursor-pointer text-red-600 font-medium focus:bg-gray-200/70">
               <LogOut color="red"/>
               Cerrar sesión
             </DropdownMenuItem>
