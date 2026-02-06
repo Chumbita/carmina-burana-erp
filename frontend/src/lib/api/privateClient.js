@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Cliente HTTP reutilizable
 const privateClient = axios.create({
@@ -10,7 +10,7 @@ const privateClient = axios.create({
 });
 
 // Interceptor para agregar el token en todas las peticiones
-apiClient.interceptors.request.use(
+privateClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("access_token");
     if (token) {
@@ -22,7 +22,7 @@ apiClient.interceptors.request.use(
 );
 
 // Interceptor para manejar errores globales
-apiClient.interceptors.response.use(
+privateClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {

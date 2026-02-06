@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  db:
+    image: postgres:16-alpine
+    container_name: carmina_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # Persistent volume for database data
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - carmina_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Backend Service (FastAPI)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: carmina_backend
+    restart: unless-stopped
+    environment:
+      # Database connection
+      DATABASE_URL: ${DATABASE_URL}
+      # JWT & Security
+      SECRET_KEY: ${SECRET_KEY}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      JWT_EXPIRATION_MINUTES: ${JWT_EXPIRATION_MINUTES:-1440}
+      # CORS
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      # Python environment
+      PYTHONUNBUFFERED: 1
+      PYTHONDONTWRITEBYTECODE: 1
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      # Bind mount for hot-reload - code changes reflected instantly
+      - ./backend:/app
+      # Exclude Python cache and virtual env from bind mount
+      - /app/__pycache__
+      - /app/.venv
+    networks:
+      - carmina_network
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    command: ["/app/entrypoint.sh"]
+
+  # Frontend Service (React + Vite)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: carmina_frontend
+    restart: unless-stopped
+    environment:
+      # Vite backend API URL
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+      # Enable HMR (Hot Module Replacement)
+      CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING:-false}
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      # Bind mount for hot-reload
+      - ./frontend:/app
+      # Exclude node_modules from bind mount (use container's version)
+      - /app/node_modules
+    networks:
+      - carmina_network
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5173 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    stdin_open: true
+    tty: true
+
+# Named volumes for persistent data
+volumes:
+  postgres_data:
+    driver: local
+
+# Internal network for service communication
+networks:
+  carmina_network:
+    driver: bridge
