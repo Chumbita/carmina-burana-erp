@@ -17,7 +17,7 @@ export function AuthProvider({ children }) {
     const savedToken = localStorage.getItem("access_token");
 
     if (savedUser && savedToken) {
-      setAuthUser(savedUser);
+      setAuthUser(JSON.parse(savedUser));
       setToken(savedToken);
       setIsLoggedIn(true);
     }
@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
   const login = (userData, tokenData) => {
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("access_token", tokenData);
-    setAuthUser(JSON.stringify(userData));
+    setAuthUser(userData);
     setToken(tokenData);
     setIsLoggedIn(true);
   };

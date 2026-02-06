@@ -1,6 +1,7 @@
 import * as React from "react";
 import { NavMain } from "@/components/layout/NavMain";
 import { NavUser } from "@/components/layout/NavUser";
+import { useAuth } from "@/app/providers/AuthContext";
 
 // Componentes de shadcn
 import {
@@ -10,6 +11,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/Sidebar";
+import { Skeleton } from "../ui/Skeleton";
 
 // Iconos
 import {
@@ -21,118 +23,120 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 
-// Datos de usuario
-const user = JSON.parse(localStorage.getItem("user")) ?? {
-  full_name: "Usuario",
-  role: "Invitado",
-};
-
-// Datos de navegación
-const data = {
-  user: {
-    full_name: user.full_name,
-    role: user.role,
-    avatar: "/avatars/user.jpg",
-  },
-
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: LayoutDashboard,
-      isActive: true,
-    },
-    {
-      title: "Producción",
-      url: "#",
-      icon: Beer,
-      items: [
-        {
-          title: "Registro de Cocciones",
-          url: "/produccion/cocciones/nuevo",
-        },
-        {
-          title: "Historial de Cocciones",
-          url: "/produccion/cocciones",
-        },
-        {
-          title: "Recetas",
-          url: "/produccion/recetas",
-        },
-      ],
-    },
-    {
-      title: "Inventario",
-      url: "#",
-      icon: Box,
-      items: [
-        {
-          title: "Insumos",
-          url: "/inventario/insumos",
-        },
-        {
-          title: "Productos",
-          url: "/inventario/productos",
-        },
-        {
-          title: "Alertas de Stock",
-          url: "/inventario/alertas",
-        },
-      ],
-    },
-    {
-      title: "Barriles",
-      url: "#",
-      icon: Barrel,
-      items: [
-        {
-          title: "Estado de Barriles",
-          url: "/barriles/estado",
-        },
-        {
-          title: "Movimientos",
-          url: "/barriles/movimientos",
-        },
-      ],
-    },
-    {
-      title: "Reportes",
-      url: "#",
-      icon: BarChart3,
-      items: [
-        {
-          title: "Rendimiento de Recetas",
-          url: "/reportes/rendimiento",
-        },
-        {
-          title: "Costos de Producción",
-          url: "/reportes/costos",
-        },
-      ],
-    },
-    {
-      title: "Administración",
-      url: "#",
-      icon: Settings,
-      items: [
-        {
-          title: "Usuarios",
-          url: "/admin/usuarios",
-        },
-        {
-          title: "Configuración",
-          url: "/admin/configuracion",
-        },
-        {
-          title: "Mi Perfil",
-          url: "/admin/perfil",
-        },
-      ],
-    },
-  ],
-};
-
 export function AppSidebar({ ...props }) {
+  const { authUser, isLoading } = useAuth();
+
+  if (isLoading) {
+    return(
+      <Skeleton />
+    )
+  }
+  
+  // Datos de navegación
+  const data = {
+    user: {
+      full_name: authUser.full_name || "Usuario",
+      role: authUser.role || "Invitado",
+      avatar: "",
+    },
+
+    navMain: [
+      {
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: LayoutDashboard,
+        isActive: true,
+      },
+      {
+        title: "Producción",
+        url: "#",
+        icon: Beer,
+        items: [
+          {
+            title: "Registro de Cocciones",
+            url: "/produccion/cocciones/nuevo",
+          },
+          {
+            title: "Historial de Cocciones",
+            url: "/produccion/cocciones",
+          },
+          {
+            title: "Recetas",
+            url: "/produccion/recetas",
+          },
+        ],
+      },
+      {
+        title: "Inventario",
+        url: "#",
+        icon: Box,
+        items: [
+          {
+            title: "Insumos",
+            url: "/inventario/insumos",
+          },
+          {
+            title: "Productos",
+            url: "/inventario/productos",
+          },
+          {
+            title: "Alertas de Stock",
+            url: "/inventario/alertas",
+          },
+        ],
+      },
+      {
+        title: "Barriles",
+        url: "#",
+        icon: Barrel,
+        items: [
+          {
+            title: "Estado de Barriles",
+            url: "/barriles/estado",
+          },
+          {
+            title: "Movimientos",
+            url: "/barriles/movimientos",
+          },
+        ],
+      },
+      {
+        title: "Reportes",
+        url: "#",
+        icon: BarChart3,
+        items: [
+          {
+            title: "Rendimiento de Recetas",
+            url: "/reportes/rendimiento",
+          },
+          {
+            title: "Costos de Producción",
+            url: "/reportes/costos",
+          },
+        ],
+      },
+      {
+        title: "Administración",
+        url: "#",
+        icon: Settings,
+        items: [
+          {
+            title: "Usuarios",
+            url: "/admin/usuarios",
+          },
+          {
+            title: "Configuración",
+            url: "/admin/configuracion",
+          },
+          {
+            title: "Mi Perfil",
+            url: "/admin/perfil",
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -167,7 +171,7 @@ export function AppSidebar({ ...props }) {
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {authUser ? <NavUser user={data.user} /> : <Skeleton />}
       </SidebarFooter>
 
       <SidebarRail />
