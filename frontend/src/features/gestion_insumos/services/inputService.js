@@ -20,6 +20,17 @@ export const inputService = {
     }))
   },
 
+  getById: async (id) => {
+  // useParams devuelve string, parseamos
+  const numericId = Number(id)
+
+  const allInputs = await inputService.getAll()
+
+  const insumo = allInputs.find((i) => i.id === numericId)
+
+  return insumo || null
+  },
+
   create: async (data) => {
     // Mapear frontend -> backend
     const backendData = {
@@ -36,7 +47,7 @@ export const inputService = {
       backendData
     )
     
-    // ⭐ MAPEAR la respuesta backend -> frontend
+    //  MAPEAR la respuesta backend -> frontend
     const backendInsumo = response.data
     return {
       id: backendInsumo.id,

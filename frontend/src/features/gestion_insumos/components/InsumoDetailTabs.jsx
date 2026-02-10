@@ -22,7 +22,8 @@ export function TabsDetailInsumo({ insumo }){
     value: 'inventario',
     content: (
       <>
-        <LotesTable lotes={insumo.insumos[0].lotes} />
+        {/*  <LotesTable lotes={insumo} /> */}
+        <h1>lotes</h1>
       </>
     )
   },

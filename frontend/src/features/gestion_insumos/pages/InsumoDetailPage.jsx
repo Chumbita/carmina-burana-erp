@@ -1,7 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getInsumoById } from "../services/inputService";
+import { inputService } from "../services/inputService";
 import { Button } from "@/components/ui/Button";
+
 
 import { 
   ArrowLeft, 
@@ -37,15 +38,25 @@ export default function InsumoDetailPage() {
   }
 
   useEffect(() => {
-    getInsumoById(insumoId).then((data) => {
-      setInsumo(data);
-      setLoading(false);
-      
-    });
-  }, [insumoId]);
+    loadInsumos()
+  }, [insumoId])
+
+  // OBTENER Y CARGAR INSUMOS 
+  async function loadInsumos() {
+    try {
+      const data = await inputService.getById(insumoId)
+      console.log(data)
+      setInsumo(data)
+     
+    } catch (error) {
+      console.error("Error al cargar insumos:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
 
-  if (loading) return <p>Cargando...</p>;
+  if (loading) return <p>{insumoId} Cargando...</p>;
   if (!insumo) return <p>Insumo no encontrado</p>;
 
     const formatCurrency = (value) => {
