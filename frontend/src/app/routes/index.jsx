@@ -56,10 +56,6 @@ export const router = createBrowserRouter([
         path: "/inventario/insumos/:insumoId",
         element: <InsumoDetailPage />,
       },
-            {
-        path: "/inventario/insumos/:insumoId/lote/nuevo",
-        element: <NuevoLote />,
-      },
     ],
   },
   {

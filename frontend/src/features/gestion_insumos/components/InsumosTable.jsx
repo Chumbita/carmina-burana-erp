@@ -46,7 +46,7 @@ export function InsumosTable({ insumos, onDelete }) {
 
         <TableBody>
           {insumos.map((insumo) => (
-            <TableRow key={insumo.id} className="h-10">
+            <TableRow key={insumo.id} data-insumo-id={insumo.id} className="h-10 transition-colors duration-500">
               <TableCell className=" font-medium max-w-60 truncate">
                 <Link
                   to={`/inventario/insumos/${insumo.id}`}

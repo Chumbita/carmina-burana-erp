@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { inputService } from "../services/inputService"
 import { InsumosTable } from "../components/InsumosTable"
 import { NewInsumoModal } from "../components/NewInsumoModal"
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/Separator"
 import { RefreshCcw, Plus, X } from "lucide-react"
+import { AlertIndicatorSuccess, AlertIndicatorDestructive } from "../components/Notifications"
 
 
 
@@ -16,6 +17,13 @@ export default function InsumosPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [categoriaFilter, setCategoriaFilter] = useState("todas")
+  
+  // Estado para notificaciones
+  const [notification, setNotification] = useState(null)
+  const [lastCreatedInsumoId, setLastCreatedInsumoId] = useState(null)
+  
+  // Ref para la tabla
+  const tableRef = useRef(null)
 
   // Categorías disponibles, hardcodeadas por ahora
   const categorias = [
@@ -51,17 +59,56 @@ export default function InsumosPage() {
       // Actualizar el estado local con el nuevo insumo
       setInsumos(prev => [...prev, nuevoInsumo])
       
+      // Guardar el ID del insumo creado
+      setLastCreatedInsumoId(nuevoInsumo.id)
+      
       // Cerrar el modal
       setOpenNewInsumo(false)
       
-      // Opcional: mostrar notificación de éxito . LUego 
-      console.log("Insumo creado exitosamente:", nuevoInsumo)
+      // Mostrar notificación de éxito
+      setNotification({
+        type: 'success',
+        message: `Insumo "${nuevoInsumo.nombre}" creado exitosamente`
+      })
       
     } catch (error) {
       console.error("Error al crear insumo:", error)
-      // Aquí podrías mostrar un toast o alerta de error
-      throw error // Re-lanzar el error para que el modal lo maneje si es necesario
+      
+      // Mostrar notificación de error
+      setNotification({
+        type: 'error',
+        message: error.message || 'Error al crear el insumo. Inténtalo de nuevo.'
+      })
+      
+      throw error
     }
+  }
+
+  // Función para navegar al insumo creado
+  function handleNotificationClick() {
+    if (lastCreatedInsumoId && tableRef.current) {
+      // Buscar la fila del insumo creado
+      const insumoRow = tableRef.current.querySelector(`[data-insumo-id="${lastCreatedInsumoId}"]`)
+      
+      if (insumoRow) {
+        // Hacer scroll suave a la fila
+        insumoRow.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        
+        // Agregar efecto de highlight temporal
+        insumoRow.classList.add('bg-green-100', 'dark:bg-green-900')
+        setTimeout(() => {
+          insumoRow.classList.remove('bg-green-100', 'dark:bg-green-900')
+        }, 2000)
+      }
+    }
+    
+    // Cerrar la notificación
+    setNotification(null)
+  }
+
+  // Función para cerrar notificación
+  function handleCloseNotification() {
+    setNotification(null)
   }
 
   // Manejar loading
@@ -92,6 +139,24 @@ export default function InsumosPage() {
 
   return (
     <div className="space-y-4">
+      {/* Notificaciones */}
+      {notification?.type === 'success' && (
+        <AlertIndicatorSuccess
+          message={notification.message}
+          onClose={handleCloseNotification}
+          onClick={handleNotificationClick}
+          duration={6000}
+        />
+      )}
+      
+      {notification?.type === 'error' && (
+        <AlertIndicatorDestructive
+          message={notification.message}
+          onClose={handleCloseNotification}
+          duration={6000}
+        />
+      )}
+
       {/* Header */}
       <header className="flex items-center justify-between gap-4">
         {/* Filtros */}
@@ -157,7 +222,9 @@ export default function InsumosPage() {
             : "No hay insumos registrados"}
         </p>
       ) : (
-        <InsumosTable insumos={insumosFiltrados} />
+        <div ref={tableRef}>
+          <InsumosTable insumos={insumosFiltrados} />
+        </div>
       )}
     </div>
   )
