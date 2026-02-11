@@ -10,7 +10,7 @@ class DeleteInputUseCase:
         # REGLA DE NEGOCIO
         if await self.repository.has_stock(input_id):
             raise ValueError(
-                "No se puede eliminar el insumo porque tiene lotes con stock disponible"
+                "Acción no permitida: este insumo tiene lotes activos pendientes de consumo."
             )
 
         deleted = await self.repository.delete(input_id)
