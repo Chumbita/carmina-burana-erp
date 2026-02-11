@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from dataclasses import asdict
 
 from src.domain.repositories.input_repository import InputRepository
@@ -17,11 +17,22 @@ class InputRepositoryImpl(InputRepository):
     # VALIDACIONES DB
     # ======================
 
-    async def exists_by_name(self, name: str) -> bool:
+    async def get_by_name(self, name: str) -> Optional[InputModel]:
         result = await self.db.execute(
-            select(InputModel).where(InputModel.name == name)
+            select(InputModel).where( InputModel.name == name )
         )
-        return result.scalar_one_or_none() is not None
+        return result.scalar_one_or_none()
+    
+    async def find_by_identity(self, name: str, brand: str | None, category: str | None) -> InputModel | None:
+        stmt = select(InputModel).where(
+            and_(
+                InputModel.name == name,
+                InputModel.brand == brand,
+                InputModel.category == category
+            )
+        )
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()
     
     # ======================
     # MAPPERS
@@ -73,7 +84,14 @@ class InputRepositoryImpl(InputRepository):
     # ======================
     # UPDATE
     # ======================
-    async def update(self, input_id: int, input: Input) -> Optional[Input]:
+
+    async def update(self, input_obj):
+        print("⚠️ La función update todavía no está implementada")
+        raise NotImplementedError("El método update aún no está implementado")
+
+
+    """ async def update(self, input_id: int, input: Input) -> Optional[Input]:
+        
         model = await self.db.get(InputModel, input_id)
         if not model:
             return None
@@ -83,7 +101,14 @@ class InputRepositoryImpl(InputRepository):
 
         await self.db.commit()
         await self.db.refresh(model)
+        return self._to_entity(model) """
+    
+    async def reactivate(self, model: InputModel) -> Input:
+        model.status = True
+        await self.db.commit()
+        await self.db.refresh(model)
         return self._to_entity(model)
+
 
     # ======================
     # DELETE (soft delete recomendado)
