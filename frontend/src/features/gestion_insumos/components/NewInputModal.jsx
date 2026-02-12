@@ -1,8 +1,8 @@
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { InsumoForm } from "./InsumoForm"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog"
+import { InputForm } from "./InputForm"
 
-export function NewInsumoModal({ open, onClose, onSubmit }) {
+export function NewInputModal({ open, onClose, onSubmit }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   function handleClose() {
@@ -11,7 +11,7 @@ export function NewInsumoModal({ open, onClose, onSubmit }) {
 
   async function handleSubmit(data) {
     setIsSubmitting(true)
-    
+
     try {
       await onSubmit(data)
     } catch (error) {
@@ -27,7 +27,7 @@ export function NewInsumoModal({ open, onClose, onSubmit }) {
           <DialogTitle>Nuevo insumo</DialogTitle>
         </DialogHeader>
 
-        <InsumoForm
+        <InputForm
           defaultValues={{
             name: "",
             brand: "",

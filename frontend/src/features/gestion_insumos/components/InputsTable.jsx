@@ -1,6 +1,6 @@
 import { MoreHorizontal } from "lucide-react"
 import { Link } from "react-router-dom"
-import { AlertIndicatorSuccess, AlertIndicatorDestructive } from "../components/Notifications"
+import { AlertIndicatorSuccess, AlertIndicatorDestructive } from "./Notifications"
 import { useState } from "react"
 
 //componentes de shadcn
@@ -11,9 +11,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/Table"
 
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import {
   DropdownMenu,
@@ -33,7 +33,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/AlertDialog"
 
 
 // manejo provisorio de estado (critico, bajo , optimo)
@@ -43,12 +43,12 @@ const estadoStyles = {
   critico: "bg-red-100 text-red-800",
 }
 
-export function InsumosTable({ insumos }) {
+export function InputsTable({ insumos }) {
 
   const [notification, setNotification] = useState(null)
   const [insumoToDelete, setInsumoToDelete] = useState(null)
 
-   const { deleteInsumo, isDeleting } = useDeleteInsumo(
+  const { deleteInsumo, isDeleting } = useDeleteInsumo(
     () => {
       setNotification({
         type: 'success',
@@ -131,12 +131,12 @@ export function InsumosTable({ insumos }) {
                       </Link>
                     </DropdownMenuItem>
 
-                  <AlertDialog>
+                    <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <DropdownMenuItem
                           className="text-red-600 focus:text-red-600"
                           onSelect={(e) => {
-                            e.preventDefault() 
+                            e.preventDefault()
                             setInsumoToDelete(insumo.id)
                           }}
                         >
@@ -165,7 +165,7 @@ export function InsumosTable({ insumos }) {
           ))}
         </TableBody>
       </Table>
-     {/* Notificaciones */}
+      {/* Notificaciones */}
       {notification?.type === 'success' && (
         <AlertIndicatorSuccess
           message={notification.message}
@@ -179,7 +179,7 @@ export function InsumosTable({ insumos }) {
           onClose={handleCloseNotification}
           duration={6000}
         />
-      )}         
+      )}
 
     </div>
   )

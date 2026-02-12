@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { UserCheckIcon, UserRoundXIcon, X } from 'lucide-react'
-import { Alert, AlertTitle } from '@/components/ui/alert'
+import { Alert, AlertTitle } from '@/components/ui/Alert'
 
 export const AlertIndicatorSuccess = ({ message, onClose, duration = 5000, onClick }) => {
   const [isVisible, setIsVisible] = useState(false)

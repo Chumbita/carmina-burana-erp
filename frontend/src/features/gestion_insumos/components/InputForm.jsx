@@ -13,18 +13,18 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/Select"
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
+} from "@/components/ui/Field"
 import { ImageUpload } from "./ImageUpload"
 
-export function InsumoForm({ 
-  defaultValues, 
-  onSubmit, 
+export function InputForm({
+  defaultValues,
+  onSubmit,
   onCancel,
   submitLabel = "Guardar",
   cancelLabel = "Cancelar",
@@ -35,7 +35,7 @@ export function InsumoForm({
   formRef
 }) {
   const fileRef = useRef(null)
-  
+
   const {
     handleSubmit,
     control,
@@ -54,8 +54,8 @@ export function InsumoForm({
   const isModal = layout === "modal"
 
   return (
-    <form 
-      onSubmit={handleSubmit(onSubmit)} 
+    <form
+      onSubmit={handleSubmit(onSubmit)}
       className={isModal ? "space-y-4" : "grid grid-cols-1 md:grid-cols-2 gap-4"}
     >
       <FieldGroup className={isModal ? "-space-y-4" : "contents"}>
@@ -140,7 +140,7 @@ export function InsumoForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
+                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                       <span className="-ml-1">Unidad de medida</span>
                     </FieldLabel>
                     <Select
@@ -264,8 +264,8 @@ export function InsumoForm({
       </FieldGroup>
 
       {/* Botones */}
-      <div className={isModal 
-        ? "flex justify-between gap-2" 
+      <div className={isModal
+        ? "flex justify-between gap-2"
         : "md:col-span-2 flex justify-end mt-4 gap-2"
       }>
         {showDeleteButton && (
@@ -279,7 +279,7 @@ export function InsumoForm({
             Eliminar insumo
           </Button>
         )}
-        
+
         {onCancel && (
           <Button
             type="button"

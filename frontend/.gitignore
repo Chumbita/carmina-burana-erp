@@ -26,3 +26,4 @@ dist-ssr
 .env
 
 NuevoLotePage.jsx
+LotesTable.jsx

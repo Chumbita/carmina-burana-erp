@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { InsumoDetailTable } from './DetalleInsumoTab'
+import { TabInput } from './TabInput'
 
 //componentes shadcn
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs'
 
-export function TabsDetailInsumo({ insumo }){
+export function TabsInputDetail({ insumo }) {
 
- const [contentOption, setContentOption] = useState("insumos");
+  const [contentOption, setContentOption] = useState("insumos");
 
   return (
     <div>
@@ -17,7 +17,7 @@ export function TabsDetailInsumo({ insumo }){
           <TabsTrigger value="historial" className="cursor-pointer">Historial</TabsTrigger>
         </TabsList>
 
-        {contentOption === "insumos" && <InsumoDetailTable insumo={insumo} />}
+        {contentOption === "insumos" && <TabInput insumo={insumo} />}
         {contentOption === "inventario" && <p>Lotes</p>}
         {contentOption === "historial" && <p>Historial de movimientos</p>}
       </Tabs>

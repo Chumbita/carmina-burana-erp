@@ -4,12 +4,12 @@ import { inputService } from "../services/inputService";
 
 //componentes shadcn
 import { Button } from "@/components/ui/Button";
-import { TabsDetailInsumo } from "../components/InsumoDetailTabs";
-import { Badge } from "@/components/ui/badge";
+import { TabsInputDetail } from "../components/TabsInputDetail";
+import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
 //iconos
-import { 
-  ArrowLeft, 
+import {
+  ArrowLeft,
 
 } from 'lucide-react'
 
@@ -22,7 +22,7 @@ const estadoStyles = {
   critico: "bg-red-100 text-red-800",
 }
 
-export default function InsumoDetailPage() {
+export default function InputDetailPage() {
 
   const navigate = useNavigate()
   const { insumoId } = useParams();
@@ -52,7 +52,7 @@ export default function InsumoDetailPage() {
 
   return (
     <div className="grid grid-cols-1 grid-rows-[auto_auto_1fr]
-    lg:grid-cols-[240px_1fr] lg:grid-rows-[auto_1fr] gap-6">      
+    lg:grid-cols-[240px_1fr] lg:grid-rows-[auto_1fr] gap-6">
       {/* HEADER */}
       <header className="lg:col-span-2 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -65,7 +65,7 @@ export default function InsumoDetailPage() {
           </Button>
           <h1 className="text-2xl font-semibold tracking-tight">
             {insumo.name}
-          </h1>       
+          </h1>
         </div>
       </header>
 
@@ -95,7 +95,7 @@ export default function InsumoDetailPage() {
             <span className="text-gray-500">Estado</span>
             <Badge className={estadoStyles[insumo.stock_status]}>
               {insumo.stock_status}
-            </Badge>  
+            </Badge>
           </div>
 
         </div>
@@ -103,7 +103,7 @@ export default function InsumoDetailPage() {
 
       {/*MAIN (TABS)*/}
       <main className="border rounded-md p-4">
-       <TabsDetailInsumo insumo={insumo}></TabsDetailInsumo>
+        <TabsInputDetail insumo={insumo}></TabsInputDetail>
       </main>
     </div>
   )

@@ -1,31 +1,31 @@
 import { useEffect, useState, useRef } from "react"
 import { inputService } from "../services/inputService"
-import { InsumosTable } from "../components/InsumosTable"
-import { NewInsumoModal } from "../components/NewInsumoModal"
+import { InputsTable } from "../components/InputsTable"
+import { NewInputModal } from "../components/NewInputModal"
 import { AlertIndicatorSuccess, AlertIndicatorDestructive } from "../components/Notifications"
 
 //componentes shadcn
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import { Separator } from "@/components/ui/Separator"
-import { Spinner } from "@/components/ui/spinner"
+import { Spinner } from "@/components/ui/Spinner"
 
 //iconos
 import { RefreshCcw, Plus, X } from "lucide-react"
 
 
-export default function InsumosPage() {
+export default function InputsPage() {
   const [insumos, setInsumos] = useState([])
   const [openNewInsumo, setOpenNewInsumo] = useState(false)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [categoriaFilter, setCategoriaFilter] = useState("todas")
-  
+
   // Estado para notificaciones
   const [notification, setNotification] = useState(null)
   const [lastCreatedInsumoId, setLastCreatedInsumoId] = useState(null)
-  
+
   // Ref para la tabla
   const tableRef = useRef(null)
 
@@ -43,7 +43,7 @@ export default function InsumosPage() {
       const data = await inputService.getAll()
       setInsumos(data)
     } catch (error) {
-      
+
     } finally {
       setLoading(false)
     }
@@ -56,7 +56,7 @@ export default function InsumosPage() {
   // CREAR INUSMO (esta funcion es enviada como prop al modal) 
   async function handleCreateInsumo(insumoData) {
     try {
-      const nuevoInsumo = await inputService.create(insumoData)   
+      const nuevoInsumo = await inputService.create(insumoData)
       setInsumos(prev => [...prev, nuevoInsumo])
       setLastCreatedInsumoId(nuevoInsumo.id)
       setOpenNewInsumo(false)
@@ -64,13 +64,13 @@ export default function InsumosPage() {
         type: 'success',
         message: `Insumo "${nuevoInsumo.name}" creado exitosamente`
       })
-      
+
     } catch (error) {
       setNotification({
         type: 'error',
         message: error.message || 'Error al crear el insumo. Inténtalo de nuevo.'
       })
-      
+
       throw error
     }
   }
@@ -79,7 +79,7 @@ export default function InsumosPage() {
   function handleNotificationClick() {
     if (lastCreatedInsumoId && tableRef.current) {
       const insumoRow = tableRef.current.querySelector(`[data-insumo-id="${lastCreatedInsumoId}"]`)
-  
+
       if (insumoRow) {
         insumoRow.scrollIntoView({ behavior: 'smooth', block: 'center' })
         insumoRow.classList.add('bg-green-100', 'dark:bg-green-900')
@@ -108,17 +108,17 @@ export default function InsumosPage() {
   // Filtros
   const insumosFiltrados = insumos.filter(insumo => {
     const searchLower = search.trim().toLowerCase()
-    
+
     // Filtro de búsqueda (nombre o marca)
-    const matchesSearch = 
+    const matchesSearch =
       insumo.name?.toLowerCase().includes(searchLower) ||
       insumo.brand?.toLowerCase().includes(searchLower)
-    
+
     // Filtro de categoría
-    const matchesCategoria = 
-      categoriaFilter === "todas" || 
+    const matchesCategoria =
+      categoriaFilter === "todas" ||
       insumo.category === categoriaFilter
-    
+
     return matchesSearch && matchesCategoria
   })
 
@@ -133,7 +133,7 @@ export default function InsumosPage() {
           duration={6000}
         />
       )}
-      
+
       {notification?.type === 'error' && (
         <AlertIndicatorDestructive
           message={notification.message}
@@ -153,7 +153,7 @@ export default function InsumosPage() {
             className="max-w-sm border-none bg-neutral-100 
             focus-visible:outline-none focus-visible:ring-2"
           />
-          
+
           <Select value={categoriaFilter} onValueChange={setCategoriaFilter}>
             <SelectTrigger className="w-50 cursor-pointer bg-neutral-100 border-none text-muted-foreground">
               <SelectValue placeholder="Categoría" />
@@ -169,8 +169,8 @@ export default function InsumosPage() {
 
           {/* Botón para limpiar filtros */}
           {(search || categoriaFilter !== "todas") && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="icon"
               className="cursor-pointer"
               onClick={() => {
@@ -184,16 +184,16 @@ export default function InsumosPage() {
           )}
         </div>
 
-        <Button 
-          size="sm" 
-          className="cursor-pointer" 
+        <Button
+          size="sm"
+          className="cursor-pointer"
           onClick={() => setOpenNewInsumo(true)}
         >
-          <Plus />Agregar insumo 
+          <Plus />Agregar insumo
         </Button>
       </header>
 
-      <NewInsumoModal
+      <NewInputModal
         open={openNewInsumo}
         onClose={() => setOpenNewInsumo(false)}
         onSubmit={handleCreateInsumo}
@@ -202,13 +202,13 @@ export default function InsumosPage() {
       {/* Mostrar mensaje si no hay resultados, sino tabla */}
       {insumosFiltrados.length === 0 ? (
         <p className="text-center py-8 text-gray-500">
-          {search || categoriaFilter !== "todas" 
-            ? "No se encontraron insumos" 
+          {search || categoriaFilter !== "todas"
+            ? "No se encontraron insumos"
             : "No hay insumos registrados"}
         </p>
       ) : (
         <div ref={tableRef}>
-          <InsumosTable insumos={insumosFiltrados} />
+          <InputsTable insumos={insumosFiltrados} />
         </div>
       )}
     </div>

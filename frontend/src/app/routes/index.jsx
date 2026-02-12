@@ -18,12 +18,12 @@ const DashboardPage = lazy(
 
 
 //insumos pages
-const InsumosPage = lazy (()=>
-  import("@/features/gestion_insumos/pages/InsumosPage")
+const InputsPage = lazy(() =>
+  import("@/features/gestion_insumos/pages/InputsPage")
 );
 
-const InsumoDetailPage = lazy(()=>
-  import ('@/features/gestion_insumos/pages/InsumoDetailPage')
+const InputDetailPage = lazy(() =>
+  import('@/features/gestion_insumos/pages/InputDetailPage')
 );
 
 
@@ -47,11 +47,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "/inventario/insumos",
-        element: <InsumosPage />, 
+        element: <InputsPage />,
       },
       {
         path: "/inventario/insumos/:insumoId",
-        element: <InsumoDetailPage />,
+        element: <InputDetailPage />,
       },
     ],
   },
