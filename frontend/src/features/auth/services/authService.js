@@ -9,12 +9,6 @@ export const authService = {
         password,
       });
 
-      const { access_token, token_type, user } = response.data;
-
-      // Guardamos en el local storage
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("user", JSON.stringify(user));
-
       return response.data;
     } catch (error) {
       if (error.response?.status === 401) {

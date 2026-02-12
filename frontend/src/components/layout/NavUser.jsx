@@ -1,3 +1,6 @@
+import { Navigate, useNavigate } from "react-router-dom";
+import { useAuth } from "@/app/providers/AuthContext";
+
 // Componentes shadcn
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import {
@@ -19,10 +22,13 @@ import {
 import {
   ChevronsUpDown,
   LogOut,
+  UserCog,
 } from "lucide-react";
 
 export function NavUser({ user }) {
   const { isMobile } = useSidebar();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <SidebarMenu>
@@ -68,7 +74,11 @@ export function NavUser({ user }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem className="cursor-pointer text-red-600 font-medium focus:bg-gray-200/70">
+            <DropdownMenuItem onClick={() => navigate("/admin/user/settings")} className="cursor-pointer font-regular focus:bg-gray-200/70">
+              <UserCog className="text-stone-800" />
+              Mi cuenta
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={logout} className="cursor-pointer text-red-600 font-medium focus:bg-gray-200/70">
               <LogOut color="red"/>
               Cerrar sesión
             </DropdownMenuItem>

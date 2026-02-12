@@ -3,5 +3,9 @@ export const ENDPOINTS = {
     // Auth
     AUTH: {
         LOGIN: '/auth/login'
-    }
+    },
+    // User
+    USER: {
+        CHANGE_PASSWORD: '/user/change-password'
+    },
 }
