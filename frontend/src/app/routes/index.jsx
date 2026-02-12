@@ -12,6 +12,21 @@ import PublicGuard from "./guards/PublicGuard";
 const DashboardPage = lazy(
   () => import("@/features/dashboard/pages/DashboardPage"),
 );
+
+
+
+
+
+//insumos pages
+const InputsPage = lazy(() =>
+  import("@/features/gestion_insumos/pages/InputsPage")
+);
+
+const InputDetailPage = lazy(() =>
+  import('@/features/gestion_insumos/pages/InputDetailPage')
+);
+
+
 // Auth pages
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));
 
@@ -41,7 +56,15 @@ export const router = createBrowserRouter([
             element: <UserSettingsPage />
           }
         ]
-      }
+      },
+      {
+        path: "/inventario/insumos",
+        element: <InputsPage />,
+      },
+      {
+        path: "/inventario/insumos/:insumoId",
+        element: <InputDetailPage />,
+      },
     ],
   },
   {
