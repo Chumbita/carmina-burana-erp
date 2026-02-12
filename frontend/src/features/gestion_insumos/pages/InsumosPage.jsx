@@ -2,13 +2,17 @@ import { useEffect, useState, useRef } from "react"
 import { inputService } from "../services/inputService"
 import { InsumosTable } from "../components/InsumosTable"
 import { NewInsumoModal } from "../components/NewInsumoModal"
+import { AlertIndicatorSuccess, AlertIndicatorDestructive } from "../components/Notifications"
+
+//componentes shadcn
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/Separator"
-import { RefreshCcw, Plus, X } from "lucide-react"
-import { AlertIndicatorSuccess, AlertIndicatorDestructive } from "../components/Notifications"
+import { Spinner } from "@/components/ui/spinner"
 
+//iconos
+import { RefreshCcw, Plus, X } from "lucide-react"
 
 
 export default function InsumosPage() {
@@ -33,48 +37,35 @@ export default function InsumosPage() {
     { value: "Envases", label: "Envases" },
   ]
 
-  useEffect(() => {
-    loadInsumos()
-  }, [])
-
   // OBTENER Y CARGAR INSUMOS 
   async function loadInsumos() {
     try {
       const data = await inputService.getAll()
-      console.log(data)
       setInsumos(data)
-     
     } catch (error) {
-      console.error("Error al cargar insumos:", error)
+      
     } finally {
       setLoading(false)
     }
   }
 
-  // CREAR INUSMO  
+  useEffect(() => {
+    loadInsumos()
+  }, [])
+
+  // CREAR INUSMO (esta funcion es enviada como prop al modal) 
   async function handleCreateInsumo(insumoData) {
     try {
-      const nuevoInsumo = await inputService.create(insumoData)
-      
-      // Actualizar el estado local con el nuevo insumo
+      const nuevoInsumo = await inputService.create(insumoData)   
       setInsumos(prev => [...prev, nuevoInsumo])
-      
-      // Guardar el ID del insumo creado
       setLastCreatedInsumoId(nuevoInsumo.id)
-      
-      // Cerrar el modal
       setOpenNewInsumo(false)
-      
-      // Mostrar notificación de éxito
       setNotification({
         type: 'success',
-        message: `Insumo "${nuevoInsumo.nombre}" creado exitosamente`
+        message: `Insumo "${nuevoInsumo.name}" creado exitosamente`
       })
       
     } catch (error) {
-      console.error("Error al crear insumo:", error)
-      
-      // Mostrar notificación de error
       setNotification({
         type: 'error',
         message: error.message || 'Error al crear el insumo. Inténtalo de nuevo.'
@@ -84,38 +75,32 @@ export default function InsumosPage() {
     }
   }
 
-  // Función para navegar al insumo creado
+  // navegar al insumo creado
   function handleNotificationClick() {
     if (lastCreatedInsumoId && tableRef.current) {
-      // Buscar la fila del insumo creado
       const insumoRow = tableRef.current.querySelector(`[data-insumo-id="${lastCreatedInsumoId}"]`)
-      
+  
       if (insumoRow) {
-        // Hacer scroll suave a la fila
         insumoRow.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        
-        // Agregar efecto de highlight temporal
         insumoRow.classList.add('bg-green-100', 'dark:bg-green-900')
         setTimeout(() => {
           insumoRow.classList.remove('bg-green-100', 'dark:bg-green-900')
         }, 2000)
       }
     }
-    
-    // Cerrar la notificación
     setNotification(null)
   }
 
-  // Función para cerrar notificación
+  // cerrar notificación
   function handleCloseNotification() {
     setNotification(null)
   }
 
-  // Manejar loading
+  // loading
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p>Cargando insumos...</p>
+        <Spinner />
       </div>
     )
   }
@@ -126,13 +111,13 @@ export default function InsumosPage() {
     
     // Filtro de búsqueda (nombre o marca)
     const matchesSearch = 
-      insumo.nombre?.toLowerCase().includes(searchLower) ||
-      insumo.marca?.toLowerCase().includes(searchLower)
+      insumo.name?.toLowerCase().includes(searchLower) ||
+      insumo.brand?.toLowerCase().includes(searchLower)
     
     // Filtro de categoría
     const matchesCategoria = 
       categoriaFilter === "todas" || 
-      insumo.categoria === categoriaFilter
+      insumo.category === categoriaFilter
     
     return matchesSearch && matchesCategoria
   })
@@ -214,7 +199,7 @@ export default function InsumosPage() {
         onSubmit={handleCreateInsumo}
       />
 
-      {/* Mostrar mensaje si no hay resultados */}
+      {/* Mostrar mensaje si no hay resultados, sino tabla */}
       {insumosFiltrados.length === 0 ? (
         <p className="text-center py-8 text-gray-500">
           {search || categoriaFilter !== "todas" 

@@ -7,6 +7,7 @@ export const ENDPOINTS = {
     // Inputs
     INPUTS: {
         GET_ALL: '/inputs/',
-        CREATE: '/inputs/'
+        CREATE: '/inputs/',
+        DELETE: (id) => `/inputs/${id}`
     },
 }

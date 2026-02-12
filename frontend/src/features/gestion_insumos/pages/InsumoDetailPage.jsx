@@ -1,16 +1,18 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { inputService } from "../services/inputService";
+
+//componentes shadcn
 import { Button } from "@/components/ui/Button";
-
-
+import { TabsDetailInsumo } from "../components/InsumoDetailTabs";
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/Spinner";
+//iconos
 import { 
   ArrowLeft, 
 
 } from 'lucide-react'
-import { TabsDetailInsumo } from "../components/InsumoDetailTabs";
-import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
+
 
 
 //manejar estilo de estados provisorio
@@ -27,50 +29,31 @@ export default function InsumoDetailPage() {
   const [insumo, setInsumo] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  function handleGuardarInsumo() {
-    console.log("Guardar insumo", insumo)
-    alert("guardar")
-  }
-  
-  function handleBorrarInsumo() {
-    console.log("Guardar insumo", insumo)
-    alert("guardar")
-  }
-
-  useEffect(() => {
-    loadInsumos()
-  }, [insumoId])
-
-  // OBTENER Y CARGAR INSUMOS 
-  async function loadInsumos() {
+  // OBTENER Y CARGAR INSUMO (por ahora del mock)
+  async function loadInsumo() {
     try {
       const data = await inputService.getById(insumoId)
-      console.log(data)
       setInsumo(data)
-     
     } catch (error) {
-      console.error("Error al cargar insumos:", error)
+      console.error("Error al cargar insumo:", error)
     } finally {
       setLoading(false)
     }
   }
 
+  useEffect(() => {
+    loadInsumo()
+  }, [insumoId])
 
-  if (loading) return <p>{insumoId} Cargando...</p>;
+
+  // Manejar loading
+  if (loading) return <div className="flex items-center justify-center h-64"><Spinner /></div>
   if (!insumo) return <p>Insumo no encontrado</p>;
-
-    const formatCurrency = (value) => {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-    }).format(value)
-  }
 
   return (
     <div className="grid grid-cols-1 grid-rows-[auto_auto_1fr]
-    lg:grid-cols-[240px_1fr] lg:grid-rows-[auto_1fr] gap-6 
-    
-    ">
+    lg:grid-cols-[240px_1fr] lg:grid-rows-[auto_1fr] gap-6">      
+      {/* HEADER */}
       <header className="lg:col-span-2 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Button
@@ -80,35 +63,24 @@ export default function InsumoDetailPage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-
           <h1 className="text-2xl font-semibold tracking-tight">
-            {insumo.nombre}
-          </h1>
-            <Badge className={estadoStyles[insumo.estadoStock]}>
-              {insumo.estadoStock}
-            </Badge>          
-        </div>
-
-        <div className="flex items-center gap-3 ">
-          <Button onClick={handleBorrarInsumo}  className="cursor-pointer bg-red-100 text-red-600 hover:bg-red-200">
-            Eliminar insumo
-          </Button>
-
+            {insumo.name}
+          </h1>       
         </div>
       </header>
 
       {/* SIDEBAR */}
       <aside className="bg-white rounded-lg p-4 flex flex-col gap-4">
         <div className="aspect-square bg-gray-100 rounded-md flex items-center justify-center -mt-4">
-          {insumo.imagen ? (
+          {insumo.image ? (
             <img
-              src={insumo.imagen}
-              alt={insumo.nombre}
+              src={insumo.image}
+              alt={insumo.name}
               className="object-cover w-full h-full rounded-md"
             />
           ) : (
             <span className="text-6xl font-semibold text-gray-400">
-              {insumo.nombre ? insumo.nombre[0].toUpperCase() : 'I'}
+              {insumo.name ? insumo.name[0].toUpperCase() : 'I'}
             </span>
           )}
         </div>
@@ -116,18 +88,16 @@ export default function InsumoDetailPage() {
         <div className="space-y-2 text-sm ">
           <div className="flex justify-between ">
             <span className="text-gray-500">Stock actual</span>
-            <span className="font-medium">{insumo.stockTotal}</span>
+            <span className="font-medium">{insumo.stock_total} {insumo.unit}</span>
           </div>
 
           <div className="flex justify-between">
             <span className="text-gray-500">Estado</span>
-            <span className="font-medium">{insumo.estadoStock}</span>
+            <Badge className={estadoStyles[insumo.stock_status]}>
+              {insumo.stock_status}
+            </Badge>  
           </div>
 
-          <div className="flex justify-between">
-            <span className="text-gray-500">Actualizado</span>
-            <span className="font-medium">hace 2 días</span>
-          </div>
         </div>
       </aside>
 

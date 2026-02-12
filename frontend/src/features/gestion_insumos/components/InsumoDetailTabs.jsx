@@ -1,68 +1,26 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
+import { useState } from 'react';
 import { InsumoDetailTable } from './DetalleInsumoTab'
-import { Link } from 'react-router-dom'
-import { LotesTable } from './LotesTable'
+
+//componentes shadcn
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export function TabsDetailInsumo({ insumo }){
 
-
-    const tabs = [
-  {
-    name: 'Insumos',
-    value: 'insumos',
-    content: (
-      <>
-        <InsumoDetailTable insumo={insumo} />
-      </>
-    )
-  },
-  {
-    name: 'Inventario',
-    value: 'inventario',
-    content: (
-      <>
-        {/*  <LotesTable lotes={insumo} /> */}
-        <h1>lotes</h1>
-      </>
-    )
-  },
-  {
-    name: 'Historial',
-    value: 'historial',
-    content: (
-      <>
-
-      <p>Historial de movimientos</p>
-      </>
-    )
-  }
-]
-
+ const [contentOption, setContentOption] = useState("insumos");
 
   return (
-    <div className='w-full max-w-dvw'>
-      <Tabs defaultValue='insumos' className='gap-4'>
-        <TabsList className='bg-background rounded-none border-b p-0'>
-          {tabs.map(tab => (
-            <TabsTrigger
-              key={tab.value}
-              value={tab.value}
-              className='bg-background data-[state=active]:border-primary dark:data-[state=active]:border-primary h-full rounded-none border-0 border-b-2 border-transparent data-[state=active]:shadow-none'
-            >
-              {tab.name}
-            </TabsTrigger>
-          ))}
+    <div>
+      <Tabs defaultValue="insumos" onValueChange={setContentOption}>
+        <TabsList variant="line">
+          <TabsTrigger value="insumos" className="cursor-pointer">Insumos</TabsTrigger>
+          <TabsTrigger value="inventario" className="cursor-pointer">Inventario</TabsTrigger>
+          <TabsTrigger value="historial" className="cursor-pointer">Historial</TabsTrigger>
         </TabsList>
 
-        {tabs.map(tab => (
-          <TabsContent key={tab.value} value={tab.value}>
-            <p className='text-sm'>{tab.content}</p>
-          </TabsContent>
-        ))}
+        {contentOption === "insumos" && <InsumoDetailTable insumo={insumo} />}
+        {contentOption === "inventario" && <p>Lotes</p>}
+        {contentOption === "historial" && <p>Historial de movimientos</p>}
       </Tabs>
     </div>
-  )
+  );
 }
-
-

@@ -26,9 +26,6 @@ const InsumoDetailPage = lazy(()=>
   import ('@/features/gestion_insumos/pages/InsumoDetailPage')
 );
 
-const NuevoLote = lazy(()=>
-  import ('@/features/gestion_insumos/pages/NuevoLotePage')
-);
 
 // Auth pages
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));

@@ -1,3 +1,9 @@
+import { MoreHorizontal } from "lucide-react"
+import { Link } from "react-router-dom"
+import { AlertIndicatorSuccess, AlertIndicatorDestructive } from "../components/Notifications"
+import { useState } from "react"
+
+//componentes de shadcn
 import {
   Table,
   TableBody,
@@ -16,9 +22,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
 
-import { MoreHorizontal } from "lucide-react"
-import { Link } from "react-router-dom"
-import { Separator } from "@/components/ui/Separator"
+import { useDeleteInsumo } from "../hooks/useDeleteInsumo"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 
 // manejo provisorio de estado (critico, bajo , optimo)
@@ -28,7 +43,36 @@ const estadoStyles = {
   critico: "bg-red-100 text-red-800",
 }
 
-export function InsumosTable({ insumos, onDelete }) {
+export function InsumosTable({ insumos }) {
+
+  const [notification, setNotification] = useState(null)
+  const [insumoToDelete, setInsumoToDelete] = useState(null)
+
+   const { deleteInsumo, isDeleting } = useDeleteInsumo(
+    () => {
+      setNotification({
+        type: 'success',
+        message: 'Insumo eliminado exitosamente'
+      })
+    },
+    () => {
+      setNotification({
+        type: 'error',
+        message: 'No se pudo eliminar el insumo'
+      })
+    }
+  )
+
+  const handleCloseNotification = () => {
+    setNotification(null)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (insumoToDelete) {
+      await deleteInsumo(insumoToDelete)
+    }
+  }
+
   return (
     <div>
       <Table>
@@ -46,28 +90,28 @@ export function InsumosTable({ insumos, onDelete }) {
 
         <TableBody>
           {insumos.map((insumo) => (
-            <TableRow key={insumo.id} data-insumo-id={insumo.id} className="h-10 transition-colors duration-500">
-              <TableCell className=" font-medium max-w-60 truncate">
+            <TableRow key={insumo.id} data-insumo-id={insumo.id} className="h-10">
+              <TableCell className=" font-medium max-w-96">
                 <Link
                   to={`/inventario/insumos/${insumo.id}`}
                   className="hover:underline"
                 >
-                  {insumo.nombre}
+                  {insumo.name}
                 </Link>
               </TableCell>
 
-              <TableCell className="hidden md:table-cell">{insumo.marca}</TableCell>
-              <TableCell className="hidden lg:table-cell">{insumo.categoria}</TableCell>
+              <TableCell className="hidden md:table-cell">{insumo.brand}</TableCell>
+              <TableCell className="hidden lg:table-cell">{insumo.category}</TableCell>
               <TableCell className="whitespace-nowrap">
-                {insumo.stockTotal} {insumo.unidadMedida}
+                {insumo.stock_total} {insumo.unit}
               </TableCell>
 
               <TableCell>
                 <Badge
                   variant="outline"
-                  className={estadoStyles[insumo.estadoStock]}
+                  className={estadoStyles[insumo.stock_status]}
                 >
-                  {insumo.estadoStock}
+                  {insumo.stock_status}
                 </Badge>
               </TableCell>
 
@@ -86,15 +130,34 @@ export function InsumosTable({ insumos, onDelete }) {
                         Editar
                       </Link>
                     </DropdownMenuItem>
-                    
-                
 
-                    <DropdownMenuItem
-                      className="text-red-600 focus:text-red-600"
-                      onClick={() => onDelete?.(insumo.id)}
-                    >
-                      Eliminar
-                    </DropdownMenuItem>
+                  <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem
+                          className="text-red-600 focus:text-red-600"
+                          onSelect={(e) => {
+                            e.preventDefault() 
+                            setInsumoToDelete(insumo.id)
+                          }}
+                        >
+                          Eliminar
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Esta acción no se puede deshacer. El insumo será eliminado permanentemente. Para borrar el insumo, primero debes eliminar todos los lotes asociados.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleConfirmDelete} disabled={isDeleting}>
+                            {isDeleting ? "Eliminando..." : "Eliminar"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
@@ -102,6 +165,22 @@ export function InsumosTable({ insumos, onDelete }) {
           ))}
         </TableBody>
       </Table>
+     {/* Notificaciones */}
+      {notification?.type === 'success' && (
+        <AlertIndicatorSuccess
+          message={notification.message}
+          onClose={handleCloseNotification}
+          duration={6000}
+        />
+      )}
+      {notification?.type === 'error' && (
+        <AlertIndicatorDestructive
+          message={notification.message}
+          onClose={handleCloseNotification}
+          duration={6000}
+        />
+      )}         
+
     </div>
   )
 }
