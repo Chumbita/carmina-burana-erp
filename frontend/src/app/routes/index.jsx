@@ -30,6 +30,9 @@ const InputDetailPage = lazy(() =>
 // Auth pages
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));
 
+// User pages
+const UserSettingsPage = lazy(() => import("@/features/user/pages/UserSettingsPage"));
+
 // Error pages
 const NotFoundPage = lazy(() => import("@/features/errors/pages/NotFoundPage"));
 
@@ -44,6 +47,15 @@ export const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: <DashboardPage />,
+      },
+      {
+        path: "/admin",
+        children: [
+          {
+            path: "user/settings",
+            element: <UserSettingsPage />
+          }
+        ]
       },
       {
         path: "/inventario/insumos",

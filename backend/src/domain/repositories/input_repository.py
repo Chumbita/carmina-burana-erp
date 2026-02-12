@@ -26,5 +26,16 @@ class InputRepository(ABC):
         pass
 
     @abstractmethod
-    async def exists_by_name(self, name: str) -> bool:
+    async def get_by_name(self, name: str) -> bool:
         pass
+
+    @abstractmethod
+    async def has_stock(self, input_id: int) -> bool:
+        pass
+    async def find_by_identity(self, name: str, brand: str | None, category: str | None):
+        pass
+
+    @abstractmethod
+    async def reactivate(self, model):
+        pass
+

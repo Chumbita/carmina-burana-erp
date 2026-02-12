@@ -4,6 +4,10 @@ export const ENDPOINTS = {
     AUTH: {
         LOGIN: '/auth/login'
     },
+    // User
+    USER: {
+        CHANGE_PASSWORD: '/user/change-password'
+    },
     // Inputs
     INPUTS: {
         GET_ALL: '/inputs/',

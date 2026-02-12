@@ -1,6 +1,5 @@
 import publicCliente from "@/lib/api/publicClient";
 import { ENDPOINTS } from "@/lib/api/endpoints";
-import { useAuth } from "@/app/providers/AuthContext";
 
 export const authService = {
   login: async (username, password) => {

@@ -12,7 +12,7 @@ from src.presentation.dependencies.auth import get_current_user
 # Schemas
 from src.presentation.schemas.user_schemas import ChangePasswordRequest
 
-users_router = APIRouter(prefix="/users", tags=["User"])
+users_router = APIRouter(prefix="/user", tags=["User"])
 
 @users_router.patch("/change-password")
 async def change_password(request: ChangePasswordRequest, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
