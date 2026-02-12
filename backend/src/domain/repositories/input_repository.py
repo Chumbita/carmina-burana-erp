@@ -10,7 +10,7 @@ class InputRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_id(self, input_id: int) -> Optional[Input]:
+    async def get_input_by_id(self, input_id: int) -> Optional[Input]:
         pass
 
     @abstractmethod
@@ -18,7 +18,7 @@ class InputRepository(ABC):
         pass
 
     @abstractmethod
-    async def update(self, input_id: int, input: Input) -> Optional[Input]:
+    async def update(self, input_id: int, data: dict) -> Optional[Input]:
         pass
 
     @abstractmethod

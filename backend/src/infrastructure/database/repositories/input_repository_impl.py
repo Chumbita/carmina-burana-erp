@@ -25,14 +25,25 @@ class InputRepositoryImpl(InputRepository):
         )
         return result.scalar_one_or_none()
     
-    async def find_by_identity(self, name: str, brand: str | None, category: str | None) -> InputModel | None:
-        stmt = select(InputModel).where(
-            and_(
-                InputModel.name == name,
-                InputModel.brand == brand,
-                InputModel.category == category
-            )
-        )
+    async def find_by_identity(
+            self,
+            name: str,
+            brand: str | None,
+            category: str | None,
+            exclude_id: int | None = None,
+        ) -> InputModel | None:
+
+        conditions = [
+            InputModel.name == name,
+            InputModel.brand == brand,
+            InputModel.category == category,
+        ]
+
+        if exclude_id is not None:
+            conditions.append(InputModel.id != exclude_id)
+
+        stmt = select(InputModel).where(and_(*conditions))
+
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
     
@@ -78,7 +89,8 @@ class InputRepositoryImpl(InputRepository):
         models = result.scalars().all()
         return [self._to_entity(m) for m in models]
 
-    async def get_by_id(self, input_id: int) -> Optional[Input]:
+
+    async def get_input_by_id(self, input_id: int) -> Optional[Input]:
         model = await self.db.get(InputModel, input_id)
         return self._to_entity(model) if model else None
 
@@ -104,23 +116,19 @@ class InputRepositoryImpl(InputRepository):
     # UPDATE
     # ======================
 
-    async def update(self, input_obj):
-        print("⚠️ La función update todavía no está implementada")
-        raise NotImplementedError("El método update aún no está implementado")
-
-
-    """ async def update(self, input_id: int, input: Input) -> Optional[Input]:
+    async def update(self, input_id: int, data: dict):
         
         model = await self.db.get(InputModel, input_id)
+
         if not model:
             return None
-
-        for key, value in asdict(input).items():
-            setattr(model, key, value)
+        
+        for field, value in data.items():
+            setattr(model, field, value)
 
         await self.db.commit()
         await self.db.refresh(model)
-        return self._to_entity(model) """
+        return self._to_entity(model)
     
     async def reactivate(self, model: InputModel) -> Input:
         model.status = True
