@@ -15,8 +15,8 @@ async def seed():
     async with AsyncSessionLocal() as session:
         # 1. Crear insumo
         input_obj = InputModel(
-            name="Malta",
-            brand="Cargill",
+            name="Malta 1",
+            brand="Cargil 1",
             category="Granos",
             unit="kg",
             minimum_stock=10,

@@ -1,8 +1,6 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from typing import List
-
 
 from src.presentation.schemas.input_schema import InputCreateSchema
 from src.application.use_cases.inputs.create_input import CreateInputUseCase
@@ -12,6 +10,10 @@ from src.presentation.dependencies.input_deps import get_delete_input_use_case
 from src.application.use_cases.inputs.list_input import GetActiveInputsUseCase
 from src.presentation.dependencies.input_deps import get_active_inputs_use_case
 from src.presentation.schemas.input_response import InputResponse
+from src.application.use_cases.inputs.list_input import GetInputDetailUseCase
+from src.presentation.dependencies.input_deps import get_inputs_detail_use_case
+
+
 
 
 input_router = APIRouter(prefix="/inputs", tags=["Inputs"])
@@ -48,9 +50,17 @@ async def delete_input(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
+    
+# READ
 @input_router.get("/", response_model=List[InputResponse])
 async def get_active_inputs(
     use_case: GetActiveInputsUseCase = Depends(get_active_inputs_use_case),
 ):
     return await use_case.execute()
 
+@input_router.get("/{input_id}")
+async def get_input_by_id(
+    input_id: int,
+    use_case: GetInputDetailUseCase = Depends(get_inputs_detail_use_case),
+):
+    return await use_case.execute(input_id)
