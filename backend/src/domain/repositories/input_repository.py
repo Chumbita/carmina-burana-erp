@@ -30,6 +30,8 @@ class InputRepository(ABC):
         pass
 
     @abstractmethod
+    async def has_stock(self, input_id: int) -> bool:
+        pass
     async def find_by_identity(self, name: str, brand: str | None, category: str | None):
         pass
 

@@ -6,6 +6,8 @@ from dataclasses import asdict
 from src.domain.repositories.input_repository import InputRepository
 from src.domain.entities.input import Input
 from src.infrastructure.database.models.input_model import InputModel
+from src.infrastructure.database.models.input_inventory_model import InputInventoryModel
+from src.infrastructure.database.models.input_entry_item_model import InputEntryItemModel
 
 
 class InputRepositoryImpl(InputRepository):
@@ -33,6 +35,23 @@ class InputRepositoryImpl(InputRepository):
         )
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
+    
+    
+    async def has_stock(self, input_id: int) -> bool:
+        result = await self.db.execute(
+            select(InputInventoryModel)
+            .join(
+                InputEntryItemModel,
+                InputInventoryModel.id_entry_item == InputEntryItemModel.id
+            )
+            .where(
+                InputEntryItemModel.id_input == input_id,
+                InputInventoryModel.current_amount > 0,
+                InputInventoryModel.status == True
+            )
+        )
+        return result.first() is not None
+
     
     # ======================
     # MAPPERS
@@ -111,14 +130,14 @@ class InputRepositoryImpl(InputRepository):
 
 
     # ======================
-    # DELETE (soft delete recomendado)
+    # DELETE 
     # ======================
     async def delete(self, input_id: int) -> bool:
         model = await self.db.get(InputModel, input_id)
         if not model:
             return False
-
-        model.status = False
+        
+        model.status = False 
         await self.db.commit()
         return True
     
