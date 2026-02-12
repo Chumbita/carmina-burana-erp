@@ -90,9 +90,8 @@ class InputRepositoryImpl(InputRepository):
                 InputModel,
                 func.coalesce(func.sum(InputInventoryModel.current_amount), 0).label("stock_total")      
             )
-            .join(InputEntryItemModel, InputEntryItemModel.id_input == InputModel.id)
-            .join(InputInventoryModel, (InputInventoryModel.id_entry_item == InputEntryItemModel.id) &
-                  (InputInventoryModel.status == True) )
+            .outerjoin(InputEntryItemModel, InputEntryItemModel.id_input == InputModel.id)
+            .outerjoin(InputInventoryModel, InputInventoryModel.id_entry_item == InputEntryItemModel.id)
             .where(InputModel.status == True)
             .group_by(InputModel.id)
             )
@@ -103,6 +102,10 @@ class InputRepositoryImpl(InputRepository):
             (self._to_entity(row[0]), row[1])
             for row in rows
         ]
+    
+    async def get_input_entity_by_id(self, input_id: int) -> Optional[Input]:
+        model = await self.db.get(InputModel, input_id)
+        return self._to_entity(model) if model else None
 
     async def get_input_by_id(self, input_id: int):
 
@@ -135,15 +138,7 @@ class InputRepositoryImpl(InputRepository):
             )
             .group_by(InputModel.id)
         )
-
-
-    async def get_input_entity_by_id(self, input_id: int) -> Optional[Input]:
-        model = await self.db.get(InputModel, input_id)
-        return self._to_entity(model) if model else None
     
-    async def get_input_by_id(self, input_id: int) -> Optional[Input]:
-        model = await self.db.get(InputModel, input_id)
-        return self._to_entity(model) if model else None
         result_input = await self.db.execute(stmt_input)
         input_row = result_input.first()
 

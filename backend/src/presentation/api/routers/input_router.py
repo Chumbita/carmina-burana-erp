@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 
@@ -15,11 +14,6 @@ from src.presentation.dependencies.input_deps import get_update_inputs_use_case
 from src.presentation.schemas.input_response import InputResponse
 from src.application.use_cases.inputs.list_input import GetInputDetailUseCase
 from src.presentation.dependencies.input_deps import get_inputs_detail_use_case
-
-
-
-
-
 
 input_router = APIRouter(prefix="/inputs", tags=["Inputs"])
 
@@ -63,7 +57,7 @@ async def get_active_inputs(
 ):
     return await use_case.execute()
   
- @input_router.get("/{input_id}")
+@input_router.get("/{input_id}")
 async def get_input_by_id(
     input_id: int,
     use_case: GetInputDetailUseCase = Depends(get_inputs_detail_use_case),
@@ -71,7 +65,7 @@ async def get_input_by_id(
     return await use_case.execute(input_id)
 
 # PATCH UPDATE
-@input_router.patch("/{input_id}", response_model=InputResponse)
+@input_router.patch("/{input_id}")
 async def update_input(
     input_id: int,
     data: InputUpdateSchema,
