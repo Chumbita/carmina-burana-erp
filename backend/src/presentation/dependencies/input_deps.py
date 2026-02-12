@@ -5,6 +5,7 @@ from src.infrastructure.database.deps import get_db
 from src.infrastructure.database.repositories.input_repository_impl import (InputRepositoryImpl)
 from src.application.use_cases.inputs.create_input import CreateInputUseCase
 from src.application.use_cases.inputs.delete_input import DeleteInputUseCase
+from src.application.use_cases.inputs.update_input import UpdateInputUseCase
 from src.application.use_cases.inputs.list_input import GetActiveInputsUseCase
 from src.application.use_cases.inputs.list_input import GetInputDetailUseCase
 
@@ -30,6 +31,11 @@ def get_active_inputs_use_case(
     repository = InputRepositoryImpl(db)
     return GetActiveInputsUseCase(repository)
 
+def get_update_inputs_use_case(
+        db: AsyncSession = Depends(get_db)
+) -> UpdateInputUseCase:
+    repository = InputRepositoryImpl(db)
+    return UpdateInputUseCase(repository)
 def get_inputs_detail_use_case(
         db: AsyncSession = Depends(get_db)
 ) -> GetInputDetailUseCase:
