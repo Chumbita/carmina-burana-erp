@@ -1,5 +1,5 @@
 import { useState } from "react"
-// import { inputService } from "@/services/inputService"
+import { inputService } from "../services/inputService"
 
 export function useDeleteInsumo(onSuccess, onError) {
   const [isDeleting, setIsDeleting] = useState(false)
@@ -7,7 +7,9 @@ export function useDeleteInsumo(onSuccess, onError) {
   const deleteInsumo = async (id) => {
     setIsDeleting(true)
     try {
-      // await inputService.delete(id)
+      const response = await inputService.delete(id)
+      console.log(response);
+      
       
       onSuccess?.()
       return true

@@ -91,6 +91,12 @@ export default function InputsPage() {
     setNotification(null)
   }
 
+  //eliminar insumo (render)
+  const handleDeleteSuccess = (id) => {
+    setInsumos(prev => prev.filter(i => i.id !== id))
+  }
+
+
   // cerrar notificación
   function handleCloseNotification() {
     setNotification(null)
@@ -208,7 +214,10 @@ export default function InputsPage() {
         </p>
       ) : (
         <div ref={tableRef}>
-          <InputsTable insumos={insumosFiltrados} />
+          <InputsTable 
+            insumos={insumosFiltrados} 
+            onDeleteSuccess={handleDeleteSuccess}
+          />
         </div>
       )}
     </div>

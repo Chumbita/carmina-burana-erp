@@ -43,13 +43,14 @@ const estadoStyles = {
   critico: "bg-red-100 text-red-800",
 }
 
-export function InputsTable({ insumos }) {
+export function InputsTable({ insumos, onDeleteSuccess }) {
 
   const [notification, setNotification] = useState(null)
   const [insumoToDelete, setInsumoToDelete] = useState(null)
 
   const { deleteInsumo, isDeleting } = useDeleteInsumo(
     () => {
+      onDeleteSuccess(insumoToDelete)
       setNotification({
         type: 'success',
         message: 'Insumo eliminado exitosamente'
@@ -58,7 +59,7 @@ export function InputsTable({ insumos }) {
     () => {
       setNotification({
         type: 'error',
-        message: 'No se pudo eliminar el insumo'
+        message: 'No se pudo eliminar el insumo', 
       })
     }
   )
@@ -68,6 +69,7 @@ export function InputsTable({ insumos }) {
   }
 
   const handleConfirmDelete = async () => {
+
     if (insumoToDelete) {
       await deleteInsumo(insumoToDelete)
     }
@@ -96,7 +98,7 @@ export function InputsTable({ insumos }) {
                   to={`/inventario/insumos/${insumo.id}`}
                   className="hover:underline"
                 >
-                  {insumo.name}
+                  {insumo.name} {insumo.id}
                 </Link>
               </TableCell>
 
@@ -137,6 +139,7 @@ export function InputsTable({ insumos }) {
                           className="text-red-600 focus:text-red-600"
                           onSelect={(e) => {
                             e.preventDefault()
+                            
                             setInsumoToDelete(insumo.id)
                           }}
                         >
@@ -151,8 +154,8 @@ export function InputsTable({ insumos }) {
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleConfirmDelete} disabled={isDeleting}>
+                          <AlertDialogCancel disabled={isDeleting} className="cursor-pointer">Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleConfirmDelete} disabled={isDeleting} className="bg-red-600 text-white cursor-pointer hover:bg-red-700">
                             {isDeleting ? "Eliminando..." : "Eliminar"}
                           </AlertDialogAction>
                         </AlertDialogFooter>

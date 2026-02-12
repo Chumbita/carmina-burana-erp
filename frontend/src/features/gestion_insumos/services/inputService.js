@@ -48,7 +48,7 @@ export const inputService = {
 //insumosDetail
 const INSUMOS_DETALLE = [
   {
-    "id": "1",
+    "id": "20",
     "name": "Malta",
     "category": "No Perecedero",
     "unit": "kg",
@@ -59,7 +59,34 @@ const INSUMOS_DETALLE = [
     "minimum_stock": 200,
   },
   {
-    "id": "2",
+    "id": "34",
+    "name": "Malta Caramelo",
+    "brand": "Weyermann",
+     "unit": "kg",
+    "stock_total": 450,
+    "stock_status": "bajo",   
+    "minimum_stock": 50,
+  },
+    {
+    "id": "8",
+    "name": "Malta Caramelo",
+    "brand": "Weyermann",
+     "unit": "kg",
+    "stock_total": 450,
+    "stock_status": "bajo",   
+    "minimum_stock": 50,
+  },
+    {
+    "id": "18",
+    "name": "Malta Caramelo",
+    "brand": "Weyermann",
+     "unit": "kg",
+    "stock_total": 450,
+    "stock_status": "bajo",   
+    "minimum_stock": 50,
+  },
+    {
+    "id": "19",
     "name": "Malta Caramelo",
     "brand": "Weyermann",
      "unit": "kg",

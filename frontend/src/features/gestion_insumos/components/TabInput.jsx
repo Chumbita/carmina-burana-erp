@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react"
-import { useBlocker } from "react-router-dom"
+import { useBlocker, useNavigate } from "react-router-dom"
 import { InputForm } from "./InputForm"
 import { useDeleteInsumo } from "../hooks/useDeleteInsumo"
 
@@ -28,9 +28,11 @@ import {
   AlertIndicatorDestructive,
 } from "../components/Notifications"
 
+
+
 export function TabInput({ insumo }) {
   const formRef = useRef(null)
-
+  const navigate = useNavigate()
   const [notification, setNotification] = useState(null)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
 
@@ -59,6 +61,7 @@ export function TabInput({ insumo }) {
 
   const handleConfirmDelete = async () => {
     await deleteInsumo(insumo.id)
+    navigate(-1)
     setOpenDeleteDialog(false)
   }
 
