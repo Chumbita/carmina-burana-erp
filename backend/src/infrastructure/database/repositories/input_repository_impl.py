@@ -93,6 +93,10 @@ class InputRepositoryImpl(InputRepository):
     async def get_input_by_id(self, input_id: int) -> Optional[Input]:
         model = await self.db.get(InputModel, input_id)
         return self._to_entity(model) if model else None
+    
+    async def get_input_entity_by_id(self, input_id: int) -> Optional[Input]:
+        model = await self.db.get(InputModel, input_id)
+        return self._to_entity(model) if model else None
 
     # ======================
     # CREATE

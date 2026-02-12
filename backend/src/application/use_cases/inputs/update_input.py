@@ -7,7 +7,7 @@ class UpdateInputUseCase:
 
     async def execute(self, input_id: int, data: dict):
 
-        input_obj = await self.repository.get_input_by_id(input_id)
+        input_obj = await self.repository.get_input_entity_by_id(input_id)
 
         if not input_obj:
             raise Exception("Insumo no encontrado")

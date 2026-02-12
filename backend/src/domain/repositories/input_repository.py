@@ -14,6 +14,11 @@ class InputRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_input_entity_by_id(self, input_id: int) -> Optional[Input]:
+        pass
+
+
+    @abstractmethod
     async def create(self, input: Input) -> Input:
         pass
 
@@ -32,6 +37,8 @@ class InputRepository(ABC):
     @abstractmethod
     async def has_stock(self, input_id: int) -> bool:
         pass
+
+    @abstractmethod
     async def find_by_identity(self, name: str, brand: str | None, category: str | None):
         pass
 
