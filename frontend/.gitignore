@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .env
+
+NuevoLotePage.jsx
+LotesTable.jsx
