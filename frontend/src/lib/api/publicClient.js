@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Cliente HTTP reutilizable
 // Cliente público para realizar peticiones que no requieran incluir el token

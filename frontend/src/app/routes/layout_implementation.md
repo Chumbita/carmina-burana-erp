@@ -6,8 +6,8 @@
 Crea el componente de página en la carpeta correspondiente, ejemplo:
 
 ```jsx
-// src/features/inventario/pages/InsumosPage.jsx
-export default function InsumosPage() {
+// src/features/inventario/pages/InputsPage.jsx
+export default function InputsPage() {
   return (
     <div>
       <h1>Gestión de Insumos</h1>
@@ -26,7 +26,7 @@ Agrega tu ruta en `src/routes/index.jsx`:
 
 ```jsx
 // Importa las páginas con lazy loading
-const InsumosPage = lazy(() => import("@/features/inventario/pages/InsumosPage"))
+const InputsPage = lazy(() => import("@/features/inventario/pages/InputsPage"))
 
 export const router = createBrowserRouter([
   {
@@ -38,7 +38,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/inventario/insumos",
-        element: <InsumosPage />, // 👈 nueva página
+        element: <InputsPage />, // 👈 nueva página
       },
       
     ],
@@ -69,7 +69,7 @@ Todas las rutas dentro del `children` de `AppLayout` tendrán el layout aplicado
   children: [
     { path: "/dashboard", element: <DashboardPage /> },
     { path: "/produccion/cocciones", element: <CoccionesPage /> },
-    { path: "/inventario/insumos", element: <InsumosPage /> },
+    { path: "/inventario/insumos", element: <InputsPage /> },
     // ... todas las rutas..
   ],
 }
