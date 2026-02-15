@@ -23,7 +23,7 @@ export const insumoSchema = z.object({
 
   unit: z
     .string()
-    .min(1, "*"),
+    .min(1, ""),
 
   minimum_stock: z
     .number("El stock mínimo debe ser un número")

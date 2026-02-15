@@ -98,7 +98,7 @@ export function InputsTable({ insumos, onDeleteSuccess }) {
                   to={`/inventario/insumos/${insumo.id}`}
                   className="hover:underline"
                 >
-                  {insumo.name} {insumo.id}
+                  {insumo.name} 
                 </Link>
               </TableCell>
 

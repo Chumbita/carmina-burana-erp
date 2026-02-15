@@ -5,7 +5,7 @@ import UserProfileForm from "../components/UserProfileForm";
 import ChangePasswordForm from "../components/ChangePasswordForm";
 
 // Componentes de shadcn
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { useState } from "react";
 import { User } from "lucide-react";
 
