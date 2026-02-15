@@ -8,7 +8,10 @@ class InputResponse(BaseModel):
     category: str | None
     unit: str
     minimum_stock: Decimal
+    stockTotal: float
+    estadoStock: str
     image: str | None
+    status: bool
 
     class Config:
         from_attributes = True
