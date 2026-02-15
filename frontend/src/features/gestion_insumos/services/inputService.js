@@ -10,13 +10,18 @@ export const inputService = {
     // Normalizar la respuesta para campos que aún no llegan del backend
     return response.data.map((insumo) => ({
       ...insumo,
-      stock_total: insumo.stock_total ?? 0, 
-      stock_status: insumo.stock_status ?? "optimo",  
+      stockTotal: insumo.stockTotal ?? 0, 
+      estadoStock: insumo.estadoStock ?? "optimo",  
     }))
   },
 
     //temporal mockeado hasta conectar con el back
   getById: async (id) => {
+
+    const response = await privateClient.get(ENDPOINTS.INPUTS.GET_BY_ID(id))
+    return response.data
+
+
   return new Promise((resolve) => {
     
       const insumo = INSUMOS_DETALLE.find((i) => i.id === id);
@@ -25,7 +30,6 @@ export const inputService = {
   });
 }
 ,
-
   create: async (data) => {
     const response = await privateClient.post(
       ENDPOINTS.INPUTS.CREATE,
@@ -55,7 +59,7 @@ const INSUMOS_DETALLE = [
     "stock_total": 1850,
      "brand": "Cargill",
     "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmtXD6-JwrzeJVK69V4XPYeiycJX6DgvBkOw&s",
-    "stock_status": "optimo",    
+    "estadoStock": "optimo",    
     "minimum_stock": 200,
   },
   {
@@ -64,7 +68,7 @@ const INSUMOS_DETALLE = [
     "brand": "Weyermann",
      "unit": "kg",
     "stock_total": 450,
-    "stock_status": "bajo",   
+    "estadoStock": "bajo",   
     "minimum_stock": 50,
   },
     {
@@ -73,7 +77,7 @@ const INSUMOS_DETALLE = [
     "brand": "Weyermann",
      "unit": "kg",
     "stock_total": 450,
-    "stock_status": "bajo",   
+    "estadoStock": "bajo",   
     "minimum_stock": 50,
   },
     {
@@ -82,7 +86,7 @@ const INSUMOS_DETALLE = [
     "brand": "Weyermann",
      "unit": "kg",
     "stock_total": 450,
-    "stock_status": "bajo",   
+    "estadoStock": "bajo",   
     "minimum_stock": 50,
   },
     {
@@ -91,7 +95,7 @@ const INSUMOS_DETALLE = [
     "brand": "Weyermann",
      "unit": "kg",
     "stock_total": 450,
-    "stock_status": "bajo",   
+    "estadoStock": "bajo",   
     "minimum_stock": 50,
   },
 ] 

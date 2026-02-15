@@ -166,7 +166,7 @@ export function InputForm({
                         <SelectGroup>
                           <SelectLabel>Unidades</SelectLabel>
                           <SelectItem value="kg">kg</SelectItem>
-                          <SelectItem value="l">L</SelectItem>
+                          <SelectItem value="L">L</SelectItem>
                           <SelectItem value="un">un</SelectItem>.
                         </SelectGroup>
                       </SelectContent>
@@ -216,7 +216,7 @@ export function InputForm({
                       <SelectGroup>
                         <SelectLabel>Unidades</SelectLabel>
                         <SelectItem value="kg">kg</SelectItem>
-                        <SelectItem value="l">L</SelectItem>
+                        <SelectItem value="L">L</SelectItem>
                         <SelectItem value="un">un</SelectItem>
                       </SelectGroup>
                     </SelectContent>

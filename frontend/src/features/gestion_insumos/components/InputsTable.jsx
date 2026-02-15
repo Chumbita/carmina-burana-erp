@@ -40,7 +40,7 @@ import {
 const estadoStyles = {
   optimo: "bg-green-100 text-green-800",
   bajo: "bg-yellow-100 text-yellow-800",
-  critico: "bg-red-100 text-red-800",
+  critico: "bg-red-100 text-red-700",
 }
 
 export function InputsTable({ insumos, onDeleteSuccess }) {
@@ -105,15 +105,15 @@ export function InputsTable({ insumos, onDeleteSuccess }) {
               <TableCell className="hidden md:table-cell">{insumo.brand}</TableCell>
               <TableCell className="hidden lg:table-cell">{insumo.category}</TableCell>
               <TableCell className="whitespace-nowrap">
-                {insumo.stock_total} {insumo.unit}
+                {insumo.stockTotal} {insumo.unit}
               </TableCell>
 
               <TableCell>
                 <Badge
                   variant="outline"
-                  className={estadoStyles[insumo.stock_status]}
+                  className={estadoStyles[insumo.estadoStock]}
                 >
-                  {insumo.stock_status}
+                  {insumo.estadoStock}
                 </Badge>
               </TableCell>
 
