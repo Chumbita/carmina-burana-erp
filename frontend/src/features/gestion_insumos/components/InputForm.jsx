@@ -46,10 +46,14 @@ export function InputForm({
     defaultValues,
   })
 
-  // Exponer métodos al padre si se necesita
-  if (formRef) {
-    formRef.current = { handleSubmit, reset, isDirty }
-  }
+    // Exponer métodos al padre 
+    if (formRef) {
+      formRef.current = {
+        submit: () => handleSubmit(onSubmit)(),
+        reset,
+        isDirty,
+      }
+    }
 
   const isModal = layout === "modal"
 

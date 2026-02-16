@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react"
 import { useBlocker, useNavigate } from "react-router-dom"
 import { InputForm } from "./InputForm"
 import { useDeleteInsumo } from "../hooks/useDeleteInsumo"
+import { inputService } from "../services/inputService"
 
 import {
   Dialog,
@@ -30,6 +31,7 @@ import {
 
 
 
+
 export function TabInput({ insumo }) {
   const formRef = useRef(null)
   const navigate = useNavigate()
@@ -51,10 +53,43 @@ export function TabInput({ insumo }) {
     }
   )
 
-  function onSubmit(data) {
-    alert("Guardar cambios")
+//editar insumo
+async function onSubmit(data) {
+  try {
+    const response = await inputService.patch(insumo.id, data)
+    
+    setNotification({
+      type: "success",
+      message: "Insumo actualizado correctamente",
+    })
+    
+    if (formRef.current?.reset) {
+      formRef.current.reset({
+        name: data.name,
+        brand: data.brand,
+        category: data.category,
+        unit: data.unit,
+        minimum_stock: data.minimum_stock,
+        image: data.image,
+      }, {
+        keepDirty: false,
+        keepDirtyValues: false,
+      })
+    }
+    
+    return true
+    
+  } catch (error) {
+    console.error(error)
+    
+    setNotification({
+      type: "error",
+      message: "No se pudo actualizar el insumo",
+    })
+    
+    return false
   }
-
+}
   function onDelete() {
     setOpenDeleteDialog(true)
   }
@@ -108,20 +143,27 @@ export function TabInput({ insumo }) {
       />
 
       {/* confirm navegación */}
-      {blocker.state === "blocked" && (
-        <ConfirmModal
-          onSave={() => {
-            formRef.current?.handleSubmit(onSubmit)()
-            blocker.proceed()
-          }}
-          onDiscard={() => {
-            formRef.current?.reset()
-            blocker.proceed()
-          }}
-          onCancel={() => blocker.reset()}
-        />
-      )}
-
+     {blocker.state === "blocked" && (
+    <ConfirmModal
+      onSave={() => {
+        formRef.current?.submit()
+          navigate(-1)
+      }}
+      onDiscard={() => {
+        // Resetear a los valores originales
+        formRef.current?.reset({
+          name: insumo.name,
+          brand: insumo.brand,
+          category: insumo.category,
+          unit: insumo.unit,
+          minimum_stock: insumo.minimum_stock,
+          image: insumo.image,
+        })
+        blocker.proceed()
+      }}
+      onCancel={() => blocker.reset()}
+    />
+  )}
       {/* dialog delete */}
       <DeleteInsumoDialog
         open={openDeleteDialog}
@@ -149,8 +191,15 @@ export function TabInput({ insumo }) {
     </>
   )
 }
-
 function ConfirmModal({ onSave, onDiscard, onCancel }) {
+  const [isSaving, setIsSaving] = useState(false)
+  
+    const handleSave = async () => {
+      setIsSaving(true)
+      await onSave()
+      setIsSaving(false)
+    }
+  
   return (
     <Dialog open onOpenChange={(open) => !open && onCancel()}>
       <DialogContent>
@@ -161,21 +210,37 @@ function ConfirmModal({ onSave, onDiscard, onCancel }) {
         <p className="text-sm">Tienes cambios sin guardar. ¿Qué deseas hacer?</p>
 
         <div className="flex justify-end gap-2 mt-4">
-          <Button size="sm" variant="outline" onClick={onCancel} className="mr-auto cursor-pointer">
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={onCancel} 
+            className="mr-auto cursor-pointer"
+            disabled={isSaving}
+          >
             Cancelar
           </Button>
-          <Button size="sm" variant="secondary" onClick={onDiscard} className="cursor-pointer">
+          <Button 
+            size="sm" 
+            variant="secondary" 
+            onClick={onDiscard} 
+            className="cursor-pointer"
+            disabled={isSaving}
+          >
             Descartar
           </Button>
-          <Button size="sm" onClick={onSave} className="cursor-pointer">
-            Guardar
+          <Button 
+            size="sm" 
+            onClick={handleSave} 
+            className="cursor-pointer"
+            disabled={isSaving}
+          >
+            {isSaving ? "Guardando..." : "Guardar"}
           </Button>
         </div>
       </DialogContent>
     </Dialog>
   )
 }
-
 function DeleteInsumoDialog({
   open,
   onOpenChange,
