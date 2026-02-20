@@ -11,7 +11,9 @@ export const ENDPOINTS = {
     // Inputs
     INPUTS: {
         GET_ALL: '/inputs/',
+        GET_BY_ID: (input_id) => `/inputs/${input_id}`,
         CREATE: '/inputs/',
-        DELETE: (input_id) => `/inputs/${input_id}`
+        DELETE: (input_id) => `/inputs/${input_id}`,
+        PATCH: (input_id) => `/inputs/${input_id}`,
     },
 }

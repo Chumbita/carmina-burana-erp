@@ -19,7 +19,7 @@ import {
 const estadoStyles = {
   optimo: "bg-green-100 text-green-800",
   bajo: "bg-yellow-100 text-yellow-800",
-  critico: "bg-red-100 text-red-800",
+  critico: "bg-red-100 text-red-600",
 }
 
 export default function InputDetailPage() {
@@ -29,11 +29,13 @@ export default function InputDetailPage() {
   const [insumo, setInsumo] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // OBTENER Y CARGAR INSUMO (por ahora del mock)
+  // OBTENER Y CARGAR INSUMO
   async function loadInsumo() {
     try {
       const data = await inputService.getById(insumoId)
       setInsumo(data)
+      console.log(data);
+      
     } catch (error) {
       console.error("Error al cargar insumo:", error)
     } finally {
@@ -88,13 +90,13 @@ export default function InputDetailPage() {
         <div className="space-y-2 text-sm ">
           <div className="flex justify-between ">
             <span className="text-gray-500">Stock actual</span>
-            <span className="font-medium">{insumo.stock_total} {insumo.unit}</span>
+            <span className="font-medium">{insumo.stock_actual} {insumo.unit}</span>
           </div>
 
           <div className="flex justify-between">
             <span className="text-gray-500">Estado</span>
-            <Badge className={estadoStyles[insumo.stock_status]}>
-              {insumo.stock_status}
+            <Badge className={estadoStyles[insumo.estado_stock]}>
+              {insumo.estado_stock}
             </Badge>
           </div>
 

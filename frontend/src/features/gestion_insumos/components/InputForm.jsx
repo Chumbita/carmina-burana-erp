@@ -46,10 +46,14 @@ export function InputForm({
     defaultValues,
   })
 
-  // Exponer métodos al padre si se necesita
-  if (formRef) {
-    formRef.current = { handleSubmit, reset, isDirty }
-  }
+    // Exponer métodos al padre 
+    if (formRef) {
+      formRef.current = {
+        submit: () => handleSubmit(onSubmit)(),
+        reset,
+        isDirty,
+      }
+    }
 
   const isModal = layout === "modal"
 
@@ -65,7 +69,9 @@ export function InputForm({
           control={control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Nombre</FieldLabel>
+              <FieldLabel htmlFor={field.name}>
+                Nombre <span className="text-red-500 -ml-1">*</span>
+                </FieldLabel>
               <Input
                 {...field}
                 id={field.name}
@@ -82,7 +88,9 @@ export function InputForm({
           control={control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Marca</FieldLabel>
+              <FieldLabel htmlFor={field.name}>
+                Marca<span className="text-red-500 -ml-1">*</span>
+              </FieldLabel>
               <Input
                 {...field}
                 id={field.name}
@@ -99,7 +107,9 @@ export function InputForm({
           control={control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Categoría</FieldLabel>
+              <FieldLabel htmlFor={field.name}>Categoría
+                <span className="text-red-500 -ml-1">*</span>
+              </FieldLabel>
               <Input
                 {...field}
                 id={field.name}
@@ -120,7 +130,9 @@ export function InputForm({
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Stock mínimo</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>
+                      Stock mínimo <span className="text-red-500 -ml-1">*</span>
+                    </FieldLabel>
                     <Input
                       {...field}
                       id={field.name}
@@ -140,8 +152,8 @@ export function InputForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                      <span className="-ml-1">Unidad de medida</span>
+                      {fieldState.invalid && <FieldError  />}
+                      Unidad de medida <span className="text-red-500 -ml-1">*</span>
                     </FieldLabel>
                     <Select
                       name={field.name}
@@ -158,8 +170,8 @@ export function InputForm({
                         <SelectGroup>
                           <SelectLabel>Unidades</SelectLabel>
                           <SelectItem value="kg">kg</SelectItem>
-                          <SelectItem value="l">L</SelectItem>
-                          <SelectItem value="un">un</SelectItem>
+                          <SelectItem value="L">L</SelectItem>
+                          <SelectItem value="un">un</SelectItem>.
                         </SelectGroup>
                       </SelectContent>
                     </Select>
@@ -188,7 +200,10 @@ export function InputForm({
               control={control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Unidad de medida</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>
+                    Unidad de medida
+                    <span className="text-red-500 -ml-1">*</span>
+                  </FieldLabel>
                   <Select
                     name={field.name}
                     value={field.value}
@@ -205,7 +220,7 @@ export function InputForm({
                       <SelectGroup>
                         <SelectLabel>Unidades</SelectLabel>
                         <SelectItem value="kg">kg</SelectItem>
-                        <SelectItem value="l">L</SelectItem>
+                        <SelectItem value="L">L</SelectItem>
                         <SelectItem value="un">un</SelectItem>
                       </SelectGroup>
                     </SelectContent>
@@ -221,7 +236,10 @@ export function InputForm({
               control={control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Stock mínimo</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>                   
+                    Stock mínimo
+                    <span className="text-red-500 -ml-1">*</span>
+                  </FieldLabel>
                   <Input
                     {...field}
                     id={field.name}
