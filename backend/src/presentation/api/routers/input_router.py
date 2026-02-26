@@ -14,6 +14,8 @@ from src.presentation.dependencies.input_deps import get_update_inputs_use_case
 from src.presentation.schemas.input_response import InputResponse
 from src.application.use_cases.inputs.list_input import GetInputDetailUseCase
 from src.presentation.dependencies.input_deps import get_inputs_detail_use_case
+from src.domain.entities.user import User
+from src.presentation.dependencies.auth import get_current_user
 
 input_router = APIRouter(prefix="/inputs", tags=["Inputs"])
 
@@ -22,6 +24,7 @@ input_router = APIRouter(prefix="/inputs", tags=["Inputs"])
 async def create_input(
     data: InputCreateSchema,
     use_case: CreateInputUseCase = Depends(get_create_input_use_case),
+    current_user: User = Depends(get_current_user),
 ):
     return await use_case.execute(data.model_dump())
 
@@ -30,6 +33,7 @@ async def create_input(
 async def delete_input(
     input_id: int,
     use_case: DeleteInputUseCase = Depends(get_delete_input_use_case),
+    current_user: User = Depends(get_current_user),
 ):
     try:
         await use_case.execute(input_id)
@@ -54,6 +58,7 @@ async def delete_input(
 @input_router.get("/", response_model=List[InputResponse])
 async def get_active_inputs(
     use_case: GetActiveInputsUseCase = Depends(get_active_inputs_use_case),
+    current_user: User = Depends(get_current_user),
 ):
     return await use_case.execute()
   
@@ -69,7 +74,8 @@ async def get_input_by_id(
 async def update_input(
     input_id: int,
     data: InputUpdateSchema,
-    use_case: UpdateInputUseCase = Depends(get_update_inputs_use_case)
+    use_case: UpdateInputUseCase = Depends(get_update_inputs_use_case),
+    current_user: User = Depends(get_current_user),
 ):
     return await use_case.execute(input_id, data.model_dump(exclude_unset=True))
 
