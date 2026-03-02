@@ -2,7 +2,7 @@ import { useRef, useState } from "react"
 import { useInputs } from "./useInputs"
 import { useInputFilters } from "./useFiltersInputs"
 import { useNotification } from "./useNotification"
-
+import { useLocationNotification } from "./useLocationNotification"
 // Hook orquestador de la página de insumos.
 // Compone useInputs, useInputFilters y useNotification en un único punto de entrada,
 // manteniendo la page limpia de lógica y centrada solo en el renderizado.
@@ -13,6 +13,8 @@ export function useInputsPage() {
   const { inputs, loading, error, createInput } = useInputs()
   const { search, categoriaFilter, categorias, setSearch, setCategoriaFilter, filteredInputs } = useInputFilters()
   const { notification, notify, clearNotification } = useNotification()
+  
+  useLocationNotification(notify)
 
   const [openModal, setOpenModal] = useState(false)
   const tableRef = useRef(null)

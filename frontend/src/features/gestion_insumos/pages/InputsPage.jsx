@@ -3,14 +3,11 @@ import { InputsTable } from "../components/InputsTable"
 import { FilterBar } from "../components/FilterBar"
 import { NewInputModal } from "../components/NewInputModal"
 import { Notification } from "../components/Notifications"
-
 //hooks
 import { useInputsPage } from "../hooks/useInputsPage"
-
 //componentes shadcn
 import { Button } from "@/components/ui/Button"
 import { Spinner } from "@/components/ui/Spinner"
-
 //iconos
 import { Plus } from "lucide-react"
 
