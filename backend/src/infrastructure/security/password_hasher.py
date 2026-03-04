@@ -2,7 +2,7 @@ from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
-class PasswordHasher:
+class Argon2PasswordHasher:
     """
     Implementación del servicio de passwords usando argon2-cffi.
     """
