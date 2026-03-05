@@ -1,5 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
+from src.domain.entities.user import User
+from src.presentation.dependencies.auth import get_current_user
+
 
 input_router = APIRouter(prefix="/inputs", tags=["Inputs"])
 
@@ -12,6 +15,7 @@ from src.presentation.schemas.input_schema import InputCreateSchema
 async def create_input(
     data: InputCreateSchema,
     use_case: CreateInputUseCase = Depends(get_create_input_use_case),
+    current_user: User = Depends(get_current_user),
 ):
     return await use_case.execute(data.model_dump())
 
@@ -23,6 +27,7 @@ from src.presentation.schemas.input_response import InputResponse
 @input_router.get("/", response_model=List[InputResponse])
 async def get_active_inputs(
     use_case: GetActiveInputsUseCase = Depends(get_active_inputs_use_case),
+    current_user: User = Depends(get_current_user),
 ):
     return await use_case.execute()
   
@@ -33,6 +38,7 @@ from src.presentation.dependencies.use_cases.inputs import get_inputs_detail_use
 async def get_input_by_id(
     input_id: int,
     use_case: GetInputDetailUseCase = Depends(get_inputs_detail_use_case),
+    current_user: User = Depends(get_current_user),
 ):
     return await use_case.execute(input_id)
 
@@ -45,7 +51,8 @@ from src.presentation.schemas.input_update_schema import InputUpdateSchema
 async def update_input(
     input_id: int,
     data: InputUpdateSchema,
-    use_case: UpdateInputUseCase = Depends(get_update_input_use_case)
+    use_case: UpdateInputUseCase = Depends(get_update_input_use_case),
+    current_user: User = Depends(get_current_user),
 ):
     return await use_case.execute(input_id, data.model_dump(exclude_unset=True))
 
@@ -57,6 +64,7 @@ from src.presentation.dependencies.use_cases.inputs import get_delete_input_use_
 async def delete_input(
     input_id: int,
     use_case: DeleteInputUseCase = Depends(get_delete_input_use_case),
+    current_user: User = Depends(get_current_user),
 ):
     try:
         await use_case.execute(input_id)
