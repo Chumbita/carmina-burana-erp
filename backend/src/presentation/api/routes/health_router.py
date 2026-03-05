@@ -5,6 +5,7 @@ from src.infrastructure.database.deps import get_db
 
 health_router = APIRouter(tags=["health"])
 
+# HEALCK CHECK
 @health_router.get("/health")
 async def health_check(db: AsyncSession = Depends(get_db)):
     """
