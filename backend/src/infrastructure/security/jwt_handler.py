@@ -16,7 +16,7 @@ class JWTHandler:
         
         # Payload del token
         payload = {
-            "sub": user_id,
+            "sub": str(user_id),
             "username": username,
             "exp": expire
         }
