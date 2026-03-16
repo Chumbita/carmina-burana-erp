@@ -7,7 +7,7 @@ from src.infrastructure.config.settings import settings
 from src.infrastructure.database.base import Base
 
 # Importar todos los modelos aquí debajo
-from src.infrastructure.database.models import UserModel, InputModel, InputMovementModel
+from src.infrastructure.database.models import UserModel, InputModel, AuditLogModel
 from src.infrastructure.database.models.input_entry_model import InputEntryModel
 from src.infrastructure.database.models.input_entry_item_model import InputEntryItemModel
 from src.infrastructure.database.models.input_inventory_model import InputInventoryModel

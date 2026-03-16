@@ -1,12 +1,12 @@
-from src.application.use_cases.record_input_movement import RecordInputMovementUseCase
+from src.application.use_cases.record_audit_log import RecordAuditLogUseCase
 
 IDENTIFY_FILEDS = {"name", "brand", "category"}
 
 class UpdateInputUseCase:
 
-    def __init__(self, repository, movement_use_case: RecordInputMovementUseCase = None):
+    def __init__(self, repository, audit_log_use_case: RecordAuditLogUseCase = None):
         self.repository = repository
-        self._movement_use_case = movement_use_case
+        self._audit_log_use_case = audit_log_use_case
 
     async def execute(self, input_id: int, data: dict):
 
@@ -49,23 +49,24 @@ class UpdateInputUseCase:
                     )
         updated = await self.repository.update(input_id, data)
         
-        # Record movement for update
-        if self._movement_use_case:
+        # Record audit log for update
+        if self._audit_log_use_case:
             # Create after snapshot
             after_snapshot = before_snapshot.copy()
             after_snapshot.update(data)
             
-            # Validar performed_by - si es "0", vacío o inválido, establecer como null
-            performed_by = data.get("performed_by")
-            if performed_by in ["0", "", None, 0]:
-                performed_by = None
+            # Validar user_id - si es "0", vacío o inválido, establecer como null
+            user_id = data.get("performed_by")
+            if user_id in ["0", "", None, 0]:
+                user_id = None
             
-            await self._movement_use_case.execute(
-                input_id=input_id,
-                event_type="UPDATED",
-                before=before_snapshot,
-                after=after_snapshot,
-                performed_by=performed_by
+            await self._audit_log_use_case.execute(
+                entity_type="input",
+                entity_id=input_id,
+                action="UPDATED",
+                old_data=before_snapshot,
+                new_data=after_snapshot,
+                user_id=user_id
             )
         
         return updated

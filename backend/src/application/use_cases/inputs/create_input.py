@@ -1,13 +1,13 @@
 from fastapi import HTTPException, status
 from src.domain.entities.input import Input
 from src.domain.repositories.input_repository import InputRepository
-from src.application.use_cases.record_input_movement import RecordInputMovementUseCase
+from src.application.use_cases.record_audit_log import RecordAuditLogUseCase
 
 class CreateInputUseCase:
 
-    def __init__(self, repository: InputRepository, movement_use_case: RecordInputMovementUseCase = None):
+    def __init__(self, repository: InputRepository, audit_log_use_case: RecordAuditLogUseCase = None):
         self.repository = repository
-        self._movement_use_case = movement_use_case
+        self._audit_log_use_case = audit_log_use_case
 
     async def execute(self, data: dict) -> Input:
         new_input = Input(**data)
@@ -22,14 +22,15 @@ class CreateInputUseCase:
             if not existing.status:
                 existing.status = True
                 updated_input = await self.repository.reactivate(existing)
-                # Record movement for reactivation
-                if self._movement_use_case:
-                    await self._movement_use_case.execute(
-                        input_id=updated_input.id,
-                        event_type="UPDATED",
-                        before={"status": False},
-                        after={"status": True},
-                        performed_by=data.get("performed_by")
+                # Record audit log for reactivation
+                if self._audit_log_use_case:
+                    await self._audit_log_use_case.execute(
+                        entity_type="input",
+                        entity_id=updated_input.id,
+                        action="UPDATED",
+                        old_data={"status": False},
+                        new_data={"status": True},
+                        user_id=data.get("performed_by")
                     )
                 return updated_input
             else:
@@ -39,13 +40,14 @@ class CreateInputUseCase:
                 )
 
         created_input = await self.repository.create(new_input)
-        # Record movement for creation
-        if self._movement_use_case:
-            await self._movement_use_case.execute(
-                input_id=created_input.id,
-                event_type="CREATED",
-                before={},
-                after=data,
-                performed_by=data.get("performed_by")
+        # Record audit log for creation
+        if self._audit_log_use_case:
+            await self._audit_log_use_case.execute(
+                entity_type="input",
+                entity_id=created_input.id,
+                action="CREATED",
+                old_data=None,  # no hay estado anterior en creación
+                new_data=data,
+                user_id=data.get("performed_by")
             )
         return created_input

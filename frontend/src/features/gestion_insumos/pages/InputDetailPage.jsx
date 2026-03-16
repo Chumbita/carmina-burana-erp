@@ -1,7 +1,7 @@
 //componentes shadcn
 import { InputDetailTabs } from "../components/InputDetailTabs";
 import { Spinner } from "@/components/ui/Spinner";
-import { InputMovementHistory } from "../components/InputMovementHistory";
+import { AuditLogHistory } from "@/components/shared/AuditLogHistory";
 
 //hooks
 import { useParams } from "react-router-dom";
@@ -35,7 +35,7 @@ export default function InputDetailPage() {
       </main>
       <section>
         <h2 className="text-xl font-semibold mb-4">Historial de Movimientos</h2>
-        <InputMovementHistory inputId={input.id} refreshKey={refreshKey} />
+        <AuditLogHistory entityType="input" entityId={input.id} refreshKey={refreshKey} />
       </section>
     </div>
   )
