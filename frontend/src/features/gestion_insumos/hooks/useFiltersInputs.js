@@ -4,13 +4,13 @@ import { useState } from "react"
 
 export function useInputFilters() {
   const categorias = [
-    { value: "todas", label: "Categorías..." },
-    { value: "Lúpulo", label: "Lúpulo" },
-    { value: "Malta", label: "Malta" },
-    { value: "Envases", label: "Envases" },
+    { value: "all", label: "Categorías..." },
+    { value: "hop", label: "Lúpulo" },
+    { value: "malt", label: "Malta" },
+    { value: "packaging", label: "Envases" },
   ]
 
-    const [categoriaFilter, setCategoriaFilter] = useState("todas")
+    const [categoriaFilter, setCategoriaFilter] = useState("all")
     const [search, setSearch] = useState("")
 
     const filteredInputs = (inputs) => inputs.filter(input => {
@@ -23,7 +23,7 @@ export function useInputFilters() {
 
     // Filtro de categoría
     const matchesCategoria =
-      categoriaFilter === "todas" ||
+      categoriaFilter === "all" ||
       input.category === categoriaFilter
 
     return matchesSearch && matchesCategoria

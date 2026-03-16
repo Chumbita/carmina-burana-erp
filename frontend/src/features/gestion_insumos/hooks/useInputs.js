@@ -12,8 +12,7 @@ export function useInputs() {
         const data = await inputService.getAll()
         setInputs(data)
     } catch (error) {
-      setError(error)
-        throw new Error(`fallo al cargar los insumos error: ${error}` );       
+      setError(error)       
     } finally {
         setLoading(false)
     }
@@ -32,7 +31,6 @@ export function useInputs() {
     } 
     catch (error) {
       setError(error)
-      throw error
     }
   }
 
