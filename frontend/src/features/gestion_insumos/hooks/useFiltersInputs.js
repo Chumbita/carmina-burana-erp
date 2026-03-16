@@ -3,14 +3,14 @@
 import { useState } from "react"
 
 export function useInputFilters() {
-  const categorias = [
+  const categories = [
     { value: "all", label: "Categorías..." },
     { value: "hop", label: "Lúpulo" },
     { value: "malt", label: "Malta" },
     { value: "packaging", label: "Envases" },
   ]
 
-    const [categoriaFilter, setCategoriaFilter] = useState("all")
+    const [categoryFilter, setCategoryFilter] = useState("all")
     const [search, setSearch] = useState("")
 
     const filteredInputs = (inputs) => inputs.filter(input => {
@@ -22,20 +22,20 @@ export function useInputFilters() {
       input.brand?.toLowerCase().includes(searchLower)
 
     // Filtro de categoría
-    const matchesCategoria =
-      categoriaFilter === "all" ||
-      input.category === categoriaFilter
+    const matchesCategory =
+      categoryFilter === "all" ||
+      input.category === categoryFilter
 
-    return matchesSearch && matchesCategoria
+    return matchesSearch && matchesCategory
   })
 
 
 return {
-  categorias,
+  categories,
   search,          
-  categoriaFilter, 
+  categoryFilter, 
   setSearch,
-  setCategoriaFilter,
+  setCategoryFilter,
   filteredInputs,
 }
 }
