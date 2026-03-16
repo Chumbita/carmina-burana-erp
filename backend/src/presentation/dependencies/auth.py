@@ -32,7 +32,7 @@ async def get_current_user(
     jwt_handler = JWTHandler()
     try: 
         payload = jwt_handler.decode_token(token)
-        user_id = payload.get("sub")
+        user_id = int(payload.get("sub"))
         
         if user_id is None:
             raise HTTPException(
