@@ -4,6 +4,7 @@ from src.presentation.api.routers import health_router
 from src.presentation.api.routers import auth_router
 from src.presentation.api.routers import input_router
 from src.presentation.api.routers import users_router
+from src.presentation.routers.input_movements_router import router as movements_router
 
 def create_app():
     app = FastAPI()
@@ -20,6 +21,9 @@ def create_app():
     
     # Users routes
     app.include_router(users_router)
+    
+    # Input movements routes
+    app.include_router(movements_router)
     
     """ Healthcheck Route """
     app.include_router(health_router)

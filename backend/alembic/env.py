@@ -7,7 +7,7 @@ from src.infrastructure.config.settings import settings
 from src.infrastructure.database.base import Base
 
 # Importar todos los modelos aquí debajo
-from src.infrastructure.database.models import UserModel, InputModel
+from src.infrastructure.database.models import UserModel, InputModel, InputMovementModel
 from src.infrastructure.database.models.input_entry_model import InputEntryModel
 from src.infrastructure.database.models.input_entry_item_model import InputEntryItemModel
 from src.infrastructure.database.models.input_inventory_model import InputInventoryModel
@@ -16,7 +16,22 @@ from src.infrastructure.database.models.input_inventory_model import InputInvent
 # access to the values within the .ini file in use.
 
 config = context.config
-sync_url = settings.DATABASE_URL.replace("+asyncpg", "+psycopg2")
+
+# Crear URL síncrona para Alembic - manejar ambos casos
+database_url = settings.DATABASE_URL
+if "+asyncpg" in database_url:
+    sync_url = database_url.replace("+asyncpg", "+psycopg2")
+elif "+psycopg2" not in database_url:
+    sync_url = database_url.replace("postgresql://", "postgresql+psycopg2://")
+else:
+    sync_url = database_url
+
+# Corregir host y puerto para Docker
+if "localhost:5433" in sync_url:
+    sync_url = sync_url.replace("localhost:5433", "db:5432")
+elif "127.0.0.1:5433" in sync_url:
+    sync_url = sync_url.replace("127.0.0.1:5433", "db:5432")
+
 config.set_main_option("sqlalchemy.url", sync_url)
 
 # Interpret the config file for Python logging.
@@ -67,8 +82,9 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

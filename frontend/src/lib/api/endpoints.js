@@ -16,4 +16,8 @@ export const ENDPOINTS = {
         DELETE: (input_id) => `/inputs/${input_id}`,
         PATCH: (input_id) => `/inputs/${input_id}`,
     },
+    // Input Movements
+    INPUT_MOVEMENTS: {
+        GET_BY_INPUT_ID: (input_id) => `/inputs/${input_id}/movements`,
+    },
 }

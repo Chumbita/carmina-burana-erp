@@ -22,7 +22,7 @@ import { useNotification } from "../hooks/useNotification"
 import { useFormBlocker } from "../hooks/useFormBlocker";
 
 
-export function TabInput({ insumo }) {
+export function TabInput({ insumo, onInputUpdated }) {
   const formRef = useRef(null)
   const navigate = useNavigate()
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
@@ -59,7 +59,13 @@ async function onSubmit(data) {
         keepDirty: false,
         keepDirtyValues: false,
       })
-    }   
+    }
+    
+    // Notificar que el insumo fue actualizado para refrescar el historial
+    if (onInputUpdated) {
+      onInputUpdated();
+    }
+    
     return true
   } catch (error) {
     console.error(error)
