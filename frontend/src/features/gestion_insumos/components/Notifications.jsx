@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import { UserCheckIcon, UserRoundXIcon, X } from 'lucide-react'
 import { Alert, AlertTitle } from '@/components/ui/Alert'
+//este componente maneja que componente de notificiacion se devuelve según sea success o error y 
+//también define esos componentes 
 
-export const AlertIndicatorSuccess = ({ message, onClose, duration = 5000, onClick }) => {
+
+export const AlertIndicatorSuccess = ({ message, onClose, duration = 6000, onClick }) => {
   const [isVisible, setIsVisible] = useState(false)
   const [isExiting, setIsExiting] = useState(false)
 
@@ -73,7 +76,7 @@ export const AlertIndicatorSuccess = ({ message, onClose, duration = 5000, onCli
   )
 }
 
-export const AlertIndicatorDestructive = ({ message, onClose, duration = 5000 }) => {
+export const AlertIndicatorDestructive = ({ message, onClose, duration = 6000 }) => {
   const [isVisible, setIsVisible] = useState(false)
   const [isExiting, setIsExiting] = useState(false)
 
@@ -129,4 +132,27 @@ export const AlertIndicatorDestructive = ({ message, onClose, duration = 5000 })
       </Alert>
     </div>
   )
+}
+
+export function Notification({ notification, onClose }) {
+  if (!notification) return null
+
+  if (notification.type === 'success') {
+    return (
+      <AlertIndicatorSuccess
+        message={notification.message}
+        onClose={onClose}
+        onClick={notification.onClick}
+      />
+    )
+  }
+
+  if (notification.type === 'error') {
+    return (
+      <AlertIndicatorDestructive
+        message={notification.message}
+        onClose={onClose}
+      />
+    )
+  }
 }

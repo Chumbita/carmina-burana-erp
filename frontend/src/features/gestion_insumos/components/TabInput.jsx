@@ -1,15 +1,7 @@
-import { useRef, useEffect, useState } from "react"
-import { useBlocker, useNavigate } from "react-router-dom"
+//componentes 
 import { InputForm } from "./InputForm"
-import { useDeleteInsumo } from "../hooks/useDeleteInsumo"
-import { inputService } from "../services/inputService"
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/Dialog"
+import { Notification } from "../components/Notifications"
+import { ConfirmNavigationModal } from "./ConfirmNavigationModal"
 
 import {
   AlertDialog,
@@ -22,47 +14,39 @@ import {
   AlertDialogAction,
 } from "@/components/ui/AlertDialog"
 
-import { Button } from "@/components/ui/Button"
-
-import {
-  AlertIndicatorSuccess,
-  AlertIndicatorDestructive,
-} from "../components/Notifications"
-
-
+//hooks
+import { useRef, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useInputs } from "../hooks/useInputs"
+import { useNotification } from "../hooks/useNotification"
+import { useFormBlocker } from "../hooks/useFormBlocker";
 
 
 export function TabInput({ insumo }) {
   const formRef = useRef(null)
   const navigate = useNavigate()
-  const [notification, setNotification] = useState(null)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+  const { blocker } = useFormBlocker(formRef)
 
-  const { deleteInsumo, isDeleting } = useDeleteInsumo(
-    () => {
-      setNotification({
-        type: "success",
-        message: "Insumo eliminado correctamente",
-      })
-    },
-    () => {
-      setNotification({
-        type: "error",
-        message: "No se pudo eliminar el insumo",
-      })
-    }
-  )
+  const {
+    updateInput,
+    deleteInput,
+    loading,
+    error
+  } = useInputs()
+
+  const {
+    notification,
+    notify,
+    clearNotification
+  } = useNotification()
 
 //editar insumo
 async function onSubmit(data) {
   try {
-    const response = await inputService.patch(insumo.id, data)
-    
-    setNotification({
-      type: "success",
-      message: "Insumo actualizado correctamente",
-    })
-    
+    await updateInput(insumo.id, data)
+    notify.success(`Insumo actualizado correctamente`)
+
     if (formRef.current?.reset) {
       formRef.current.reset({
         name: data.name,
@@ -75,53 +59,33 @@ async function onSubmit(data) {
         keepDirty: false,
         keepDirtyValues: false,
       })
-    }
-    
+    }   
     return true
-    
   } catch (error) {
     console.error(error)
-    
-    setNotification({
-      type: "error",
-      message: "No se pudo actualizar el insumo",
-    })
-    
+      notify.error(`Error al actualizar el insumo ${error}`)
     return false
   }
 }
+
+//borrar insumo
   function onDelete() {
     setOpenDeleteDialog(true)
   }
 
   const handleConfirmDelete = async () => {
-    await deleteInsumo(insumo.id)
-    navigate(-1)
-    setOpenDeleteDialog(false)
-  }
-
-  const handleCloseNotification = () => {
-    setNotification(null)
-  }
-
-  // bloquear recarga navegador
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      if (!formRef.current?.isDirty) return
-      e.preventDefault()
-      e.returnValue = ""
+    try {
+      await deleteInput(insumo.id)
+      setOpenDeleteDialog(false) 
+      navigate("/inventario/insumos", { 
+        state: { 
+          notification: { type: 'success', message: `${insumo.name} eliminado con éxito` } 
+        } 
+      })
+    }catch (error) {
+      notify.error(`Ha ocurrido un problema ${error}`)
     }
-    window.addEventListener("beforeunload", handleBeforeUnload)
-    return () =>
-      window.removeEventListener("beforeunload", handleBeforeUnload)
-  }, [])
-
-  // bloquear navegación router
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      formRef.current?.isDirty &&
-      currentLocation.pathname !== nextLocation.pathname
-  )
+  }
 
   return (
     <>
@@ -144,10 +108,15 @@ async function onSubmit(data) {
 
       {/* confirm navegación */}
      {blocker.state === "blocked" && (
-    <ConfirmModal
-      onSave={() => {
-        formRef.current?.submit()
-          navigate(-1)
+    <ConfirmNavigationModal
+      onSave={async () => {
+        const success = await formRef.current?.submit()  
+        blocker.proceed()
+        navigate("/inventario/insumos", { 
+        state: { 
+          notification: { type: 'success', message: `${insumo.name} actualizado con éxito` } 
+        } 
+      })
       }}
       onDiscard={() => {
         // Resetear a los valores originales
@@ -169,78 +138,15 @@ async function onSubmit(data) {
         open={openDeleteDialog}
         onOpenChange={setOpenDeleteDialog}
         onConfirm={handleConfirmDelete}
-        isDeleting={isDeleting}
+        isDeleting={loading}
       />
 
       {/* notificaciones */}
-      {notification?.type === "success" && (
-        <AlertIndicatorSuccess
-          message={notification.message}
-          onClose={handleCloseNotification}
-          duration={6000}
-        />
-      )}
-
-      {notification?.type === "error" && (
-        <AlertIndicatorDestructive
-          message={notification.message}
-          onClose={handleCloseNotification}
-          duration={6000}
-        />
-      )}
+      <Notification notification={notification} onClose={clearNotification} />
     </>
   )
 }
-function ConfirmModal({ onSave, onDiscard, onCancel }) {
-  const [isSaving, setIsSaving] = useState(false)
-  
-    const handleSave = async () => {
-      setIsSaving(true)
-      await onSave()
-      setIsSaving(false)
-    }
-  
-  return (
-    <Dialog open onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-md">Cambios sin guardar</DialogTitle>
-        </DialogHeader>
 
-        <p className="text-sm">Tienes cambios sin guardar. ¿Qué deseas hacer?</p>
-
-        <div className="flex justify-end gap-2 mt-4">
-          <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={onCancel} 
-            className="mr-auto cursor-pointer"
-            disabled={isSaving}
-          >
-            Cancelar
-          </Button>
-          <Button 
-            size="sm" 
-            variant="secondary" 
-            onClick={onDiscard} 
-            className="cursor-pointer"
-            disabled={isSaving}
-          >
-            Descartar
-          </Button>
-          <Button 
-            size="sm" 
-            onClick={handleSave} 
-            className="cursor-pointer"
-            disabled={isSaving}
-          >
-            {isSaving ? "Guardando..." : "Guardar"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
-}
 function DeleteInsumoDialog({
   open,
   onOpenChange,
@@ -258,14 +164,14 @@ function DeleteInsumoDialog({
         </AlertDialogHeader>
 
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>
+          <AlertDialogCancel disabled={isDeleting} className="hover:bg-neutral-200 cursor-pointer">
             Cancelar
           </AlertDialogCancel>
 
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isDeleting}
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-red-600 hover:bg-red-700 cursor-pointer"
           >
             {isDeleting ? "Eliminando..." : "Eliminar"}
           </AlertDialogAction>

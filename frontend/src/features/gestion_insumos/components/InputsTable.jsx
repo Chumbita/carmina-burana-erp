@@ -11,14 +11,7 @@ import {
 } from "@/components/ui/Table"
 
 import { Badge } from "@/components/ui/Badge"
-
-
-// manejo provisorio de estado (critico, bajo , optimo)
-const estadoStyles = {
-  optimo: "bg-green-100 text-green-800",
-  bajo: "bg-yellow-100 text-yellow-800",
-  critico: "bg-red-100 text-red-700",
-}
+import { estadoStyles } from "../utils/stockStyles"
 
 export function InputsTable({ insumos }) {
   return (
