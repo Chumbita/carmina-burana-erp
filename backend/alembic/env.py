@@ -11,6 +11,9 @@ from src.infrastructure.database.models import UserModel, InputModel
 from src.infrastructure.database.models.input_entry_model import InputEntryModel
 from src.infrastructure.database.models.input_entry_item_model import InputEntryItemModel
 from src.infrastructure.database.models.input_inventory_model import InputInventoryModel
+from src.infrastructure.database.models import ProductModel
+from src.infrastructure.database.models import BomModel
+from src.infrastructure.database.models import BomItemModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

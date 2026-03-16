@@ -5,7 +5,7 @@ from src.infrastructure.database.base import Base
 class UserModel(Base):
     __tablename__ = "users"
     
-    id = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True)
     username = Column(String, unique=True, nullable=False)
     full_name = Column(String, nullable=False)
     password = Column(String, nullable=False)
