@@ -1,10 +1,12 @@
 //componentes shadcn
 import { InputDetailTabs } from "../components/InputDetailTabs";
 import { Spinner } from "@/components/ui/Spinner";
+import { AuditLogHistory } from "@/components/shared/AuditLogHistory";
 
 //hooks
 import { useParams } from "react-router-dom";
 import { useInput } from "../hooks/useInput";
+import { useState } from "react";
 
 //Componentes
 import { InputDetailHeader } from "../components/InputDetailHeader";
@@ -13,6 +15,12 @@ import { InputDetailSidebar } from "../components/InputDetailSidebar";
 export default function InputDetailPage() {
   const { inputId } = useParams();
   const {input, loading, error } = useInput(inputId)
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Función para refrescar el historial cuando se actualiza el insumo
+  const handleInputUpdated = () => {
+    setRefreshKey(prev => prev + 1);
+  };
 
   // Manejar loading
   if (loading) return <div className="flex items-center justify-center h-64"><Spinner /></div>
@@ -23,9 +31,12 @@ export default function InputDetailPage() {
       <InputDetailHeader name={input.name} />
       <InputDetailSidebar input={input} />
       <main className="border rounded-md p-4">
-        <InputDetailTabs insumo={input}></InputDetailTabs>
+        <InputDetailTabs insumo={input} onInputUpdated={handleInputUpdated}></InputDetailTabs>
       </main>
-      <section><p><h2>HISTORIAL DE MOVIMIENTOS coming soon...</h2></p></section>
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Historial de Movimientos</h2>
+        <AuditLogHistory entityType="input" entityId={input.id} refreshKey={refreshKey} />
+      </section>
     </div>
   )
 }

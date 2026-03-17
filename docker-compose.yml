@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
     environment:
       # Database connection
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: postgresql+asyncpg://postgres:aldo123@db:5432/dbcarmina
       # JWT & Security
       SECRET_KEY: ${SECRET_KEY}
       JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
@@ -40,6 +40,8 @@ services:
       # Python environment
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
+    env_file:
+      - .env
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     volumes:

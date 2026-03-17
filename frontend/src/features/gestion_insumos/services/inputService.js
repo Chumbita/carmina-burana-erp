@@ -16,11 +16,16 @@ export const inputService = {
 
   //CREATE
   create: async (data) => {
+    // Obtener usuario actual
+    const savedUser = localStorage.getItem("user");
+    const user = savedUser ? JSON.parse(savedUser) : null;
+    
     const response = await privateClient.post(
       ENDPOINTS.INPUTS.CREATE,
       {
         ...data,
-        image: data.image || null
+        image: data.image || null,
+        performed_by: user?.id || null
       }
     )
   return response.data
@@ -34,7 +39,17 @@ export const inputService = {
 
   //PATCH 
   patch: async (id, data) => {
-    const response = await privateClient.patch(ENDPOINTS.INPUTS.PATCH(id), data)
+    // Obtener usuario actual
+    const savedUser = localStorage.getItem("user");
+    const user = savedUser ? JSON.parse(savedUser) : null;
+    
+    const response = await privateClient.patch(
+      ENDPOINTS.INPUTS.PATCH(id), 
+      {
+        ...data,
+        performed_by: user?.id || null
+      }
+    )
     return response.data
   },
 }

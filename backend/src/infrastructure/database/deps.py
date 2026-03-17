@@ -9,4 +9,5 @@ async def get_db():
             await session.rollback()
             raise
         finally:
+            await session.commit()
             await session.close()
