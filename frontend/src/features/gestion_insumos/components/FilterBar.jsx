@@ -3,7 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/Button"
 import { X } from "lucide-react"
 
-export function FilterBar({ search, categoriaFilter, categorias, onSearchChange, onCategoriaChange }) {
+export function FilterBar({ search, categoryFilter, categories, onSearchChange, onCategoryChange }) {
   return (
     <div className="flex gap-3 flex-1">
       <Input
@@ -13,12 +13,12 @@ export function FilterBar({ search, categoriaFilter, categorias, onSearchChange,
         className="max-w-sm border-none bg-neutral-100 focus-visible:outline-none focus-visible:ring-2"
       />
 
-      <Select value={categoriaFilter} onValueChange={onCategoriaChange}>
+      <Select value={categoryFilter} onValueChange={onCategoryChange}>
         <SelectTrigger className="w-50 cursor-pointer bg-neutral-100 border-none text-muted-foreground">
           <SelectValue placeholder="Categoría" />
         </SelectTrigger>
         <SelectContent>
-          {categorias.map(cat => (
+          {categories.map(cat => (
             <SelectItem key={cat.value} value={cat.value}>
               {cat.label}
             </SelectItem>
@@ -26,14 +26,14 @@ export function FilterBar({ search, categoriaFilter, categorias, onSearchChange,
         </SelectContent>
       </Select>
 
-      {(search || categoriaFilter !== "todas") && (
+      {(search || categoryFilter !== "all") && (
         <Button
           variant="outline"
           size="icon"
           className="cursor-pointer"
           onClick={() => {
             onSearchChange("")
-            onCategoriaChange("todas")
+            onCategoryChange("all")
           }}
           title="Limpiar filtros"
         >

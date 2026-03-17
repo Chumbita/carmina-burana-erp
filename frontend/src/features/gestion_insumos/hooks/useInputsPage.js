@@ -11,7 +11,7 @@ import { useLocationNotification } from "./useLocationNotification"
 
 export function useInputsPage() {
   const { inputs, loading, error, createInput } = useInputs()
-  const { search, categoriaFilter, categorias, setSearch, setCategoriaFilter, filteredInputs } = useInputFilters()
+  const { search, categoryFilter, categories, setSearch, setCategoryFilter, filteredInputs } = useInputFilters()
   const { notification, notify, clearNotification } = useNotification()
   
   useLocationNotification(notify)
@@ -50,10 +50,10 @@ export function useInputsPage() {
     error,
     // filtros
     search,
-    categoriaFilter,
-    categorias,
+    categoryFilter,
+    categories,
     setSearch,
-    setCategoriaFilter,
+    setCategoryFilter,
     filteredInputs: filteredInputs(inputs),
     // modal
     openModal,

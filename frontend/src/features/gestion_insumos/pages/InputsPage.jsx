@@ -14,7 +14,7 @@ import { Plus } from "lucide-react"
 export default function InputsPage() {
   const {
     filteredInputs, loading,
-    search, categoriaFilter, categorias, setSearch, setCategoriaFilter,
+    search, categoryFilter, categories, setSearch, setCategoryFilter,
     openModal, setOpenModal,
     notification, clearNotification,
     handleCreateInput,
@@ -30,10 +30,10 @@ export default function InputsPage() {
       <header className="flex items-center justify-between gap-4">
         <FilterBar
           search={search}
-          categoriaFilter={categoriaFilter}
-          categorias={categorias}
+          categoryFilter={categoryFilter}
+          categories={categories}
           onSearchChange={setSearch}
-          onCategoriaChange={setCategoriaFilter}
+          onCategoryChange={setCategoryFilter}
         />
         <Button size="sm" className="cursor-pointer" onClick={() => setOpenModal(true)}>
           <Plus />Agregar insumo
@@ -48,7 +48,7 @@ export default function InputsPage() {
 
       {filteredInputs.length === 0 ? (
         <p className="text-center py-8 text-gray-500">
-          {search || categoriaFilter !== "todas" ? "No se encontraron insumos" : "No hay insumos registrados"}
+          {search || categoryFilter !== "todas" ? "No se encontraron insumos" : "No hay insumos registrados"}
         </p>
       ) : (
         <div ref={tableRef}>
