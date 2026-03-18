@@ -17,6 +17,9 @@ class Bom:
         if self.standard_yield_pct <=0 or self.standard_yield_pct > 100:
             raise ValueError(f"Campo standard_yield_pct inválido. El rendimiento estándar debe estar entre 0 y 100.")
         
+        if not self.items:
+            raise ValueError("El BOM debe tener al menos un ítem.")
+        
     def add_item(self, component_type:str, input_id:int | None, product_id:int | None, quantity:float):
         if quantity <= 0 :
             raise ValueError(f"Campo quantity inválid. La cantidad debe ser mayor a cero.")
