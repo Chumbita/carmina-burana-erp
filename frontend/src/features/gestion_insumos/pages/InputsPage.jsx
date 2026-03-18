@@ -3,6 +3,7 @@ import { InputsTable } from "../components/InputsTable"
 import { FilterBar } from "../components/FilterBar"
 import { NewInputModal } from "../components/NewInputModal"
 import { Notification } from "../components/Notifications"
+import { Pagination } from "../components/Pagination"
 //hooks
 import { useInputsPage } from "../hooks/useInputsPage"
 //componentes shadcn
@@ -13,8 +14,9 @@ import { Plus } from "lucide-react"
 
 export default function InputsPage() {
   const {
-    filteredInputs, loading,
-    search, categoryFilter, categories, setSearch, setCategoryFilter,
+    filteredData, loading,
+    search, categoryFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, stockStatuses, 
+    setSearch, setCategoryFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage,
     openModal, setOpenModal,
     notification, clearNotification,
     handleCreateInput,
@@ -31,9 +33,16 @@ export default function InputsPage() {
         <FilterBar
           search={search}
           categoryFilter={categoryFilter}
+          stockFilter={stockFilter}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
           categories={categories}
+          stockStatuses={stockStatuses}
           onSearchChange={setSearch}
           onCategoryChange={setCategoryFilter}
+          onStockChange={setStockFilter}
+          onSortByChange={setSortBy}
+          onSortOrderChange={setSortOrder}
         />
         <Button size="sm" className="cursor-pointer" onClick={() => setOpenModal(true)}>
           <Plus />Agregar insumo
@@ -46,14 +55,23 @@ export default function InputsPage() {
         onSubmit={handleCreateInput}
       />
 
-      {filteredInputs.length === 0 ? (
+      {filteredData.totalCount === 0 ? (
         <p className="text-center py-8 text-gray-500">
-          {search || categoryFilter !== "todas" ? "No se encontraron insumos" : "No hay insumos registrados"}
+          {search || categoryFilter !== "all" || stockFilter !== "all" ? "No se encontraron insumos" : "No hay insumos registrados"}
         </p>
       ) : (
-        <div ref={tableRef}>
-          <InputsTable insumos={filteredInputs} />
-        </div>
+        <>
+          <div ref={tableRef}>
+            <InputsTable insumos={filteredData.items} />
+          </div>
+          <Pagination
+            currentPage={filteredData.currentPage}
+            totalPages={filteredData.totalPages}
+            onPageChange={setCurrentPage}
+            totalCount={filteredData.totalCount}
+            itemsPerPage={itemsPerPage}
+          />
+        </>
       )}
     </div>
   )

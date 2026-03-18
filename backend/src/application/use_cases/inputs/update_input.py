@@ -51,22 +51,32 @@ class UpdateInputUseCase:
         
         # Record audit log for update
         if self._audit_log_use_case:
-            # Create after snapshot
-            after_snapshot = before_snapshot.copy()
-            after_snapshot.update(data)
+            # Obtener el objeto actualizado para el after snapshot
+            updated_obj = await self.repository.get_input_entity_by_id(input_id)
             
-            # Validar user_id - si es "0", vacío o inválido, establecer como null
-            user_id = data.get("performed_by")
-            if user_id in ["0", "", None, 0]:
-                user_id = None
-            
-            await self._audit_log_use_case.execute(
-                entity_type="input",
-                entity_id=input_id,
-                action="UPDATED",
-                old_data=before_snapshot,
-                new_data=after_snapshot,
-                user_id=user_id
-            )
+            if updated_obj:
+                after_snapshot = {
+                    "name": updated_obj.name,
+                    "brand": updated_obj.brand,
+                    "category": updated_obj.category,
+                    "unit": updated_obj.unit,
+                    "minimum_stock": float(updated_obj.minimum_stock),
+                    "image": updated_obj.image,
+                    "status": updated_obj.status
+                }
+                
+                # Validar user_id - si es "0", vacío o inválido, establecer como null
+                user_id = data.get("performed_by")
+                if user_id in ["0", "", None, 0]:
+                    user_id = None
+                
+                await self._audit_log_use_case.execute(
+                    entity_type="input",
+                    entity_id=input_id,
+                    action="UPDATED",
+                    old_data=before_snapshot,
+                    new_data=after_snapshot,
+                    user_id=user_id
+                )
         
         return updated
