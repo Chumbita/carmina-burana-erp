@@ -24,3 +24,25 @@ def get_input_repository(
     db: AsyncSession = Depends(get_db),
 ) -> InputRepository:
     return InputRepositoryImpl(db)
+
+# ======================
+# PRODUCT REPOSITORY
+# ======================
+from src.infrastructure.database.repositories.product_repository import ProductRepository
+from src.domain.repositories.product_repository import IProductRepository
+
+def get_product_repository(
+    db: AsyncSession= Depends(get_db),
+) -> IProductRepository:
+    return ProductRepository(db)
+
+# ======================
+# BOM REPOSITORY
+# ======================
+from src.infrastructure.database.repositories.bom_repository import BomRepository
+from src.domain.repositories.bom_repository import IBomRepository
+
+def get_bom_repository(
+    db: AsyncSession= Depends(get_db),
+) -> IBomRepository:
+    return BomRepository(db)
