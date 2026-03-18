@@ -11,7 +11,7 @@ import { useLocationNotification } from "./useLocationNotification"
 
 export function useInputsPage() {
   const { inputs, loading, error, createInput } = useInputs()
-  const { search, categoryFilter, categories, setSearch, setCategoryFilter, filteredInputs } = useInputFilters()
+  const { search, categoryFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, stockStatuses, setSearch, setCategoryFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage, filteredInputs } = useInputFilters()
   const { notification, notify, clearNotification } = useNotification()
   
   useLocationNotification(notify)
@@ -43,18 +43,31 @@ export function useInputsPage() {
     clearNotification()
   }
 
+  // Calcular datos filtrados con paginación
+  const filteredData = filteredInputs(inputs)
+
   return {
     // datos
     inputs,
     loading,
     error,
+    filteredData,
     // filtros
     search,
     categoryFilter,
+    stockFilter,
+    sortBy,
+    sortOrder,
+    currentPage,
+    itemsPerPage,
     categories,
+    stockStatuses,
     setSearch,
     setCategoryFilter,
-    filteredInputs: filteredInputs(inputs),
+    setStockFilter,
+    setSortBy,
+    setSortOrder,
+    setCurrentPage,
     // modal
     openModal,
     setOpenModal,
