@@ -32,7 +32,8 @@ export function TabInput({ insumo, onInputUpdated }) {
     updateInput,
     deleteInput,
     loading,
-    error
+    error,
+    inputs
   } = useInputs()
 
   const {
@@ -110,6 +111,8 @@ async function onSubmit(data) {
         showDeleteButton={true}
         onDelete={onDelete}
         layout="page"
+        existingInputs={inputs} // Para validación de nombre único
+        excludeId={insumo.id} // Excluir el insumo actual de la validación
       />
 
       {/* confirm navegación */}

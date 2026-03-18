@@ -39,6 +39,10 @@ class InputRepository(ABC):
         pass
 
     @abstractmethod
+    async def find_by_name(self, name: str) -> Optional[Input]:
+        pass
+
+    @abstractmethod
     async def find_by_identity(self, name: str, brand: str | None, category: str | None):
         pass
 

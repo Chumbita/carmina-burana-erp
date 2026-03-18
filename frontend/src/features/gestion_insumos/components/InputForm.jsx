@@ -1,7 +1,7 @@
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { insumoSchema } from "../schemas/insumo.schema"
-import { useRef } from "react"
+import { createInsumoSchema } from "../schemas/insumo.schema"
+import { useRef, useEffect } from "react"
 
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
@@ -32,9 +32,14 @@ export function InputForm({
   showDeleteButton = false,
   onDelete,
   layout = "modal", // modal o page, varía estilos
-  formRef
+  formRef,
+  existingInputs = [], // Para validación de nombre único
+  excludeId = null, // Para edición, excluir el insumo actual
 }) {
   const fileRef = useRef(null)
+
+  // Crear schema dinámico con los inputs existentes
+  const schema = createInsumoSchema(existingInputs, excludeId)
 
   const {
     handleSubmit,
@@ -42,14 +47,28 @@ export function InputForm({
     reset,
     formState: { isDirty },
   } = useForm({
-    resolver: zodResolver(insumoSchema),
-    defaultValues,
+    resolver: zodResolver(schema),
+    defaultValues: {
+      ...defaultValues,
+      brand: defaultValues.brand || "",
+      category: defaultValues.category || "",
+      minimum_stock: defaultValues.minimum_stock || 0,
+    },
+    mode: "onChange", // Para validación en tiempo real
+  })
+
+  // Función para limpiar datos antes de enviar
+  const cleanFormData = (data) => ({
+    ...data,
+    brand: data.brand || null,
+    category: data.category || null,
+    image: data.image || null,
   })
 
     // Exponer métodos al padre 
     if (formRef) {
       formRef.current = {
-        submit: () => handleSubmit(onSubmit)(),
+        submit: () => handleSubmit((data) => onSubmit(cleanFormData(data)))(),
         reset,
         isDirty,
       }
@@ -59,7 +78,7 @@ export function InputForm({
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit((data) => onSubmit(cleanFormData(data)))}
       className={isModal ? "space-y-4" : "grid grid-cols-1 md:grid-cols-2 gap-4"}
     >
       <FieldGroup className={isModal ? "-space-y-4" : "contents"}>
@@ -89,7 +108,7 @@ export function InputForm({
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>
-                Marca<span className="text-red-500 -ml-1">*</span>
+                Marca
               </FieldLabel>
               <Input
                 {...field}
@@ -108,7 +127,6 @@ export function InputForm({
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>Categoría
-                <span className="text-red-500 -ml-1">*</span>
               </FieldLabel>
               <Input
                 {...field}
@@ -131,7 +149,7 @@ export function InputForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>
-                      Stock mínimo <span className="text-red-500 -ml-1">*</span>
+                      Stock mínimo
                     </FieldLabel>
                     <Input
                       {...field}
@@ -170,8 +188,10 @@ export function InputForm({
                         <SelectGroup>
                           <SelectLabel>Unidades</SelectLabel>
                           <SelectItem value="kg">kg</SelectItem>
+                          <SelectItem value="g">g</SelectItem>
                           <SelectItem value="L">L</SelectItem>
-                          <SelectItem value="un">un</SelectItem>.
+                          <SelectItem value="mL">mL</SelectItem>
+                          <SelectItem value="un">un</SelectItem>
                         </SelectGroup>
                       </SelectContent>
                     </Select>
@@ -220,7 +240,9 @@ export function InputForm({
                       <SelectGroup>
                         <SelectLabel>Unidades</SelectLabel>
                         <SelectItem value="kg">kg</SelectItem>
+                        <SelectItem value="g">g</SelectItem>
                         <SelectItem value="L">L</SelectItem>
+                        <SelectItem value="mL">mL</SelectItem>
                         <SelectItem value="un">un</SelectItem>
                       </SelectGroup>
                     </SelectContent>
@@ -238,7 +260,6 @@ export function InputForm({
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>                   
                     Stock mínimo
-                    <span className="text-red-500 -ml-1">*</span>
                   </FieldLabel>
                   <Input
                     {...field}

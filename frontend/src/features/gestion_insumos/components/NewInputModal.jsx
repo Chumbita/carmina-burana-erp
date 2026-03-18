@@ -1,9 +1,11 @@
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog"
 import { InputForm } from "./InputForm"
+import { useInputs } from "../hooks/useInputs"
 
 export function NewInputModal({ open, onClose, onSubmit }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { inputs } = useInputs() // Obtener inputs existentes para validación
 
   function handleClose() {
     onClose()
@@ -34,7 +36,7 @@ export function NewInputModal({ open, onClose, onSubmit }) {
             category: "",
             unit: "",
             minimum_stock: 0,
-            image: ""
+            image: "",
           }}
           onSubmit={handleSubmit}
           onCancel={handleClose}
@@ -42,6 +44,7 @@ export function NewInputModal({ open, onClose, onSubmit }) {
           cancelLabel="Cancelar"
           isSubmitting={isSubmitting}
           layout="modal"
+          existingInputs={inputs} // Pasar inputs para validación
         />
       </DialogContent>
     </Dialog>

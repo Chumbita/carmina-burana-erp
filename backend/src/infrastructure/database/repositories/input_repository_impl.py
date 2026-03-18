@@ -24,6 +24,17 @@ class InputRepositoryImpl(InputRepository):
             select(InputModel).where( InputModel.name == name )
         )
         return result.scalar_one_or_none()
+
+    async def find_by_name(self, name: str) -> Optional[Input]:
+        # Buscar por nombre sin importar mayúsculas/minúsculas
+        result = await self.db.execute(
+            select(InputModel).where(
+                func.lower(InputModel.name) == func.lower(name),
+                InputModel.status == True
+            )
+        )
+        model = result.scalar_one_or_none()
+        return self._to_entity(model) if model else None
     
     async def find_by_identity(
             self,
