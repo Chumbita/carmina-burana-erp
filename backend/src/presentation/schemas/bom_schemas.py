@@ -9,9 +9,9 @@ class ProductSchema(BaseModel):
     
 class BomItemSchema(BaseModel):
     component_type: str
-    input_id: int
-    product_id: int
     quantity: float
+    input_id: Optional[int] = None
+    product_id: Optional[int] = None
 
 # SCHEMAS
 class CreateBOMRequest(BaseModel):

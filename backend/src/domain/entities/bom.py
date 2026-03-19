@@ -44,7 +44,7 @@ class BomItem:
     quantity:float = field(default=None)
     
     def __post_init__(self):
-        allow_types = {"MATERIAL, PRODUCT"}
+        allow_types = {"MATERIAL", "PRODUCT"}
         if not self.component_type in allow_types:
             raise ValueError(f"Campo component_type inválido. El tipo de producto debe ser alguno de los siguientes: {allow_types}.")
         

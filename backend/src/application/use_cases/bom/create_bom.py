@@ -50,6 +50,7 @@ class CreateBomUseCase:
             for item in data.items
         ]
         
+        
         bom = Bom(
             product_id= product.id,
             base_quantity= data.base_quantity,
@@ -59,7 +60,6 @@ class CreateBomUseCase:
         )
         
         created_bom = await self._bom_repository.create(bom)
-        
         return {
             "product": product,
             "bom": created_bom

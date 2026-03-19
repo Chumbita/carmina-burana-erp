@@ -16,7 +16,7 @@ async def create_bom(
     request: CreateBOMRequest,
     current_user: User= Depends(get_current_user),
     use_case: CreateBomUseCase= Depends(get_create_bom_use_case)
-): 
+) -> CreateBOMResponse: 
     """
     Endpoint para crear un BOM.
     """
@@ -32,9 +32,5 @@ async def create_bom(
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail= CreateBOMResponse(
-                success= False,
-                data= None,
-                message= str(e) 
-            ),
+            detail=str(e),
         )
