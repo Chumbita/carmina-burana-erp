@@ -52,11 +52,9 @@ class BomRepository:
             base_quantity= bom.base_quantity,
             standard_yield_pct= bom.standard_yield_pct,
             is_active= bom.is_active,
-            created_at= bom.created_at
-        )
-        
-        bom_entity.items = [
-            BomItem(
+            created_at= bom.created_at,
+            items= [
+                BomItem(
                 id= item.id,
                 component_type= item.component_type,
                 input_id= item.input_id,
@@ -64,7 +62,8 @@ class BomRepository:
                 quantity= item.quantity
             )
             for item in bom.items
-        ]
+            ]
+        )
         
         return bom_entity
 
@@ -113,8 +112,11 @@ class BomRepository:
         await self._session.commit()
         await self._session.refresh(model)
         
-        return self._to_entity(model)
-        
+        stmt = select(BomModel).where(BomModel.id == model.id).options(selectinload(BomModel.items))
+        result = await self._session.execute(stmt)
+        row = result.scalar_one()
+        print(self._to_entity(row))
+        return self._to_entity(row)
     
     # ======================
     # DELETE METHOD
