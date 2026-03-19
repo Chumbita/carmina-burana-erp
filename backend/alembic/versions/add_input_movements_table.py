@@ -27,7 +27,7 @@ def upgrade() -> None:
     sa.Column('event_type', sa.String(length=20), nullable=False),
     sa.Column('snapshot', sa.JSON(), nullable=False),
     sa.Column('occurred_at', sa.TIMESTAMP(timezone=True), nullable=False),
-    sa.Column('performed_by', sa.String(), nullable=True),
+    sa.Column('performed_by', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['input_id'], ['inputs.id'], ),
     sa.ForeignKeyConstraint(['performed_by'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
