@@ -1,29 +1,56 @@
-//componentes 
-import { InputsTable } from "../components/InputsTable"
-import { FilterBar } from "../components/FilterBar"
-import { NewInputModal } from "../components/NewInputModal"
-import { Notification } from "../components/Notifications"
-import { Pagination } from "../components/Pagination"
+//componentes
+import { InputsTable } from "../components/InputsTable";
+import { FilterBar } from "../components/FilterBar";
+import { NewInputModal } from "../components/NewInputModal";
+import { Notification } from "../components/Notifications";
+import { DataTable } from "../../../components/shared/DataTable"
 //hooks
-import { useInputsPage } from "../hooks/useInputsPage"
+import { useInputsPage } from "../hooks/useInputsPage";
 //componentes shadcn
-import { Button } from "@/components/ui/Button"
-import { Spinner } from "@/components/ui/Spinner"
+import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
 //iconos
-import { Plus } from "lucide-react"
+import { Plus } from "lucide-react";
+import { Badge } from "@/components/ui/Badge"
+import { estadoStyles } from "../utils/stockStyles"
 
+const tableHeaders = [
+  { header: "Nro", accessor: "id" },
+  { header: "Nombre", accessor: "name" },
+  { header: "Marca", accessor: "brand" },
+  { header: "Categoria", accessor: "category" },
+  { header: "Stock", accessor: "stockTotal" },
+  { header: "Estado", accessor: "estadoStock",
+    render: (value) => (
+      <Badge variant="outline" className={estadoStyles[value]}>
+        {value}
+      </Badge>
+    ),
+  },
+];
 export default function InputsPage() {
   const {
-    filteredData, loading,
-    search, categoryFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, stockStatuses, 
-    setSearch, setCategoryFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage,
-    openModal, setOpenModal,
-    notification, clearNotification,
+    filteredInputs,
+    loading,
+    search,
+    categoryFilter,
+    categories,
+    setSearch,
+    setCategoryFilter,
+    openModal,
+    setOpenModal,
+    notification,
+    clearNotification,
     handleCreateInput,
     tableRef,
-  } = useInputsPage()
+  } = useInputsPage();
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Spinner /></div>
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Spinner />
+      </div>
+    );
 
   return (
     <div className="space-y-4">
@@ -44,8 +71,13 @@ export default function InputsPage() {
           onSortByChange={setSortBy}
           onSortOrderChange={setSortOrder}
         />
-        <Button size="sm" className="cursor-pointer" onClick={() => setOpenModal(true)}>
-          <Plus />Agregar insumo
+        <Button
+          size="sm"
+          className="cursor-pointer"
+          onClick={() => setOpenModal(true)}
+        >
+          <Plus />
+          Agregar insumo
         </Button>
       </header>
 
@@ -57,22 +89,15 @@ export default function InputsPage() {
 
       {filteredData.totalCount === 0 ? (
         <p className="text-center py-8 text-gray-500">
-          {search || categoryFilter !== "all" || stockFilter !== "all" ? "No se encontraron insumos" : "No hay insumos registrados"}
+          {search || categoryFilter !== "todas"
+            ? "No se encontraron insumos"
+            : "No hay insumos registrados"}
         </p>
       ) : (
-        <>
-          <div ref={tableRef}>
-            <InputsTable insumos={filteredData.items} />
-          </div>
-          <Pagination
-            currentPage={filteredData.currentPage}
-            totalPages={filteredData.totalPages}
-            onPageChange={setCurrentPage}
-            totalCount={filteredData.totalCount}
-            itemsPerPage={itemsPerPage}
-          />
-        </>
+        <div ref={tableRef}>
+          <DataTable columns={tableHeaders} data={filteredInputs} />
+        </div>
       )}
     </div>
-  )
+  );
 }
