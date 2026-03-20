@@ -117,9 +117,9 @@ export default function InputEntryPage() {
 
       {/* Modal for new supply entry */}
       <Dialog open={openModal} onOpenChange={setOpenModal}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="!w-[75vw] !max-w-[75vw] !sm:max-w-[75vw] max-h-[90vh] overflow-y-auto p-8">
           <DialogHeader>
-            <DialogTitle>Nuevo Abastecimiento</DialogTitle>
+            <DialogTitle className="text-2xl">Nuevo Abastecimiento</DialogTitle>
           </DialogHeader>
 
           <SupplyEntryForm
