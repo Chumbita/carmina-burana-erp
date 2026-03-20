@@ -41,7 +41,7 @@ class InputEntryItem:
     unit_cost: float
     expire_date: date
     comment: Optional[str] = None
-    lote: Optional[InputInventory] = None
+    batch: Optional[InputInventory] = None
     id: Optional[int] = None
 
     def __post_init__(self):

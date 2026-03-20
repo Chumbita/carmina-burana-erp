@@ -35,11 +35,11 @@ class RegisterInputEntry:
 
     async def execute(self, dto: RegisterInputEntryDTO) -> InputEntry:
         
-        #Lógica de negocio: Validar que todos los insumos existan 
+        #Validar que todos los insumos existan antes de crear el supply entry
         for item in dto.items:
             input = await self.input_repo.get_input_entity_by_id(item.id_input)
             if input is None:
-                raise ValueError(f"El insumo con id {item.id_input} no existe")
+                raise ValueError(f"El insumo con id: {item.id_input} no existe.")
 
         # Generar número de recepción único
         reception_number = f"REC-{dto.entry_date.strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"

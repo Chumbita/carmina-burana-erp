@@ -25,7 +25,7 @@ class InputEntryRepositoryImpl(InputEntryRepositoryInterface):
         self.session.add(entry_model)
         await self.session.flush()
 
-        items_with_lotes = []
+        items_with_batches = []
         for item in entry.items:
             item_model = InputEntryItemModel(
                 id_entry=entry_model.id,
@@ -49,7 +49,7 @@ class InputEntryRepositoryImpl(InputEntryRepositoryInterface):
             self.session.add(inventory_model)
             await self.session.flush()
 
-            items_with_lotes.append((item_model, inventory_model))
+            items_with_batches.append((item_model, inventory_model))
 
         await self.session.commit()
         await self.session.refresh(entry_model)
@@ -58,11 +58,11 @@ class InputEntryRepositoryImpl(InputEntryRepositoryInterface):
         entry.id = entry_model.id
         entry.created_at = entry_model.created_at
 
-        for i, (item_model, inventory_model) in enumerate(items_with_lotes):
+        for i, (item_model, inventory_model) in enumerate(items_with_batches):
             await self.session.refresh(item_model)
             await self.session.refresh(inventory_model)
             entry.items[i].id = item_model.id
-            entry.items[i].lote = InputInventory(
+            entry.items[i].batch = InputInventory(
                 id=inventory_model.id,
                 id_entry_item=inventory_model.id_entry_item,
                 id_input=inventory_model.id_input,

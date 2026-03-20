@@ -36,7 +36,7 @@ class InputEntryItemResponse(BaseModel):
     unit_cost: float
     expire_date: date
     comment: Optional[str] = None
-    lote: InputInventoryResponse
+    batch: InputInventoryResponse
 
 
 class InputEntryResponse(BaseModel):
