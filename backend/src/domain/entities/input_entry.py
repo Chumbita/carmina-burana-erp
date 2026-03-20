@@ -3,24 +3,6 @@ from datetime import date, datetime
 from typing import Optional
 
 @dataclass
-class InputEntryItem:
-    id_entry: int
-    id_input: int
-    amount: float
-    unit_cost: float
-    expire_date: date
-    comment: Optional[str] = None
-    id: Optional[int] = None
-
-    def __post_init__(self):
-        if self.amount <= 0:
-            raise ValueError("La cantidad debe ser mayor a cero")
-        if self.unit_cost < 0:
-            raise ValueError("El costo no puede ser negativo")
-        if self.expire_date < date.today():
-            raise ValueError("La fecha de vencimiento no puede ser del pasado")
-
-@dataclass
 class InputInventory:
     id_entry_item: int
     id_input: int
@@ -50,6 +32,25 @@ class InputInventory:
         if days_remaining < 30:
             return "Próximo a vencer"
         return "Óptimo"
+    
+@dataclass
+class InputEntryItem:
+    id_entry: int
+    id_input: int
+    amount: float
+    unit_cost: float
+    expire_date: date
+    comment: Optional[str] = None
+    lote: Optional[InputInventory] = None
+    id: Optional[int] = None
+
+    def __post_init__(self):
+        if self.amount <= 0:
+            raise ValueError("La cantidad debe ser mayor a cero")
+        if self.unit_cost < 0:
+            raise ValueError("El costo no puede ser negativo")
+        if self.expire_date < date.today():
+            raise ValueError("La fecha de vencimiento no puede ser del pasado")
 
 @dataclass
 class InputEntry:
