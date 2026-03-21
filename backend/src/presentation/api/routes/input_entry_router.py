@@ -7,7 +7,7 @@ from src.presentation.schemas.input_entry_schema import (
     InputEntryListResponse,
     InputEntryListItemResponse
 )
-from src.application.use_cases.inputs_entries.create_input_entry import RegisterInputEntry
+from src.application.use_cases.inputs_entries.create_input_entry import RegisterInputEntry, RegisterInputEntryDTO, InputEntryItemDTO
 from src.application.use_cases.inputs_entries.list_input_entries import ListInputEntries
 from src.application.use_cases.inputs_entries.get_input_entry_detail import GetInputEntryDetail
 from src.application.use_cases.inputs_entries.cancel_input_entry import CancelInputEntry, CancelInputEntryDTO
