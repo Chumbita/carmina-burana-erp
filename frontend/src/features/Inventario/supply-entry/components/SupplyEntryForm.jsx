@@ -72,6 +72,7 @@ export function SupplyEntryForm({
     handleFormSubmit,
     handleReset,
     handleSubmit,
+    setValue,
   } = formHook
 
   // Use external loading state for modal mode
@@ -138,7 +139,25 @@ export function SupplyEntryForm({
       {error && (
         <Card className="border-red-200 bg-red-50">
           <div className="p-6">
-            <p className="text-base text-red-600">{error}</p>
+            <p className="text-base text-red-600">
+              {typeof error === 'string' ? error : error?.message || 'Error desconocido'}
+            </p>
+          </div>
+        </Card>
+      )}
+
+      {/* Form Validation Errors */}
+      {Object.keys(formHook.errors || {}).length > 0 && (
+        <Card className="border-yellow-200 bg-yellow-50">
+          <div className="p-6">
+            <h4 className="font-semibold text-yellow-800 mb-2">Errores de validación:</h4>
+            <ul className="list-disc list-inside text-sm text-yellow-700 space-y-1">
+              {Object.values(formHook.errors).map((error, index) => (
+                <li key={index}>
+                  {typeof error.message === 'string' ? error.message : 'Error de validación'}
+                </li>
+              ))}
+            </ul>
           </div>
         </Card>
       )}
@@ -251,6 +270,39 @@ export function SupplyEntryForm({
                           
                           {/* Search Section */}
                           <div className="mb-3">
+                            {/* Selected Input Display */}
+                            {watchedItems[index]?.inputId && (
+                              <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex flex-col">
+                                    <span className="font-medium text-blue-900">
+                                      {availableInputs.find(input => input.id === watchedItems[index]?.inputId)?.name}
+                                    </span>
+                                    <div className="flex gap-1 mt-1">
+                                      {availableInputs.find(input => input.id === watchedItems[index]?.inputId)?.brand && (
+                                        <Badge variant="secondary" className="text-xs px-2 py-1">
+                                          {availableInputs.find(input => input.id === watchedItems[index]?.inputId)?.brand}
+                                        </Badge>
+                                      )}
+                                      <span className="text-xs text-blue-600">
+                                        {availableInputs.find(input => input.id === watchedItems[index]?.inputId)?.unit}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setValue(`items.${index}.inputId`, 0, { shouldValidate: true })
+                                      setSearchQueries(prev => ({ ...prev, [index]: '' }))
+                                    }}
+                                    className="text-blue-600 hover:text-blue-800 p-1"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            
                             <div className="relative">
                               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-neutral-400" />
                               <Input
@@ -267,34 +319,52 @@ export function SupplyEntryForm({
                                 <div className="px-3 py-2 text-xs font-medium text-neutral-500">
                                   {getFilteredInputs(index).length} insumos encontrados
                                 </div>
-                                {getFilteredInputs(index).map((input) => (
-                                  <div
-                                    key={input.id}
-                                    onClick={() => control.setValue(`items.${index}.inputId`, input.id)}
-                                    className={`px-3 py-3 cursor-pointer hover:bg-neutral-50 border-b border-neutral-100 last:border-b-0 ${
-                                      watchedItems[index]?.inputId === input.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-                                    }`}
-                                  >
-                                    <div className="flex flex-col">
-                                      <span className="font-medium text-base">{input.name}</span>
-                                      <div className="flex gap-1 mt-1">
-                                        {input.brand && (
-                                          <Badge variant="secondary" className="text-xs px-2 py-1">
-                                            {input.brand}
-                                          </Badge>
-                                        )}
-                                        {input.category && (
-                                          <Badge variant="outline" className="text-xs px-2 py-1">
-                                            {input.category}
-                                          </Badge>
-                                        )}
-                                        <span className="text-xs text-neutral-500">
-                                          {input.unit}
-                                        </span>
+                                {getFilteredInputs(index).map((input) => {
+                                  const isSelected = watchedItems[index]?.inputId === input.id
+                                  return (
+                                    <div
+                                      key={input.id}
+                                      onClick={() => {
+                                        setValue(`items.${index}.inputId`, input.id, { shouldValidate: true })
+                                        // Limpiar búsqueda después de seleccionar
+                                        setSearchQueries(prev => ({ ...prev, [index]: '' }))
+                                      }}
+                                      className={`px-3 py-3 cursor-pointer hover:bg-neutral-50 border-b border-neutral-100 last:border-b-0 transition-all duration-200 ${
+                                        isSelected 
+                                          ? 'bg-blue-50 border-l-4 border-l-blue-500 shadow-sm' 
+                                          : 'hover:border-l-4 hover:border-l-neutral-300'
+                                      }`}
+                                    >
+                                      <div className="flex flex-col">
+                                        <div className="flex items-center justify-between">
+                                          <span className="font-medium text-base">{input.name}</span>
+                                          {isSelected && (
+                                            <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                                              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                              </svg>
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div className="flex gap-1 mt-1">
+                                          {input.brand && (
+                                            <Badge variant="secondary" className="text-xs px-2 py-1">
+                                              {input.brand}
+                                            </Badge>
+                                          )}
+                                          {input.category && (
+                                            <Badge variant="outline" className="text-xs px-2 py-1">
+                                              {input.category}
+                                            </Badge>
+                                          )}
+                                          <span className="text-xs text-neutral-500">
+                                            {input.unit}
+                                          </span>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                ))}
+                                  )
+                                })}
                               </div>
                             )}
                           </div>

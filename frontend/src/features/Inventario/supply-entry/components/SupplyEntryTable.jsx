@@ -69,27 +69,24 @@ export function SupplyEntryTable({ entries, loading }) {
                     to={`/inventario/ingreso-insumos/${entry.id}`}
                     className="hover:underline"
                   >
-                    {entry.receptionId}
+                    {entry.reception_number || `REC-${entry.id}`}
                   </Link>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                  {new Date(entry.date).toLocaleDateString('es-AR')}
+                  {new Date(entry.entry_date + 'T00:00:00').toLocaleDateString('es-AR')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
                   {entry.supplier}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                  {entry.totalQuantity} artículos
+                  {entry.item_count || 0} artículos
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">
-                  ${entry.totalCost.toFixed(2)}
+                  ${entry.total_cost?.toFixed(2) || '0.00'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge
-                    variant={entry.status === 'active' ? 'default' : 'secondary'}
-                    className={entry.status === 'annulled' ? 'bg-red-100 text-red-700' : ''}
-                  >
-                    {entry.status === 'active' ? 'Activa' : 'Anulada'}
+                  <Badge variant={entry.status === 'cancelled' ? 'destructive' : 'default'}>
+                    {entry.status === 'cancelled' ? 'Anulada' : 'Activa'}
                   </Badge>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">

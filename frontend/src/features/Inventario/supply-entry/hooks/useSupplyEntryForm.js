@@ -7,7 +7,7 @@ import { FORM_DEFAULT_VALUES } from '../constants/supplyEntry.constants'
 
 // Schema validation
 const supplyItemSchema = z.object({
-  inputId: z.string().min(1, 'Seleccione un insumo'),
+  inputId: z.number().min(1, 'Seleccione un insumo'),
   quantity: z.number().min(0.01, 'La cantidad debe ser mayor a 0'),
   unitCost: z.number().min(0, 'El costo unitario debe ser mayor o igual a 0'),
   expirationDate: z.string().optional(),
@@ -40,7 +40,7 @@ export function useSupplyEntryForm(availableInputs = [], onSubmit) {
     reset,
     watch,
     setValue,
-    formState: { isDirty, isValid },
+    formState: { isDirty, isValid, errors },
   } = useForm({
     resolver: zodResolver(supplyEntrySchema),
     defaultValues: FORM_DEFAULT_VALUES,
@@ -69,7 +69,7 @@ export function useSupplyEntryForm(availableInputs = [], onSubmit) {
   // Add new item
   const handleAddItem = useCallback(() => {
     append({
-      inputId: '',
+      inputId: 0,
       quantity: 1,
       unitCost: 0,
       expirationDate: '',
@@ -119,7 +119,18 @@ export function useSupplyEntryForm(availableInputs = [], onSubmit) {
       
     } catch (err) {
       console.error('Error creating supply entry:', err)
-      setError(err.message || 'Error al registrar el abastecimiento')
+      
+      // Extraer mensaje de error de diferentes formatos
+      let errorMessage = 'Error al registrar el abastecimiento'
+      if (err.message) {
+        errorMessage = err.message
+      } else if (err.response?.data?.detail) {
+        errorMessage = err.response.data.detail
+      } else if (typeof err === 'string') {
+        errorMessage = err
+      }
+      
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -141,6 +152,8 @@ export function useSupplyEntryForm(availableInputs = [], onSubmit) {
     totalCost,
     isDirty,
     isValid,
+    setValue,
+    errors,
     
     // Loading states
     loading,

@@ -36,8 +36,8 @@ class InputEntryItemResponse(BaseModel):
     unit_cost: float
     expire_date: date
     comment: Optional[str] = None
+    input_name: Optional[str] = None
     batch: InputInventoryResponse
-
 
 class InputEntryResponse(BaseModel):
     id: int
@@ -47,4 +47,26 @@ class InputEntryResponse(BaseModel):
     total_cost: float
     description: Optional[str] = None
     created_at: datetime
+    status: str = 'active'
+    annulled_at: Optional[datetime] = None
+    annulment_reason: Optional[str] = None
     items: list[InputEntryItemResponse]
+
+# ── List Response 
+
+class InputEntryListItemResponse(BaseModel):
+    id: int
+    reception_number: str
+    entry_date: date
+    supplier: str
+    total_cost: float
+    description: Optional[str] = None
+    created_at: datetime
+    item_count: int
+    status: str = "active"
+
+class InputEntryListResponse(BaseModel):
+    items: list[InputEntryListItemResponse]
+    total_count: int
+    current_page: int
+    total_pages: int

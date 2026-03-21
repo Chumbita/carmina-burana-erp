@@ -52,7 +52,12 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
       <div className="max-w-4xl mx-auto p-6">
         <Card className="border-red-200 bg-red-50">
           <div className="p-4">
-            <p className="text-sm text-red-600">{error || 'Abastecimiento no encontrado'}</p>
+            <p className="text-sm text-red-600">
+              {typeof error === 'string' ? error : error?.message || 'Error al cargar el abastecimiento'}
+            </p>
+            <Button onClick={onBack} className="mt-4">
+              Volver
+            </Button>
           </div>
         </Card>
       </div>
@@ -78,17 +83,15 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
               Detalle de Abastecimiento
             </h1>
             <p className="text-neutral-600 mt-1">
-              ID: {entry.receptionId}
+              ID: {entry.reception_number || `REC-${entry.id}`}
             </p>
           </div>
         </div>
         
         <div className="flex items-center gap-2">
-          <Badge
-            variant={entry.status === 'active' ? 'default' : 'secondary'}
-            className={entry.status === 'annulled' ? 'bg-red-100 text-red-700' : ''}
-          >
-            {entry.status === 'active' ? 'Activa' : 'Anulada'}
+          <Badge variant={entry.status === 'active' ? 'default' : 'secondary'}
+            className={entry.status === 'cancelled' ? 'bg-red-100 text-red-700' : ''}>
+            {entry.status === 'active' ? 'Activa' : entry.status === 'cancelled' ? 'Anulada' : 'Desconocido'}
           </Badge>
           
           {entry.status === 'active' && (
@@ -157,7 +160,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                 <div>
                   <p className="text-sm font-medium text-neutral-900">Fecha de Recepción</p>
                   <p className="text-sm text-neutral-600">
-                    {new Date(entry.date).toLocaleDateString('es-AR', {
+                    {new Date(entry.entry_date + 'T00:00:00').toLocaleDateString('es-AR', {
                       day: '2-digit',
                       month: '2-digit',
                       year: 'numeric',
@@ -193,7 +196,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                 <div>
                   <p className="text-sm font-medium text-neutral-900">Costo Total</p>
                   <p className="text-lg font-semibold text-neutral-900">
-                    ${entry.totalCost.toFixed(2)}
+                    ${entry.total_cost?.toFixed(2) || '0.00'}
                   </p>
                 </div>
               </div>
@@ -268,7 +271,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                     <td className="px-4 py-4">
                       <div>
                         <p className="text-sm font-medium text-neutral-900">
-                          {item.inputName}
+                          {item.input_name || `Insumo #${item.id_input}`}
                         </p>
                         <p className="text-xs text-neutral-500">
                           {item.comment}
@@ -276,38 +279,36 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                       </div>
                     </td>
                     <td className="px-4 py-4 text-sm text-neutral-600">
-                      {item.quantity} {item.inputUnit}
+                      {item.amount}
                     </td>
                     <td className="px-4 py-4 text-sm text-neutral-600">
-                      ${item.unitCost.toFixed(2)}
+                      ${item.unit_cost?.toFixed(2) || '0.00'}
                     </td>
                     <td className="px-4 py-4 text-sm font-medium text-neutral-900">
-                      ${item.totalCost.toFixed(2)}
+                      ${(item.amount * item.unit_cost).toFixed(2)}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-neutral-600">
+                      {item.batch?.id ? `#${item.batch.id}` : 'Sin lote'}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-neutral-600">
+                      {new Date(item.expire_date + 'T00:00:00').toLocaleDateString('es-AR')}
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-neutral-600">
-                          {item.batchNumber}
-                        </span>
+                        {item.batch?.current_amount < item.batch?.initial_amount && (
+                          <Badge variant="secondary" className="text-xs">
+                            Consumido
+                          </Badge>
+                        )}
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleNavigateToBatch(item.batchId)}
+                          onClick={() => handleNavigateToBatch(item.batch?.id)}
                           className="cursor-pointer"
                         >
                           <ExternalLink className="w-3 h-3" />
                         </Button>
                       </div>
-                    </td>
-                    <td className="px-4 py-4 text-sm text-neutral-600">
-                      {new Date(item.expirationDate).toLocaleDateString('es-AR')}
-                    </td>
-                    <td className="px-4 py-4">
-                      {item.consumedQuantity > 0 && (
-                        <Badge variant="secondary" className="text-xs">
-                          Consumido: {item.consumedQuantity} {item.inputUnit}
-                        </Badge>
-                      )}
                     </td>
                   </tr>
                 ))}

@@ -16,9 +16,8 @@ export default function SupplyEntryDetailPage() {
   const detailHook = useSupplyEntryDetail(
     entryId,
     async (entryId, reason) => {
+      // Esta función ya no se usa, la lógica está en el hook
       console.log('Annulling entry:', entryId, 'Reason:', reason)
-      // TODO: Implement API call for annulment
-      await new Promise(resolve => setTimeout(resolve, 1500))
     }
   )
 
@@ -38,19 +37,17 @@ export default function SupplyEntryDetailPage() {
     return (
       <div className="max-w-4xl mx-auto p-6">
         <div className="flex items-center gap-4 mb-6">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleBack}
-            className="cursor-pointer"
-          >
+          <Button onClick={handleBack} variant="outline" size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver
           </Button>
+          <h1 className="text-2xl font-bold text-neutral-900">Error</h1>
         </div>
         
         <div className="border border-red-200 bg-red-50 rounded-lg p-4">
-          <p className="text-sm text-red-600">{detailHook.error}</p>
+          <p className="text-sm text-red-600">
+            {typeof detailHook.error === 'string' ? detailHook.error : detailHook.error?.message || 'Error al cargar el abastecimiento'}
+          </p>
         </div>
       </div>
     )

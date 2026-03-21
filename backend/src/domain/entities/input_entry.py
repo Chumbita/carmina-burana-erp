@@ -35,13 +35,15 @@ class InputInventory:
     
 @dataclass
 class InputEntryItem:
-    id_entry: int
-    id_input: int
-    amount: float
-    unit_cost: float
-    expire_date: date
+    id: Optional[int] = None
+    id_entry: Optional[int] = None
+    id_input: int = 0
+    amount: float = 0
+    unit_cost: float = 0
+    expire_date: date = None
     comment: Optional[str] = None
     batch: Optional[InputInventory] = None
+    input_name: Optional[str] = None
     id: Optional[int] = None
 
     def __post_init__(self):
@@ -62,12 +64,17 @@ class InputEntry:
     reception_number: Optional[str] = None
     created_at: Optional[datetime] = None
     id: Optional[int] = None
+    _validate_items: bool = True  # Control interno para validación
+    status: str = 'active'
+    annulled_at: Optional[datetime] = None
+    annulment_reason: Optional[str] = None
+    updated_at: Optional[datetime] = None
 
     def __post_init__(self):
         if not self.supplier.strip():
             raise ValueError("El proveedor no puede estar vacío")
         if self.total_cost < 0:
             raise ValueError("El costo total no puede ser negativo")
-        if not self.items:
+        if self._validate_items and not self.items:
             raise ValueError("La recepción debe tener al menos un artículo")
 

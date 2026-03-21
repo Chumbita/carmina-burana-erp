@@ -65,7 +65,7 @@ class UserRepository:
         
         return self._to_entity(user_model)
     
-    async def find_by_id(self, user_id: int) -> Optional[User]:
+    async def find_by_id(self, user_id: str) -> Optional[User]:
         stmt = select(UserModel).where(UserModel.id == user_id)
         result = await self._session.execute(stmt)
         user_model = result.scalar_one_or_none()

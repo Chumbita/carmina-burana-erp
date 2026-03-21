@@ -1,5 +1,6 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { ITEMS_PER_PAGE, FILTER_DEFAULTS } from '../constants/supplyEntry.constants'
+import { inputEntryService } from '../services/inputEntryService'
 
 // Mock data - replace with actual API calls
 const mockSupplyEntries = [
@@ -39,6 +40,7 @@ export function useSupplyEntryPage() {
   // Loading and error states
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [data, setData] = useState([])
   
   // Modal state
   const [openModal, setOpenModal] = useState(false)
@@ -64,38 +66,42 @@ export function useSupplyEntryPage() {
     try {
       setLoading(true)
       setError(null)
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      const filters = {
+        entry_date_from: dateFrom || undefined,
+        entry_date_to: dateTo || undefined,
+        supplier: supplierFilter !== 'all' ? supplierFilter : undefined,
+        page: currentPage,
+        limit: ITEMS_PER_PAGE
+      }
+      
+      const response = await inputEntryService.getAll(filters)
+      // El backend devuelve {items: [], total_count: ..., current_page: ..., total_pages: ...}
+      setData(response.items || [])
     } catch (err) {
       setError(err.message || 'Error al cargar los datos')
+      setData([])
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, []) // Eliminamos dependencias para evitar bucles infinitos
 
   // Get unique suppliers for filter
   const suppliers = useMemo(() => {
-    return [...new Set(mockSupplyEntries.map(entry => entry.supplier))].sort()
-  }, [])
+    return [...new Set(data.map(entry => entry.supplier))].sort()
+  }, [data])
 
   // Filter and sort entries
   const filteredData = useMemo(() => {
-    let filtered = mockSupplyEntries.filter(entry => {
+    let filtered = data.filter(entry => {
       // Search filter
       if (search) {
         const searchLower = search.toLowerCase()
-        if (!entry.receptionId.toLowerCase().includes(searchLower) && 
+        if (!entry.reception_number?.toLowerCase().includes(searchLower) && 
             !entry.supplier.toLowerCase().includes(searchLower)) {
           return false
         }
       }
-      
-      // Date filters
-      if (dateFrom && entry.date < dateFrom) return false
-      if (dateTo && entry.date > dateTo) return false
-      
-      // Supplier filter
-      if (supplierFilter !== 'all' && entry.supplier !== supplierFilter) return false
       
       return true
     })
@@ -105,10 +111,10 @@ export function useSupplyEntryPage() {
       let aValue = a[sortBy]
       let bValue = b[sortBy]
       
-      if (sortBy === 'date') {
+      if (sortBy === 'entry_date' || sortBy === 'created_at') {
         aValue = new Date(aValue).getTime()
         bValue = new Date(bValue).getTime()
-      } else if (sortBy === 'totalCost') {
+      } else if (sortBy === 'total_cost') {
         aValue = parseFloat(aValue)
         bValue = parseFloat(bValue)
       }
@@ -132,17 +138,31 @@ export function useSupplyEntryPage() {
       totalPages,
       currentPage
     }
-  }, [search, dateFrom, dateTo, supplierFilter, sortBy, sortOrder, currentPage])
+  }, [data, search, sortBy, sortOrder, currentPage])
 
   // Handle create supply entry
-  const handleCreateSupplyEntry = useCallback(async (data) => {
+  const handleCreateSupplyEntry = useCallback(async (formData) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      const submissionData = {
+        entry_date: new Date(formData.entryDate).toISOString().split('T')[0],
+        supplier: formData.supplier,
+        total_cost: formData.totalCost,
+        description: formData.description || undefined,
+        reception_number: formData.receptionId,
+        items: formData.items.map(item => ({
+          id_input: item.inputId,
+          amount: item.quantity,
+          unit_cost: item.unitCost,
+          expire_date: item.expirationDate ? new Date(item.expirationDate).toISOString().split('T')[0] : undefined,
+          comment: item.comment || undefined,
+        }))
+      }
+      
+      await inputEntryService.create(submissionData)
       
       setNotification({
         type: 'success',
-        message: `Abastecimiento ${data.receptionId} registrado correctamente`
+        message: `Abastecimiento ${formData.receptionId} registrado correctamente`
       })
       
       setOpenModal(false)
@@ -150,7 +170,7 @@ export function useSupplyEntryPage() {
     } catch (err) {
       setNotification({
         type: 'error',
-        message: 'Error al registrar el abastecimiento'
+        message: err.response?.data?.detail || 'Error al registrar el abastecimiento'
       })
     }
   }, [loadData])
@@ -172,10 +192,15 @@ export function useSupplyEntryPage() {
     setNotification(null)
   }, [])
 
-  // Initialize
-  useState(() => {
+  // Load data on mount and when filters change
+  useEffect(() => {
     loadData()
-  })
+  }, [])
+
+  // Reload when filters change
+  useEffect(() => {
+    loadData()
+  }, [dateFrom, dateTo, supplierFilter, currentPage])
 
   return {
     // Data
