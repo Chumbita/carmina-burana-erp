@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 
-export function DataTable({ columns, data }) {
+export function DataTable({ columns, data, onRowClick }) {
   console.log(data);
   return (
     <Table>
@@ -21,7 +21,11 @@ export function DataTable({ columns, data }) {
       </TableHeader>
       <TableBody>
         {data.map((row) => (
-          <TableRow key={row.id}>
+          <TableRow 
+            key={row.id}
+            className={onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
+            onClick={() => onRowClick && onRowClick(row)}
+          >
             {columns.map((column) => (
               <TableCell key={column.accessor}>
                 {column.render

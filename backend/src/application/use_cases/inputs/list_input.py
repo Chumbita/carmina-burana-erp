@@ -63,7 +63,6 @@ class GetInputDetailUseCase:
                 cantidad_ingresada,
                 current_amount,
                 expire_date,
-                updated_at,
             ) = lot
 
             dias_restantes = (
@@ -80,7 +79,6 @@ class GetInputDetailUseCase:
                     "cantidad_actual": current_amount or 0,
                     "vencimiento": expire_date,
                     "dias_restantes": dias_restantes,
-                    "updated_at": updated_at,
                 }
             )
 
