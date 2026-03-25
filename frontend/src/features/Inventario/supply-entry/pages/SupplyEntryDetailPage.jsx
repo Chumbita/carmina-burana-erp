@@ -54,7 +54,7 @@ export default function SupplyEntryDetailPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="w-full">
       {/* Detail component - it already includes its own header */}
       <SupplyEntryDetail
         detailHook={detailHook}

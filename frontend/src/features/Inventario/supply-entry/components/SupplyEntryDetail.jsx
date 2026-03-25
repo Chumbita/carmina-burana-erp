@@ -15,6 +15,21 @@ import {
 
 import { ArrowLeft, Package, Calendar, DollarSign, User, Download, Trash2, AlertTriangle, ExternalLink } from 'lucide-react'
 
+// Helper functions for better code organization
+const getStatusLabel = (status) => {
+  const statusMap = {
+    active: 'Activa',
+    cancelled: 'Anulada',
+  }
+  return statusMap[status] || 'Desconocido'
+}
+
+const getAnnulmentTooltip = (canAnnul) => {
+  return canAnnul 
+    ? '' 
+    : 'No se puede anular: pasaron más de 48hs o hay lotes consumidos'
+}
+
 /**
  * SupplyEntryDetail - Component for supply entry detail view
  * @param {Object} props - Component props
@@ -65,43 +80,44 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="w-full p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onBack}
-            className="cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-neutral-900">
-              Detalle de Abastecimiento
-            </h1>
-            <p className="text-neutral-600 mt-1">
-              ID: {entry.reception_number || `REC-${entry.id}`}
-            </p>
+      <div className="flex flex-col gap-4">
+        <header className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onBack}
+              className="p-2 hover:bg-neutral-100 rounded-md transition-colors"
+              aria-label="Volver"
+            >
+              <ArrowLeft className="w-5 h-5 text-neutral-600" />
+            </button>
+            
+            <div>
+              <h1 className="text-2xl font-bold text-neutral-900">
+                Detalle de Abastecimiento
+              </h1>
+              <p className="text-neutral-600 mt-1">
+                ID: {entry.reception_number || `REC-${entry.id}`}
+              </p>
+            </div>
           </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Badge variant={entry.status === 'active' ? 'default' : 'secondary'}
-            className={entry.status === 'cancelled' ? 'bg-red-100 text-red-700' : ''}>
-            {entry.status === 'active' ? 'Activa' : entry.status === 'cancelled' ? 'Anulada' : 'Desconocido'}
-          </Badge>
           
-          {entry.status === 'active' && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAnnulDialog(true)}
-              disabled={!canAnnul}
-              className="cursor-pointer"
-              title={!canAnnul ? 'No se puede anular: pasaron más de 48hs o hay lotes consumidos' : ''}
+          <div className="flex items-center gap-2">
+              <Badge 
+                variant={entry.status === 'active' ? 'default' : 'secondary'}
+                className={entry.status === 'cancelled' ? 'bg-red-100 text-red-700' : ''}
+              >
+                {getStatusLabel(entry.status)}
+              </Badge>
+              
+              {entry.status === 'active' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAnnulDialog(true)}
+                  disabled={!canAnnul}
+                  title={getAnnulmentTooltip(canAnnul)}
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Anular
@@ -112,7 +128,6 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
             variant="outline"
             size="sm"
             onClick={handleExport}
-            className="cursor-pointer"
           >
             <Download className="w-4 h-4 mr-2" />
             Exportar
@@ -122,11 +137,11 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
             variant="outline"
             size="sm"
             onClick={handlePrint}
-            className="cursor-pointer"
           >
             Imprimir
           </Button>
-        </div>
+          </div>
+        </header>
       </div>
 
       {/* Warning */}
@@ -155,12 +170,12 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <Calendar className="w-5 h-5 text-neutral-400 mt-0.5" />
+              <div className="flex items-center gap-3">
+                <Calendar className="w-5 h-5 text-neutral-400 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-neutral-900">Fecha de Recepción</p>
                   <p className="text-sm text-neutral-600">
-                    {new Date(entry.entry_date + 'T00:00:00').toLocaleDateString('es-AR', {
+                    {new Date(entry.created_at || entry.entry_date).toLocaleString('es-AR', {
                       day: '2-digit',
                       month: '2-digit',
                       year: 'numeric',
@@ -171,8 +186,8 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                 </div>
               </div>
               
-              <div className="flex items-start gap-3">
-                <User className="w-5 h-5 text-neutral-400 mt-0.5" />
+              <div className="flex items-center gap-3">
+                <User className="w-5 h-5 text-neutral-400 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-neutral-900">Proveedor</p>
                   <p className="text-sm text-neutral-600">{entry.supplier}</p>
@@ -180,8 +195,8 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
               </div>
               
               {entry.invoiceNumber && (
-                <div className="flex items-start gap-3">
-                  <Download className="w-5 h-5 text-neutral-400 mt-0.5" />
+                <div className="flex items-center gap-3">
+                  <Download className="w-5 h-5 text-neutral-400 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-neutral-900">Número de Factura</p>
                     <p className="text-sm text-neutral-600">{entry.invoiceNumber}</p>
@@ -191,8 +206,8 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
             </div>
             
             <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <DollarSign className="w-5 h-5 text-neutral-400 mt-0.5" />
+              <div className="flex items-center gap-3">
+                <DollarSign className="w-5 h-5 text-neutral-400 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-neutral-900">Costo Total</p>
                   <p className="text-lg font-semibold text-neutral-900">
@@ -202,25 +217,25 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
               </div>
               
               {entry.description && (
-                <div className="flex items-start gap-3">
-                  <Package className="w-5 h-5 text-neutral-400 mt-0.5" />
+                <div className="flex items-center gap-3">
+                  <Package className="w-5 h-5 text-neutral-400 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-neutral-900">Descripción</p>
-                    <p className="text-sm text-neutral-600">{entry.description}</p>
+                    <p className="text-sm text-neutral-600 capitalize">{entry.description}</p>
                   </div>
                 </div>
               )}
               
               {entry.status === 'annulled' && (
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-red-400 mt-0.5" />
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-red-900">Anulada</p>
+                    <p className="text-sm font-medium text-red-900">Estado: Anulada</p>
                     <p className="text-sm text-red-700">
-                      {entry.annulmentReason}
+                      Motivo: {entry.annulmentReason}
                     </p>
                     <p className="text-xs text-red-600">
-                      {new Date(entry.annulledAt).toLocaleDateString('es-AR')}
+                      Fecha de anulación: {new Date(entry.annulledAt).toLocaleString('es-AR')}
                     </p>
                   </div>
                 </div>
@@ -245,13 +260,13 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     Insumo
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     Cantidad
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     Costo Unitario
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     Subtotal
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
@@ -278,23 +293,23 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                         </p>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-neutral-600">
+                    <td className="px-4 py-4 text-sm text-neutral-600 text-center">
                       {item.amount}
                     </td>
-                    <td className="px-4 py-4 text-sm text-neutral-600">
+                    <td className="px-4 py-4 text-sm text-neutral-600 text-right">
                       ${item.unit_cost?.toFixed(2) || '0.00'}
                     </td>
-                    <td className="px-4 py-4 text-sm font-medium text-neutral-900">
+                    <td className="px-4 py-4 text-sm font-medium text-neutral-900 text-right">
                       ${(item.amount * item.unit_cost).toFixed(2)}
                     </td>
-                    <td className="px-4 py-4 text-sm text-neutral-600">
+                    <td className="px-4 py-4 text-sm text-neutral-600 text-center">
                       {item.batch?.id ? `#${item.batch.id}` : 'Sin lote'}
                     </td>
-                    <td className="px-4 py-4 text-sm text-neutral-600">
+                    <td className="px-4 py-4 text-sm text-neutral-600 text-center">
                       {new Date(item.expire_date + 'T00:00:00').toLocaleDateString('es-AR')}
                     </td>
                     <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-center gap-2">
                         {item.batch?.current_amount < item.batch?.initial_amount && (
                           <Badge variant="secondary" className="text-xs">
                             Consumido
