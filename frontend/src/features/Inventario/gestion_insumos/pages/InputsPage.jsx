@@ -23,8 +23,6 @@ export default function InputsPage() {
     tableRef,
   } = useInputsPage()
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Spinner /></div>
-
   return (
     <div className="space-y-4">
       <Notification notification={notification} onClose={clearNotification} />
@@ -55,23 +53,18 @@ export default function InputsPage() {
         onSubmit={handleCreateInput}
       />
 
-      {filteredData.totalCount === 0 ? (
-        <p className="text-center py-8 text-gray-500">
-          {search || categoryFilter !== "all" || stockFilter !== "all" ? "No se encontraron insumos" : "No hay insumos registrados"}
-        </p>
-      ) : (
-        <>
-          <div ref={tableRef}>
-            <InputsTable insumos={filteredData.items} />
-          </div>
-          <Pagination
-            currentPage={filteredData.currentPage}
-            totalPages={filteredData.totalPages}
-            onPageChange={setCurrentPage}
-            totalCount={filteredData.totalCount}
-            itemsPerPage={itemsPerPage}
-          />
-        </>
+      <div ref={tableRef}>
+        <InputsTable insumos={filteredData?.items || []} />
+      </div>
+
+      {filteredData && filteredData.totalCount > 0 && (
+        <Pagination
+          currentPage={filteredData.currentPage}
+          totalPages={filteredData.totalPages}
+          onPageChange={setCurrentPage}
+          totalCount={filteredData.totalCount}
+          itemsPerPage={itemsPerPage}
+        />
       )}
     </div>
   )

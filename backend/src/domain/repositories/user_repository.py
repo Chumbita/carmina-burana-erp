@@ -15,7 +15,7 @@ class IUserRepository(Protocol):
         Busca a un usuario por su username.
         """
         
-    async def find_by_id(self, user_id: int) -> Optional[User]:
+    async def find_by_id(self, user_id: str) -> Optional[User]:
         """ 
         Busca a un usuario por su id.
         """

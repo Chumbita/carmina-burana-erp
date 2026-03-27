@@ -19,11 +19,19 @@ const DashboardPage = lazy(
 
 //insumos pages
 const InputsPage = lazy(() =>
-  import("@/features/gestion_insumos/pages/InputsPage")
+  import("@/features/Inventario/gestion_insumos/pages/InputsPage")
 );
 
 const InputDetailPage = lazy(() =>
-  import('@/features/gestion_insumos/pages/InputDetailPage')
+  import('@/features/Inventario/gestion_insumos/pages/InputDetailPage')
+);
+
+const InputEntryPage = lazy(() =>
+  import('@/features/Inventario/supply-entry/pages/InputEntryPage')
+);
+
+const SupplyEntryDetailPage = lazy(() =>
+  import('@/features/Inventario/supply-entry/pages/SupplyEntryDetailPage')
 );
 
 
@@ -64,6 +72,14 @@ export const router = createBrowserRouter([
       {
         path: "/inventario/insumos/:inputId",
         element: <InputDetailPage />,
+      },
+      {
+        path: "/inventario/ingreso-insumos",
+        element: <InputEntryPage />,
+      },
+      {
+        path: "/inventario/ingreso-insumos/:entryId",
+        element: <SupplyEntryDetailPage />,
       },
     ],
   },

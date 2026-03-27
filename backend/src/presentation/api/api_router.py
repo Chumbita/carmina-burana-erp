@@ -25,3 +25,9 @@ api_router.include_router(users_router)
 # ======================
 from src.presentation.api.routes import input_router
 api_router.include_router(input_router)
+
+# ======================
+# INPUT ENTRIES ROUTER
+# ======================
+from src.presentation.api.routes import input_entry_router
+api_router.include_router(input_entry_router)

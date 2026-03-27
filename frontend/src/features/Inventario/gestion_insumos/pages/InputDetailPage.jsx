@@ -6,6 +6,7 @@ import { AuditLogHistory } from "@/components/shared/AuditLogHistory";
 //hooks
 import { useParams } from "react-router-dom";
 import { useInput } from "../hooks/useInput";
+import { useInputs } from "../hooks/useInputs";
 import { useState } from "react";
 
 //Componentes
@@ -15,6 +16,7 @@ import { InputDetailSidebar } from "../components/InputDetailSidebar";
 export default function InputDetailPage() {
   const { inputId } = useParams();
   const {input, loading, error } = useInput(inputId)
+  const { inputs: availableInputs } = useInputs();
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Función para refrescar el historial cuando se actualiza el insumo
@@ -31,7 +33,11 @@ export default function InputDetailPage() {
       <InputDetailHeader name={input.name} />
       <InputDetailSidebar input={input} />
       <main className="border rounded-md p-4">
-        <InputDetailTabs insumo={input} onInputUpdated={handleInputUpdated}></InputDetailTabs>
+        <InputDetailTabs 
+          insumo={input} 
+          onInputUpdated={handleInputUpdated}
+          availableInputs={availableInputs}
+        />
       </main>
       <section>
         <h2 className="text-xl font-semibold mb-4">Historial de Movimientos</h2>

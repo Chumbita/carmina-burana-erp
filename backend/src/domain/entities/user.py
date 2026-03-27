@@ -23,7 +23,7 @@ class User:
             raise ValueError("El nombre completo no puede ser un campo vacío.")
         if not hashed_password:
             raise ValueError("El password hasheado es requerido.")
-        if role != "admin" or role != "host":
+        if role not in ["admin", "host"]:
             raise ValueError("Rol de usuario inválido.")
         
         return cls(

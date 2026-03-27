@@ -127,8 +127,8 @@ class InputRepositoryImpl(InputRepository):
                 InputModel,
                 func.coalesce(
                     func.sum(InputInventoryModel.current_amount), 0
-                ).label("stock_total"),
-                func.max(InputInventoryModel.updated_at).label("last_update"),
+                ).label("stock_total")
+                
             )
             .outerjoin(
                 InputEntryItemModel,
@@ -156,7 +156,7 @@ class InputRepositoryImpl(InputRepository):
         if not input_row:
             return None, []
 
-        input_obj, stock_total, last_update = input_row
+        input_obj, stock_total = input_row
 
         # LOTES
 
@@ -167,7 +167,7 @@ class InputRepositoryImpl(InputRepository):
                 InputEntryItemModel.amount.label("cantidad_ingresada"),
                 InputInventoryModel.current_amount,
                 InputEntryItemModel.expire_date,
-                InputInventoryModel.updated_at,
+                
             )
             .join(
                 InputEntryModel,
@@ -188,7 +188,7 @@ class InputRepositoryImpl(InputRepository):
             {
                 "input": input_obj,
                 "stock_total": stock_total,
-                "last_update": last_update,
+                
             },
             lots,
         )
