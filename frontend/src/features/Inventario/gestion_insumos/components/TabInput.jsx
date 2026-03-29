@@ -1,6 +1,6 @@
 //componentes 
 import { InputForm } from "./InputForm"
-import { Notification } from "../components/Notifications"
+import { Notification } from "./Notifications"
 import { ConfirmNavigationModal } from "./ConfirmNavigationModal"
 
 import {

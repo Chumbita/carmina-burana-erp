@@ -48,8 +48,7 @@ class GetInputDetailUseCase:
 
         input_obj = data["input"]
         stock_total = data["stock_total"]
-        last_update = data["last_update"]
-
+       
         estado = StockStatus.from_levels(
             float(stock_total),
             float(input_obj.minimum_stock)
@@ -64,7 +63,6 @@ class GetInputDetailUseCase:
                 cantidad_ingresada,
                 current_amount,
                 expire_date,
-                updated_at,
             ) = lot
 
             dias_restantes = (
@@ -81,7 +79,6 @@ class GetInputDetailUseCase:
                     "cantidad_actual": current_amount or 0,
                     "vencimiento": expire_date,
                     "dias_restantes": dias_restantes,
-                    "updated_at": updated_at,
                 }
             )
 
@@ -95,6 +92,5 @@ class GetInputDetailUseCase:
             "image": input_obj.image,
             "stock_actual": stock_total,
             "estado_stock": estado.value,
-            "updated_at": last_update,
             "lotes": lots_response,
         }
