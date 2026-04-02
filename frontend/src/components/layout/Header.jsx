@@ -79,6 +79,8 @@ export function Header() {
                     <BreadcrumbItem>
                       {isLast ? (
                         <BreadcrumbPage>{displayName}</BreadcrumbPage>
+                      ) : segment === 'inventario' ? (
+                        <span className="text-muted-foreground">{displayName}</span>
                       ) : (
                         <BreadcrumbLink asChild>
                           <Link to={routeTo}>{displayName}</Link>
