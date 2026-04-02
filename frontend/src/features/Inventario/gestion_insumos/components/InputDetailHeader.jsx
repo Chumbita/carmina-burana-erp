@@ -8,7 +8,7 @@ export function InputDetailHeader({ name }) {
   return (
     <header className="lg:col-span-2 flex items-center justify-between gap-4">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/inventario/insumos")}>
+        <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-2xl font-semibold tracking-tight">{name}</h1>

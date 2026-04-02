@@ -13,11 +13,11 @@ export function InputDetailTabs({ insumo, onInputUpdated, availableInputs = [] }
       <Tabs defaultValue="insumos" onValueChange={setContentOption}>
         <TabsList variant="line">
           <TabsTrigger value="insumos" className="cursor-pointer">Insumos</TabsTrigger>
-          <TabsTrigger value="inventario" className="cursor-pointer">Inventario</TabsTrigger>
+          <TabsTrigger value="lotes" className="cursor-pointer">Lotes</TabsTrigger>
         </TabsList>
 
         {contentOption === "insumos" && <TabInput insumo={insumo} onInputUpdated={onInputUpdated} />}
-        {contentOption === "inventario" && <p>Lotes</p>}
+        {contentOption === "lotes" && <p>Contenido de Lotes</p>}
       </Tabs>
     </div>
   );
