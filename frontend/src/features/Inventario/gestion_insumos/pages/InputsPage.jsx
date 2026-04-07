@@ -2,7 +2,7 @@
 import { InputsTable } from "../components/InputsTable"
 import { FilterBar } from "../components/FilterBar"
 import { NewInputModal } from "../components/NewInputModal"
-import { Notification } from "../components/Notifications"
+import { Notification } from "../../../../components/shared/Notification/Notifications"
 import { Pagination } from "../components/Pagination"
 //hooks
 import { useInputsPage } from "../hooks/useInputsPage"

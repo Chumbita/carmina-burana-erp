@@ -1,6 +1,6 @@
 //componentes 
 import { InputForm } from "./InputForm"
-import { Notification } from "./Notifications"
+import { Notification } from "../../../../components/shared/Notification/Notifications"
 import { ConfirmNavigationModal } from "./ConfirmNavigationModal"
 
 import {
@@ -18,7 +18,7 @@ import {
 import { useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useInputs } from "../hooks/useInputs"
-import { useNotification } from "../hooks/useNotification"
+import { useNotification } from "../../../../components/shared/Notification/useNotification"
 import { useFormBlocker } from "../hooks/useFormBlocker";
 
 

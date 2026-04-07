@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
 import { useInputs } from "./useInputs"
 import { useInputFilters } from "./useFiltersInputs"
-import { useNotification } from "./useNotification"
+import { useNotification } from "../../../../components/shared/Notification/useNotification"
 import { useLocationNotification } from "./useLocationNotification"
 // Hook orquestador de la página de insumos.
 // Compone useInputs, useInputFilters y useNotification en un único punto de entrada,

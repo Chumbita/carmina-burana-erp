@@ -15,7 +15,7 @@ import { useSupplyEntryPage } from '../hooks/useSupplyEntryPage'
 import { useInputs } from '../../gestion_insumos/hooks/useInputs'
 
 // Componentes de notificación (reutilizar de insumos)
-import { Notification } from "../../gestion_insumos/components/Notifications"
+import { Notification } from "../../../../components/shared/Notification/Notifications"
 
 /**
  * InputEntryPage - Main page for supply entry management
