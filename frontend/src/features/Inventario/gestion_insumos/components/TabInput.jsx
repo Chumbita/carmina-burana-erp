@@ -1,6 +1,5 @@
 //componentes 
 import { InputForm } from "./InputForm"
-import { Notification } from "./Notifications"
 import { ConfirmNavigationModal } from "./ConfirmNavigationModal"
 
 import {
@@ -18,7 +17,7 @@ import {
 import { useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useInputs } from "../hooks/useInputs"
-import { useNotification } from "../hooks/useNotification"
+import { useNotification } from "@/components/shared/notifications/useNotification"
 import { useFormBlocker } from "../hooks/useFormBlocker";
 
 
@@ -36,11 +35,7 @@ export function TabInput({ insumo, onInputUpdated }) {
     inputs
   } = useInputs()
 
-  const {
-    notification,
-    notify,
-    clearNotification
-  } = useNotification()
+  const notify = useNotification()
 
 //editar insumo
 async function onSubmit(data) {
@@ -149,9 +144,6 @@ async function onSubmit(data) {
         onConfirm={handleConfirmDelete}
         isDeleting={loading}
       />
-
-      {/* notificaciones */}
-      <Notification notification={notification} onClose={clearNotification} />
     </>
   )
 }
