@@ -1,5 +1,5 @@
 //componentes shadcn
-import { PackageIcon } from "@/components/icons/PackageIcon";
+import { PackageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 
 //hooks
@@ -19,7 +19,6 @@ export default function InputDetailPage() {
 
   return (
     <EntityDetailPage loading={loading} error={error}>
-
       <EntityDetailPage.Header name={input?.name} />
 
       <EntityDetailPage.Sidebar icon={<PackageIcon className="h-10 w-10 text-gray-400" />}>
@@ -39,9 +38,7 @@ export default function InputDetailPage() {
           availableInputs={availableInputs}
         />
       </EntityDetailPage.Content>
-
       <EntityDetailPage.History entityType="input" entityId={input?.id} />
-
     </EntityDetailPage>
   );
 }
