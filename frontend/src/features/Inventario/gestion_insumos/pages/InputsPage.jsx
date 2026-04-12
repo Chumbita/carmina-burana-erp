@@ -1,27 +1,44 @@
-//componentes 
-import { InputsTable } from "../components/InputsTable"
-import { FilterBar } from "../components/FilterBar"
-import { NewInputModal } from "../components/NewInputModal"
-import { Notification } from "../components/Notifications"
-import { Pagination } from "../components/Pagination"
+//componentes
+import { InputsTable } from "../components/InputsTable";
+import { NewInputModal } from "../components/NewInputModal";
+import { Notification } from "../components/Notifications";
+import { Pagination } from "../components/Pagination";
+//componentes genéricos
+import { FilterBar } from "@/components/ui/FilterBar";
 //hooks
-import { useInputsPage } from "../hooks/useInputsPage"
+import { useInputsPage } from "../hooks/useInputsPage";
 //componentes shadcn
-import { Button } from "@/components/ui/Button"
-import { Spinner } from "@/components/ui/Spinner"
+import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
 //iconos
-import { Plus } from "lucide-react"
+import { Plus } from "lucide-react";
 
 export default function InputsPage() {
   const {
-    filteredData, loading,
-    search, categoryFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, stockStatuses, 
-    setSearch, setCategoryFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage,
-    openModal, setOpenModal,
-    notification, clearNotification,
+    filteredData,
+    loading,
+    search,
+    categoryFilter,
+    stockFilter,
+    sortBy,
+    sortOrder,
+    currentPage,
+    itemsPerPage,
+    categories,
+    stockStatuses,
+    setSearch,
+    setCategoryFilter,
+    setStockFilter,
+    setSortBy,
+    setSortOrder,
+    setCurrentPage,
+    openModal,
+    setOpenModal,
+    notification,
+    clearNotification,
     handleCreateInput,
     tableRef,
-  } = useInputsPage()
+  } = useInputsPage();
 
   return (
     <div className="space-y-4">
@@ -29,24 +46,55 @@ export default function InputsPage() {
 
       <header className="flex items-center justify-between gap-4">
         <FilterBar
+          // Búsqueda
           search={search}
-          categoryFilter={categoryFilter}
-          stockFilter={stockFilter}
+          searchPlaceholder="Buscar por nombre o marca..."
+          onSearchChange={setSearch}
+          // Filtros
+          filters={[
+            {
+              key: "category",
+              placeholder: "Categoría",
+              value: categoryFilter,
+              options: categories,
+              onChange: setCategoryFilter,
+            },
+            {
+              key: "stock",
+              placeholder: "Estado stock",
+              value: stockFilter,
+              options: stockStatuses,
+              onChange: setStockFilter,
+            },
+          ]}
+          // Ordenamiento
+          sortFields={[
+            { key: "name", label: "Nombre" },
+            { key: "stock", label: "Stock" },
+          ]}
           sortBy={sortBy}
           sortOrder={sortOrder}
-          categories={categories}
-          stockStatuses={stockStatuses}
-          onSearchChange={setSearch}
-          onCategoryChange={setCategoryFilter}
-          onStockChange={setStockFilter}
           onSortByChange={setSortBy}
           onSortOrderChange={setSortOrder}
+          // Limpiar
+          hasActiveFilters={
+            search || categoryFilter !== "all" || stockFilter !== "all"
+          }
+          onClearFilters={() => {
+            setSearch("");
+            setCategoryFilter("all");
+            setStockFilter("all");
+          }}
         />
-        <Button size="sm" className="cursor-pointer" onClick={() => setOpenModal(true)}>
-          <Plus />Agregar insumo
+        <Button
+          size="sm"
+          className="cursor-pointer"
+          onClick={() => setOpenModal(true)}
+        >
+          <Plus />
+          Agregar insumo
         </Button>
       </header>
-
       <NewInputModal
         open={openModal}
         onClose={() => setOpenModal(false)}
@@ -67,5 +115,5 @@ export default function InputsPage() {
         />
       )}
     </div>
-  )
+  );
 }
