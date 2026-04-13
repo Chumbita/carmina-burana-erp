@@ -14,9 +14,6 @@ import { useSupplyEntryForm } from '../hooks/useSupplyEntryForm'
 import { useSupplyEntryPage } from '../hooks/useSupplyEntryPage'
 import { useInputs } from '../../gestion_insumos/hooks/useInputs'
 
-// Componentes de notificación (reutilizar de insumos)
-import { Notification } from "../../gestion_insumos/components/Notifications"
-
 /**
  * InputEntryPage - Main page for supply entry management
  * Following the same pattern as InputsPage
@@ -37,7 +34,6 @@ export default function InputEntryPage() {
     currentPage,
     itemsPerPage,
     openModal,
-    notification,
     setSearch,
     setDateFrom,
     setDateTo,
@@ -47,7 +43,6 @@ export default function InputEntryPage() {
     setCurrentPage,
     setOpenModal,
     handleCreateSupplyEntry,
-    clearNotification,
   } = useSupplyEntryPage()
 
   // Form hook for modal
@@ -58,8 +53,6 @@ export default function InputEntryPage() {
 
   return (
     <div className="space-y-4">
-      <Notification notification={notification} onClose={clearNotification} />
-
       {/* Header with filters and actions */}
       <header className="flex items-center justify-between gap-4">
         <SupplyEntryFilters

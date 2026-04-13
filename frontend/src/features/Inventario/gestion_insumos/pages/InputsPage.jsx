@@ -2,7 +2,6 @@
 import { InputsTable } from "../components/InputsTable"
 import { FilterBar } from "../components/FilterBar"
 import { NewInputModal } from "../components/NewInputModal"
-import { Notification } from "../components/Notifications"
 import { Pagination } from "../components/Pagination"
 //hooks
 import { useInputsPage } from "../hooks/useInputsPage"
@@ -18,15 +17,12 @@ export default function InputsPage() {
     search, categoryFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, stockStatuses, 
     setSearch, setCategoryFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage,
     openModal, setOpenModal,
-    notification, clearNotification,
     handleCreateInput,
     tableRef,
   } = useInputsPage()
 
   return (
     <div className="space-y-4">
-      <Notification notification={notification} onClose={clearNotification} />
-
       <header className="flex items-center justify-between gap-4">
         <FilterBar
           search={search}
