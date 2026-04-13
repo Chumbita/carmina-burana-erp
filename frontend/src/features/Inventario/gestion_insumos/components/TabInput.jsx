@@ -20,13 +20,15 @@ import { useNavigate } from "react-router-dom"
 import { useInputs } from "../hooks/useInputs"
 import { useNotification } from "../hooks/useNotification"
 import { useFormBlocker } from "../hooks/useFormBlocker";
+import { useEntityDetail } from "@/components/shared/DetailPage/EntityDetailContext";
 
-
-export function TabInput({ insumo, onInputUpdated }) {
+export function TabInput({ insumo }) {
   const formRef = useRef(null)
   const navigate = useNavigate()
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const { blocker } = useFormBlocker(formRef)
+
+  const { handleUpdated } = useEntityDetail();
 
   const {
     updateInput,
@@ -63,8 +65,8 @@ async function onSubmit(data) {
     }
     
     // Notificar que el insumo fue actualizado para refrescar el historial
-    if (onInputUpdated) {
-      onInputUpdated();
+    if (handleUpdated) {
+      handleUpdated();
     }
     
     return true
