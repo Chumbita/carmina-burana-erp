@@ -4,7 +4,7 @@ import { NewInputModal } from "../components/NewInputModal";
 import { Notification } from "../components/Notifications";
 import { Pagination } from "../components/Pagination";
 //componentes genéricos
-import { FilterBar } from "@/components/ui/FilterBar";
+import { FilterBar } from "@/components/shared/FilterBar";
 //hooks
 import { useInputsPage } from "../hooks/useInputsPage";
 //componentes shadcn
