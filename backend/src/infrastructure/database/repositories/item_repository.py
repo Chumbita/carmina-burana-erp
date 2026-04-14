@@ -59,7 +59,7 @@ class ItemRepository:
 
     # ── Commands ────────────────────────────────────────────────
 
-    async def save(self, item: Item) -> Item:
+    async def add(self, item: Item) -> Item:
         """
         Inserta el ítem y hace flush para obtener el ID generado por la DB.
         NO hace commit: eso lo maneja get_db_session al finalizar el request.

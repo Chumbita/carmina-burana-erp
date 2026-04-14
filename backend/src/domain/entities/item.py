@@ -7,21 +7,20 @@ from src.domain.value_objects.item_status import ItemStatus
 
 @dataclass
 class Item:
-    id: Optional[int] = None
     name: str
     item_type_id: int
     brand_id: int
     base_uom_id: int
     min_stock_level: float
-    
     is_stockable: bool
     is_batch_tracked: bool
     is_manufacturable: bool
     is_purchasable: bool
     is_sellable: bool
-
-    status: str = ItemStatus.ACTIVE
     created_at: datetime
+
+    id: Optional[int] = None
+    status: str = ItemStatus.ACTIVE
     updated_at: Optional[datetime] = None
     deleted_at: Optional[datetime] = None
         

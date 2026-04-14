@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from src.application.dtos.item_dtos import CreateItemCommand, ItemResponse
 from src.domain.entities.item import Item
-from src.domain.repositories.item_repository import ItemRepository
+from src.infrastructure.database.repositories.item_repository import ItemRepository
 from src.domain.ports.specialized_item_creator_port import SpecializedItemCreatorPort
 from src.domain.exceptions.item_exceptions import SpecializedItemCreationException
 
@@ -45,7 +45,7 @@ class CreateItemUseCase:
         )
 
         # Paso 2: Persistir ítem base (flush, sin commit todavía)
-        saved_item = await self._item_repo.save(item)
+        saved_item = await self._item_repository.add(item)
 
         # Paso 3: Crear registro especializado en la misma transacción
         # Si lanza excepción, el rollback de get_db_session revierte todo.

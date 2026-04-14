@@ -1,15 +1,14 @@
-from sqlalchemy import Column, BigInteger, String, Boolean, Numeric, Integer, TIMESTAMP
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, BigInteger, SmallInteger, String, Boolean, Numeric, Integer, TIMESTAMP, ForeignKey
 from src.infrastructure.database.base import Base
 
 class ItemModel(Base):
     __tablename__ = "item"
-    
+
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     name = Column(String(120), nullable=False)
-    item_type_id = Column(Integer, nullable=False)
-    brand_id = Column(Integer, nullable=False)
-    base_uom_id = Column(Integer, nullable=False)
+    item_type_id = Column(SmallInteger, ForeignKey("item_type.id"), nullable=False)
+    brand_id = Column(Integer, ForeignKey("brand.id"), nullable=False)
+    base_uom_id = Column(Integer, ForeignKey("uom.id"), nullable=False)
     is_stockable = Column(Boolean, nullable=False)
     is_batch_tracked = Column(Boolean, nullable=False)
     min_stock_level = Column(Numeric(14, 4), nullable=False)
