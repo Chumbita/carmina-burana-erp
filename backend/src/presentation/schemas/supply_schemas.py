@@ -15,6 +15,14 @@ class CreateSupplyRequestSchema(BaseModel):
     supply_category: SupplyCategory
 
 
+class UpdateSupplyRequestSchema(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=120)
+    brand_id: Optional[int] = None
+    base_uom_id: Optional[int] = None
+    min_stock_level: Optional[float] = Field(None, gt=0)
+    supply_category: Optional[SupplyCategory] = None
+
+
 class SupplyResponseSchema(BaseModel):
     # Datos del item base
     id: int

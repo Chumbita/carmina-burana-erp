@@ -37,3 +37,12 @@ class SupplyRepository(ISupplyRepository):
             created_at=model.created_at,
             updated_at=model.updated_at,
         )
+
+    async def update(self, supply: Supply) -> None:
+        result = await self._session.execute(
+            select(SupplyModel).where(SupplyModel.item_id == supply.item_id)
+        )
+        model = result.scalar_one()
+        model.supply_category = supply.supply_category.value
+        model.updated_at = supply.updated_at
+        await self._session.flush()

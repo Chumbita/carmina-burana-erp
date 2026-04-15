@@ -98,7 +98,7 @@ class ItemRepository:
         model.is_manufacturable = item.is_manufacturable
         model.is_purchasable = item.is_purchasable
         model.is_sellable = item.is_sellable
-        model.status = item.status.value
+        model.status = item.status.value if hasattr(item.status, 'value') else item.status
         model.updated_at = item.updated_at
         model.deleted_at = item.deleted_at
 
@@ -141,4 +141,13 @@ class ItemRepository:
 
         return [self._to_domain(m) for m in result.scalars().all()]
 
+    async def get_by_item_type(self, item_type_id: int) -> List[Item]:
+        """Obtiene todos los items de un tipo específico."""
+        stmt = select(ItemModel).where(
+            ItemModel.item_type_id == item_type_id,
+            ItemModel.deleted_at.is_(None)
+        ).order_by(ItemModel.created_at.desc())
+        result = await self._session.execute(stmt)
+        
+        return [self._to_entity(m) for m in result.scalars().all()]
    
