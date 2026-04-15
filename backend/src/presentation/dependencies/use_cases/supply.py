@@ -11,7 +11,17 @@ from src.application.use_cases.item.create_item_use_case import CreateItemUseCas
 def get_create_supply_use_case(
     session: AsyncSession = Depends(get_db),
 ) -> CreateItemUseCase:
+    """
+    Fábrica que instancia CreateItemUseCase con el creator específico de supply.
+    """
     item_repository = ItemRepository(session)
     supply_repository = SupplyRepository(session)
     supply_creator = SupplyItemCreator(supply_repository)
     return CreateItemUseCase(item_repository, supply_creator)
+
+
+def get_supply_repository(
+    session: AsyncSession = Depends(get_db),
+) -> SupplyRepository:
+    """Inyecta el repositorio de supply para obtener datos adicionales."""
+    return SupplyRepository(session)

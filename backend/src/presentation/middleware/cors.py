@@ -6,7 +6,7 @@ from src.infrastructure.config import settings
 def setup_cors(app):
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.allowed_origins_list,
+        allow_origins=["*"],  # Temporalmente permitir todos los orígenes
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
