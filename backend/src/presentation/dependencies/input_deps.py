@@ -8,9 +8,9 @@ from src.application.use_cases.inputs.delete_input import DeleteInputUseCase
 from src.application.use_cases.inputs.update_input import UpdateInputUseCase
 from src.application.use_cases.inputs.list_input import GetActiveInputsUseCase
 from src.application.use_cases.inputs.list_input import GetInputDetailUseCase
-from src.application.use_cases.record_audit_log import RecordAuditLogUseCase
-from src.application.use_cases.get_entity_audit_logs import GetEntityAuditLogsUseCase
-from src.application.use_cases.get_user_audit_logs import GetUserAuditLogsUseCase
+from src.application.use_cases.audit_logs.record_audit_log import RecordAuditLogUseCase
+from src.application.use_cases.audit_logs.get_entity_audit_logs import GetEntityAuditLogsUseCase
+from src.application.use_cases.audit_logs.get_user_audit_logs import GetUserAuditLogsUseCase
 from src.infrastructure.database.repositories.audit_log_repository import AuditLogRepository
 
 def get_create_input_use_case(

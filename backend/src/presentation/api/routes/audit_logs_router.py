@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
-from src.application.use_cases.get_entity_audit_logs import GetEntityAuditLogsUseCase
-from src.application.use_cases.get_user_audit_logs import GetUserAuditLogsUseCase
+from src.application.use_cases.audit_logs.get_entity_audit_logs import GetEntityAuditLogsUseCase
+from src.application.use_cases.audit_logs.get_user_audit_logs import GetUserAuditLogsUseCase
 from src.presentation.dependencies.audit_log_deps import (
     get_entity_audit_logs_use_case,
     get_user_audit_logs_use_case,
