@@ -22,4 +22,16 @@ class Supply:
 
         if self.supply_category not in SupplyCategory.__members__.values():
             raise ValueError(f"Invalid supply_category: {self.supply_category}")
+    
+    def update(self, **kwargs):
+        """
+        Update parcial del supply.
+        """
+        allowed_fields = {"supply_category"}
         
+        for key, value in kwargs.items():
+            if key in allowed_fields:
+                setattr(self, key, value)
+        
+        self.updated_at = datetime.now()
+        self._validate()

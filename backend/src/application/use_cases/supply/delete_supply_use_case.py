@@ -24,7 +24,6 @@ class DeleteSupplyUseCase:
         if not item:
             raise ItemNotFoundException(f"Supply with id {supply_id} not found")
         
-        # Soft delete
-        item.deleted_at = datetime.now(timezone.utc).replace(tzinfo=None)
-        item.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
-        await self._item_repository.update(item)
+        # Ejecutar soft delete usando el método de la entidad
+        item.soft_delete()
+        await self._item_repository.save(item)

@@ -11,7 +11,6 @@ class CreateSupplyRequestSchema(BaseModel):
     brand_id: int
     base_uom_id: int
     min_stock_level: float = Field(..., gt=0)
-    is_batch_tracked: bool
     supply_category: SupplyCategory
 
 

@@ -9,4 +9,7 @@ class ISupplyRepository(Protocol):
     async def get_by_item_id(self, item_id: int) -> Optional[Supply]:
         """Obtiene un insumo por su item_id."""
         ...
-        
+    
+    async def save(self, supply: Supply) -> Supply:
+        """Persiste los cambios realizados en la entidad Supply."""
+        ...

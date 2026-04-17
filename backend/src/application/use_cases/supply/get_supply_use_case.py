@@ -1,42 +1,15 @@
 """
 Caso de uso para obtener un insumo por ID.
 """
-from dataclasses import dataclass
-from datetime import datetime
-from decimal import Decimal
-from typing import Optional
-
 from src.infrastructure.database.repositories.item_repository import ItemRepository
 from src.domain.repositories.supply_repository import ISupplyRepository
-from src.domain.value_objects.supply_category import SupplyCategory
-from src.domain.value_objects.item_status import ItemStatus
 from src.domain.exceptions.item_exceptions import ItemNotFoundException
+from src.application.dtos.supply_dtos import SupplyDetail
 
 
 class ItemNotFoundException(Exception):
     """Excepción cuando no se encuentra un item."""
     pass
-
-
-@dataclass
-class SupplyDetail:
-    """DTO para los detalles completos de un supply."""
-    id: int
-    name: str
-    item_type_id: int
-    brand_id: int
-    base_uom_id: int
-    is_stockable: bool
-    is_batch_tracked: bool
-    min_stock_level: Decimal
-    is_manufacturable: bool
-    is_purchasable: bool
-    is_sellable: bool
-    status: ItemStatus
-    created_at: datetime
-    updated_at: Optional[datetime]
-    deleted_at: Optional[datetime]
-    supply_category: SupplyCategory
 
 
 class GetSupplyUseCase:

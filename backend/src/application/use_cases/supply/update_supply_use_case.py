@@ -2,15 +2,14 @@
 Caso de uso para actualizar un insumo.
 """
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional
 
 from src.infrastructure.database.repositories.item_repository import ItemRepository
 from src.domain.repositories.supply_repository import ISupplyRepository
 from src.domain.value_objects.supply_category import SupplyCategory
-from src.domain.value_objects.item_status import ItemStatus
-from src.application.use_cases.supply.get_supply_use_case import ItemNotFoundException, SupplyDetail
+from src.application.use_cases.supply.get_supply_use_case import ItemNotFoundException
+from src.application.dtos.supply_dtos import SupplyDetail
 
 
 @dataclass
@@ -47,26 +46,30 @@ class UpdateSupplyUseCase:
         if not item:
             raise ItemNotFoundException(f"Supply with id {command.supply_id} not found")
         
-        # Actualizar item si hay cambios
-        if command.name:
-            item.name = command.name
-        if command.brand_id:
-            item.brand_id = command.brand_id
-        if command.base_uom_id:
-            item.base_uom_id = command.base_uom_id
-        if command.min_stock_level:
-            item.min_stock_level = command.min_stock_level
+        supply = await self._supply_repository.get_by_item_id(command.supply_id)
+        if not supply:
+            raise ItemNotFoundException(f"Supply data for item {command.supply_id} not found")
         
-        item.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
-        await self._item_repository.update(item)
+        # Preparar cambios para Item
+        item_changes = {}
+        if command.name is not None:
+            item_changes["name"] = command.name
+        if command.brand_id is not None:
+            item_changes["brand_id"] = command.brand_id
+        if command.base_uom_id is not None:
+            item_changes["base_uom_id"] = command.base_uom_id
+        if command.min_stock_level is not None:
+            item_changes["min_stock_level"] = command.min_stock_level
+        
+        # Actualizar item usando el método de la entidad si hay cambios
+        if item_changes:
+            item.update(**item_changes)
+            await self._item_repository.save(item)
         
         # Actualizar supply si hay cambio de categoría
-        if command.supply_category:
-            supply = await self._supply_repository.get_by_item_id(command.supply_id)
-            if supply:
-                supply.supply_category = command.supply_category
-                supply.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
-                await self._supply_repository.update(supply)
+        if command.supply_category is not None:
+            supply.update(supply_category=command.supply_category)
+            await self._supply_repository.save(supply)
         
         # Obtener datos actualizados
         updated_item = await self._item_repository.get_by_id(command.supply_id)

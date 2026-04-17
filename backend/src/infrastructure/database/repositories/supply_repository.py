@@ -38,11 +38,18 @@ class SupplyRepository(ISupplyRepository):
             updated_at=model.updated_at,
         )
 
-    async def update(self, supply: Supply) -> None:
+    async def update(self, supply: Supply) -> Supply:
         result = await self._session.execute(
             select(SupplyModel).where(SupplyModel.item_id == supply.item_id)
         )
         model = result.scalar_one()
-        model.supply_category = supply.supply_category.value
+        
+        model.supply_category = supply.supply_category.value if hasattr(supply.supply_category, 'value') else supply.supply_category
         model.updated_at = supply.updated_at
+        
         await self._session.flush()
+        return supply
+    
+    async def save(self, supply: Supply) -> Supply:
+        """Persiste los cambios realizados en la entidad Supply."""
+        return await self.update(supply)

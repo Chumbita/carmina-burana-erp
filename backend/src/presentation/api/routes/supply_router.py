@@ -46,7 +46,7 @@ async def create_supply(
         brand_id=body.brand_id,
         base_uom_id=body.base_uom_id,
         is_stockable=True,
-        is_batch_tracked=body.is_batch_tracked,
+        is_batch_tracked=True,
         min_stock_level=body.min_stock_level,
         is_manufacturable=False,
         is_purchasable=True,
