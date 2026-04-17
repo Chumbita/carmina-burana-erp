@@ -2,7 +2,7 @@
 from fastapi import Depends
 from src.domain.repositories.input_repository import InputRepository
 from src.presentation.dependencies.repositories import get_input_repository
-from src.application.use_cases.record_audit_log import RecordAuditLogUseCase
+from src.application.use_cases.audit_logs.record_audit_log import RecordAuditLogUseCase
 from src.presentation.dependencies.audit_log_deps import get_record_audit_log_use_case
 
 # ===========================
