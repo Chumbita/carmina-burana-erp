@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 
 from src.infrastructure.database.base import Base
 
-class InventoryBalance(Base):
+class InventoryBalanceModel(Base):
     __tablename__ = "inventory_balance"
 
     item_id = Column(BigInteger, nullable=False, unique=True)
