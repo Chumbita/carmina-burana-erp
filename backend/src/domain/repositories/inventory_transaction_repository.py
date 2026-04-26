@@ -6,7 +6,7 @@ from typing import Protocol
 
 from src.domain.entities.inventory_transaction import InventoryTransaction
 
-class IInventoryTransaction(Protocol):
+class IInventoryTransactionRepository(Protocol):
     
      async def add(self, transaction: InventoryTransaction) -> None:
         """

@@ -6,7 +6,7 @@ from typing import Protocol
 
 from src.domain.entities.inventory_lot import InventoryLot
 
-class IInventoryLot(Protocol):
+class IInventoryLotRepository(Protocol):
     
     async def save(self, lot: InventoryLot) -> InventoryLot:
         """
