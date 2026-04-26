@@ -20,6 +20,7 @@ class InventoryLot:
     # Método que se ejecuta automáticamente luego de una instanciación.
     def __post_init__(self):
         self._validate()
+     
         
     # --- Validaciones --------------------------------------------------
     def _validate(self):
@@ -33,6 +34,31 @@ class InventoryLot:
             if self.production_date >= self.expiration_date:
                 raise ValueError("The production date must be prior to the expiration date")
             
+    
+    # --- Método de fabricación ------------------------------------------
+    
+    @classmethod
+    def create(
+        cls,
+        item_id: int,
+        lot_code: str,
+        unit_cost: Decimal,
+        expiration_date: datetime | None = None,
+        production_date: datetime | None = None,
+    ) -> "InventoryLot":
+        """
+        Método de fábrica que centraliza la creación de lotes nuevos.
+        """
+        return cls(
+            item_id=item_id,
+            lot_code=lot_code.strip().upper(),
+            unit_cost=unit_cost,
+            expiration_date=expiration_date,
+            production_date=production_date,
+            created_at=datetime.now(timezone.utc),
+        )
+    
+    
     # --- Utilidades --------------------------------------------------
     
     def is_expired(self, reference_date: datetime | None = None) -> bool:
