@@ -10,7 +10,7 @@ from src.domain.entities.inventory_balance import InventoryBalance
 from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
 
 class InventoryBalanceRepository():
-    def __init__(self, session=AsyncSession):
+    def __init__(self, session: AsyncSession):
         self._session = session
         
     # --- Utilidades ---------------------------------------------
