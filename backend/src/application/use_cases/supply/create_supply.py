@@ -1,9 +1,13 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# CASO DE USO PARA LA CREACIÓN DE UN INSUMO
+# ══════════════════════════════════════════════════════════════════════════════
+
 from datetime import datetime, timezone
 
-from src.domain.entities.supply import Supply
 from src.application.interfaces.specialized_item_creator_port import SpecializedItemCreatorPort
-from src.domain.exceptions.item_exceptions import SpecializedItemCreationException
+from src.domain.entities.supply import Supply
 from src.domain.repositories.supply_repository import ISupplyRepository
+from src.domain.exceptions.item_exceptions import SpecializedItemCreationException
 from src.domain.value_objects.supply_category import SupplyCategory
 
 
@@ -19,7 +23,7 @@ class SupplyItemCreator(SpecializedItemCreatorPort):
             supply = Supply(
                 item_id=item_id,
                 supply_category=SupplyCategory(data["supply_category"]),
-                created_at=datetime.now(timezone.utc).replace(tzinfo=None),
+                created_at=datetime.now(timezone.utc),
             )
 
             await self._supply_repository.add(supply)
