@@ -1,3 +1,7 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# SUPPLY ENTITY
+# ══════════════════════════════════════════════════════════════════════════════
+
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
@@ -5,11 +9,23 @@ from src.domain.value_objects.supply_category import SupplyCategory
 
 @dataclass
 class Supply:
+    """ 
+    Entidad especializada de Item.
+    """
+    
+    # Identidad
     item_id: int
+    
+    # Atributos esenciales
     supply_category: SupplyCategory
+    
+    # Metadatos
     created_at: datetime
     updated_at: Optional[datetime] = None
 
+    
+    # ── Initialization & Validation ────────────────────────────────
+    
     def __post_init__(self):
         self._validate()
 
