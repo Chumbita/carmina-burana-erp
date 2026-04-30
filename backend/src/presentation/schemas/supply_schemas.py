@@ -10,7 +10,7 @@ class CreateSupplyRequestSchema(BaseModel):
     name: str = Field(..., min_length=1, max_length=120)
     brand_id: int
     base_uom_id: int
-    min_stock_level: float = Field(..., gt=0)
+    min_stock_level: Decimal = Field(..., gt=0)
     supply_category: SupplyCategory
 
 
