@@ -5,7 +5,7 @@ from src.infrastructure.database.deps import get_db
 from src.infrastructure.database.repositories.supply_repository import SupplyRepository
 from src.infrastructure.database.repositories.item_repository import ItemRepository
 from src.application.use_cases.supply.create_supply import SupplyItemCreator
-from src.application.use_cases.item.create_item_use_case import CreateItemUseCase
+from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
 
 
 def get_create_supply_use_case(

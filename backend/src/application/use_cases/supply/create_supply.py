@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from src.domain.entities.supply import Supply
-from src.domain.ports.specialized_item_creator_port import SpecializedItemCreatorPort
+from src.application.interfaces.specialized_item_creator_port import SpecializedItemCreatorPort
 from src.domain.exceptions.item_exceptions import SpecializedItemCreationException
 from src.domain.repositories.supply_repository import ISupplyRepository
 from src.domain.value_objects.supply_category import SupplyCategory

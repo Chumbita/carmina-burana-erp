@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, status
 
 from src.presentation.schemas.supply_schemas import CreateSupplyRequestSchema
 from src.presentation.dependencies.use_cases.supply import get_create_supply_use_case
-from src.application.use_cases.item.create_item_use_case import CreateItemUseCase
-from src.application.dtos.item_dtos import CreateItemCommand
+from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
+from src.application.dtos.items.item_commands_dtos import CreateItemCommand
 
 router = APIRouter(prefix="/supplies", tags=["Supplies"])
 
