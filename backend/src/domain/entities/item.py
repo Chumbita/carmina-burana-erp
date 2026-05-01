@@ -14,9 +14,7 @@ class Item:
     """ 
     Item es la la entidad que representa la unidad básica de gestión de todo el ERP.
     """
-    # Identidad
-    id: Optional[int] = None
-    
+        
     # Atributos esenciales
     name: str
     item_type_id: int
@@ -31,14 +29,16 @@ class Item:
     is_purchasable: bool
     is_sellable: bool
     
-    # Estado
-    status: ItemStatus = ItemStatus.ACTIVE
-    
     # Metadatos
-    created_at: datetime
+    created_at: datetime 
     updated_at: Optional[datetime] = None
     deleted_at: Optional[datetime] = None
-        
+
+    # Identidad
+    id: Optional[int] = None
+         
+    # Estado
+    status: ItemStatus = ItemStatus.ACTIVE    
     
     # ── Initialization & Validation ────────────────────────────────
     

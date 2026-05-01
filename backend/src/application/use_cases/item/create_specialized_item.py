@@ -49,7 +49,7 @@ class CreateItemUseCase:
             is_manufacturable=command.is_manufacturable,
             is_purchasable=command.is_purchasable,
             is_sellable=command.is_sellable,
-            created_at= datetime.now(timezone.utc),
+            created_at= datetime.now(timezone.utc).replace(tzinfo=None),
         )
 
         # Paso 2: Persistir ítem base (flush, sin commit todavía)
