@@ -20,7 +20,7 @@ class SupplyRepository(ISupplyRepository):
         self._session = session
 
     # ── Utilidades ────────────────────────────────────────────────
-    
+    @staticmethod
     def _to_entity(model: SupplyModel) -> Supply:
         """ 
         Convertor 'Modelo' -> 'Entidad'.
@@ -31,7 +31,7 @@ class SupplyRepository(ISupplyRepository):
             created_at=model.created_at,
             updated_at=model.updated_at,
         )
-    
+    @staticmethod
     def _to_model(entity: Supply) -> SupplyModel:
         """ 
         Convertor 'Entidad' -> 'Modelo'.
