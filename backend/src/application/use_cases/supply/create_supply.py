@@ -23,7 +23,7 @@ class SupplyItemCreator(SpecializedItemCreatorPort):
             supply = Supply(
                 item_id=item_id,
                 supply_category=SupplyCategory(data["supply_category"]),
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(timezone.utc).replace(tzinfo=None),
             )
 
             await self._supply_repository.add(supply)
