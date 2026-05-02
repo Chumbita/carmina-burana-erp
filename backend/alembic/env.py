@@ -7,13 +7,12 @@ from src.infrastructure.config.settings import settings
 from src.infrastructure.database.base import Base
 
 # Importar todos los modelos aquí debajo
-from src.infrastructure.database.models import UserModel, InputModel, AuditLogModel
-from src.infrastructure.database.models.input_entry_model import InputEntryModel
-from src.infrastructure.database.models.input_entry_item_model import InputEntryItemModel
-from src.infrastructure.database.models.input_inventory_model import InputInventoryModel
-from src.infrastructure.database.models import ProductModel
-from src.infrastructure.database.models import BomModel
-from src.infrastructure.database.models import BomItemModel
+from src.infrastructure.database.models import UserModel
+from src.infrastructure.database.models.item_model import ItemModel
+from src.infrastructure.database.models.item_type_model import ItemTypeModel
+from src.infrastructure.database.models.brand_model import BrandModel
+from src.infrastructure.database.models.uom_model import UomModel
+from src.infrastructure.database.models.supply_model import SupplyModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

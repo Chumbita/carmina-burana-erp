@@ -1,48 +1,44 @@
 //componentes shadcn
-import { InputDetailTabs } from "../components/InputDetailTabs";
-import { Spinner } from "@/components/ui/Spinner";
-import { AuditLogHistory } from "@/components/shared/AuditLogHistory";
+import { PackageIcon } from "lucide-react";
+import { Badge } from "@/components/ui/Badge";
 
 //hooks
 import { useParams } from "react-router-dom";
 import { useInput } from "../hooks/useInput";
 import { useInputs } from "../hooks/useInputs";
-import { useState } from "react";
 
 //Componentes
-import { InputDetailHeader } from "../components/InputDetailHeader";
-import { InputDetailSidebar } from "../components/InputDetailSidebar";
+import { InputDetailTabs } from "../components/InputDetailTabs";
+import { EntityDetailPage } from "@/components/shared/DetailPage/EntityDetailPage";
+import { estadoStyles } from "../utils/stockStyles";
 
 export default function InputDetailPage() {
   const { inputId } = useParams();
-  const {input, loading, error } = useInput(inputId)
+  const { input, loading, error } = useInput(inputId)
   const { inputs: availableInputs } = useInputs();
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  // Función para refrescar el historial cuando se actualiza el insumo
-  const handleInputUpdated = () => {
-    setRefreshKey(prev => prev + 1);
-  };
-
-  // Manejar loading
-  if (loading) return <div className="flex items-center justify-center h-64"><Spinner /></div>
-  if (!input) return <p>Insumo no encontrado</p>;
 
   return (
-    <div className="grid grid-cols-1 grid-rows-[auto_auto_1fr] lg:grid-cols-[240px_1fr] lg:grid-rows-[auto_1fr] gap-6">
-      <InputDetailHeader name={input.name} />
-      <InputDetailSidebar input={input} />
-      <main className="border rounded-md p-4">
-        <InputDetailTabs 
-          insumo={input} 
-          onInputUpdated={handleInputUpdated}
+    <EntityDetailPage loading={loading} error={error}>
+      <EntityDetailPage.Header name={input?.name} />
+
+      <EntityDetailPage.Sidebar icon={<PackageIcon className="h-10 w-10 text-gray-400" />}>
+        <EntityDetailPage.Sidebar.Row
+          label="Stock actual"
+          value={`${input?.stock_actual} ${input?.unit}`}
+        />
+        <EntityDetailPage.Sidebar.Row
+          label="Estado"
+          value={<Badge className={estadoStyles[input?.estado_stock]}>{input?.estado_stock}</Badge>}
+        />
+      </EntityDetailPage.Sidebar>
+
+      <EntityDetailPage.Content>
+        <InputDetailTabs
+          insumo={input}
           availableInputs={availableInputs}
         />
-      </main>
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Historial de Movimientos</h2>
-        <AuditLogHistory entityType="input" entityId={input.id} refreshKey={refreshKey} />
-      </section>
-    </div>
-  )
+      </EntityDetailPage.Content>
+      <EntityDetailPage.History entityType="input" entityId={input?.id} />
+    </EntityDetailPage>
+  );
 }

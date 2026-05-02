@@ -68,7 +68,7 @@ export function useInputFilters() {
     // Filtro de categoría
     const matchesCategory =
       categoryFilter === "all" ||
-      input?.category === normalize(categoryFilter)
+      normalize(input?.category) === normalize(categoryFilter)
 
     // Filtro de estado de stock
     const matchesStockStatus =
