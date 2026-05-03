@@ -4,6 +4,7 @@
 
 from dataclasses import dataclass
 from typing import Optional
+from src.domain.value_objects.uom_type import UomType
 
 @dataclass
 class Uom:
@@ -20,7 +21,7 @@ class Uom:
     id: int
     name: str
     symbol: str
-    uom_tape: str
+    uom_type: UomType
     is_base: bool
     # Conversión
     factor_to_base: Optional[float] = None  # None para el tipo UNIT
@@ -34,10 +35,6 @@ class Uom:
 
         if not self.symbol or not self.symbol.strip():
             raise ValueError("symbol is required")
-
-        valid_types = {"MASS", "VOLUME", "UNIT"}
-        if self.uom_type not in valid_types:
-            raise ValueError(f"uom_type must be one of {valid_types}, got: {self.uom_type}")
 
         if self.uom_type != "UNIT" and self.factor_to_base is None:
             raise ValueError(f"factor_to_base is required for uom_type '{self.uom_type}'")
