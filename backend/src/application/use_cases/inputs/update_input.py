@@ -1,4 +1,4 @@
-from src.application.use_cases.record_audit_log import RecordAuditLogUseCase
+from src.application.use_cases.audit_logs.record_audit_log import RecordAuditLogUseCase
 
 IDENTIFY_FILEDS = {"name", "brand", "category"}
 
