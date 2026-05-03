@@ -1,9 +1,9 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.application.use_cases.get_entity_audit_logs import GetEntityAuditLogsUseCase
-from src.application.use_cases.get_user_audit_logs import GetUserAuditLogsUseCase
-from src.application.use_cases.record_audit_log import RecordAuditLogUseCase
+from src.application.use_cases.audit_logs.get_entity_audit_logs import GetEntityAuditLogsUseCase
+from src.application.use_cases.audit_logs.get_user_audit_logs import GetUserAuditLogsUseCase
+from src.application.use_cases.audit_logs.record_audit_log import RecordAuditLogUseCase
 from src.infrastructure.database.deps import get_db
 from src.infrastructure.database.repositories.audit_log_repository import AuditLogRepository
 
