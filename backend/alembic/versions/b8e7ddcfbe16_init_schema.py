@@ -1,8 +1,8 @@
-"""initial
+"""init schema
 
-Revision ID: 7c03b45f2727
+Revision ID: b8e7ddcfbe16
 Revises: 
-Create Date: 2026-04-13 20:56:30.376382
+Create Date: 2026-05-03 00:37:01.293093
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '7c03b45f2727'
+revision: str = 'b8e7ddcfbe16'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -37,13 +37,15 @@ def upgrade() -> None:
     op.create_table('uom',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(length=50), nullable=False),
-    sa.Column('abbreviation', sa.String(length=10), nullable=False),
+    sa.Column('symbol', sa.String(length=10), nullable=False),
+    sa.Column('uom_type', sa.String(length=20), nullable=False),
+    sa.Column('factor_to_base', sa.Numeric(precision=24, scale=10), nullable=True),
+    sa.Column('is_base', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('abbreviation'),
     sa.UniqueConstraint('name')
     )
     op.create_table('users',
-    sa.Column('id', sa.String(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('username', sa.String(), nullable=False),
     sa.Column('full_name', sa.String(), nullable=False),
     sa.Column('password', sa.String(), nullable=False),
@@ -76,7 +78,7 @@ def upgrade() -> None:
     )
     op.create_table('supply',
     sa.Column('item_id', sa.BigInteger(), nullable=False),
-    sa.Column('supply_category', sa.String(length=255), nullable=False),
+    sa.Column('supply_category', sa.String(length=50), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(), nullable=True),
     sa.ForeignKeyConstraint(['item_id'], ['item.id'], ),
