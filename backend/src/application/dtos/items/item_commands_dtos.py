@@ -46,17 +46,15 @@ class CreateItemCommand:
                 "Item creation always requires a specialized record. "
             )
 
+
 # --- Update Item -----------------------------------------------------
 @dataclass
 class UpdateItemCommand:
     """
     Comando de actualización parcial (semántica PATCH).
     Solo se actualizan los campos con valor distinto de None.
-
-    Nota: item_type_id y base flags como is_stockable / is_batch_tracked
-    son inmutables post-creación porque impactan toda la cadena de
-    trazabilidad del inventario.
     """
+    # Campos base de Item.
     item_id: int
     name: Optional[str] = None
     brand_id: Optional[int] = None
@@ -65,6 +63,47 @@ class UpdateItemCommand:
     is_manufacturable: Optional[bool] = None
     is_purchasable: Optional[bool] = None
     is_sellable: Optional[bool] = None
+    
+    # Datos del registro especializado
+    specialized_data: Optional[Dict[str, Any]] = None
+    
+    # Validación del DTO
+    def __post_init__(self) -> None:
+        base_fields = [
+            self.name,
+            self.brand_id,
+            self.base_uom_id,
+            self.min_stock_level,
+            self.is_manufacturable,
+            self.is_purchasable,
+            self.is_sellable,
+        ]
+        all_empty = all(f is None for f in base_fields) and self.specialized_data is None
+        if all_empty:
+            raise ValueError("UpdateItemCommand requires at least one field to update. All fields were None.")
+    
+    # Utilidades
+    @property
+    def has_base_changes(self) -> bool:
+        """
+        True si hay al menos un campo base a actualizar.
+        """
+        return any([
+            self.name is not None,
+            self.brand_id is not None,
+            self.base_uom_id is not None,
+            self.min_stock_level is not None,
+            self.is_manufacturable is not None,
+            self.is_purchasable is not None,
+            self.is_sellable is not None,
+        ])
+ 
+    @property
+    def has_specialized_changes(self) -> bool:
+        """
+        True si hay datos especializados a delegar al servicio (SpecializedItemUpdater).
+        """
+        return self.specialized_data is not None
 
 
 # --- Change Item Status -----------------------------------------------
