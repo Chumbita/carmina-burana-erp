@@ -1,7 +1,7 @@
 //componentes
 import { InputsTable } from "../components/InputsTable";
 import { NewInputModal } from "../components/NewInputModal";
-import { Notification } from "../components/Notifications";
+import { NotificationContainer } from "@/components/shared/notifications/NotificationContainer";
 import { Pagination } from "../components/Pagination";
 //componentes genéricos
 import { FilterBar } from "@/components/shared/FilterBar";
@@ -42,8 +42,6 @@ export default function InputsPage() {
 
   return (
     <div className="space-y-4">
-      <Notification notification={notification} onClose={clearNotification} />
-
       <header className="flex items-center justify-between gap-4">
         <FilterBar
           // Búsqueda

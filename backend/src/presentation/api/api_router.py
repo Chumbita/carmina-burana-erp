@@ -37,3 +37,8 @@ api_router.include_router(input_entry_router)
 # ======================
 from src.presentation.api.routes.supply_router import router as supply_router
 api_router.include_router(supply_router)
+# ======================
+# AUDIT LOGS ROUTER
+# ======================
+from src.presentation.api.routes import audit_logs_router
+api_router.include_router(audit_logs_router)

@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
 import { useInputs } from "./useInputs"
 import { useInputFilters } from "./useFiltersInputs"
-import { useNotification } from "./useNotification"
+import { useNotification } from "@/components/shared/notifications/useNotification"
 import { useLocationNotification } from "./useLocationNotification"
 // Hook orquestador de la página de insumos.
 // Compone useInputs, useInputFilters y useNotification en un único punto de entrada,
@@ -12,7 +12,7 @@ import { useLocationNotification } from "./useLocationNotification"
 export function useInputsPage() {
   const { inputs, loading, error, createInput } = useInputs()
   const { search, categoryFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, stockStatuses, setSearch, setCategoryFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage, filteredInputs } = useInputFilters()
-  const { notification, notify, clearNotification } = useNotification()
+  const notify = useNotification()
   
   useLocationNotification(notify)
 
@@ -40,7 +40,6 @@ export function useInputsPage() {
         setTimeout(() => row.classList.remove('bg-green-100', 'dark:bg-green-900'), 2000)
       }
     }
-    clearNotification()
   }
 
   // Calcular datos filtrados con paginación
@@ -71,9 +70,6 @@ export function useInputsPage() {
     // modal
     openModal,
     setOpenModal,
-    // notificaciones
-    notification,
-    clearNotification,
     // handlers
     handleCreateInput,
     // ref
