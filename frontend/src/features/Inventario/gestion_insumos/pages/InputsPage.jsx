@@ -1,7 +1,7 @@
 //componentes
 import { InputsTable } from "../components/InputsTable";
 import { NewInputModal } from "../components/NewInputModal";
-import { Notification } from "../components/Notifications";
+import { NotificationContainer } from "@/components/shared/notifications/NotificationContainer";
 import { Pagination } from "../components/Pagination";
 //componentes genéricos
 import { FilterBar } from "@/components/shared/FilterBar";
