@@ -90,10 +90,9 @@ class ItemRepository:
         item.id = model.id
         return item
     
-    async def update(self, item: Item) -> Item:
-        result = await self._session.execute(
-            select(ItemModel).where(ItemModel.id == item.id)
-        )
+    async def save(self, item: Item) -> Item:
+        stmt = select(ItemModel).where(ItemModel.id == item.id)
+        result = await self._session.execute(stmt)
         model = result.scalar_one()
 
         model.name = item.name
