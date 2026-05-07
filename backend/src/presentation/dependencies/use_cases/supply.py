@@ -6,6 +6,10 @@ from src.infrastructure.database.repositories.supply_repository import SupplyRep
 from src.infrastructure.database.repositories.item_repository import ItemRepository
 from src.application.use_cases.supply.create_supply import SupplyItemCreator
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
+from src.application.use_cases.supply.read_supply import (
+    GetActiveSupplyDetailUseCase,
+    ListActiveSuppliesUseCase,
+)
 
 
 def get_create_supply_use_case(
@@ -25,3 +29,15 @@ def get_supply_repository(
 ) -> SupplyRepository:
     """Inyecta el repositorio de supply para obtener datos adicionales."""
     return SupplyRepository(session)
+
+
+def get_list_active_supplies_use_case(
+    supply_repository: SupplyRepository = Depends(get_supply_repository),
+) -> ListActiveSuppliesUseCase:
+    return ListActiveSuppliesUseCase(supply_repository)
+
+
+def get_active_supply_detail_use_case(
+    supply_repository: SupplyRepository = Depends(get_supply_repository),
+) -> GetActiveSupplyDetailUseCase:
+    return GetActiveSupplyDetailUseCase(supply_repository)
