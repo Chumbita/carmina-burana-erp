@@ -38,3 +38,45 @@ class SupplyResponseSchema(BaseModel):
     
     class Config:
         from_attributes = True
+
+
+class SupplyGeneralResponseSchema(BaseModel):
+    id: int
+    name: str
+    brand_id: int
+    base_uom_id: int
+    min_stock_level: Decimal
+    supply_category: SupplyCategory
+    stock_total: float
+    estado_stock: str
+
+
+class SupplyLotResponseSchema(BaseModel):
+    id: int
+    lot_code: str
+    expiration_date: Optional[datetime]
+    production_date: Optional[datetime]
+    unit_cost: Decimal
+    created_at: datetime
+
+
+class SupplyInventoryBalanceSchema(BaseModel):
+    lot_id: Optional[int]
+    quantity: float
+
+
+class SupplyDetailResponseSchema(BaseModel):
+    id: int
+    name: str
+    item_type_id: int
+    brand_id: int
+    base_uom_id: int
+    min_stock_level: Decimal
+    supply_category: SupplyCategory
+    stock_total: float
+    estado_stock: str
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime]
+    inventory_balance: SupplyInventoryBalanceSchema
+    lotes: list[SupplyLotResponseSchema]
