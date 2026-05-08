@@ -31,7 +31,7 @@ class UpdateItemUseCase():
         """
         
         # Paso 1 y 2: verificar existencia y estado.
-        item = self._item_repository.get_by_id(command.item_id)
+        item = await self._item_repository.get_by_id(command.item_id)
         
         if item is None:
             raise ItemNotFoundException(command.item_id)
@@ -40,7 +40,17 @@ class UpdateItemUseCase():
         
         # Paso 3: actualizar atributos de la entidad.
         if command.has_base_changes:
-            item.update(command)
+            item.update(**{
+                k: v for k, v in {
+                    "name": command.name,
+                    "brand_id": command.brand_id,
+                    "base_uom_id": command.base_uom_id,
+                    "min_stock_level": command.min_stock_level,
+                    "is_manufacturable": command.is_manufacturable,
+                    "is_purchasable": command.is_purchasable,
+                    "is_sellable": command.is_sellable,
+                }.items() if v is not None
+            })
         
         # Paso 4: persistir cambios de la entidad en la db.
         updated_item = await self._item_repository.save(item)
