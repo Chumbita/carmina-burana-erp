@@ -6,6 +6,9 @@ from src.infrastructure.database.repositories.supply_repository import SupplyRep
 from src.infrastructure.database.repositories.item_repository import ItemRepository
 from src.application.use_cases.supply.create_supply import SupplyItemCreator
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
+from src.application.use_cases.supply.supply_item_updater import SupplyItemUpdater
+from src.application.use_cases.item.update_item_use_case import UpdateItemUseCase
+from src.application.use_cases.supply.update_supply import UpdateSupplyUseCase
 
 
 def get_create_supply_use_case(
@@ -25,3 +28,13 @@ def get_supply_repository(
 ) -> SupplyRepository:
     """Inyecta el repositorio de supply para obtener datos adicionales."""
     return SupplyRepository(session)
+
+
+def get_update_supply_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> UpdateSupplyUseCase:
+    item_repository = ItemRepository(session)
+    supply_repository = SupplyRepository(session)
+    supply_updater = SupplyItemUpdater(supply_repository)
+    update_item_use_case = UpdateItemUseCase(item_repository, supply_updater)
+    return UpdateSupplyUseCase(update_item_use_case, supply_repository)
