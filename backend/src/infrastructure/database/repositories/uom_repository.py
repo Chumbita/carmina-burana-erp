@@ -3,16 +3,17 @@
 # ══════════════════════════════════════════════════════════════════════════════
 
 from typing import Optional
-from sqlalchemy.ext.asyncio import async_session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from src.domain.entities.uom import Uom
 from src.domain.repositories.uom_repository import IUomRepository
 from src.infrastructure.database.models.uom_model import UomModel
+from src.domain.value_objects.uom_type import UomType
 
 class UomRepository(IUomRepository):
 
-    def __init__(self, session: async_session) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
     # ── Utilidades ────────────────────────────────────────────────
@@ -26,7 +27,7 @@ class UomRepository(IUomRepository):
             id=model.id,
             name=model.name,
             symbol=model.symbol,
-            uom_type=model.uom_type,
+            uom_type=UomType(model.uom_type),
             factor_to_base=float(model.factor_to_base) if model.factor_to_base is not None else None,
             is_base=model.is_base,
         )

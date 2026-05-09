@@ -26,7 +26,7 @@ class Uom:
     # Conversión
     factor_to_base: Optional[float] = None  # None para el tipo UNIT
 
-    def __pos_init__(self):
+    def __post_init__(self):
         self._validate()
 
     def _validate(self):
@@ -36,13 +36,13 @@ class Uom:
         if not self.symbol or not self.symbol.strip():
             raise ValueError("symbol is required")
 
-        if self.uom_type != "UNIT" and self.factor_to_base is None:
+        if self.uom_type != UomType.UNIT and self.factor_to_base is None:
             raise ValueError(f"factor_to_base is required for uom_type '{self.uom_type}'")
 
         if self.factor_to_base is not None and self.factor_to_base <= 0:
             raise ValueError("factor_to_base must be greater than 0")
 
-        if self.is_base and self.uom_type == "UNIT":
+        if self.is_base and self.uom_type == UomType.UNIT:
             raise ValueError("A UNIT type UOM cannot be marked as base")
 
         if self.is_base and self.factor_to_base is not None and self.factor_to_base != 1.0:
