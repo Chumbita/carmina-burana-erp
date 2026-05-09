@@ -2,7 +2,6 @@
 # REPOSITORIO DE INSUMOS
 # ══════════════════════════════════════════════════════════════════════════════
 
-
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -13,6 +12,7 @@ from src.domain.entities.supply import Supply
 from src.domain.repositories.supply_repository import ISupplyRepository
 from src.infrastructure.database.models.supply_model import SupplyModel
 
+from src.domain.exceptions.supply_exceptions import SupplyNotFoundException
 
 class SupplyRepository(ISupplyRepository):
 
@@ -52,6 +52,20 @@ class SupplyRepository(ISupplyRepository):
         """
         model = self._to_model(supply)
         self._session.add(model)
+        await self._session.flush()
+
+    async def save(self, supply: Supply) -> None:
+        result = await self._session.execute(
+            select(SupplyModel).where(SupplyModel.item_id == supply.item_id)
+        )
+        model = result.scalar_one_or_none()
+        
+        if model is None:
+            raise SupplyNotFoundException(supply.item_id)
+        
+        model.supply_category = supply.supply_category.value
+        model.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        
         await self._session.flush()
 
     
