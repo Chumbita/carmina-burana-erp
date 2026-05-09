@@ -6,6 +6,11 @@ from src.application.use_cases.item.create_specialized_item import CreateItemUse
 from src.application.dtos.items.item_commands_dtos import CreateItemCommand
 from src.infrastructure.database.repositories.supply_repository import SupplyRepository
 
+from src.application.use_cases.supply.update_supply import UpdateSupplyUseCase
+from src.presentation.dependencies.use_cases.supply import get_update_supply_use_case
+from src.presentation.schemas.supply_schemas import UpdateSupplyRequestSchema
+from src.application.dtos.items.item_commands_dtos import UpdateItemCommand
+
 router = APIRouter(prefix="/supplies", tags=["Supplies"])
 
 
@@ -61,3 +66,28 @@ async def create_supply(
         deleted_at=item_result.deleted_at,
         supply_category=supply.supply_category,
     )
+
+@router.patch(
+    "/{supply_id}",
+    status_code=status.HTTP_200_OK,
+    summary="Actualizar insumo",
+    response_model=SupplyResponseSchema,
+)
+async def update_supply(
+    supply_id: int,
+    body: UpdateSupplyRequestSchema,
+    use_case: UpdateSupplyUseCase = Depends(get_update_supply_use_case),
+) -> SupplyResponseSchema:
+    command = UpdateItemCommand(
+        item_id=supply_id,
+        name=body.name,
+        brand_id=body.brand_id,
+        base_uom_id=body.base_uom_id,
+        min_stock_level=body.min_stock_level,
+        is_manufacturable=body.is_manufacturable,
+        is_purchasable=body.is_purchasable,
+        is_sellable=body.is_sellable,
+        specialized_data={"supply_category": body.supply_category.value} if body.supply_category else None,
+    )
+    result = await use_case.execute(command)
+    return SupplyResponseSchema(**vars(result))
