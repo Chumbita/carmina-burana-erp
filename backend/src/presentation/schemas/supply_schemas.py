@@ -44,7 +44,7 @@ class SupplyGeneralResponseSchema(BaseModel):
     id: int
     name: str
     brand_id: int
-    base_uom_id: int
+    base_uom_symbol: str
     min_stock_level: Decimal
     supply_category: SupplyCategory
     stock_total: float
@@ -66,11 +66,20 @@ class SupplyInventoryBalanceSchema(BaseModel):
 
 
 class SupplyDetailResponseSchema(BaseModel):
+    class SupplyBaseUomSchema(BaseModel):
+        id: int
+        name: str
+        symbol: str
+        uom_type: str
+        factor_to_base: Optional[float]
+        is_base: bool
+
     id: int
     name: str
     item_type_id: int
     brand_id: int
     base_uom_id: int
+    base_uom: SupplyBaseUomSchema
     min_stock_level: Decimal
     supply_category: SupplyCategory
     stock_total: float
