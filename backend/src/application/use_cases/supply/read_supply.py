@@ -24,7 +24,7 @@ class ListActiveSuppliesUseCase:
                     "id": row["id"],
                     "name": row["name"],
                     "brand_id": row["brand_id"],
-                    "base_uom_id": row["base_uom_id"],
+                    "base_uom_symbol": row["base_uom_symbol"],
                     "min_stock_level": Decimal(row["min_stock_level"]),
                     "supply_category": row["supply_category"],
                     "stock_total": stock_total,
@@ -55,6 +55,18 @@ class GetActiveSupplyDetailUseCase:
             "item_type_id": row["item_type_id"],
             "brand_id": row["brand_id"],
             "base_uom_id": row["base_uom_id"],
+            "base_uom": {
+                "id": row["base_uom_id"],
+                "name": row["base_uom_name"],
+                "symbol": row["base_uom_symbol"],
+                "uom_type": row["base_uom_type"],
+                "factor_to_base": (
+                    float(row["base_uom_factor_to_base"])
+                    if row["base_uom_factor_to_base"] is not None
+                    else None
+                ),
+                "is_base": row["base_uom_is_base"],
+            },
             "min_stock_level": Decimal(row["min_stock_level"]),
             "supply_category": row["supply_category"],
             "stock_total": stock_total,
