@@ -10,7 +10,6 @@ from sqlalchemy import func, select
 from src.domain.entities.supply import Supply
 from src.domain.repositories.supply_repository import ISupplyRepository
 from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
-from src.infrastructure.database.models.inventory_lot_model import InventoryLotModel
 from src.infrastructure.database.models.item_model import ItemModel
 from src.infrastructure.database.models.supply_model import SupplyModel
 from src.infrastructure.database.models.uom_model import UomModel
@@ -70,6 +69,16 @@ class SupplyRepository(ISupplyRepository):
         return self._to_entity(model) if model else None
 
     async def list_active_supplies_general(self) -> list[dict[str, Any]]:
+        balance_totals = (
+            select(
+                InventoryBalanceModel.item_id.label("item_id"),
+                func.sum(InventoryBalanceModel.quantity).label("stock_total"),
+            )
+            .where(InventoryBalanceModel.quantity > 0)
+            .group_by(InventoryBalanceModel.item_id)
+            .subquery()
+        )
+
         stmt = (
             select(
                 ItemModel.id.label("id"),
@@ -78,11 +87,11 @@ class SupplyRepository(ISupplyRepository):
                 UomModel.symbol.label("base_uom_symbol"),
                 ItemModel.min_stock_level.label("min_stock_level"),
                 SupplyModel.supply_category.label("supply_category"),
-                func.coalesce(InventoryBalanceModel.quantity, 0).label("stock_total"),
+                func.coalesce(balance_totals.c.stock_total, 0).label("stock_total"),
             )
             .join(SupplyModel, SupplyModel.item_id == ItemModel.id)
             .join(UomModel, UomModel.id == ItemModel.base_uom_id)
-            .outerjoin(InventoryBalanceModel, InventoryBalanceModel.item_id == ItemModel.id)
+            .outerjoin(balance_totals, balance_totals.c.item_id == ItemModel.id)
             .where(ItemModel.status == "ACTIVE")
             .order_by(ItemModel.name.asc())
         )
@@ -104,25 +113,29 @@ class SupplyRepository(ISupplyRepository):
         ]
 
     async def get_active_supply_detail(self, item_id: int) -> Optional[dict[str, Any]]:
+        stock_total_subquery = (
+            select(func.sum(InventoryBalanceModel.quantity))
+            .where(
+                InventoryBalanceModel.item_id == ItemModel.id,
+                InventoryBalanceModel.quantity > 0,
+            )
+            .scalar_subquery()
+        )
+
         item_stmt = (
             select(
                 ItemModel.id.label("id"),
                 ItemModel.name.label("name"),
                 ItemModel.item_type_id.label("item_type_id"),
                 ItemModel.brand_id.label("brand_id"),
-                ItemModel.base_uom_id.label("base_uom_id"),
-                UomModel.name.label("base_uom_name"),
                 UomModel.symbol.label("base_uom_symbol"),
-                UomModel.uom_type.label("base_uom_type"),
-                UomModel.factor_to_base.label("base_uom_factor_to_base"),
-                UomModel.is_base.label("base_uom_is_base"),
                 ItemModel.min_stock_level.label("min_stock_level"),
                 ItemModel.created_at.label("item_created_at"),
                 ItemModel.updated_at.label("item_updated_at"),
                 ItemModel.deleted_at.label("item_deleted_at"),
                 SupplyModel.supply_category.label("supply_category"),
                 SupplyModel.updated_at.label("supply_updated_at"),
-                func.coalesce(InventoryBalanceModel.quantity, 0).label("stock_total"),
+                func.coalesce(stock_total_subquery, 0).label("stock_total"),
                 InventoryBalanceModel.lot_id.label("lot_id"),
             )
             .join(SupplyModel, SupplyModel.item_id == ItemModel.id)
@@ -135,46 +148,12 @@ class SupplyRepository(ISupplyRepository):
         if row is None:
             return None
 
-        lots_stmt = (
-            select(
-                InventoryLotModel.id,
-                InventoryLotModel.lot_code,
-                InventoryLotModel.expiration_date,
-                InventoryLotModel.production_date,
-                InventoryLotModel.unit_cost,
-                InventoryLotModel.created_at,
-            )
-            .where(InventoryLotModel.item_id == item_id)
-            .order_by(
-                InventoryLotModel.expiration_date.asc().nulls_last(),
-                InventoryLotModel.created_at.asc(),
-            )
-        )
-        lots_result = await self._session.execute(lots_stmt)
-
-        lots = [
-            {
-                "id": lot.id,
-                "lot_code": lot.lot_code,
-                "expiration_date": lot.expiration_date,
-                "production_date": lot.production_date,
-                "unit_cost": lot.unit_cost,
-                "created_at": lot.created_at,
-            }
-            for lot in lots_result.all()
-        ]
-
         return {
             "id": row.id,
             "name": row.name,
             "item_type_id": row.item_type_id,
             "brand_id": row.brand_id,
-            "base_uom_id": row.base_uom_id,
-            "base_uom_name": row.base_uom_name,
             "base_uom_symbol": row.base_uom_symbol,
-            "base_uom_type": row.base_uom_type,
-            "base_uom_factor_to_base": row.base_uom_factor_to_base,
-            "base_uom_is_base": row.base_uom_is_base,
             "min_stock_level": row.min_stock_level,
             "supply_category": row.supply_category,
             "stock_total": row.stock_total,
@@ -183,5 +162,4 @@ class SupplyRepository(ISupplyRepository):
             "supply_updated_at": row.supply_updated_at,
             "deleted_at": row.item_deleted_at,
             "lot_id": row.lot_id,
-            "lots": lots,
         }
