@@ -1,7 +1,7 @@
 """add inventory lot and balance tables
 
 Revision ID: c1a9b4f2d8e7
-Revises: 7c03b45f2727
+Revises: b8e7ddcfbe16
 Create Date: 2026-05-07 00:00:00.000000
 
 """
@@ -14,7 +14,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = "c1a9b4f2d8e7"
-down_revision: Union[str, Sequence[str], None] = "7c03b45f2727"
+down_revision: Union[str, Sequence[str], None] = "b8e7ddcfbe16"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
