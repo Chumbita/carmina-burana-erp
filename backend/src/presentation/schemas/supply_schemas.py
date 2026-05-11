@@ -51,35 +51,17 @@ class SupplyGeneralResponseSchema(BaseModel):
     estado_stock: str
 
 
-class SupplyLotResponseSchema(BaseModel):
-    id: int
-    lot_code: str
-    expiration_date: Optional[datetime]
-    production_date: Optional[datetime]
-    unit_cost: Decimal
-    created_at: datetime
-
-
 class SupplyInventoryBalanceSchema(BaseModel):
     lot_id: Optional[int]
     quantity: float
 
 
 class SupplyDetailResponseSchema(BaseModel):
-    class SupplyBaseUomSchema(BaseModel):
-        id: int
-        name: str
-        symbol: str
-        uom_type: str
-        factor_to_base: Optional[float]
-        is_base: bool
-
     id: int
     name: str
     item_type_id: int
     brand_id: int
-    base_uom_id: int
-    base_uom: SupplyBaseUomSchema
+    base_uom_symbol: str
     min_stock_level: Decimal
     supply_category: SupplyCategory
     stock_total: float
@@ -88,4 +70,3 @@ class SupplyDetailResponseSchema(BaseModel):
     updated_at: datetime
     deleted_at: Optional[datetime]
     inventory_balance: SupplyInventoryBalanceSchema
-    lotes: list[SupplyLotResponseSchema]
