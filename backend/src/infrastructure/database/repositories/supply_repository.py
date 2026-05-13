@@ -10,6 +10,7 @@ from sqlalchemy import func, select
 from src.domain.entities.supply import Supply
 from src.domain.repositories.supply_repository import ISupplyRepository
 from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
+from src.infrastructure.database.models.brand_model import BrandModel
 from src.infrastructure.database.models.item_model import ItemModel
 from src.infrastructure.database.models.supply_model import SupplyModel
 from src.infrastructure.database.models.uom_model import UomModel
@@ -83,13 +84,14 @@ class SupplyRepository(ISupplyRepository):
             select(
                 ItemModel.id.label("id"),
                 ItemModel.name.label("name"),
-                ItemModel.brand_id.label("brand_id"),
+                BrandModel.name.label("brand_name"),
                 UomModel.symbol.label("base_uom_symbol"),
                 ItemModel.min_stock_level.label("min_stock_level"),
                 SupplyModel.supply_category.label("supply_category"),
                 func.coalesce(balance_totals.c.stock_total, 0).label("stock_total"),
             )
             .join(SupplyModel, SupplyModel.item_id == ItemModel.id)
+            .join(BrandModel, BrandModel.id == ItemModel.brand_id)
             .join(UomModel, UomModel.id == ItemModel.base_uom_id)
             .outerjoin(balance_totals, balance_totals.c.item_id == ItemModel.id)
             .where(ItemModel.status == "ACTIVE")
@@ -103,7 +105,7 @@ class SupplyRepository(ISupplyRepository):
             {
                 "id": row.id,
                 "name": row.name,
-                "brand_id": row.brand_id,
+                "brand_name": row.brand_name,
                 "base_uom_symbol": row.base_uom_symbol,
                 "min_stock_level": row.min_stock_level,
                 "supply_category": row.supply_category,
