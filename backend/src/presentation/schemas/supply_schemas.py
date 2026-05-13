@@ -43,7 +43,7 @@ class SupplyResponseSchema(BaseModel):
 class SupplyGeneralResponseSchema(BaseModel):
     id: int
     name: str
-    brand_id: int
+    brand_name: str
     base_uom_symbol: str
     min_stock_level: Decimal
     supply_category: SupplyCategory
