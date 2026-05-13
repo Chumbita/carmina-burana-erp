@@ -1,5 +1,8 @@
 from fastapi import APIRouter, Depends, status
 
+from src.domain.entities.user import User
+from src.presentation.dependencies.auth import get_current_user
+
 from src.presentation.schemas.supply_schemas import CreateSupplyRequestSchema, SupplyResponseSchema
 from src.presentation.dependencies.use_cases.supply import get_create_supply_use_case, get_supply_repository
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
@@ -24,6 +27,7 @@ async def create_supply(
     body: CreateSupplyRequestSchema,
     use_case: CreateItemUseCase = Depends(get_create_supply_use_case),
     supply_repository: SupplyRepository = Depends(get_supply_repository),
+    current_user: User = Depends(get_current_user),
 ) -> dict:
     """
     Crea un insumo (item + supply) de forma atómica.
@@ -77,6 +81,7 @@ async def update_supply(
     supply_id: int,
     body: UpdateSupplyRequestSchema,
     use_case: UpdateSupplyUseCase = Depends(get_update_supply_use_case),
+    current_user: User = Depends(get_current_user),
 ) -> SupplyResponseSchema:
     command = UpdateItemCommand(
         item_id=supply_id,
