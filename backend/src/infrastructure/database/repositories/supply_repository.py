@@ -116,7 +116,7 @@ class SupplyRepository(ISupplyRepository):
         stock_total_subquery = (
             select(func.sum(InventoryBalanceModel.quantity))
             .where(
-                InventoryBalanceModel.item_id == ItemModel.id,
+                InventoryBalanceModel.item_id == item_id,
                 InventoryBalanceModel.quantity > 0,
             )
             .scalar_subquery()
