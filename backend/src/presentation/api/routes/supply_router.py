@@ -18,6 +18,8 @@ from src.presentation.dependencies.use_cases.supply import (
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
 from src.application.dtos.items.item_commands_dtos import CreateItemCommand
 from src.infrastructure.database.repositories.supply_repository import SupplyRepository
+from src.presentation.dependencies.auth import get_current_user
+from src.domain.entities.user import User
 
 router = APIRouter(prefix="/supplies", tags=["Supplies"])
 
@@ -25,6 +27,7 @@ router = APIRouter(prefix="/supplies", tags=["Supplies"])
 @router.get("", response_model=List[SupplyGeneralResponseSchema], summary="Listar insumos activos")
 async def list_active_supplies(
     use_case: ListActiveSuppliesUseCase = Depends(get_list_active_supplies_use_case),
+    current_user: User = Depends(get_current_user),
 ) -> list[dict]:
     return await use_case.execute()
 
@@ -33,6 +36,7 @@ async def list_active_supplies(
 async def get_active_supply_detail(
     item_id: int,
     use_case: GetActiveSupplyDetailUseCase = Depends(get_active_supply_detail_use_case),
+    current_user: User = Depends(get_current_user),
 ) -> dict:
     try:
         return await use_case.execute(item_id)
