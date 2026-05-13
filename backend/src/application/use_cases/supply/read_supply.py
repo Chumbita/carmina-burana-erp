@@ -23,7 +23,7 @@ class ListActiveSuppliesUseCase:
                 {
                     "id": row["id"],
                     "name": row["name"],
-                    "brand_id": row["brand_id"],
+                    "brand_name": row["brand_name"],
                     "base_uom_symbol": row["base_uom_symbol"],
                     "min_stock_level": Decimal(row["min_stock_level"]),
                     "supply_category": row["supply_category"],
