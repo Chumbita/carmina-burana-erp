@@ -27,7 +27,7 @@ class SupplyItemUpdater(SpecializedItemUpdater):
                 raise SupplyNotFoundException(item_id)
 
             if "supply_category" in specialized_data:
-                supply.supply_category = SupplyCategory(specialized_data["supply_category"])
+                supply.update(SupplyCategory(specialized_data["supply_category"]))
 
             await self._supply_repository.save(supply)
 
