@@ -61,6 +61,10 @@ class InventoryLot:
     
     # --- Utilidades --------------------------------------------------
     
+    def has_been_persisted(self) -> bool:
+        """Indica si el lote ya fue persistido (tiene ID asignado)."""
+        return self.id is not None
+    
     def is_expired(self, reference_date: datetime | None = None) -> bool:
         """
         Determina si el lote está vencido respecto a una fecha de referencia.
