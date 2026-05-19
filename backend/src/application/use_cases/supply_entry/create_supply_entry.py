@@ -41,15 +41,23 @@ class CreateSupplyEntryUseCase:
         self._balance_repo = balance_repo
         self._txn_repo = txn_repo
 
+    @staticmethod
+    def _naive(dt: datetime | None) -> datetime | None:
+        if dt is not None and dt.tzinfo is not None:
+            return dt.replace(tzinfo=None)
+        return dt
+
     async def execute(self, command: CreateSupplyEntryCommand) -> SupplyEntryResponse:
         now = datetime.now(timezone.utc).replace(tzinfo=None)
 
         document_number = command.document_number or f"RCP-{now.strftime('%Y%m%d%H%M%S')}"
 
+        entry_date = self._naive(command.entry_date)
+
         order = SupplyEntryOrder(
             supplier_id=command.supplier_id,
             document_number=document_number,
-            entry_date=command.entry_date or now,
+            entry_date=entry_date or now,
             description=command.description,
             status=SupplyEntryStatus.CONFIRMED,
             created_at=now,
@@ -81,6 +89,7 @@ class CreateSupplyEntryUseCase:
         await self._validate_item(line.item_id)
 
         lot_code = self._build_lot_code(order_id, line.item_id)
+        line.expiration_date = self._naive(line.expiration_date)
         lot = await self._create_lot(line, lot_code)
         await self._create_balance(line, lot.id)
         await self._create_transaction(line, lot.id, order_id)

@@ -75,7 +75,7 @@ class InventoryTransaction:
             transaction_type=transaction_type,
             reference_type=reference_type,
             reference_id=reference_id,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(timezone.utc).replace(tzinfo=None),
         )
 
     # --- Utilidades --------------------------------------------------

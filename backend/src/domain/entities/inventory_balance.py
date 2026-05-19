@@ -67,7 +67,7 @@ class InventoryBalance:
             lot_id=lot_id,
             quantity=initial_quantity,
             reserved_quantity=Decimal("0"),
-            updated_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc).replace(tzinfo=None),
         )
 
     # --- Utilidades --------------------------------------------------

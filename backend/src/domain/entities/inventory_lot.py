@@ -55,7 +55,7 @@ class InventoryLot:
             unit_cost=unit_cost,
             expiration_date=expiration_date,
             production_date=production_date,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(timezone.utc).replace(tzinfo=None),
         )
     
     
