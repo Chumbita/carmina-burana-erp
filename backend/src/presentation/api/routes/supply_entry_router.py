@@ -32,6 +32,7 @@ async def create_supply_entry(
                 quantity=line.quantity,
                 unit_cost=line.unit_cost,
                 expiration_date=line.expiration_date,
+                lot_code=line.lot_code,
                 comment=line.comment,
             )
             for line in body.lines

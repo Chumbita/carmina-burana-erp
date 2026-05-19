@@ -10,6 +10,7 @@ class SupplyEntryLineCommand:
     quantity: Decimal
     unit_cost: Decimal
     expiration_date: datetime
+    lot_code: Optional[str] = None
     comment: Optional[str] = None
 
 

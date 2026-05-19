@@ -13,6 +13,7 @@ class SupplyEntryLineRequest(BaseModel):
     quantity: Decimal = Field(..., gt=0)
     unit_cost: Decimal = Field(..., gt=0)
     expiration_date: datetime
+    lot_code: Optional[str] = None
     comment: Optional[str] = None
 
 

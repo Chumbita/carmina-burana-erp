@@ -86,9 +86,9 @@ class InventoryLotRepository():
         Verifica si ya existe un lote con ese código para ese ítem.
         Usado para prevenir duplicados antes de intentar el INSERT.
         """
-        stmt = select(InventoryLot.id).where(
-            InventoryLot.item_id == item_id,
-            InventoryLot.lot_code == lot_code,
+        stmt = select(InventoryLotModel.id).where(
+            InventoryLotModel.item_id == item_id,
+            InventoryLotModel.lot_code == lot_code,
         )
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none() is not None

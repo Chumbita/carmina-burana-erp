@@ -21,6 +21,7 @@ from src.domain.repositories.inventory_balance_repository import IInventoryBalan
 from src.domain.repositories.inventory_transaction_repository import IInventoryTransactionRepository
 
 from src.domain.exceptions.item_exceptions import ItemNotFoundException
+from src.domain.exceptions.inventory_exceptions import DuplicateLotCodeError
 from src.domain.value_objects.supply_entry_status import SupplyEntryStatus
 from src.domain.value_objects.inventory_transaction_enums import TransactionType
 
@@ -88,7 +89,13 @@ class CreateSupplyEntryUseCase:
     ) -> SupplyEntryLineResponse:
         await self._validate_item(line.item_id)
 
-        lot_code = self._build_lot_code(order_id, line.item_id, now)
+        if line.lot_code:
+            if await self._lot_repo.exists_by_code(line.item_id, line.lot_code):
+                raise DuplicateLotCodeError(line.item_id, line.lot_code)
+            lot_code = line.lot_code.strip().upper()
+        else:
+            lot_code = self._build_lot_code(order_id, line.item_id, now)
+
         line.expiration_date = self._naive(line.expiration_date)
         lot = await self._create_lot(line, lot_code)
         await self._create_balance(line, lot.id)
