@@ -7,7 +7,7 @@ from src.infrastructure.database.base import Base
 class InventoryTransactionModel(Base):
     __tablename__ = "inventory_transaction"
 
-    id= Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
     item_id = Column(BigInteger, nullable=False)
     lot_id = Column(BigInteger, ForeignKey("inventory_lot.id"), nullable=False)
     quantity = Column(Numeric(14, 4), nullable=False)
@@ -16,4 +16,4 @@ class InventoryTransactionModel(Base):
     reference_id = Column(BigInteger, nullable=False)
     created_at = Column(TIMESTAMP, nullable=False)
 
-    lot = relationship(back_populates="transactions")
+    lot = relationship("InventoryLotModel", back_populates="transactions")

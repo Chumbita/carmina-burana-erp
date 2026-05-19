@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 
 from src.infrastructure.database.base import Base
 
+
 class InventoryBalanceModel(Base):
     __tablename__ = "inventory_balance"
 
@@ -12,4 +13,4 @@ class InventoryBalanceModel(Base):
     reserved_quantity = Column(Numeric(14, 4), nullable=False, default=("0"))
     updated_at = Column(TIMESTAMP, nullable=False)
 
-    lot = relationship(back_populates="balance")
+    lot = relationship("InventoryLotModel", back_populates="balance")
