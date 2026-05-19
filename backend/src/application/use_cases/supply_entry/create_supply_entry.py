@@ -90,9 +90,9 @@ class CreateSupplyEntryUseCase:
         await self._validate_item(line.item_id)
 
         if line.lot_code:
-            if await self._lot_repo.exists_by_code(line.item_id, line.lot_code):
-                raise DuplicateLotCodeError(line.item_id, line.lot_code)
             lot_code = line.lot_code.strip().upper()
+            if await self._lot_repo.exists_by_code(line.item_id, lot_code):
+                raise DuplicateLotCodeError(line.item_id, lot_code)
         else:
             lot_code = self._build_lot_code(order_id, line.item_id, now)
 
