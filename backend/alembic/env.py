@@ -13,6 +13,7 @@ from src.infrastructure.database.models.item_type_model import ItemTypeModel
 from src.infrastructure.database.models.brand_model import BrandModel
 from src.infrastructure.database.models.uom_model import UomModel
 from src.infrastructure.database.models.supply_model import SupplyModel
+from src.infrastructure.database.models.supplier_model import SupplierModel
 from src.infrastructure.database.models.supply_entry_order_model import SupplyEntryOrderModel
 from src.infrastructure.database.models.supply_entry_line_model import SupplyEntryLineModel
 from src.infrastructure.database.models.inventory_lot_model import InventoryLotModel
