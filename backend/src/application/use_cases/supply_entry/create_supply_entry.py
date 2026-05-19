@@ -67,7 +67,7 @@ class CreateSupplyEntryUseCase:
 
         lines_response = []
         for line in command.lines:
-            line_response = await self._process_line(line, order.id)
+            line_response = await self._process_line(line, order.id, now)
             lines_response.append(line_response)
 
         return SupplyEntryResponse(
@@ -84,11 +84,11 @@ class CreateSupplyEntryUseCase:
     # ── Procesamiento de línea ─────────────────────────────────────
 
     async def _process_line(
-        self, line: SupplyEntryLineCommand, order_id: int
+        self, line: SupplyEntryLineCommand, order_id: int, now: datetime
     ) -> SupplyEntryLineResponse:
         await self._validate_item(line.item_id)
 
-        lot_code = self._build_lot_code(order_id, line.item_id)
+        lot_code = self._build_lot_code(order_id, line.item_id, now)
         line.expiration_date = self._naive(line.expiration_date)
         lot = await self._create_lot(line, lot_code)
         await self._create_balance(line, lot.id)
@@ -107,8 +107,8 @@ class CreateSupplyEntryUseCase:
     # ── Helpers de construcción ────────────────────────────────────
 
     @staticmethod
-    def _build_lot_code(order_id: int, item_id: int) -> str:
-        return f"LOT-{order_id}-{item_id}"
+    def _build_lot_code(order_id: int, item_id: int, now: datetime) -> str:
+        return f"LOT-{now.strftime('%Y%m%d')}-{order_id}-{item_id}"
 
     # ── Creación de inventario ─────────────────────────────────────
 
