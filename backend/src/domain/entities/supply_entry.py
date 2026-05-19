@@ -56,11 +56,11 @@ class SupplyEntryOrder:
     punto de entrada para modificarlas.
     """
 
-    supplier_id: Optional[int] = None
     document_number: str
     entry_date: datetime
-    description: Optional[str] = None
     created_at: datetime
+    supplier_id: Optional[int] = None
+    description: Optional[str] = None
     lines: list[SupplyEntryLine] = field(default_factory=list)
     status: SupplyEntryStatus = SupplyEntryStatus.DRAFT
     id: Optional[int] = None

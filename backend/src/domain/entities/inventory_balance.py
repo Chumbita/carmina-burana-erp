@@ -23,12 +23,12 @@ class InventoryBalance:
     el resultado sea coherente.
     """
     
-    id: Optional[int] = None
     item_id: int
     lot_id: int
     quantity: Decimal
     reserved_quantity: Decimal
     updated_at: datetime
+    id: Optional[int] = None
 
 
     # Método que se ejecuta automáticamente luego de una instanciación.

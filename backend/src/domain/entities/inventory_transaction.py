@@ -25,7 +25,6 @@ class InventoryTransaction:
     consultas sobre sus propios datos y validación de nacimiento.
     """
     
-    id: Optional[int] = None
     item_id: int
     lot_id: int
     quantity: Decimal
@@ -33,6 +32,7 @@ class InventoryTransaction:
     reference_type: str
     reference_id: int
     created_at: datetime
+    id: Optional[int] = None
 
     # Método que se ejecuta automáticamente luego de una instanciación.
     def __post_init__(self) -> None:

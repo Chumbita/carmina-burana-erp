@@ -9,13 +9,13 @@ from decimal import Decimal
 
 @dataclass
 class InventoryLot: 
-    id: Optional[int] = None
     item_id: int
     lot_code: str
     unit_cost: Decimal
     created_at: datetime
     expiration_date: datetime | None = None
     production_date: datetime | None = None
+    id: Optional[int] = None
     
     # Método que se ejecuta automáticamente luego de una instanciación.
     def __post_init__(self):
