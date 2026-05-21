@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, status
 
+from src.domain.entities.user import User
+from src.presentation.dependencies.auth import get_current_user
 from src.presentation.schemas.supply_entry_schema import (
     CreateSupplyEntryRequest,
     SupplyEntryResponse,
@@ -60,5 +62,6 @@ async def create_supply_entry(
 async def get_supply_entry_detail(
     entry_id: int,
     use_case: GetSupplyEntryDetail = Depends(build_get_supply_entry_detail),
+    current_user: User = Depends(get_current_user),
 ) -> SupplyEntryDetailResponse:
     return await use_case.execute(entry_id)
