@@ -8,6 +8,7 @@ from src.infrastructure.database.repositories.inventory_lot_repository import In
 from src.infrastructure.database.repositories.inventory_balance_repository import InventoryBalanceRepository
 from src.infrastructure.database.repositories.inventory_transaction_repository import InventoryTransactionRepository
 from src.application.use_cases.supply_entry.create_supply_entry import CreateSupplyEntryUseCase
+from src.application.use_cases.supply_entry.get_supply_entry_detail import GetSupplyEntryDetail
 
 
 def get_create_supply_entry_use_case(
@@ -26,3 +27,10 @@ def get_create_supply_entry_use_case(
         balance_repo=balance_repo,
         txn_repo=txn_repo,
     )
+
+
+def build_get_supply_entry_detail(
+    session: AsyncSession = Depends(get_db),
+) -> GetSupplyEntryDetail:
+    supply_entry_repo = SupplyEntryRepository(session)
+    return GetSupplyEntryDetail(supply_entry_repo=supply_entry_repo)
