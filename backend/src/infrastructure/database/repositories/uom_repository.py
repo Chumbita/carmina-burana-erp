@@ -60,4 +60,4 @@ class UomRepository(IUomRepository):
         result = await self._session.execute(stmt)
         rows = result.all()
 
-        return [UomOption(**row) for row in rows]
+        return [UomOption(id = row.id, name=row.name, symbol=row.symbol) for row in rows]
