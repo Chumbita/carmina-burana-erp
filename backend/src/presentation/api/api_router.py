@@ -42,3 +42,9 @@ api_router.include_router(supply_router)
 # ======================
 from src.presentation.api.routes import audit_logs_router
 api_router.include_router(audit_logs_router)
+
+# ════════════════════════════════
+# UOM ROUTER
+# ════════════════════════════════
+from src.presentation.api.routes.uom_router import uom_router
+api_router.include_router(uom_router)
