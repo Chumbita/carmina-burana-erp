@@ -42,3 +42,9 @@ api_router.include_router(supply_router)
 # ======================
 from src.presentation.api.routes import audit_logs_router
 api_router.include_router(audit_logs_router)
+
+# ════════════════════════════════
+# BRAND ROUTER
+# ════════════════════════════════
+from src.presentation.api.routes.brand_router import brand_router
+api_router.include_router(brand_router)

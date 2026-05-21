@@ -52,3 +52,13 @@ class SpecializedItemCreationException(DomainException):
         super().__init__(
             f"Failed to create specialized item record: {reason}"
         )
+
+class SpecializedItemUpdateException(DomainException):
+    """
+    Lanzada cuando falla la actualización del registro especializado
+    asociado al ítem base.
+    """
+    def __init__(self, reason: str) -> None:
+        super().__init__(
+            f"Failed to update specialized item record: {reason}"
+        )
