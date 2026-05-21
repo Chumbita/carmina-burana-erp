@@ -1,12 +1,21 @@
 from fastapi import APIRouter, Depends, status
 
-from src.presentation.schemas.supply_entry_schema import CreateSupplyEntryRequest, SupplyEntryResponse
-from src.presentation.dependencies.use_cases.supply_entry import get_create_supply_entry_use_case
+from src.presentation.schemas.supply_entry_schema import (
+    CreateSupplyEntryRequest,
+    SupplyEntryResponse,
+    SupplyEntryDetailResponse,
+)
+from src.presentation.dependencies.use_cases.supply_entry import (
+    get_create_supply_entry_use_case,
+    build_get_supply_entry_detail,
+)
 from src.application.use_cases.supply_entry.create_supply_entry import CreateSupplyEntryUseCase
+from src.application.use_cases.supply_entry.get_supply_entry_detail import GetSupplyEntryDetail
 from src.application.dtos.supply_entry.supply_entry_commands_dtos import (
     CreateSupplyEntryCommand,
     SupplyEntryLineCommand,
 )
+
 
 router = APIRouter(prefix="/supply-entries", tags=["Supply Entries"])
 
@@ -41,3 +50,15 @@ async def create_supply_entry(
 
     result = await use_case.execute(command)
     return result
+
+
+@router.get(
+    "/{entry_id}",
+    response_model=SupplyEntryDetailResponse,
+    summary="Obtener detalle de una entrada de insumos",
+)
+async def get_supply_entry_detail(
+    entry_id: int,
+    use_case: GetSupplyEntryDetail = Depends(build_get_supply_entry_detail),
+) -> SupplyEntryDetailResponse:
+    return await use_case.execute(entry_id)
