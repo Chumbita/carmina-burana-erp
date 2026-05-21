@@ -54,3 +54,46 @@ class SupplyEntryResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ── Detail Response (GET /supply-entries/{id}) ──────────────────────
+
+class SupplierRef(BaseModel):
+    id: int
+    name: str
+    phone: Optional[str] = None
+
+
+class ItemRef(BaseModel):
+    id: int
+    name: str
+    brand_name: Optional[str] = None
+
+
+class SupplyEntryDetailLineResponse(BaseModel):
+    item: ItemRef
+    quantity: Decimal
+    unit_cost: Decimal
+    expiration_date: datetime
+    lot_code: Optional[str] = None
+    lot_id: Optional[int] = None
+    comment: Optional[str] = None
+    subtotal: Decimal
+
+    class Config:
+        from_attributes = True
+
+
+class SupplyEntryDetailResponse(BaseModel):
+    id: int
+    document_number: str
+    supplier: Optional[SupplierRef] = None
+    entry_date: datetime
+    description: Optional[str] = None
+    status: SupplyEntryStatus
+    created_at: datetime
+    total_cost: Decimal
+    lines: list[SupplyEntryDetailLineResponse]
+
+    class Config:
+        from_attributes = True
