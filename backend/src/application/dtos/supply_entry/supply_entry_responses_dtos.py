@@ -35,3 +35,52 @@ class SupplyEntryResponse:
     @property
     def total_cost(self) -> Decimal:
         return sum(line.subtotal for line in self.lines)
+
+
+# ═══════════════════════════════════════════════════
+# Detail response types (GET /supply-entries/{id})
+# ═══════════════════════════════════════════════════
+
+@dataclass
+class SupplierRef:
+    id: int
+    name: str
+    phone: Optional[str] = None
+
+
+@dataclass
+class ItemRef:
+    id: int
+    name: str
+    brand_name: Optional[str] = None
+
+
+@dataclass
+class SupplyEntryDetailLineResponse:
+    item: ItemRef
+    quantity: Decimal
+    unit_cost: Decimal
+    expiration_date: datetime
+    lot_code: Optional[str] = None
+    lot_id: Optional[int] = None
+    comment: Optional[str] = None
+
+    @property
+    def subtotal(self) -> Decimal:
+        return self.quantity * self.unit_cost
+
+
+@dataclass
+class SupplyEntryDetailResponse:
+    id: int
+    document_number: str
+    supplier: Optional[SupplierRef] = None
+    entry_date: Optional[datetime] = None
+    description: Optional[str] = None
+    status: Optional[SupplyEntryStatus] = None
+    created_at: Optional[datetime] = None
+    lines: list[SupplyEntryDetailLineResponse] = field(default_factory=list)
+
+    @property
+    def total_cost(self) -> Decimal:
+        return sum(line.subtotal for line in self.lines)
