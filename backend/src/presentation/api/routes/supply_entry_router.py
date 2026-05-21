@@ -1,5 +1,8 @@
 from fastapi import APIRouter, Depends, status
 
+from src.domain.entities.user import User
+from src.presentation.dependencies.auth import get_current_user
+
 from src.presentation.schemas.supply_entry_schema import CreateSupplyEntryRequest, SupplyEntryResponse
 from src.presentation.dependencies.use_cases.supply_entry import get_create_supply_entry_use_case
 from src.application.use_cases.supply_entry.create_supply_entry import CreateSupplyEntryUseCase
@@ -16,10 +19,12 @@ router = APIRouter(prefix="/supply-entries", tags=["Supply Entries"])
     status_code=status.HTTP_201_CREATED,
     summary="Registrar entrada de insumos",
     response_model=SupplyEntryResponse,
+    
 )
 async def create_supply_entry(
     body: CreateSupplyEntryRequest,
     use_case: CreateSupplyEntryUseCase = Depends(get_create_supply_entry_use_case),
+    current_user: User = Depends(get_current_user),
 ) -> SupplyEntryResponse:
     command = CreateSupplyEntryCommand(
         supplier_id=body.supplier_id,
