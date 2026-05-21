@@ -38,6 +38,8 @@ class SupplyEntryLine:
             raise ValueError("unit_cost must be greater than zero")
         if self.expiration_date is None:
             raise ValueError("expiration_date is required")
+        if self.expiration_date < datetime.now():
+            raise ValueError("expiration_date cannot be in the past")
 
     # ── Attribute Mutators ─────────────────────────────────────────
 
