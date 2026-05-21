@@ -2,14 +2,15 @@
 # REPOSITORIO DE UOM
 # ══════════════════════════════════════════════════════════════════════════════
 
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from src.domain.entities.uom import Uom
 from src.domain.repositories.uom_repository import IUomRepository
-from src.infrastructure.database.models.uom_model import UomModel
 from src.domain.value_objects.uom_type import UomType
+from src.infrastructure.database.models.uom_model import UomModel
+from src.application.dtos.uom.uom_responses_dtos import UomOptionResponseDTO as UomOption
 
 class UomRepository(IUomRepository):
 
@@ -31,7 +32,9 @@ class UomRepository(IUomRepository):
             factor_to_base=float(model.factor_to_base) if model.factor_to_base is not None else None,
             is_base=model.is_base,
         )
-    
+
+    # ── Queries ────────────────────────────────────────────────
+
     async def get_by_id(self, uom_id: int) -> Optional[Uom]:
         """
         Busca una unidad de medida por ID y la devuelve como entidad de dominio.
@@ -42,3 +45,19 @@ class UomRepository(IUomRepository):
         model = result.scalar_one_or_none()
 
         return self._to_entity(model) if model else None
+
+
+    async def list_options(self) -> List[UomOption]:
+        """
+        Obtiene todas las unidades de medidas para poblar de información
+        a elementos del front-end.
+        """
+        stmt = select(
+            UomModel.id,
+            UomModel.name,
+            UomModel.symbol
+        )
+        result = await self._session.execute(stmt)
+        rows = result.all()
+
+        return [UomOption(**row) for row in rows]
