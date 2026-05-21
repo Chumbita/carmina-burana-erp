@@ -1,9 +1,17 @@
+from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from src.domain.entities.supply_entry import SupplyEntryOrder, SupplyEntryLine
 from src.domain.value_objects.supply_entry_status import SupplyEntryStatus
-from src.domain.repositories.supply_entry_repository import ISupplyEntryRepository
+from src.domain.repositories.supply_entry_repository import (
+    ISupplyEntryRepository,
+    SupplyEntryDetailData,
+    SupplyEntryLineDetailData,
+)
+from src.infrastructure.database.models.supplier_model import SupplierModel
+from src.infrastructure.database.models.item_model import ItemModel
+from src.infrastructure.database.models.brand_model import BrandModel
 from src.infrastructure.database.models.supply_entry_order_model import SupplyEntryOrderModel
 from src.infrastructure.database.models.supply_entry_line_model import SupplyEntryLineModel
 
@@ -75,3 +83,68 @@ class SupplyEntryRepository(ISupplyEntryRepository):
         model = self._line_to_model(line, supply_entry_id)
         self._session.add(model)
         await self._session.flush()
+
+    # ── Queries ──────────────────────────────────────────────────
+
+    async def find_by_id(self, entry_id: int) -> Optional[SupplyEntryDetailData]:
+        stmt_order = select(
+            SupplyEntryOrderModel,
+            SupplierModel.name.label("supplier_name"),
+            SupplierModel.phone.label("supplier_phone"),
+        ).outerjoin(
+            SupplierModel,
+            SupplyEntryOrderModel.supplier_id == SupplierModel.id,
+        ).where(SupplyEntryOrderModel.id == entry_id)
+
+        result = await self._session.execute(stmt_order)
+        row = result.one_or_none()
+
+        if row is None:
+            return None
+
+        order_model, supplier_name, supplier_phone = row
+
+        stmt_lines = select(
+            SupplyEntryLineModel,
+            ItemModel.name.label("item_name"),
+            BrandModel.name.label("brand_name"),
+        ).join(
+            ItemModel,
+            SupplyEntryLineModel.item_id == ItemModel.id,
+        ).outerjoin(
+            BrandModel,
+            ItemModel.brand_id == BrandModel.id,
+        ).where(
+            SupplyEntryLineModel.supply_entry_id == entry_id,
+        ).order_by(SupplyEntryLineModel.id)
+
+        result_lines = await self._session.execute(stmt_lines)
+        line_rows = result_lines.all()
+
+        lines = [
+            SupplyEntryLineDetailData(
+                item_id=line_model.item_id,
+                item_name=item_name,
+                brand_name=brand_name,
+                quantity=line_model.quantity,
+                unit_cost=line_model.unit_cost,
+                expiration_date=line_model.expiration_date,
+                lot_code=line_model.lot_code,
+                lot_id=line_model.id,
+                comment=line_model.comment,
+            )
+            for line_model, item_name, brand_name in line_rows
+        ]
+
+        return SupplyEntryDetailData(
+            id=order_model.id,
+            document_number=order_model.document_number,
+            supplier_id=order_model.supplier_id,
+            supplier_name=supplier_name,
+            supplier_phone=supplier_phone,
+            entry_date=order_model.entry_date,
+            description=order_model.description,
+            status=order_model.status,
+            created_at=order_model.created_at,
+            lines=lines,
+        )
