@@ -1,6 +1,6 @@
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 from src.domain.entities.supply_entry import SupplyEntryOrder, SupplyEntryLine
 from src.domain.value_objects.supply_entry_status import SupplyEntryStatus
@@ -8,6 +8,7 @@ from src.domain.repositories.supply_entry_repository import (
     ISupplyEntryRepository,
     SupplyEntryDetailData,
     SupplyEntryLineDetailData,
+    SupplyEntryListItemData,
 )
 from src.infrastructure.database.models.supplier_model import SupplierModel
 from src.infrastructure.database.models.item_model import ItemModel
@@ -148,3 +149,44 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             created_at=order_model.created_at,
             lines=lines,
         )
+
+    async def find_all(self) -> list[SupplyEntryListItemData]:
+        line_stats = select(
+            SupplyEntryLineModel.supply_entry_id,
+            func.count(SupplyEntryLineModel.id).label("items_count"),
+            func.sum(
+                SupplyEntryLineModel.quantity * SupplyEntryLineModel.unit_cost
+            ).label("total_cost"),
+        ).group_by(SupplyEntryLineModel.supply_entry_id).subquery()
+
+        stmt = select(
+            SupplyEntryOrderModel,
+            SupplierModel.name.label("supplier_name"),
+            line_stats.c.items_count,
+            line_stats.c.total_cost,
+        ).outerjoin(
+            SupplierModel,
+            SupplyEntryOrderModel.supplier_id == SupplierModel.id,
+        ).outerjoin(
+            line_stats,
+            SupplyEntryOrderModel.id == line_stats.c.supply_entry_id,
+        ).order_by(SupplyEntryOrderModel.created_at.desc())
+
+        result = await self._session.execute(stmt)
+        rows = result.all()
+
+        return [
+            SupplyEntryListItemData(
+                id=order_model.id,
+                document_number=order_model.document_number,
+                supplier_id=order_model.supplier_id,
+                supplier_name=supplier_name,
+                entry_date=order_model.entry_date,
+                description=order_model.description,
+                status=order_model.status,
+                created_at=order_model.created_at,
+                items_count=items_count or 0,
+                total_cost=total_cost or Decimal("0"),
+            )
+            for order_model, supplier_name, items_count, total_cost in rows
+        ]
