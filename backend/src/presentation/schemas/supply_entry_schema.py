@@ -97,3 +97,32 @@ class SupplyEntryDetailResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ── List Response (GET /supply-entries) ─────────────────────────────
+
+class SupplierListRef(BaseModel):
+    id: int
+    name: str
+
+
+class SupplyEntryListItemResponse(BaseModel):
+    id: int
+    document_number: str
+    supplier: Optional[SupplierListRef] = None
+    entry_date: datetime
+    description: Optional[str] = None
+    status: SupplyEntryStatus
+    created_at: datetime
+    items_count: int
+    total_cost: Decimal
+
+    class Config:
+        from_attributes = True
+
+
+class SupplyEntryListResponse(BaseModel):
+    data: list[SupplyEntryListItemResponse]
+
+    class Config:
+        from_attributes = True
