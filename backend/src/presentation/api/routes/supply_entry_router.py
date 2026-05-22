@@ -6,13 +6,16 @@ from src.presentation.schemas.supply_entry_schema import (
     CreateSupplyEntryRequest,
     SupplyEntryResponse,
     SupplyEntryDetailResponse,
+    SupplyEntryListResponse,
 )
 from src.presentation.dependencies.use_cases.supply_entry import (
     get_create_supply_entry_use_case,
     build_get_supply_entry_detail,
+    build_list_supply_entries,
 )
 from src.application.use_cases.supply_entry.create_supply_entry import CreateSupplyEntryUseCase
 from src.application.use_cases.supply_entry.get_supply_entry_detail import GetSupplyEntryDetail
+from src.application.use_cases.supply_entry.list_supply_entries import ListSupplyEntries
 from src.application.dtos.supply_entry.supply_entry_commands_dtos import (
     CreateSupplyEntryCommand,
     SupplyEntryLineCommand,
@@ -52,6 +55,18 @@ async def create_supply_entry(
 
     result = await use_case.execute(command)
     return result
+
+
+@router.get(
+    "",
+    response_model=SupplyEntryListResponse,
+    summary="Listar todas las entradas de insumos",
+)
+async def list_supply_entries(
+    use_case: ListSupplyEntries = Depends(build_list_supply_entries),
+    current_user: User = Depends(get_current_user),
+) -> SupplyEntryListResponse:
+    return await use_case.execute()
 
 
 @router.get(
