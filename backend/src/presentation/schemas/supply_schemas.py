@@ -52,15 +52,14 @@ class SupplyGeneralResponseSchema(BaseModel):
 
 
 class SupplyInventoryBalanceSchema(BaseModel):
-    lot_id: Optional[int]
     quantity: float
 
 
 class SupplyDetailResponseSchema(BaseModel):
     id: int
     name: str
-    item_type_id: int
-    brand_id: int
+    item_type: str
+    brand: str
     base_uom_symbol: str
     min_stock_level: Decimal
     supply_category: SupplyCategory
@@ -68,5 +67,4 @@ class SupplyDetailResponseSchema(BaseModel):
     estado_stock: str
     created_at: datetime
     updated_at: datetime
-    deleted_at: Optional[datetime]
-    inventory_balance: SupplyInventoryBalanceSchema
+    inventory_balance: list[SupplyInventoryBalanceSchema]
