@@ -52,8 +52,8 @@ class GetActiveSupplyDetailUseCase:
         return {
             "id": row["id"],
             "name": row["name"],
-            "item_type_id": row["item_type_id"],
-            "brand_id": row["brand_id"],
+            "item_type": row["item_type_code"],
+            "brand": row["brand_name"],
             "base_uom_symbol": row["base_uom_symbol"],
             "min_stock_level": Decimal(row["min_stock_level"]),
             "supply_category": row["supply_category"],
@@ -61,11 +61,9 @@ class GetActiveSupplyDetailUseCase:
             "estado_stock": stock_status.value,
             "created_at": row["created_at"],
             "updated_at": updated_at,
-            "deleted_at": row["deleted_at"],
-            "inventory_balance": {
-                "lot_id": row["lot_id"],
-                "quantity": stock_total,
-            },
+            "inventory_balance": [
+                {"quantity": stock_total}
+            ],
         }
 
     @staticmethod
