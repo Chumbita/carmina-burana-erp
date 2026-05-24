@@ -43,6 +43,13 @@ api_router.include_router(supply_router)
 # ======================
 from src.presentation.api.routes.supply_entry_router import router as supply_entry_router
 api_router.include_router(supply_entry_router)
+
+# ======================
+# SUPPLIER ROUTER
+# ======================
+from src.presentation.api.routes.supplier_router import router as supplier_router
+api_router.include_router(supplier_router)
+
 # ======================
 # AUDIT LOGS ROUTER
 # ======================
