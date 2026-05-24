@@ -39,6 +39,13 @@ class Supplier:
         if not self.name or not self.name.strip():
             raise ValueError("Supplier name is required")
 
+        if self.email is not None:
+            if "@" not in self.email or "." not in self.email.split("@")[-1]:
+                raise ValueError("Invalid email format")
+
+        if self.phone is not None and not self.phone.isdigit():
+            raise ValueError("Phone must contain only digits")
+
     # ── State Transitions ──────────────────────────────────────────
 
     def activate(self) -> None:

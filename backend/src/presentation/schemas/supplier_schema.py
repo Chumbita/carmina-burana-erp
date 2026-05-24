@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from typing import Optional
 
@@ -12,6 +12,24 @@ class CreateSupplierRequest(BaseModel):
     email: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        if "@" not in value or "." not in value.split("@")[-1]:
+            raise ValueError("Invalid email format")
+        return value
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        if not value.isdigit():
+            raise ValueError("Phone must contain only digits")
+        return value
 
 
 # ── Response ─────────────────────────────────────────────────────────
