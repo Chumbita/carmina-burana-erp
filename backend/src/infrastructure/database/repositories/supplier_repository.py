@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from src.domain.entities.supplier import Supplier
 from src.domain.value_objects.supplier_status import SupplierStatus
@@ -47,3 +48,11 @@ class SupplierRepository(ISupplierRepository):
         self._session.add(model)
         await self._session.flush()
         return self._to_entity(model)
+
+    # ── Queries ──────────────────────────────────────────────────
+
+    async def find_by_name(self, name: str) -> Supplier | None:
+        stmt = select(SupplierModel).where(SupplierModel.name == name)
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+        return self._to_entity(model) if model else None
