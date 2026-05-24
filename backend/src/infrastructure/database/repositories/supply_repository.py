@@ -12,6 +12,7 @@ from src.domain.repositories.supply_repository import ISupplyRepository
 from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
 from src.infrastructure.database.models.brand_model import BrandModel
 from src.infrastructure.database.models.item_model import ItemModel
+from src.infrastructure.database.models.item_type_model import ItemTypeModel
 from src.infrastructure.database.models.supply_model import SupplyModel
 from src.infrastructure.database.models.uom_model import UomModel
 
@@ -128,19 +129,19 @@ class SupplyRepository(ISupplyRepository):
             select(
                 ItemModel.id.label("id"),
                 ItemModel.name.label("name"),
-                ItemModel.item_type_id.label("item_type_id"),
-                ItemModel.brand_id.label("brand_id"),
+                ItemTypeModel.code.label("item_type_code"),
+                BrandModel.name.label("brand_name"),
                 UomModel.symbol.label("base_uom_symbol"),
                 ItemModel.min_stock_level.label("min_stock_level"),
-                ItemModel.created_at.label("item_created_at"),
+                ItemModel.created_at.label("created_at"),
                 ItemModel.updated_at.label("item_updated_at"),
-                ItemModel.deleted_at.label("item_deleted_at"),
                 SupplyModel.supply_category.label("supply_category"),
                 SupplyModel.updated_at.label("supply_updated_at"),
                 func.coalesce(stock_total_subquery, 0).label("stock_total"),
-                InventoryBalanceModel.lot_id.label("lot_id"),
             )
             .join(SupplyModel, SupplyModel.item_id == ItemModel.id)
+            .join(ItemTypeModel, ItemTypeModel.id == ItemModel.item_type_id)
+            .join(BrandModel, BrandModel.id == ItemModel.brand_id)
             .join(UomModel, UomModel.id == ItemModel.base_uom_id)
             .outerjoin(InventoryBalanceModel, InventoryBalanceModel.item_id == ItemModel.id)
             .where(ItemModel.id == item_id, ItemModel.status == "ACTIVE")
@@ -153,15 +154,13 @@ class SupplyRepository(ISupplyRepository):
         return {
             "id": row.id,
             "name": row.name,
-            "item_type_id": row.item_type_id,
-            "brand_id": row.brand_id,
+            "item_type_code": row.item_type_code,
+            "brand_name": row.brand_name,
             "base_uom_symbol": row.base_uom_symbol,
             "min_stock_level": row.min_stock_level,
             "supply_category": row.supply_category,
             "stock_total": row.stock_total,
-            "created_at": row.item_created_at,
+            "created_at": row.created_at,
             "item_updated_at": row.item_updated_at,
             "supply_updated_at": row.supply_updated_at,
-            "deleted_at": row.item_deleted_at,
-            "lot_id": row.lot_id,
         }
