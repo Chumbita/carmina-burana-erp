@@ -28,4 +28,18 @@ export const ENDPOINTS = {
         GET_BY_ENTITY: (entity_type, entity_id) => `/audit-logs/${entity_type}/${entity_id}`,
         GET_BY_USER: (user_id) => `/audit-logs/user/${user_id}`,
     },
+    // Supplies
+    SUPPLIES: {
+        GET_ALL:   '/supplies',
+        GET_BY_ID: (id) => `/supplies/${id}`,
+        CREATE:    '/supplies',
+    },
+    // Brands
+    BRANDS: {
+        GET_ALL: '/brands/',
+    },
+    // UOM
+    UOMS: {
+        GET_OPTIONS: '/uom/options',
+    },
 }
