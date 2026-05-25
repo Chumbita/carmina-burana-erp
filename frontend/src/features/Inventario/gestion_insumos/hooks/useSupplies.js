@@ -24,7 +24,7 @@ export function useSupplies() {
   async function createSupply(supplyData) {
     try {
       const newSupply = await supplyService.create(supplyData)
-      setSupplies((prev) => [...prev, newSupply])
+      await getSupplies() // refresca desde GET /supplies con los campos legibles
       return newSupply
     } catch (err) {
       setError(err)
