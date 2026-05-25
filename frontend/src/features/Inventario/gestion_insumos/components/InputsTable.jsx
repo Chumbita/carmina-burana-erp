@@ -13,12 +13,12 @@ export function InputsTable({ insumos }) {
   const tableHeaders = [
     { header: "Nro", accessor: "id" },
     { header: "Nombre", accessor: "name" },
-    { header: "Marca", accessor: "brand" },
-    { header: "Categoria", accessor: "category" },
-    { header: "Stock", accessor: "stockTotal" },
+    { header: "Marca", accessor: "brand_name" },
+    { header: "Categoria", accessor: "supply_category" },
+    { header: "Stock", accessor: "stock_total" },
     {
       header: "Estado",
-      accessor: "estadoStock",
+      accessor: "estado_stock",
       render: (value) => (
         <Badge variant="outline" className={estadoStyles[value]}>
           {value}
