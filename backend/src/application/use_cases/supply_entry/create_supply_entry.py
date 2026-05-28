@@ -1,20 +1,21 @@
 from datetime import datetime, timezone
-from decimal import Decimal
 
 from src.application.dtos.supply_entry.supply_entry_commands_dtos import (
     CreateSupplyEntryCommand,
     SupplyEntryLineCommand,
 )
 from src.application.dtos.supply_entry.supply_entry_responses_dtos import (
-    SupplyEntryResponse,
-    SupplyEntryLineResponse,
+    SupplyEntryDetailResponse,
+    SupplyEntryDetailLineResponse,
+    SupplierRef,
+    ItemRef,
 )
 from src.domain.entities.supply_entry import SupplyEntryOrder, SupplyEntryLine
 from src.domain.entities.inventory_lot import InventoryLot
 from src.domain.entities.inventory_balance import InventoryBalance
 from src.domain.entities.inventory_transaction import InventoryTransaction
 
-from src.domain.repositories.supply_entry_repository import ISupplyEntryRepository
+from src.domain.repositories.supply_entry_repository import ISupplyEntryRepository, SupplyEntryDetailData
 from src.domain.repositories.item_repository import IItemRepostory
 from src.domain.repositories.inventory_lot_repository import IInventoryLotRepository
 from src.domain.repositories.inventory_balance_repository import IInventoryBalanceRepository
@@ -48,7 +49,7 @@ class CreateSupplyEntryUseCase:
             return dt.replace(tzinfo=None)
         return dt
 
-    async def execute(self, command: CreateSupplyEntryCommand) -> SupplyEntryResponse:
+    async def execute(self, command: CreateSupplyEntryCommand) -> SupplyEntryDetailResponse:
         now = datetime.now(timezone.utc).replace(tzinfo=None)
 
         document_number = command.document_number or f"RCP-{now.strftime('%Y%m%d%H%M%S')}"
@@ -66,27 +67,17 @@ class CreateSupplyEntryUseCase:
 
         order = await self._supply_entry_repo.add_order(order)
 
-        lines_response = []
         for line in command.lines:
-            line_response = await self._process_line(line, order.id, now)
-            lines_response.append(line_response)
+            await self._process_line(line, order.id, now)
 
-        return SupplyEntryResponse(
-            id=order.id,
-            document_number=order.document_number,
-            supplier_id=order.supplier_id,
-            entry_date=order.entry_date,
-            description=order.description,
-            status=order.status,
-            created_at=order.created_at,
-            lines=lines_response,
-        )
+        raw = await self._supply_entry_repo.find_by_id(order.id)
+        return self._build_detail_response(raw)
 
     # ── Procesamiento de línea ─────────────────────────────────────
 
     async def _process_line(
         self, line: SupplyEntryLineCommand, order_id: int, now: datetime
-    ) -> SupplyEntryLineResponse:
+    ) -> None:
         await self._validate_item(line.item_id)
 
         if line.lot_code:
@@ -101,8 +92,6 @@ class CreateSupplyEntryUseCase:
         await self._create_balance(line, lot.id)
         await self._create_transaction(line, lot.id, order_id)
         await self._create_entry_line(line, lot_code, order_id)
-
-        return self._build_line_response(line, lot_code, lot.id)
 
     # ── Validaciones ───────────────────────────────────────────────
 
@@ -171,15 +160,39 @@ class CreateSupplyEntryUseCase:
     # ── Construcción de respuesta ──────────────────────────────────
 
     @staticmethod
-    def _build_line_response(
-        line: SupplyEntryLineCommand, lot_code: str, lot_id: int
-    ) -> SupplyEntryLineResponse:
-        return SupplyEntryLineResponse(
-            item_id=line.item_id,
-            quantity=line.quantity,
-            unit_cost=line.unit_cost,
-            expiration_date=line.expiration_date,
-            lot_code=lot_code,
-            lot_id=lot_id,
-            comment=line.comment,
+    def _build_detail_response(raw: SupplyEntryDetailData) -> SupplyEntryDetailResponse:
+        supplier = None
+        if raw.supplier_id is not None and raw.supplier_name is not None:
+            supplier = SupplierRef(
+                id=raw.supplier_id,
+                name=raw.supplier_name,
+                phone=raw.supplier_phone,
+            )
+
+        lines = [
+            SupplyEntryDetailLineResponse(
+                item=ItemRef(
+                    id=line.item_id,
+                    name=line.item_name,
+                    brand_name=line.brand_name,
+                ),
+                quantity=line.quantity,
+                unit_cost=line.unit_cost,
+                expiration_date=line.expiration_date,
+                lot_code=line.lot_code,
+                lot_id=line.lot_id,
+                comment=line.comment,
+            )
+            for line in raw.lines
+        ]
+
+        return SupplyEntryDetailResponse(
+            id=raw.id,
+            document_number=raw.document_number,
+            supplier=supplier,
+            entry_date=raw.entry_date,
+            description=raw.description,
+            status=SupplyEntryStatus(raw.status),
+            created_at=raw.created_at,
+            lines=lines,
         )

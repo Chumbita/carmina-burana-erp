@@ -4,7 +4,6 @@ from src.domain.entities.user import User
 from src.presentation.dependencies.auth import get_current_user
 from src.presentation.schemas.supply_entry_schema import (
     CreateSupplyEntryRequest,
-    SupplyEntryResponse,
     SupplyEntryDetailResponse,
     SupplyEntryListResponse,
 )
@@ -29,12 +28,12 @@ router = APIRouter(prefix="/supply-entries", tags=["Supply Entries"])
     "",
     status_code=status.HTTP_201_CREATED,
     summary="Registrar entrada de insumos",
-    response_model=SupplyEntryResponse,
+    response_model=SupplyEntryDetailResponse,
 )
 async def create_supply_entry(
     body: CreateSupplyEntryRequest,
     use_case: CreateSupplyEntryUseCase = Depends(get_create_supply_entry_use_case),
-) -> SupplyEntryResponse:
+) -> SupplyEntryDetailResponse:
     command = CreateSupplyEntryCommand(
         supplier_id=body.supplier_id,
         document_number=body.document_number,
