@@ -1,132 +1,128 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# REPOSITORIO DE BOM
+# ══════════════════════════════════════════════════════════════════════════════
+
 from typing import List, Optional
+
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.domain.entities.bom import Bom, BomItem
-from src.infrastructure.database.models.bom_model import BomModel
-from src.infrastructure.database.models.bom_item_model import BomItemModel
+from src.domain.entities.bom import Bom, BomLine
+from src.infrastructure.database.models.bom_model import BomModel, BomLineModel
+from src.domain.repositories.bom_repository import IBomRepository
 
-class BomRepository:
-    def __init__(self, session: AsyncSession):
+class BomRepository(IBomRepository):
+    def __init__(self, session: AsyncSession) -> None:
         self._session = session
         
-    # ======================
-    # MAPPERS METHODS
-    # ======================
-    @staticmethod
-    def _to_model(bom: Bom) -> BomModel:
-        bom_model = BomModel(
-            id= bom.id,
-            product_id= bom.product_id,
-            version= bom.version,
-            base_quantity= bom.base_quantity,
-            base_unit= bom.base_unit,
-            standard_yield_pct= bom.standard_yield_pct,
-            is_active= bom.is_active,
-            created_at= bom.created_at
-        )
-        
-        # mapear los items
-        bom_model.items = [
-            BomItemModel(
-                id= item.id,
-                bom_id= bom.id,
-                component_type= item.component_type,
-                input_id= item.input_id,
-                product_id= item.product_id,
-                quantity= item.quantity
-            )
-            for item in bom.items
-        ]
-        
-        return bom_model
-    
-    @staticmethod
-    def _to_entity(bom: BomModel) -> Bom:
-        bom_entity = Bom(
-            id= bom.id,
-            product_id= bom.product_id,
-            version= bom.version,
-            base_unit= bom.base_unit,
-            base_quantity= bom.base_quantity,
-            standard_yield_pct= bom.standard_yield_pct,
-            is_active= bom.is_active,
-            created_at= bom.created_at
-        )
-        
-        bom_entity.items = [
-            BomItem(
-                id= item.id,
-                component_type= item.component_type,
-                input_id= item.input_id,
-                product_id= item.product_id,
-                quantity= item.quantity
-            )
-            for item in bom.items
-        ]
-        
-        return bom_entity
+    # ── Utilidades ────────────────────────────────────────────────
 
-    # ======================
-    # READ METHODS
-    # ======================
-    
-    # Read all
-    async def find_all(self) -> List[Bom]:
-        stmt= select(BomModel).options(selectinload(BomModel.items))
-        result= await self._session.execute(stmt)
-        rows= result.scalars().all()
-        
-        return [self._to_entity(row) for row in rows]
-    
-    # Read only actives
-    async def find_actives(self) -> List[Bom]:
-        stmt= select(BomModel).where(BomModel.is_active.is_(True)).options(selectinload(BomModel.items))
-        result= await self._session.execute(stmt)
-        rows= result.scalars().all()
-        
-        return [self._to_entity(row) for row in rows]
-    
-    # Read by id
-    async def find_by_id(self, id: int) -> Optional[Bom]:
-        stmt= select(BomModel).where(BomModel.id == id).options(selectinload(BomModel.items))
-        result= await self._session.execute(stmt)
-        row= result.scalar_one_or_none()
-        
-        return self._to_entity(row) if row else None
-    
-    # ======================
-    # CREATE METHOD
-    # ======================
-    async def create(self, bom: Bom) -> Bom:
-        stmt= select(BomModel).where(BomModel.product_id == bom.product_id).order_by(BomModel.version.desc())
-        result= await self._session.execute(stmt)
-        last_bom = result.scalars().first()
-        
-        new_version= 1 if last_bom is None else last_bom.version + 1
-        model= self._to_model(bom)
-        model.id= None
-        model.version= new_version
-        
+    @staticmethod
+    def _line_to_entity(model: BomLineModel) -> BomLine:
+        return BomLine(
+            id=model.id,
+            component_item_id=model.component_item_id,
+            quantity=float(model.quantity),
+            scrap_factor=float(model.scrap_factor),
+        )
+
+    @staticmethod
+    def _to_entity(model: BomModel) -> Bom:
+        bom = Bom(
+            id=model.id,
+            parent_item_id=model.parent_item_id,
+            version=model.version,
+            is_active=model.is_active,
+            valid_from=model.valid_from,
+            valid_to=model.valid_to,
+            created_at=model.created_at,
+            lines = [BomRepository._line_to_entity(line) for line in model.lines],
+        )
+        return bom
+
+    def _load_options(self):
+        return selectinload(BomModel.lines)
+
+    # ── Queries ────────────────────────────────────────────────
+
+    async def get_by_id(self, bom_id: int) -> Optional[Bom]:
+        """
+        Obtiene una BOM por su ID incluyendo sus líneas.
+        """
+        stmt = select(BomModel).where(BomModel.id == bom_id).options(self._load_options())
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+
+        return self._to_entity(model) if model else None
+
+    async def get_active_by_item(self, parent_item_id: int) -> Optional[Bom]:
+        """
+        Obtiene la BOM activa de un item.
+        """
+        stmt = (
+            select(BomModel)
+            .where(BomModel.parent_item_id == parent_item_id, BomModel.is_active.is_(True))
+            .options(self._load_options())
+        )
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+
+        return self._to_entity(model) if model else None
+
+    async def get_all_active(self) -> list[Bom]:
+        """
+        Obtiene todas las BOMs activas con sus líneas.
+        """
+        stmt = (
+            select(BomModel)
+            .where(BomModel.is_active.is_(True))
+            .options(self._load_options())
+        )
+        result = await self._session.execute(stmt)
+        models = result.scalars().all()
+
+        return [self._to_entity(model) for model in models]
+
+    # ── Commands ────────────────────────────────────────────────
+
+    async def add(self, bom: Bom) -> Bom:
+        """
+        Persiste una nueva BOM con sus líneas.
+        """
+        model = BomModel(
+            parent_item_id=bom.parent_item_id,
+            version=bom.version,
+            is_active=bom.is_active,
+            valid_from=bom.valid_from,
+            valid_to=bom.valid_to,
+        )
+        model.lines = [
+            BomLineModel(
+                component_item_id=line.component_item_id,
+                quantity=line.quantity,
+                scrap_factor=line.scrap_factor,
+            )
+            for line in bom.lines
+        ]
+
         self._session.add(model)
-        await self._session.commit()
-        await self._session.refresh(model)
-        
-        return self._to_entity(model)
-        
-    
-    # ======================
-    # DELETE METHOD
-    # ======================
-    async def delete(self, id: int) -> bool:
-        stmt= select(BomModel).where(BomModel.id == id)
-        result= await self._session.execute(stmt)
-        row= result.scalar_one_or_none()
-        
-        if row is None:
-            return False
-        
-        row.is_active= False
-        await self._session.commit()
-        return True
+        await self._session.flush()
+        await self._session.refresh(model, ["lines"])
+
+        bom.id = model.id
+        bom.created_at = model.created_at
+        for entity_line, model_line in zip(bom.lines, model.lines):
+            entity_line.id = model_line.id
+        return bom
+
+    async def deactivate_current(self, parent_item_id: int) -> None:
+        """
+        Desactiva la BOM activa actual de un item.
+        """
+        bom = await self.get_active_by_item(parent_item_id)
+        if bom is None:
+            return
+
+        bom.deactivate()          # lógica de dominio, lanza si ya estaba inactiva
+        await self.update(bom)   
