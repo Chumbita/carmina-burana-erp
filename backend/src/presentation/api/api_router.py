@@ -44,6 +44,10 @@ from src.presentation.api.routes import audit_logs_router
 api_router.include_router(audit_logs_router)
 
 # ════════════════════════════════
+# UOM ROUTER
+# ════════════════════════════════
+from src.presentation.api.routes.uom_router import uom_router
+api_router.include_router(uom_router)
 # BRAND ROUTER
 # ════════════════════════════════
 from src.presentation.api.routes.brand_router import brand_router

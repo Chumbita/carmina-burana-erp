@@ -25,6 +25,16 @@ def get_input_repository(
 ) -> InputRepository:
     return InputRepositoryImpl(db)
 
+# ══════════════════════════════
+# UOM REPOSITORY
+# ══════════════════════════════
+from src.infrastructure.database.repositories.uom_repository import UomRepository
+from src.domain.repositories.uom_repository import IUomRepository
+
+def get_uom_respository(
+    db: AsyncSession = Depends(get_db),
+) -> IUomRepository:
+    return UomRepository(db)
 
 # ══════════════════════════════
 # BRAND REPOSITORY
