@@ -59,9 +59,9 @@ class Bom:
     version:        int
     is_active:      bool
     valid_from:     date
-    created_at:     datetime
 
     # Opcional
+    created_at:     Optional[datetime] = None
     valid_to:       Optional[date] = None
 
     # Identidad

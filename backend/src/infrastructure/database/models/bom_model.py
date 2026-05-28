@@ -1,4 +1,5 @@
 from sqlalchemy import Column, BigInteger, Integer, Boolean, Date, TIMESTAMP, Numeric, ForeignKey
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
 from src.infrastructure.database.base import Base
@@ -12,7 +13,7 @@ class BomLineModel(Base):
     component_item_id = Column(BigInteger,  ForeignKey("item.id"), nullable=False)
     quantity          = Column(Numeric(14, 4), nullable=False)
     scrap_factor      = Column(Numeric(5, 4),  nullable=False, default=0)
-    created_at        = Column(TIMESTAMP,   nullable=False)
+    created_at        = Column(TIMESTAMP, nullable=False, server_default=func.now())
 
     bom = relationship("BomModel", back_populates="lines")
     
@@ -26,6 +27,6 @@ class BomModel(Base):
     is_active      = Column(Boolean, nullable=False, default=False)
     valid_from     = Column(Date, nullable=False)
     valid_to       = Column(Date, nullable=True)
-    created_at     = Column(TIMESTAMP, nullable=False)
+    created_at     = Column(TIMESTAMP, nullable=False, server_default=func.now())
 
     lines = relationship("BomLineModel", back_populates="bom", cascade="all, delete-orphan")
