@@ -152,8 +152,8 @@ export function InputForm({
                   <SelectGroup>
                     <SelectLabel>Categorías</SelectLabel>
                     {SUPPLY_CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
                       </SelectItem>
                     ))}
                   </SelectGroup>
