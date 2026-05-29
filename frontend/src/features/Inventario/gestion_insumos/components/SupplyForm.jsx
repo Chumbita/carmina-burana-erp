@@ -23,7 +23,7 @@ import {
   FieldLabel,
 } from "@/components/ui/Field"
 
-export function InputForm({
+export function SupplyForm({
   defaultValues,
   onSubmit,
   onCancel,
