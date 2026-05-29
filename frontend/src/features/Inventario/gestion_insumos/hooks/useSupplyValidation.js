@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useInputs } from './useInputs'
 
-export function useInputValidation() {
+export function useSupplyValidation() {
   const { inputs } = useInputs()
 
   const validateUniqueName = useCallback((name, excludeId = null) => {
