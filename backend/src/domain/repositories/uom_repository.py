@@ -2,7 +2,7 @@
 # INTERFAZ DE REPOSITORIO DE UOM
 # ══════════════════════════════════════════════════════════════════════════════
 
-from typing import Protocol, Optional
+from typing import Protocol, Optional, List
 from src.domain.entities.uom import Uom
 from src.domain.value_objects.uom_type import UomType
 
@@ -25,5 +25,12 @@ class IUomRepository(Protocol):
         """
         Para obtener la unidad base de un tipo (is_base=True)
         Útil en el cálculo de conversión
+        """
+        ...
+
+    async def list_options(self) -> List[Uom]:
+        """
+        Obtiene todas las unidades de medidas para poblar de información
+        a elementos del front-end.
         """
         ...
