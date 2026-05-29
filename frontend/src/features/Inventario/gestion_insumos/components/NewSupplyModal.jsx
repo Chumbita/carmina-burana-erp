@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog"
-import { InputForm } from "./InputForm"
+import { SupplyForm } from "./SupplyForm"
 import { useInputs } from "../hooks/useInputs"
 
-export function NewInputModal({ open, onClose, onSubmit }) {
+export function NewSupplyModal({ open, onClose, onSubmit }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { inputs } = useInputs() // Obtener inputs existentes para validación
 
@@ -29,7 +29,7 @@ export function NewInputModal({ open, onClose, onSubmit }) {
           <DialogTitle>Nuevo insumo</DialogTitle>
         </DialogHeader>
 
-        <InputForm
+        <SupplyForm
           defaultValues={{
             name: "",
             brand: "",
