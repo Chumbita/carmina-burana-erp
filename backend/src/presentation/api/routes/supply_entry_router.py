@@ -23,6 +23,9 @@ from src.application.dtos.supply_entry.supply_entry_commands_dtos import (
 
 router = APIRouter(prefix="/supply-entries", tags=["Supply Entries"])
 
+# ──────────────────────────────────────────────────────────────────────────────
+# POST /supply-entries  
+# ──────────────────────────────────────────────────────────────────────────────
 
 @router.post(
     "",
@@ -33,6 +36,7 @@ router = APIRouter(prefix="/supply-entries", tags=["Supply Entries"])
 async def create_supply_entry(
     body: CreateSupplyEntryRequest,
     use_case: CreateSupplyEntryUseCase = Depends(get_create_supply_entry_use_case),
+    current_user: User = Depends(get_current_user),
 ) -> SupplyEntryDetailResponse:
     command = CreateSupplyEntryCommand(
         supplier_id=body.supplier_id,
@@ -56,6 +60,10 @@ async def create_supply_entry(
     return result
 
 
+# ──────────────────────────────────────────────────────────────────────────────
+# GET /supply-entries  —  Listar todas las recepciones de insumos
+# ──────────────────────────────────────────────────────────────────────────────
+
 @router.get(
     "",
     response_model=SupplyEntryListResponse,
@@ -67,6 +75,10 @@ async def list_supply_entries(
 ) -> SupplyEntryListResponse:
     return await use_case.execute()
 
+
+# ──────────────────────────────────────────────────────────────────────────────
+# GET /supply-entries/{entry_id}  —  Obtener detalle de una recepción
+# ──────────────────────────────────────────────────────────────────────────────
 
 @router.get(
     "/{entry_id}",
