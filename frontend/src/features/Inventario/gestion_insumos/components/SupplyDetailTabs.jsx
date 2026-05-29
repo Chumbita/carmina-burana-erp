@@ -4,7 +4,7 @@ import { TabInput } from './TabInput'
 //componentes shadcn
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs'
 
-export function InputDetailTabs({ insumo, onInputUpdated, availableInputs = [] }) {
+export function SupplyDetailTabs({ insumo, onInputUpdated, availableInputs = [] }) {
 
   const [contentOption, setContentOption] = useState("insumos");
 
