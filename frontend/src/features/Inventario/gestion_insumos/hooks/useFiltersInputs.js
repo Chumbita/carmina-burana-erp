@@ -1,13 +1,12 @@
 
 // /hooks/useFilter.js
 import { useState } from "react"
+import { SUPPLY_CATEGORIES } from "../schemas/supply.schema"
 
 export function useInputFilters() {
   const categories = [
     { value: "all", label: "Categorías..." },
-    { value: "Lúpulo", label: "Lúpulo" },
-    { value: "Malta", label: "Malta" },
-    { value: "Envases", label: "Envases" },
+    ...SUPPLY_CATEGORIES.map(cat => ({ value: cat, label: cat }))
   ]
 
   const stockStatuses = [
@@ -15,7 +14,6 @@ export function useInputFilters() {
     { value: "critico", label: "Crítico" },
     { value: "bajo", label: "Bajo" },
     { value: "optimo", label: "Normal" },
-    { value: "sin stock", label: "Sin stock" },
   ]
 
   const [categoryFilter, setCategoryFilter] = useState("all")
