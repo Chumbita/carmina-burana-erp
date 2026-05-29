@@ -8,11 +8,11 @@ import { useInput } from "../hooks/useInput";
 import { useInputs } from "../hooks/useInputs";
 
 //Componentes
-import { InputDetailTabs } from "../components/InputDetailTabs";
+import { SupplyDetailTabs } from "../components/SupplyDetailTabs";
 import { EntityDetailPage } from "@/components/shared/DetailPage/EntityDetailPage";
 import { estadoStyles } from "../utils/stockStyles";
 
-export default function InputDetailPage() {
+export default function SupplyDetailPage() {
   const { inputId } = useParams();
   const { input, loading, error } = useInput(inputId)
   const { inputs: availableInputs } = useInputs();
@@ -33,7 +33,7 @@ export default function InputDetailPage() {
       </EntityDetailPage.Sidebar>
 
       <EntityDetailPage.Content>
-        <InputDetailTabs
+        <SupplyDetailTabs
           insumo={input}
           availableInputs={availableInputs}
         />
