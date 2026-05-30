@@ -1,7 +1,9 @@
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { createInsumoSchema } from "../schemas/insumo.schema"
-import { useRef, useEffect } from "react"
+import { createSupplySchema, SUPPLY_CATEGORIES } from "../schemas/supply.schema"
+
+import { useBrands } from "../hooks/useBrands"
+import { useUoms } from "../hooks/useUoms"
 
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
@@ -20,7 +22,6 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/Field"
-import { ImageUpload } from "./ImageUpload"
 
 export function InputForm({
   defaultValues,
@@ -31,15 +32,15 @@ export function InputForm({
   isSubmitting = false,
   showDeleteButton = false,
   onDelete,
-  layout = "modal", // modal o page, varía estilos
+  layout = "modal",
   formRef,
-  existingInputs = [], // Para validación de nombre único
-  excludeId = null, // Para edición, excluir el insumo actual
+  existingInputs = [],
+  excludeId = null,
 }) {
-  const fileRef = useRef(null)
+  const { brands, loading: brandsLoading } = useBrands()
+  const { uoms, loading: uomsLoading } = useUoms()
 
-  // Crear schema dinámico con los inputs existentes
-  const schema = createInsumoSchema(existingInputs, excludeId)
+  const schema = createSupplySchema(existingInputs, excludeId)
 
   const {
     handleSubmit,
@@ -49,39 +50,32 @@ export function InputForm({
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      ...defaultValues,
-      brand: defaultValues.brand || "",
-      category: defaultValues.category || "",
-      minimum_stock: defaultValues.minimum_stock || 0,
+      name:             defaultValues?.name             ?? "",
+      brand_id:         defaultValues?.brand_id         ?? undefined,
+      supply_category:  defaultValues?.supply_category  ?? "",
+      base_uom_id:      defaultValues?.base_uom_id      ?? undefined,
+      min_stock_level:  defaultValues?.min_stock_level  ?? 0,
     },
-    mode: "onChange", // Para validación en tiempo real
+    mode: "onChange",
   })
 
-  // Función para limpiar datos antes de enviar
-  const cleanFormData = (data) => ({
-    ...data,
-    brand: data.brand || null,
-    category: data.category || null,
-    image: data.image || null,
-  })
-
-    // Exponer métodos al padre 
-    if (formRef) {
-      formRef.current = {
-        submit: () => handleSubmit((data) => onSubmit(cleanFormData(data)))(),
-        reset,
-        isDirty,
-      }
+  if (formRef) {
+    formRef.current = {
+      submit: () => handleSubmit(onSubmit)(),
+      reset,
+      isDirty,
     }
+  }
 
   const isModal = layout === "modal"
 
   return (
     <form
-      onSubmit={handleSubmit((data) => onSubmit(cleanFormData(data)))}
+      onSubmit={handleSubmit(onSubmit)}
       className={isModal ? "space-y-4" : "grid grid-cols-1 md:grid-cols-2 gap-4"}
     >
       <FieldGroup className={isModal ? "-space-y-4" : "contents"}>
+
         {/* Nombre */}
         <Controller
           name="name"
@@ -90,7 +84,7 @@ export function InputForm({
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>
                 Nombre <span className="text-red-500 -ml-1">*</span>
-                </FieldLabel>
+              </FieldLabel>
               <Input
                 {...field}
                 id={field.name}
@@ -103,18 +97,35 @@ export function InputForm({
 
         {/* Marca */}
         <Controller
-          name="brand"
+          name="brand_id"
           control={control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>
-                Marca
+                Marca <span className="text-red-500 -ml-1">*</span>
               </FieldLabel>
-              <Input
-                {...field}
-                id={field.name}
-                aria-invalid={fieldState.invalid}
-              />
+              <Select
+                name={field.name}
+                value={field.value !== undefined ? String(field.value) : ""}
+                onValueChange={(val) => field.onChange(Number(val))}
+                disabled={brandsLoading}
+              >
+                <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                  <SelectValue
+                    placeholder={brandsLoading ? "Cargando marcas..." : "Seleccione marca..."}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Marcas</SelectLabel>
+                    {brands.map((brand) => (
+                      <SelectItem key={brand.id} value={String(brand.id)}>
+                        {brand.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
@@ -122,17 +133,32 @@ export function InputForm({
 
         {/* Categoría */}
         <Controller
-          name="category"
+          name="supply_category"
           control={control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Categoría
+              <FieldLabel htmlFor={field.name}>
+                Categoría <span className="text-red-500 -ml-1">*</span>
               </FieldLabel>
-              <Input
-                {...field}
-                id={field.name}
-                aria-invalid={fieldState.invalid}
-              />
+              <Select
+                name={field.name}
+                value={field.value}
+                onValueChange={field.onChange}
+              >
+                <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                  <SelectValue placeholder="Seleccione categoría..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Categorías</SelectLabel>
+                    {SUPPLY_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
@@ -144,13 +170,11 @@ export function InputForm({
             <div className="col-span-1 space-y-4">
               {/* Stock Mínimo */}
               <Controller
-                name="minimum_stock"
+                name="min_stock_level"
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Stock mínimo
-                    </FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Stock mínimo</FieldLabel>
                     <Input
                       {...field}
                       id={field.name}
@@ -165,85 +189,75 @@ export function InputForm({
 
               {/* Unidad de Medida */}
               <Controller
-                name="unit"
+                name="base_uom_id"
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>
-                      {fieldState.invalid && <FieldError  />}
                       Unidad de medida <span className="text-red-500 -ml-1">*</span>
                     </FieldLabel>
                     <Select
                       name={field.name}
-                      value={field.value}
-                      onValueChange={field.onChange}
+                      value={field.value !== undefined ? String(field.value) : ""}
+                      onValueChange={(val) => field.onChange(Number(val))}
+                      disabled={uomsLoading}
                     >
-                      <SelectTrigger
-                        id={field.name}
-                        aria-invalid={fieldState.invalid}
-                      >
-                        <SelectValue placeholder="Seleccione unidad..." />
+                      <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                        <SelectValue
+                          placeholder={uomsLoading ? "Cargando unidades..." : "Seleccione unidad..."}
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Unidades</SelectLabel>
-                          <SelectItem value="kg">kg</SelectItem>
-                          <SelectItem value="g">g</SelectItem>
-                          <SelectItem value="L">L</SelectItem>
-                          <SelectItem value="mL">mL</SelectItem>
-                          <SelectItem value="un">un</SelectItem>
+                          {uoms.map((uom) => (
+                            <SelectItem key={uom.id} value={String(uom.id)}>
+                              {uom.symbol}
+                            </SelectItem>
+                          ))}
                         </SelectGroup>
                       </SelectContent>
                     </Select>
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
             </div>
-
-            {/* Imagen */}
-            <Field>
-              <FieldLabel>Imagen</FieldLabel>
-              <Controller
-                control={control}
-                name="image"
-                render={({ field }) => (
-                  <ImageUpload value={field.value} onChange={field.onChange} />
-                )}
-              />
-            </Field>
           </div>
         ) : (
           <>
-            {/* Unidad de Medida */}
+            {/* Unidad de Medida (layout page) */}
             <Controller
-              name="unit"
+              name="base_uom_id"
               control={control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
-                    Unidad de medida
-                    <span className="text-red-500 -ml-1">*</span>
+                    Unidad de medida <span className="text-red-500 -ml-1">*</span>
                   </FieldLabel>
                   <Select
                     name={field.name}
-                    value={field.value}
-                    onValueChange={field.onChange}
+                    value={field.value !== undefined ? String(field.value) : ""}
+                    onValueChange={(val) => field.onChange(Number(val))}
+                    disabled={uomsLoading}
                   >
                     <SelectTrigger
                       id={field.name}
                       className="bg-neutral-100 border-none"
                       aria-invalid={fieldState.invalid}
                     >
-                      <SelectValue placeholder="Seleccione unidad..." />
+                      <SelectValue
+                        placeholder={uomsLoading ? "Cargando unidades..." : "Seleccione unidad..."}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Unidades</SelectLabel>
-                        <SelectItem value="kg">kg</SelectItem>
-                        <SelectItem value="g">g</SelectItem>
-                        <SelectItem value="L">L</SelectItem>
-                        <SelectItem value="mL">mL</SelectItem>
-                        <SelectItem value="un">un</SelectItem>
+                        {uoms.map((uom) => (
+                          <SelectItem key={uom.id} value={String(uom.id)}>
+                            {uom.symbol}
+                          </SelectItem>
+                        ))}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
@@ -252,15 +266,13 @@ export function InputForm({
               )}
             />
 
-            {/* Stock Mínimo */}
+            {/* Stock Mínimo (layout page) */}
             <Controller
-              name="minimum_stock"
+              name="min_stock_level"
               control={control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>                   
-                    Stock mínimo
-                  </FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Stock mínimo</FieldLabel>
                   <Input
                     {...field}
                     id={field.name}
@@ -272,41 +284,18 @@ export function InputForm({
                 </Field>
               )}
             />
-
-            {/* Imagen */}
-            <Field>
-              <FieldLabel>Imagen</FieldLabel>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                ref={fileRef}
-                onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  if (file) {
-                    // acá se maneja la imagen
-                  }
-                }}
-              />
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => fileRef.current?.click()}
-                className="cursor-pointer"
-              >
-                Editar imagen
-              </Button>
-            </Field>
           </>
         )}
       </FieldGroup>
 
       {/* Botones */}
-      <div className={isModal
-        ? "flex justify-between gap-2"
-        : "md:col-span-2 flex justify-end mt-4 gap-2"
-      }>
+      <div
+        className={
+          isModal
+            ? "flex justify-between gap-2"
+            : "md:col-span-2 flex justify-end mt-4 gap-2"
+        }
+      >
         {showDeleteButton && (
           <Button
             size="sm"
@@ -335,7 +324,7 @@ export function InputForm({
         <Button
           size="sm"
           type="submit"
-          disabled={isModal ? isSubmitting : (!isDirty || isSubmitting)}
+          disabled={isModal ? isSubmitting : !isDirty || isSubmitting}
           className="cursor-pointer"
         >
           {isSubmitting ? "Guardando..." : submitLabel}

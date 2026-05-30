@@ -1,16 +1,14 @@
 import { useRef, useState } from "react"
-import { useInputs } from "./useInputs"
+import { useSupplies } from "./useSupplies"
 import { useInputFilters } from "./useFiltersInputs"
 import { useNotification } from "@/components/shared/notifications/useNotification"
 import { useLocationNotification } from "./useLocationNotification"
 // Hook orquestador de la página de insumos.
-// Compone useInputs, useInputFilters y useNotification en un único punto de entrada,
+// Compone useSupplies, useInputFilters y useNotification en un único punto de entrada,
 // manteniendo la page limpia de lógica y centrada solo en el renderizado.
-// maneja funciones especificas de InputsPage: el proceso de crear un insumo y
-//navegar hacia él haciendo click en la notificacion 
 
 export function useInputsPage() {
-  const { inputs, loading, error, createInput } = useInputs()
+  const { supplies, loading, error, createSupply } = useSupplies()
   const { search, categoryFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, stockStatuses, setSearch, setCategoryFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage, filteredInputs } = useInputFilters()
   const notify = useNotification()
   
@@ -19,12 +17,19 @@ export function useInputsPage() {
   const [openModal, setOpenModal] = useState(false)
   const tableRef = useRef(null)
 
-  async function handleCreateInput(inputData) {
+  async function handleCreateInput(formData) {
     try {
-      const newInput = await createInput(inputData)
+      const payload = {
+        name:            formData.name,
+        brand_id:        formData.brand_id,
+        base_uom_id:     formData.base_uom_id,
+        min_stock_level: formData.min_stock_level ?? 0,
+        supply_category: formData.supply_category,
+      }
+      const newSupply = await createSupply(payload)
       setOpenModal(false)
-      notify.success(`Insumo "${newInput.name}" creado exitosamente`, {
-        onClick: () => handleNotificationClick(newInput.id)
+      notify.success(`Insumo "${newSupply.name}" creado exitosamente`, {
+        onClick: () => handleNotificationClick(newSupply.id)
       })
     } catch (error) {
       notify.error(`Error al crear el insumo: ${error.message}` || 'Error al crear el insumo')
@@ -43,11 +48,11 @@ export function useInputsPage() {
   }
 
   // Calcular datos filtrados con paginación
-  const filteredData = filteredInputs(inputs)
+  const filteredData = filteredInputs(supplies)
 
   return {
     // datos
-    inputs,
+    inputs: supplies,   // alias para compatibilidad con componentes existentes
     loading,
     error,
     filteredData,

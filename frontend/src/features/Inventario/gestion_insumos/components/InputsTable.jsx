@@ -9,16 +9,24 @@ export function InputsTable({ insumos }) {
   const handleRowClick = (insumo) => {
     navigate(`/inventario/insumos/${insumo.id}`);
   };
+  console.log(insumos);
+  
 
   const tableHeaders = [
     { header: "Nro", accessor: "id" },
     { header: "Nombre", accessor: "name" },
-    { header: "Marca", accessor: "brand" },
-    { header: "Categoria", accessor: "category" },
-    { header: "Stock", accessor: "stockTotal" },
+    { header: "Marca", accessor: "brand_name" },
+    { header: "Categoria", accessor: "supply_category" },
+    { header: "Stock", accessor: "stock_total" ,
+      render: (value, insumo) => (
+        <div className="w-8">
+          {value} {insumo.base_uom_symbol}
+        </div>
+      ),
+    },
     {
       header: "Estado",
-      accessor: "estadoStock",
+      accessor: "estado_stock",
       render: (value) => (
         <Badge variant="outline" className={estadoStyles[value]}>
           {value}
