@@ -6,7 +6,7 @@ import { SUPPLY_CATEGORIES } from "../schemas/supply.schema"
 export function useInputFilters() {
   const categories = [
     { value: "all", label: "Categorías..." },
-    ...SUPPLY_CATEGORIES,
+    ...SUPPLY_CATEGORIES.map(cat => ({ value: cat, label: cat }))
   ]
 
   const stockStatuses = [
@@ -19,7 +19,7 @@ export function useInputFilters() {
   const [categoryFilter, setCategoryFilter] = useState("all")
   const [stockFilter, setStockFilter] = useState("all")
   const [search, setSearch] = useState("")
-  const [sortBy, setSortBy] = useState("name") // "name" o "stock"
+  const [sortBy, setSortBy] = useState("id") // "id", "name" o "stock"
   const [sortOrder, setSortOrder] = useState("asc") // "asc" o "desc"
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 20
@@ -80,7 +80,10 @@ export function useInputFilters() {
     filtered.sort((a, b) => {
       let aValue, bValue
 
-      if (sortBy === "name") {
+      if (sortBy === "id") {
+        aValue = a.id || 0
+        bValue = b.id || 0
+      } else if (sortBy === "name") {
         aValue = a.name?.toLowerCase() || ""
         bValue = b.name?.toLowerCase() || ""
       } else if (sortBy === "stock") {

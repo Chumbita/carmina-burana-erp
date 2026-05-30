@@ -1,18 +1,16 @@
 import { z } from "zod"
 
 export const SUPPLY_CATEGORIES = [
-  { value: "MALT",      label: "Malta" },
-  { value: "HOPS",      label: "Lúpulos" },
-  { value: "YEAST",     label: "Levadura" },
-  { value: "WATER",     label: "Agua" },
-  { value: "ADJUNCT",   label: "Adjunto" },
-  { value: "CLARIFIER", label: "Clarificante" },
-  { value: "GAS",       label: "Gas" },
-  { value: "CLEANING",  label: "Limpieza" },
-  { value: "OTHER",     label: "Otro" },
+  "Malta",
+  "Lúpulos",
+  "Levadura",
+  "Agua",
+  "Adjunto",
+  "Clarificante",
+  "Gas",
+  "Limpieza",
+  "Otro",
 ]
-
-const SUPPLY_CATEGORY_VALUES = SUPPLY_CATEGORIES.map((c) => c.value)
 
 export const createSupplySchema = (existingSupplies = [], excludeId = null) =>
   z.object({
@@ -34,7 +32,7 @@ export const createSupplySchema = (existingSupplies = [], excludeId = null) =>
       .int()
       .positive("Seleccione una marca"),
 
-    supply_category: z.enum(SUPPLY_CATEGORY_VALUES, {
+    supply_category: z.enum(SUPPLY_CATEGORIES, {
       errorMap: () => ({ message: "Seleccione una categoría" }),
     }),
 

@@ -9,13 +9,21 @@ export function SuppliesTable({ insumos }) {
   const handleRowClick = (insumo) => {
     navigate(`/inventario/insumos/${insumo.id}`);
   };
+  console.log(insumos);
+  
 
   const tableHeaders = [
     { header: "Nro", accessor: "id" },
     { header: "Nombre", accessor: "name" },
     { header: "Marca", accessor: "brand_name" },
     { header: "Categoria", accessor: "supply_category" },
-    { header: "Stock", accessor: "stock_total" },
+    { header: "Stock", accessor: "stock_total" ,
+      render: (value, insumo) => (
+        <div className="w-8">
+          {value} {insumo.base_uom_symbol}
+        </div>
+      ),
+    },
     {
       header: "Estado",
       accessor: "estado_stock",
