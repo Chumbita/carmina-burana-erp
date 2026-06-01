@@ -1,13 +1,13 @@
 import { useRef, useState } from "react"
 import { useSupplies } from "./useSupplies"
-import { useInputFilters } from "./useFiltersInputs"
+import { useInputFilters } from "./useFiltersSupplies"
 import { useNotification } from "@/components/shared/notifications/useNotification"
 import { useLocationNotification } from "./useLocationNotification"
 // Hook orquestador de la página de insumos.
 // Compone useSupplies, useInputFilters y useNotification en un único punto de entrada,
 // manteniendo la page limpia de lógica y centrada solo en el renderizado.
 
-export function useInputsPage() {
+export function useSuppliesPage() {
   const { supplies, loading, error, createSupply } = useSupplies()
   const { search, categoryFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, stockStatuses, setSearch, setCategoryFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage, filteredInputs } = useInputFilters()
   const notify = useNotification()

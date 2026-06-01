@@ -1,19 +1,19 @@
 //componentes
-import { InputsTable } from "../components/InputsTable";
-import { NewInputModal } from "../components/NewInputModal";
+import { SuppliesTable } from "../components/SuppliesTable";
+import { NewSupplyModal } from "../components/NewSupplyModal";
 import { NotificationContainer } from "@/components/shared/notifications/NotificationContainer";
 import { Pagination } from "../components/Pagination";
 //componentes genéricos
 import { FilterBar } from "@/components/shared/FilterBar";
 //hooks
-import { useInputsPage } from "../hooks/useInputsPage";
+import { useSuppliesPage } from "../hooks/useSuppliesPage";
 //componentes shadcn
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 //iconos
 import { Plus } from "lucide-react";
 
-export default function InputsPage() {
+export default function SuppliesPage() {
   const {
     filteredData,
     loading,
@@ -38,7 +38,7 @@ export default function InputsPage() {
     clearNotification,
     handleCreateInput,
     tableRef,
-  } = useInputsPage();
+  } = useSuppliesPage();
 
   return (
     <div className="space-y-4">
@@ -93,14 +93,14 @@ export default function InputsPage() {
           Agregar insumo
         </Button>
       </header>
-      <NewInputModal
+      <NewSupplyModal
         open={openModal}
         onClose={() => setOpenModal(false)}
         onSubmit={handleCreateInput}
       />
 
       <div ref={tableRef}>
-        <InputsTable insumos={filteredData?.items || []} />
+        <SuppliesTable insumos={filteredData?.items || []} />
       </div>
 
       {filteredData && filteredData.totalCount > 0 && (

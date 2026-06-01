@@ -1,5 +1,5 @@
 //componentes 
-import { InputForm } from "./InputForm"
+import { SupplyForm } from "./SupplyForm"
 import { ConfirmNavigationModal } from "./ConfirmNavigationModal"
 
 import {
@@ -93,7 +93,7 @@ async function onSubmit(data) {
 
   return (
     <>
-      <InputForm
+      <SupplyForm
         formRef={formRef}
         defaultValues={{
           name: insumo.name,

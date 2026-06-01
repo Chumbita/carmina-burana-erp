@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/Badge";
 import { estadoStyles } from "../utils/stockStyles";
 import { useNavigate } from "react-router-dom";
 
-export function InputsTable({ insumos }) {
+export function SuppliesTable({ insumos }) {
   const navigate = useNavigate();
 
   const handleRowClick = (insumo) => {
