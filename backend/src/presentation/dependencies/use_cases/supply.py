@@ -41,3 +41,10 @@ def get_active_supply_detail_use_case(
     supply_repository: SupplyRepository = Depends(get_supply_repository),
 ) -> GetActiveSupplyDetailUseCase:
     return GetActiveSupplyDetailUseCase(supply_repository)
+
+
+def get_delete_supply_use_case(
+    supply_repository: SupplyRepository = Depends(get_supply_repository),
+) -> "DeleteSupplyUseCase":
+    from src.application.use_cases.supply.delete_supply import DeleteSupplyUseCase
+    return DeleteSupplyUseCase(supply_repository)
