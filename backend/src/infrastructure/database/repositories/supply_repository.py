@@ -185,7 +185,7 @@ class SupplyRepository(ISupplyRepository):
         stmt = (
             update(ItemModel)
             .where(ItemModel.id == item_id, ItemModel.status == "ACTIVE")
-            .values(status="DELETED", deleted_at=datetime.now(timezone.utc))
+            .values(status="DELETED", deleted_at=datetime.now(timezone.utc).replace(tzinfo=None))
         )
         result = await self._session.execute(stmt)
         await self._session.flush()
