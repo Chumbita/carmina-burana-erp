@@ -164,3 +164,29 @@ class SupplyRepository(ISupplyRepository):
             "item_updated_at": row.item_updated_at,
             "supply_updated_at": row.supply_updated_at,
         }
+
+    async def has_stock(self, item_id: int) -> bool:
+        """Retorna True si el insumo tiene stock disponible (quantity > 0)."""
+        from sqlalchemy import exists as sa_exists
+        stmt = select(
+            sa_exists().where(
+                InventoryBalanceModel.item_id == item_id,
+                InventoryBalanceModel.quantity > 0,
+            )
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar()
+
+    async def soft_delete(self, item_id: int) -> bool:
+        """Soft delete: marca el item como DELETED y registra deleted_at."""
+        from datetime import datetime, timezone
+        from sqlalchemy import update
+
+        stmt = (
+            update(ItemModel)
+            .where(ItemModel.id == item_id, ItemModel.status == "ACTIVE")
+            .values(status="DELETED", deleted_at=datetime.now(timezone.utc))
+        )
+        result = await self._session.execute(stmt)
+        await self._session.flush()
+        return result.rowcount > 0
