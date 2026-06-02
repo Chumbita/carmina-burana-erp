@@ -30,4 +30,15 @@ class ISupplyRepository(Protocol):
         Retorna el detalle de un insumo activo o None si no existe.
         """
         ...
-        
+
+    async def has_stock(self, item_id: int) -> bool:
+        """
+        Retorna True si el insumo tiene stock disponible (quantity > 0).
+        """
+        ...
+
+    async def soft_delete(self, item_id: int) -> bool:
+        """
+        Marca el item como DELETED (soft delete). Retorna True si se encontró y eliminó.
+        """
+        ...
