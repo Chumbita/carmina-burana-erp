@@ -18,7 +18,7 @@ from src.presentation.schemas.supply_schemas import (
     SupplyDetailResponseSchema,
     SupplyGeneralResponseSchema,
     SupplyResponseSchema,
-    UpdateSupplyRequestSchema
+    UpdateSupplyRequestSchema,
 )
 from src.presentation.dependencies.use_cases.supply import (
     get_active_supply_detail_use_case,
@@ -111,14 +111,14 @@ async def create_supply(
     "/{supply_id}",
     status_code=status.HTTP_200_OK,
     summary="Actualizar insumo",
-    response_model=SupplyResponseSchema,
+    response_model=SupplyDetailResponseSchema,
 )
 async def update_supply(
     supply_id: int,
     body: UpdateSupplyRequestSchema,
     use_case: UpdateSupplyUseCase = Depends(get_update_supply_use_case),
     current_user: User = Depends(get_current_user),
-) -> SupplyResponseSchema:
+) -> dict:
     command = UpdateItemCommand(
         item_id=supply_id,
         name=body.name,
@@ -130,5 +130,4 @@ async def update_supply(
         is_sellable=body.is_sellable,
         specialized_data={"supply_category": body.supply_category.value} if body.supply_category else None,
     )
-    result = await use_case.execute(command)
-    return SupplyResponseSchema(**vars(result))
+    return await use_case.execute(command)
