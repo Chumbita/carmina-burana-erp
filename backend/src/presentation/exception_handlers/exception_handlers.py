@@ -9,6 +9,12 @@ from src.domain.exceptions.item_exceptions import (
 )
 from src.domain.exceptions.supply_exceptions import SupplyNotFoundException
 
+from src.domain.exceptions.inventory_exceptions import DuplicateLotCodeError
+
+from src.domain.exceptions.supply_entry_exceptions import SupplyEntryNotFound
+
+from src.domain.exceptions.supplier_exceptions import DuplicateSupplierNameError
+
 
 def register_exception_handlers(app: FastAPI) -> None:
 
@@ -51,3 +57,24 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(SupplyNotFoundException)
     async def supply_not_found_handler(request: Request, exc: SupplyNotFoundException):
         return JSONResponse(status_code=404, content={"detail": str(exc)})
+
+    # ======================
+    # SUPPLY ENTRY EXCEPTIONS
+    # ======================
+    @app.exception_handler(SupplyEntryNotFound)
+    async def supply_entry_not_found_handler(request: Request, exc: SupplyEntryNotFound):
+        return JSONResponse(status_code=404, content={"detail": str(exc)})
+
+    # ======================
+    # SUPPLIER EXCEPTIONS
+    # ======================
+    @app.exception_handler(DuplicateSupplierNameError)
+    async def duplicate_supplier_name_handler(request: Request, exc: DuplicateSupplierNameError):
+        return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+    # ======================
+    # INVENTORY EXCEPTIONS
+    # ======================
+    @app.exception_handler(DuplicateLotCodeError)
+    async def duplicate_lot_code_handler(request: Request, exc: DuplicateLotCodeError):
+        return JSONResponse(status_code=409, content={"detail": str(exc)})

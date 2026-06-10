@@ -1,20 +1,56 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List
 
 from src.domain.entities.user import User
-from src.presentation.dependencies.auth import get_current_user
+from src.domain.exceptions.item_exceptions import ItemNotFoundException
 
-from src.presentation.schemas.supply_schemas import CreateSupplyRequestSchema, SupplyResponseSchema
-from src.presentation.dependencies.use_cases.supply import get_create_supply_use_case, get_supply_repository
-from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
-from src.application.dtos.items.item_commands_dtos import CreateItemCommand
 from src.infrastructure.database.repositories.supply_repository import SupplyRepository
 
-from src.application.use_cases.supply.update_supply import UpdateSupplyUseCase
-from src.presentation.dependencies.use_cases.supply import get_update_supply_use_case
-from src.presentation.schemas.supply_schemas import UpdateSupplyRequestSchema
+from src.application.dtos.items.item_commands_dtos import CreateItemCommand
 from src.application.dtos.items.item_commands_dtos import UpdateItemCommand
 
+from src.application.use_cases.supply.read_supply import GetActiveSupplyDetailUseCase, ListActiveSuppliesUseCase
+from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
+from src.application.use_cases.supply.update_supply import UpdateSupplyUseCase
+
+from src.presentation.schemas.supply_schemas import (
+    CreateSupplyRequestSchema,
+    SupplyDetailResponseSchema,
+    SupplyGeneralResponseSchema,
+    SupplyResponseSchema,
+    UpdateSupplyRequestSchema
+)
+from src.presentation.dependencies.use_cases.supply import (
+    get_active_supply_detail_use_case,
+    get_create_supply_use_case,
+    get_list_active_supplies_use_case,
+    get_supply_repository,
+    get_update_supply_use_case
+)
+from src.presentation.dependencies.auth import get_current_user
+
+
 router = APIRouter(prefix="/supplies", tags=["Supplies"])
+
+
+@router.get("", response_model=List[SupplyGeneralResponseSchema], summary="Listar insumos activos")
+async def list_active_supplies(
+    use_case: ListActiveSuppliesUseCase = Depends(get_list_active_supplies_use_case),
+    current_user: User = Depends(get_current_user),
+) -> list[dict]:
+    return await use_case.execute()
+
+
+@router.get("/{item_id}", response_model=SupplyDetailResponseSchema, summary="Detalle de insumo activo")
+async def get_active_supply_detail(
+    item_id: int,
+    use_case: GetActiveSupplyDetailUseCase = Depends(get_active_supply_detail_use_case),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    try:
+        return await use_case.execute(item_id)
+    except ItemNotFoundException as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 
 @router.post(

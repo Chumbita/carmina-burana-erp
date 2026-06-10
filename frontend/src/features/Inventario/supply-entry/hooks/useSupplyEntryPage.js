@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { ITEMS_PER_PAGE, FILTER_DEFAULTS } from '../constants/supplyEntry.constants'
 import { inputEntryService } from '../services/inputEntryService'
+import { useNotification } from '@/components/shared/notifications/useNotification'
 
 // Mock data - replace with actual API calls
 const mockSupplyEntries = [
@@ -49,8 +50,8 @@ export function useSupplyEntryPage() {
   const [selectedEntryId, setSelectedEntryId] = useState(null)
   const [showDetail, setShowDetail] = useState(false)
   
-  // Notification state
-  const [notification, setNotification] = useState(null)
+  // Global notification hook
+  const notify = useNotification()
   
   // Filters state
   const [search, setSearch] = useState('')
@@ -160,20 +161,14 @@ export function useSupplyEntryPage() {
       
       await inputEntryService.create(submissionData)
       
-      setNotification({
-        type: 'success',
-        message: `Abastecimiento ${formData.receptionId} registrado correctamente`
-      })
+      notify.success(`Abastecimiento ${formData.receptionId} registrado correctamente`)
       
       setOpenModal(false)
       loadData() // Reload data
     } catch (err) {
-      setNotification({
-        type: 'error',
-        message: err.response?.data?.detail || 'Error al registrar el abastecimiento'
-      })
+      notify.error(err.response?.data?.detail || 'Error al registrar el abastecimiento')
     }
-  }, [loadData])
+  }, [loadData, notify])
 
   // Handle view detail
   const handleViewDetail = useCallback((entryId) => {
@@ -185,11 +180,6 @@ export function useSupplyEntryPage() {
   const handleCloseDetail = useCallback(() => {
     setShowDetail(false)
     setSelectedEntryId(null)
-  }, [])
-
-  // Clear notification
-  const clearNotification = useCallback(() => {
-    setNotification(null)
   }, [])
 
   // Load data on mount and when filters change
@@ -228,9 +218,6 @@ export function useSupplyEntryPage() {
     selectedEntryId,
     showDetail,
     
-    // Notification
-    notification,
-    
     // Actions
     setSearch,
     setDateFrom,
@@ -243,7 +230,6 @@ export function useSupplyEntryPage() {
     handleCreateSupplyEntry,
     handleViewDetail,
     handleCloseDetail,
-    clearNotification,
     loadData,
   }
 }
