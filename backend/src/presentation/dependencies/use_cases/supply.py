@@ -2,11 +2,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
 
 from src.infrastructure.database.deps import get_db
+
 from src.infrastructure.database.repositories.supply_repository import SupplyRepository
 from src.infrastructure.database.repositories.item_repository import ItemRepository
+
 from src.application.use_cases.supply.create_supply import SupplyItemCreator
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
 
+from src.application.use_cases.supply.supply_item_updater import SupplyItemUpdater
+from src.application.use_cases.item.update_item_use_case import UpdateItemUseCase
+from src.application.use_cases.supply.update_supply import UpdateSupplyUseCase
+
+from src.application.use_cases.supply.read_supply import (
+    GetActiveSupplyDetailUseCase,
+    ListActiveSuppliesUseCase,
+)
 
 def get_create_supply_use_case(
     session: AsyncSession = Depends(get_db),
@@ -25,3 +35,25 @@ def get_supply_repository(
 ) -> SupplyRepository:
     """Inyecta el repositorio de supply para obtener datos adicionales."""
     return SupplyRepository(session)
+
+
+def get_update_supply_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> UpdateSupplyUseCase:
+    item_repository = ItemRepository(session)
+    supply_repository = SupplyRepository(session)
+    supply_updater = SupplyItemUpdater(supply_repository)
+    update_item_use_case = UpdateItemUseCase(item_repository, supply_updater)
+    return UpdateSupplyUseCase(update_item_use_case, supply_repository)
+
+
+def get_list_active_supplies_use_case(
+    supply_repository: SupplyRepository = Depends(get_supply_repository),
+) -> ListActiveSuppliesUseCase:
+    return ListActiveSuppliesUseCase(supply_repository)
+
+
+def get_active_supply_detail_use_case(
+    supply_repository: SupplyRepository = Depends(get_supply_repository),
+) -> GetActiveSupplyDetailUseCase:
+    return GetActiveSupplyDetailUseCase(supply_repository)
