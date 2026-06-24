@@ -4,11 +4,15 @@ from sqlalchemy.exc import IntegrityError
 
 from src.domain.exceptions.item_exceptions import (
     ItemNotFoundException,
-    ItemAlreadyDeletedException
+    ItemAlreadyDeletedException,
+    SpecializedItemUpdateException,
 )
 from src.domain.exceptions.supply_exceptions import SupplyNotFoundException
+
 from src.domain.exceptions.inventory_exceptions import DuplicateLotCodeError
+
 from src.domain.exceptions.supply_entry_exceptions import SupplyEntryNotFound
+
 from src.domain.exceptions.supplier_exceptions import DuplicateSupplierNameError
 
 
@@ -42,6 +46,10 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(ItemAlreadyDeletedException)
     async def item_deleted_handler(request: Request, exc: ItemAlreadyDeletedException):
         return JSONResponse(status_code=400, content={"detail": str(exc)})
+
+    @app.exception_handler(SpecializedItemUpdateException)
+    async def specialized_update_handler(request: Request, exc: SpecializedItemUpdateException):
+        return JSONResponse(status_code=422, content={"detail": str(exc)})
 
     # ======================
     # SUPPLY EXCEPTIONS
