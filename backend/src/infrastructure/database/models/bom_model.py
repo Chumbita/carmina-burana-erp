@@ -1,18 +1,18 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey
-from sqlalchemy import func
+from sqlalchemy import Column, BigInteger, Integer, Boolean, Date, TIMESTAMP, ForeignKey
 from sqlalchemy.orm import relationship
 
 from src.infrastructure.database.base import Base
 
+
 class BomModel(Base):
     __tablename__ = "bom"
-    
-    id = Column(Integer, primary_key=True)
-    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True, nullable=False)
+    parent_item_id = Column(BigInteger, ForeignKey("item.id"), nullable=False)
     version = Column(Integer, nullable=False)
-    base_quantity = Column(Float, nullable=False)
-    base_unit = Column(String(10), nullable=False)
-    standard_yield_pct = Column(Float, nullable=False)
-    is_active = Column(Boolean, nullable=False, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    items = relationship("BomItemModel", cascade="all, delete-orphan")
+    is_active = Column(Boolean, nullable=False)
+    valid_from = Column(Date, nullable=False)
+    valid_to = Column(Date, nullable=True)
+    created_at = Column(TIMESTAMP, nullable=False)
+
+    lines = relationship("BomLineModel", back_populates="bom", cascade="all, delete-orphan")
