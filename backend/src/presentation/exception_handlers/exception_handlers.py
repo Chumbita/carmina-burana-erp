@@ -9,6 +9,8 @@ from src.domain.exceptions.item_exceptions import (
 )
 from src.domain.exceptions.supply_exceptions import SupplyNotFoundException
 
+from src.domain.exceptions.bom_exceptions import BomNotFoundException, BomCreationException
+
 from src.domain.exceptions.inventory_exceptions import DuplicateLotCodeError
 
 from src.domain.exceptions.supply_entry_exceptions import SupplyEntryNotFound
@@ -78,3 +80,14 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(DuplicateLotCodeError)
     async def duplicate_lot_code_handler(request: Request, exc: DuplicateLotCodeError):
         return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+    # ======================
+    # BOM EXCEPTIONS
+    # ======================
+    @app.exception_handler(BomNotFoundException)
+    async def bom_not_found_handler(request: Request, exc: BomNotFoundException):
+        return JSONResponse(status_code=404, content={"detail": str(exc)})
+
+    @app.exception_handler(BomCreationException)
+    async def bom_creation_handler(request: Request, exc: BomCreationException):
+        return JSONResponse(status_code=422, content={"detail": str(exc)})
