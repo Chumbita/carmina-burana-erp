@@ -12,7 +12,6 @@ class BomLineModel(Base):
     component_item_id = Column(BigInteger, ForeignKey("item.id"), nullable=False)
     quantity = Column(Numeric(14, 6), nullable=False)
     uom = Column(Integer, ForeignKey("uom.id"), nullable=True)
-    scrap_factor = Column(Numeric(5, 4), nullable=False)
     created_at = Column(TIMESTAMP, nullable=False)
 
     bom = relationship("BomModel", back_populates="lines")
