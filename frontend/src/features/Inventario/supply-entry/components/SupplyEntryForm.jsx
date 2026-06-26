@@ -91,13 +91,13 @@ function SupplyCombobox({ value, onChange, supplies = [] }) {
  */
 export function SupplyEntryForm({
   formHook,
-  availableInputs = [],
+  availableSupplies = [],
   layout = 'page',
   onCancel,
   isSubmitting = false,
 }) {
   const {
-    control,
+    register,
     fields,
     watchedItems,
     totalCost,
@@ -140,7 +140,7 @@ export function SupplyEntryForm({
                 <Input
                   id="supplier"
                   placeholder="Nombre del proveedor"
-                  {...control.register('supplier')}
+                  {...register('supplier')}
                 />
               </Field>
 
@@ -151,7 +151,7 @@ export function SupplyEntryForm({
                 <Input
                   id="entryDate"
                   type="date"
-                  {...control.register('entryDate')}
+                  {...register('entryDate')}
                 />
               </Field>
 
@@ -162,7 +162,7 @@ export function SupplyEntryForm({
                 <Input
                   id="invoiceNumber"
                   placeholder="Opcional"
-                  {...control.register('invoiceNumber')}
+                  {...register('invoiceNumber')}
                 />
               </Field>
 
@@ -173,7 +173,7 @@ export function SupplyEntryForm({
                 <Input
                   id="description"
                   placeholder="Nota general"
-                  {...control.register('description')}
+                  {...register('description')}
                 />
               </Field>
             </div>
@@ -200,7 +200,7 @@ export function SupplyEntryForm({
 
             {/* Header de columnas — oculto en mobile */}
             <div className="hidden sm:grid sm:grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] gap-2 px-2">
-              {['Insumo', 'Cantidad', 'Costo unit.', 'Vencimiento', 'N° lote', ''].map((h) => (
+              {['Insumo', 'Cantidad', 'Costo unit.', 'Vencimiento *', 'N° lote', ''].map((h) => (
                 <span key={h} className="text-xs font-medium text-muted-foreground">
                   {h}
                 </span>
@@ -227,11 +227,11 @@ export function SupplyEntryForm({
                     <div className="flex flex-col gap-0.5">
                       <span className="text-xs text-muted-foreground sm:hidden">Insumo *</span>
                       <SupplyCombobox
-                        value={watchedItems[index]?.inputId ?? 0}
+                        value={watchedItems[index]?.supplyId ?? 0}
                         onChange={(id) =>
-                          setValue(`items.${index}.inputId`, id, { shouldValidate: true })
+                          setValue(`items.${index}.supplyId`, id, { shouldValidate: true })
                         }
-                        supplies={availableInputs}
+                        supplies={availableSupplies}
                       />
                     </div>
 
@@ -244,7 +244,7 @@ export function SupplyEntryForm({
                         min="0.01"
                         placeholder="0.00"
                         className="h-9 text-sm"
-                        {...control.register(`items.${index}.quantity`, { valueAsNumber: true })}
+                        {...register(`items.${index}.quantity`, { valueAsNumber: true })}
                       />
                     </div>
 
@@ -254,20 +254,20 @@ export function SupplyEntryForm({
                       <Input
                         type="number"
                         step="0.01"
-                        min="0"
+                        min="0.01"
                         placeholder="0.00"
                         className="h-9 text-sm"
-                        {...control.register(`items.${index}.unitCost`, { valueAsNumber: true })}
+                        {...register(`items.${index}.unitCost`, { valueAsNumber: true })}
                       />
                     </div>
 
                     {/* Vencimiento */}
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-xs text-muted-foreground sm:hidden">Vencimiento</span>
+                      <span className="text-xs text-muted-foreground sm:hidden">Vencimiento *</span>
                       <Input
                         type="date"
                         className="h-9 text-sm"
-                        {...control.register(`items.${index}.expirationDate`)}
+                        {...register(`items.${index}.expirationDate`)}
                       />
                     </div>
 
@@ -277,7 +277,7 @@ export function SupplyEntryForm({
                       <Input
                         placeholder="Opcional"
                         className="h-9 text-sm"
-                        {...control.register(`items.${index}.batchNumber`)}
+                        {...register(`items.${index}.batchNumber`)}
                       />
                     </div>
 

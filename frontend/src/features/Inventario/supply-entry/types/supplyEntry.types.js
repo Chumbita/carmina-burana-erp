@@ -2,7 +2,7 @@
 
 /**
  * @typedef {Object} SupplyItem
- * @property {string} inputId - ID del insumo
+ * @property {string} supplyId - ID del insumo
  * @property {number} quantity - Cantidad
  * @property {number} unitCost - Costo unitario
  * @property {string} [expirationDate] - Fecha de vencimiento
@@ -28,10 +28,10 @@
  */
 
 /**
- * @typedef {Object} AvailableInput
+ * @typedef {Object} AvailableSupply
  * @property {string} id - ID del insumo
  * @property {string} name - Nombre del insumo
- * @property {string} unit - Unidad de medida
+ * @property {string} base_uom_symbol - Unidad de medida
  */
 
 /**
