@@ -7,9 +7,17 @@ from src.domain.entities.supply import Supply
 
 class ISupplyRepository(Protocol):
     
+   # ── Comandos ────────────────────────────────────────────────
+ 
     async def add(self, supply: Supply) -> None:
         """
         Persiste un nuevo insumo.
+        """
+        ...
+
+    async def save(self, supply: Supply) -> None:
+        """
+        Persiste los cambios de un insumo existente.
         """
         ...
 

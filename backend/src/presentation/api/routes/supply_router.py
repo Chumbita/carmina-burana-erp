@@ -1,15 +1,26 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 
-from src.application.use_cases.supply.read_supply import GetActiveSupplyDetailUseCase, ListActiveSuppliesUseCase
-from src.application.use_cases.supply.delete_supply import DeleteSupplyUseCase
+from src.domain.entities.user import User
 from src.domain.exceptions.item_exceptions import ItemNotFoundException
 from src.domain.exceptions.supply_exceptions import SupplyHasStockException
+
+from src.infrastructure.database.repositories.supply_repository import SupplyRepository
+
+from src.application.dtos.items.item_commands_dtos import CreateItemCommand
+from src.application.dtos.items.item_commands_dtos import UpdateItemCommand
+
+from src.application.use_cases.supply.read_supply import GetActiveSupplyDetailUseCase, ListActiveSuppliesUseCase
+from src.application.use_cases.supply.delete_supply import DeleteSupplyUseCase
+from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
+from src.application.use_cases.supply.update_supply import UpdateSupplyUseCase
+
 from src.presentation.schemas.supply_schemas import (
     CreateSupplyRequestSchema,
     SupplyDetailResponseSchema,
     SupplyGeneralResponseSchema,
     SupplyResponseSchema,
+    UpdateSupplyRequestSchema,
 )
 from src.presentation.dependencies.use_cases.supply import (
     get_active_supply_detail_use_case,
@@ -17,12 +28,10 @@ from src.presentation.dependencies.use_cases.supply import (
     get_list_active_supplies_use_case,
     get_supply_repository,
     get_delete_supply_use_case,
+    get_update_supply_use_case,
 )
-from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
-from src.application.dtos.items.item_commands_dtos import CreateItemCommand
-from src.infrastructure.database.repositories.supply_repository import SupplyRepository
 from src.presentation.dependencies.auth import get_current_user
-from src.domain.entities.user import User
+
 
 router = APIRouter(prefix="/supplies", tags=["Supplies"])
 
@@ -57,6 +66,7 @@ async def create_supply(
     body: CreateSupplyRequestSchema,
     use_case: CreateItemUseCase = Depends(get_create_supply_use_case),
     supply_repository: SupplyRepository = Depends(get_supply_repository),
+    current_user: User = Depends(get_current_user),
 ) -> dict:
     """
     Crea un insumo (item + supply) de forma atómica.
@@ -77,10 +87,10 @@ async def create_supply(
             "supply_category": body.supply_category.value,
         },
     )
-    
+
     item_result = await use_case.execute(command)
     supply = await supply_repository.get_by_item_id(item_result.id)
-    
+
     return SupplyResponseSchema(
         id=item_result.id,
         name=item_result.name,
@@ -130,3 +140,29 @@ async def delete_supply(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exc),
         ) from exc
+
+
+@router.patch(
+    "/{supply_id}",
+    status_code=status.HTTP_200_OK,
+    summary="Actualizar insumo",
+    response_model=SupplyDetailResponseSchema,
+)
+async def update_supply(
+    supply_id: int,
+    body: UpdateSupplyRequestSchema,
+    use_case: UpdateSupplyUseCase = Depends(get_update_supply_use_case),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    command = UpdateItemCommand(
+        item_id=supply_id,
+        name=body.name,
+        brand_id=body.brand_id,
+        base_uom_id=body.base_uom_id,
+        min_stock_level=body.min_stock_level,
+        is_manufacturable=body.is_manufacturable,
+        is_purchasable=body.is_purchasable,
+        is_sellable=body.is_sellable,
+        specialized_data={"supply_category": body.supply_category.value} if body.supply_category else None,
+    )
+    return await use_case.execute(command)
