@@ -30,3 +30,5 @@ Thumbs.db
 # Agents
 skills-lock.json
 .agents
+AGENTS.md
+/backend/AGENTS.md
