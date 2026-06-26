@@ -36,7 +36,6 @@ class BomRepository(IBomRepository):
                 component_item_id=line.component_item_id,
                 quantity=line.quantity,
                 uom=line.uom,
-                scrap_factor=line.scrap_factor,
                 created_at=line.created_at,
             )
             for line in model.lines
@@ -64,13 +63,63 @@ class BomRepository(IBomRepository):
                 component_item_id=line.component_item_id,
                 quantity=line.quantity,
                 uom=line.uom,
-                scrap_factor=line.scrap_factor,
                 created_at=line.created_at,
             )
             for line in bom.lines
         ]
 
         return model
+
+
+    # ── Commands ──────────────────────────────────────────────
+
+    async def add(self, bom: Bom) -> None:
+        """
+        Persiste un nuevo BOM con sus líneas en una única transacción.
+        Después del flush, copia los IDs generados de vuelta a las entidades de dominio.
+        """
+        model = BomModel(
+            parent_item_id=bom.parent_item_id,
+            version=bom.version,
+            is_active=bom.is_active,
+            valid_from=bom.valid_from,
+            valid_to=bom.valid_to,
+            created_at=bom.created_at,
+        )
+        model.lines = [
+            BomLineModel(
+                component_item_id=line.component_item_id,
+                quantity=line.quantity,
+                uom=line.uom,
+                created_at=line.created_at,
+            )
+            for line in bom.lines
+        ]
+        self._session.add(model)
+        await self._session.flush()
+
+        bom.id = model.id
+        for i, line_model in enumerate(model.lines):
+            bom.lines[i].id = line_model.id
+            bom.lines[i].bom_id = model.id
+
+    async def save(self, bom: Bom) -> None:
+        """
+        Persiste los cambios de un BOM existente (closing version).
+        Actualiza is_active y valid_to del BOM anterior.
+        """
+        stmt = select(BomModel).where(BomModel.id == bom.id)
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+
+        if model is None:
+            from src.domain.exceptions.bom_exceptions import BomNotFoundException
+            raise BomNotFoundException(bom.id)
+
+        model.is_active = bom.is_active
+        model.valid_to = bom.valid_to
+        await self._session.flush()
+
 
     # ── Queries ──────────────────────────────────────────────────
 
@@ -82,6 +131,37 @@ class BomRepository(IBomRepository):
         stmt = (
             select(BomModel)
             .where(BomModel.id == bom_id)
+            .options(selectinload(BomModel.lines))
+        )
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+
+        return self._to_entity(model) if model else None
+
+
+    async def get_by_parent_item_id(self, parent_item_id: int) -> Optional[Bom]:
+        """
+        Obtiene un BOM por el ID del ítem padre.
+        """
+        stmt = (
+            select(BomModel)
+            .where(BomModel.parent_item_id == parent_item_id)
+            .options(selectinload(BomModel.lines))
+        )
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+
+        return self._to_entity(model) if model else None
+
+
+    async def get_active_by_parent_item_id(self, parent_item_id: int) -> Optional[Bom]:
+        """
+        Obtiene el BOM activo para un ítem padre.
+        Retorna None si no existe ningún BOM activo.
+        """
+        stmt = (
+            select(BomModel)
+            .where(BomModel.parent_item_id == parent_item_id, BomModel.is_active == True)
             .options(selectinload(BomModel.lines))
         )
         result = await self._session.execute(stmt)
