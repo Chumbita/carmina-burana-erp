@@ -69,24 +69,24 @@ export function SupplyEntryTable({ entries, loading }) {
                     to={`/inventario/ingreso-insumos/${entry.id}`}
                     className="hover:underline"
                   >
-                    {entry.reception_number || `REC-${entry.id}`}
+                    {entry.document_number || `REC-${entry.id}`}
                   </Link>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                  {new Date(entry.entry_date + 'T00:00:00').toLocaleDateString('es-AR')}
+                  {new Date(entry.entry_date).toLocaleDateString('es-AR')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                  {entry.supplier}
+                  {entry.supplier?.name || 'Sin proveedor'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                  {entry.item_count || 0} artículos
+                  {entry.items_count || 0} artículos
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">
-                  ${entry.total_cost?.toFixed(2) || '0.00'}
+                  ${Number(entry.total_cost || 0).toFixed(2)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge variant={entry.status === 'cancelled' ? 'destructive' : 'default'}>
-                    {entry.status === 'cancelled' ? 'Anulada' : 'Activa'}
+                  <Badge variant={entry.status === 'CANCELED' ? 'destructive' : 'default'}>
+                    {entry.status === 'CANCELED' ? 'Anulada' : 'Activa'}
                   </Badge>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">

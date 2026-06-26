@@ -7,10 +7,10 @@ import { FORM_DEFAULT_VALUES } from '../constants/supplyEntry.constants'
 
 // Schema validation
 const supplyItemSchema = z.object({
-  inputId: z.number().min(1, 'Seleccione un insumo'),
+  supplyId: z.number().min(1, 'Seleccione un insumo'),
   quantity: z.number().min(0.01, 'La cantidad debe ser mayor a 0'),
-  unitCost: z.number().min(0, 'El costo unitario debe ser mayor o igual a 0'),
-  expirationDate: z.string().optional(),
+  unitCost: z.number().min(0.01, 'El costo unitario debe ser mayor a 0'),
+  expirationDate: z.string().min(1, 'La fecha de vencimiento es requerida'),
   batchNumber: z.string().optional(),
   comment: z.string().optional(),
 })
@@ -25,16 +25,17 @@ const supplyEntrySchema = z.object({
 
 /**
  * Custom hook for managing supply entry form logic
- * @param {Array} availableInputs - List of available inputs
+ * @param {Array} availableSupplies - List of available supplies
  * @param {Function} onSubmit - Submit callback function
  */
-export function useSupplyEntryForm(availableInputs = [], onSubmit) {
+export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
   const [receptionId, setReceptionId] = useState(null)
 
   const {
+    register,
     handleSubmit,
     control,
     reset,
@@ -59,17 +60,10 @@ export function useSupplyEntryForm(availableInputs = [], onSubmit) {
     return sum + (item.quantity * item.unitCost)
   }, 0)
 
-  // Generate unique reception ID
-  const generateReceptionId = useCallback(() => {
-    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '')
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
-    return `REC-${date}-${random}`
-  }, [])
-
   // Add new item
   const handleAddItem = useCallback(() => {
     append({
-      inputId: 0,
+      supplyId: 0,
       quantity: 1,
       unitCost: 0,
       expirationDate: '',
@@ -91,23 +85,19 @@ export function useSupplyEntryForm(availableInputs = [], onSubmit) {
     setError(null)
 
     try {
-      const newReceptionId = generateReceptionId()
-      
       const submissionData = {
         ...data,
-        receptionId: newReceptionId,
         totalCost,
         items: data.items.map(item => ({
           ...item,
-          inputName: availableInputs.find(input => input.id === item.inputId)?.name,
-          inputUnit: availableInputs.find(input => input.id === item.inputId)?.unit,
+          supplyName: availableSupplies.find(supply => supply.id === item.supplyId)?.name,
+          supplyUnit: availableSupplies.find(supply => supply.id === item.supplyId)?.base_uom_symbol,
           itemTotal: item.quantity * item.unitCost,
         }))
       }
 
       await onSubmit(submissionData)
       
-      setReceptionId(newReceptionId)
       setSuccess(true)
       
       // Reset after success
@@ -134,7 +124,7 @@ export function useSupplyEntryForm(availableInputs = [], onSubmit) {
     } finally {
       setLoading(false)
     }
-  }, [generateReceptionId, totalCost, availableInputs, onSubmit, reset])
+  }, [totalCost, availableSupplies, onSubmit, reset])
 
   // Reset form
   const handleReset = useCallback(() => {
@@ -147,6 +137,7 @@ export function useSupplyEntryForm(availableInputs = [], onSubmit) {
   return {
     // Form state
     control,
+    register,
     fields,
     watchedItems,
     totalCost,
