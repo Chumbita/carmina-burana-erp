@@ -3,7 +3,7 @@
 # ══════════════════════════════════════════════════════════════════════════════
 
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
@@ -18,11 +18,11 @@ class Bom:
     parent_item_id: int
     version: int
     is_active: bool
-    valid_from: date
+    valid_from: datetime
     created_at: datetime
 
     id: Optional[int] = None
-    valid_to: Optional[date] = None
+    valid_to: Optional[datetime] = None
     lines: list["BomLine"] = field(default_factory=list)
 
 
@@ -53,7 +53,6 @@ class BomLine:
 
     component_item_id: int
     quantity: Decimal
-    scrap_factor: Decimal
     created_at: datetime
 
     id: Optional[int] = None
@@ -72,9 +71,3 @@ class BomLine:
 
         if self.quantity is None or self.quantity <= Decimal("0"):
             raise ValueError("quantity must be greater than zero")
-
-        if self.scrap_factor is None or self.scrap_factor < Decimal("0"):
-            raise ValueError("scrap_factor cannot be negative")
-
-        if self.scrap_factor > Decimal("1"):
-            raise ValueError("scrap_factor cannot exceed 1 (100%)")
