@@ -51,6 +51,12 @@ from src.presentation.api.routes.supplier_router import router as supplier_route
 api_router.include_router(supplier_router)
 
 # ======================
+# BOM ROUTER
+# ======================
+from src.presentation.api.routes.bom_router import router as bom_router
+api_router.include_router(bom_router)
+
+# ======================
 # AUDIT LOGS ROUTER
 # ======================
 from src.presentation.api.routes import audit_logs_router
