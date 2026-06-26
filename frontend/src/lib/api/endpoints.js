@@ -23,6 +23,12 @@ export const ENDPOINTS = {
         CREATE: '/inputs-entries/',
         CANCEL: (entry_id) => `/inputs-entries/${entry_id}/cancel`,
     },
+    // Supply Entries
+    SUPPLY_ENTRIES: {
+        GET_ALL: '/supply-entries',
+        GET_BY_ID: (entry_id) => `/supply-entries/${entry_id}`,
+        CREATE: '/supply-entries',
+    },
     // Audit Logs
     AUDIT_LOGS: {
         GET_BY_ENTITY: (entity_type, entity_id) => `/audit-logs/${entity_type}/${entity_id}`,
@@ -39,6 +45,11 @@ export const ENDPOINTS = {
     // Brands
     BRANDS: {
         GET_ALL: '/brands/',
+    },
+    // Suppliers
+    SUPPLIERS: {
+        GET_BY_NAME: (name) => `/suppliers?name=${encodeURIComponent(name)}`,
+        CREATE: '/suppliers',
     },
     // UOM
     UOMS: {
