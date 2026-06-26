@@ -76,7 +76,7 @@ export default function InputEntryPage() {
           }}
           uniqueSuppliers={suppliers}
         />
-        
+
         <Button size="sm" className="cursor-pointer" onClick={() => setOpenModal(true)}>
           <Plus />Nuevo Abastecimiento
         </Button>
@@ -92,7 +92,7 @@ export default function InputEntryPage() {
       {filteredData.totalCount > 0 && (
         <div className="flex justify-center">
           <span className="text-sm text-gray-600">
-            Página {filteredData.currentPage} de {filteredData.totalPages} • 
+            Página {filteredData.currentPage} de {filteredData.totalPages} •
             {filteredData.totalCount} registros totales
           </span>
         </div>
@@ -101,8 +101,8 @@ export default function InputEntryPage() {
       {/* Empty state */}
       {filteredData.totalCount === 0 && (
         <p className="text-center py-8 text-gray-500">
-          {search || dateFrom || dateTo || supplierFilter !== 'all' 
-            ? "No se encontraron abastecimientos" 
+          {search || dateFrom || dateTo || supplierFilter !== 'all'
+            ? "No se encontraron abastecimientos"
             : "No hay abastecimientos registrados"
           }
         </p>
