@@ -1,6 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 
+from src.application.use_cases.supply.read_supply import GetActiveSupplyDetailUseCase, ListActiveSuppliesUseCase
+from src.application.use_cases.supply.delete_supply import DeleteSupplyUseCase
+from src.domain.exceptions.item_exceptions import ItemNotFoundException
+from src.domain.exceptions.supply_exceptions import SupplyHasStockException
 from src.domain.entities.user import User
 from src.domain.exceptions.item_exceptions import ItemNotFoundException
 
@@ -25,6 +29,7 @@ from src.presentation.dependencies.use_cases.supply import (
     get_create_supply_use_case,
     get_list_active_supplies_use_case,
     get_supply_repository,
+    get_delete_supply_use_case,
     get_update_supply_use_case
 )
 from src.presentation.dependencies.auth import get_current_user
@@ -107,6 +112,36 @@ async def create_supply(
         supply_category=supply.supply_category,
     )
 
+
+@router.delete(
+    "/{item_id}",
+    status_code=status.HTTP_200_OK,
+    summary="Eliminar insumo (soft delete)",
+)
+async def delete_supply(
+    item_id: int,
+    use_case: DeleteSupplyUseCase = Depends(get_delete_supply_use_case),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    """
+    Soft delete de un insumo. Marca el item como DELETED.
+    No se puede eliminar si el insumo tiene stock activo.
+    """
+    try:
+        await use_case.execute(item_id)
+        return {"message": "Insumo eliminado correctamente"}
+
+    except SupplyHasStockException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+
+    except ItemNotFoundException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        ) from exc
 @router.patch(
     "/{supply_id}",
     status_code=status.HTTP_200_OK,
