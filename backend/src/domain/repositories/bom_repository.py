@@ -2,7 +2,7 @@
 # INTERFAZ DE BOM
 # ══════════════════════════════════════════════════════════════════════════════
 
-from typing import Protocol, Optional
+from typing import Protocol, Optional, Sequence
 from src.domain.entities.bom import Bom
 
 
@@ -40,5 +40,11 @@ class IBomRepository(Protocol):
         """
         Obtiene el BOM activo para un ítem padre.
         Retorna None si no existe ningún BOM activo.
+        """
+        ...
+
+    async def get_active_boms(self) -> Sequence[dict]:
+        """
+        Obtiene un listado de todos los BOMs activos.
         """
         ...
