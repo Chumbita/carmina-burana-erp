@@ -15,4 +15,5 @@ class BomModel(Base):
     valid_to = Column(TIMESTAMP, nullable=True)
     created_at = Column(TIMESTAMP, nullable=False)
 
+    parent_item = relationship("ItemModel", foreign_keys=[parent_item_id], innerjoin=True)
     lines = relationship("BomLineModel", back_populates="bom", cascade="all, delete-orphan")
