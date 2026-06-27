@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, Sequence
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,6 +8,7 @@ from src.domain.entities.bom import Bom, BomLine
 from src.domain.repositories.bom_repository import IBomRepository
 from src.infrastructure.database.models.bom_model import BomModel
 from src.infrastructure.database.models.bom_line_model import BomLineModel
+from src.infrastructure.database.models.item_model import ItemModel
 
 
 class BomRepository(IBomRepository):
@@ -168,3 +169,47 @@ class BomRepository(IBomRepository):
         model = result.scalar_one_or_none()
 
         return self._to_entity(model) if model else None
+
+
+    async def get_active_boms(self) -> Sequence[dict]:
+        """
+        Obtiene un listado de todos los BOMs activos.
+        """
+        line_count_sub = (
+            select(
+                BomLineModel.bom_id,
+                func.count(BomLineModel.id).label("components_count"),
+            )
+            .group_by(BomLineModel.bom_id)
+            .subquery()
+        )
+
+        stmt = (
+            select(
+                BomModel.id,
+                BomModel.parent_item_id,
+                ItemModel.name.label("parent_item_name"),
+                BomModel.version,
+                func.coalesce(line_count_sub.c.components_count, 0).label("components_count"),
+                BomModel.valid_from,
+            )
+            .join(ItemModel, BomModel.parent_item_id == ItemModel.id)
+            .outerjoin(line_count_sub, BomModel.id == line_count_sub.c.bom_id)
+            .where(BomModel.is_active == True)
+            .order_by(BomModel.valid_from.desc())
+        )
+
+        result = await self._session.execute(stmt)
+        rows = result.all()
+
+        return [
+            {
+                "id": row.id,
+                "parent_item_id": row.parent_item_id,
+                "parent_item_name": row.parent_item_name,
+                "version": row.version,
+                "components_count": row.components_count,
+                "valid_from": row.valid_from,
+            }
+            for row in rows
+        ]
