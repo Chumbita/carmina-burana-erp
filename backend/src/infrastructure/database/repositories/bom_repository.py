@@ -213,3 +213,80 @@ class BomRepository(IBomRepository):
             }
             for row in rows
         ]
+
+
+    async def get_detailed_bom_by_id(self, bom_id: int) -> Optional[dict]:
+        """
+        Obtiene un BOM por su ID con toda la información detallada.
+        """
+        from src.infrastructure.database.models.uom_model import UomModel
+
+        line_count_sub = (
+            select(
+                BomLineModel.bom_id,
+                func.count(BomLineModel.id).label("components_count"),
+            )
+            .where(BomLineModel.bom_id == bom_id)
+            .group_by(BomLineModel.bom_id)
+            .subquery()
+        )
+
+        stmt = (
+            select(
+                BomModel.id,
+                BomModel.parent_item_id,
+                ItemModel.name.label("parent_item_name"),
+                BomModel.version,
+                func.coalesce(line_count_sub.c.components_count, 0).label("components_count"),
+                BomModel.valid_from,
+                BomModel.created_at,
+            )
+            .join(ItemModel, BomModel.parent_item_id == ItemModel.id)
+            .outerjoin(line_count_sub, BomModel.id == line_count_sub.c.bom_id)
+            .where(BomModel.id == bom_id)
+        )
+
+        result = await self._session.execute(stmt)
+        header = result.first()
+
+        if header is None:
+            return None
+
+        lines_stmt = (
+            select(
+                BomLineModel.id,
+                BomLineModel.component_item_id,
+                ItemModel.name.label("component_item_name"),
+                BomLineModel.quantity,
+                BomLineModel.uom.label("uom_id"),
+                UomModel.symbol.label("uom_symbol"),
+            )
+            .join(ItemModel, BomLineModel.component_item_id == ItemModel.id)
+            .outerjoin(UomModel, BomLineModel.uom == UomModel.id)
+            .where(BomLineModel.bom_id == bom_id)
+            .order_by(BomLineModel.id)
+        )
+
+        lines_result = await self._session.execute(lines_stmt)
+        lines_rows = lines_result.all()
+
+        return {
+            "id": header.id,
+            "parent_item_id": header.parent_item_id,
+            "parent_item_name": header.parent_item_name,
+            "version": header.version,
+            "components_count": header.components_count,
+            "valid_from": header.valid_from,
+            "created_at": header.created_at,
+            "lines": [
+                {
+                    "id": line.id,
+                    "component_item_id": line.component_item_id,
+                    "component_item_name": line.component_item_name,
+                    "quantity": line.quantity,
+                    "uom_id": line.uom_id,
+                    "uom_symbol": line.uom_symbol,
+                }
+                for line in lines_rows
+            ],
+        }
