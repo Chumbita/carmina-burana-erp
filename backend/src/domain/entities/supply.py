@@ -38,4 +38,13 @@ class Supply:
 
         if self.supply_category not in SupplyCategory.__members__.values():
             raise ValueError(f"Invalid supply_category: {self.supply_category}")
-        
+
+   # ── Attribute Mutators ────────────────────────────────────────
+
+    def update(self, supply_category: SupplyCategory) -> None:
+
+        self.supply_category = supply_category
+        self.updated_at = datetime.now()
+        self._validate()
+
+            
