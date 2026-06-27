@@ -51,3 +51,29 @@ class BomListItemResponseSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class BomLineDetailSchema(BaseModel):
+    id: Optional[int] = None
+    component_item_id: int
+    component_item_name: str
+    quantity: Decimal
+    uom_id: Optional[int] = None
+    uom_symbol: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class BomDetailResponseSchema(BaseModel):
+    id: int
+    parent_item_id: int
+    parent_item_name: str
+    version: int
+    components_count: int
+    valid_from: datetime
+    created_at: datetime
+    lines: List[BomLineDetailSchema] = []
+
+    class Config:
+        from_attributes = True
