@@ -10,6 +10,7 @@ from src.infrastructure.database.repositories.bom_repository import BomRepositor
 from src.infrastructure.database.repositories.item_repository import ItemRepository
 
 from src.application.use_cases.bom.create_bom_use_case import CreateBomUseCase
+from src.application.use_cases.bom.list_active_boms_use_case import ListActiveBomsUseCase
 
 
 def get_create_bom_use_case(
@@ -21,3 +22,13 @@ def get_create_bom_use_case(
     bom_repository = BomRepository(session)
     item_repository = ItemRepository(session)
     return CreateBomUseCase(bom_repository, item_repository)
+
+
+def get_list_active_boms_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> ListActiveBomsUseCase:
+    """
+    Fábrica que instancia ListActiveBomsUseCase con el repositorio de BOM.
+    """
+    bom_repository = BomRepository(session)
+    return ListActiveBomsUseCase(bom_repository)
