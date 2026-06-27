@@ -48,3 +48,9 @@ class IBomRepository(Protocol):
         Obtiene un listado de todos los BOMs activos.
         """
         ...
+
+    async def get_detailed_bom_by_id(self, bom_id: int) -> Optional[dict]:
+        """
+        Obtiene un BOM por su ID con toda la información detallada.
+        """
+        ...
