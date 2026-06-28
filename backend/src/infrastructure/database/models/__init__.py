@@ -12,10 +12,12 @@ from .inventory_balance_model import InventoryBalanceModel
 from .inventory_transaction_model import InventoryTransactionModel
 from .bom_model import BomModel
 from .bom_line_model import BomLineModel
+from .beer_model import BeerModel
 
 __all__ = [
     "UserModel", "ItemModel", "ItemTypeModel", "BrandModel", "UomModel", "SupplyModel",
     "SupplierModel", "SupplyEntryOrderModel", "SupplyEntryLineModel",
     "InventoryLotModel", "InventoryBalanceModel", "InventoryTransactionModel",
     "BomModel", "BomLineModel",
+    "BeerModel",
 ]
