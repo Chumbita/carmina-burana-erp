@@ -1,7 +1,7 @@
 """add beer table
 
 Revision ID: 3609a3e64564
-Revises: 66e5fa4ecd7c
+Revises: 35312fa99b28
 Create Date: 2026-06-27 19:24:31.739610
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '3609a3e64564'
-down_revision: Union[str, Sequence[str], None] = '66e5fa4ecd7c'
+down_revision: Union[str, Sequence[str], None] = '35312fa99b28'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
