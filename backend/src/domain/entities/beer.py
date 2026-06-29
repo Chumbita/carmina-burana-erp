@@ -5,6 +5,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
+from ..value_objects.beer_style import BeerStyle
 
 @dataclass
 class Beer:
@@ -14,7 +15,7 @@ class Beer:
     """
 
     # Atributos esenciales
-    style:              str
+    style:              BeerStyle
     abv:                float   
     ibu:                int     
     fermentation_days:  int     
@@ -30,8 +31,8 @@ class Beer:
 
     def _validate(self):
         
-        if not self.style or not self.style.strip():
-            raise ValueError("style is required")
+        if not self.style or not isinstance(self.style, BeerStyle):
+            raise ValueError("style is required and must be a valid BeerStyle")
 
         if self.abv is None or self.abv < 0:
             raise ValueError("abv cannot be negative")
