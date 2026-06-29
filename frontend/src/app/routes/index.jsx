@@ -14,12 +14,12 @@ const DashboardPage = lazy(
 );
 
 //insumos pages
-const SuppliesPage = lazy(() =>
-  import("@/features/Inventario/gestion_insumos/pages/SuppliesPage")
+const SuppliesPage = lazy(
+  () => import("@/features/Inventario/gestion_insumos/pages/SuppliesPage"),
 );
 
-const SupplyDetailPage = lazy(() =>
-  import('@/features/Inventario/gestion_insumos/pages/SupplyDetailPage')
+const SupplyDetailPage = lazy(
+  () => import("@/features/Inventario/gestion_insumos/pages/SupplyDetailPage"),
 );
 
 const PackagingSupplyDetailPage = lazy(() =>
@@ -30,10 +30,15 @@ const SupplyEntryPage = lazy(() =>
   import('@/features/Inventario/supply-entry/pages/SupplyEntryPage')
 );
 
-const SupplyEntryDetailPage = lazy(() =>
-  import('@/features/Inventario/supply-entry/pages/SupplyEntryDetailPage')
+// production pages
+const CookingsPage = lazy(
+  () => import("@/features/production/cookings/pages/CookingsPage"),
 );
 
+const SupplyEntryDetailPage = lazy(
+  () =>
+    import("@/features/Inventario/supply-entry/pages/SupplyEntryDetailPage"),
+);
 
 // BOM pages
 const BomsPage = lazy(() =>
@@ -48,7 +53,9 @@ const BomDetailPage = lazy(() =>
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));
 
 // User pages
-const UserSettingsPage = lazy(() => import("@/features/user/pages/UserSettingsPage"));
+const UserSettingsPage = lazy(
+  () => import("@/features/user/pages/UserSettingsPage"),
+);
 
 // Error pages
 const NotFoundPage = lazy(() => import("@/features/errors/pages/NotFoundPage"));
@@ -70,9 +77,9 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "user/settings",
-            element: <UserSettingsPage />
-          }
-        ]
+            element: <UserSettingsPage />,
+          },
+        ],
       },
       {
         path: "/produccion/bom",
@@ -101,6 +108,10 @@ export const router = createBrowserRouter([
       {
         path: "/inventario/ingreso-insumos/:entryId",
         element: <SupplyEntryDetailPage />,
+      },
+      {
+        path: "/produccion/cocciones/nuevo",
+        element: <CookingsPage />,
       },
     ],
   },
