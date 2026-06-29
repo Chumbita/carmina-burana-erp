@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional
 from decimal import Decimal
 from src.domain.value_objects.item_status_enums import ItemStatus
+from src.domain.value_objects.beer_style import BeerStyle
 
 
 # ── REQUESTS ────────────────────────────────────────────────
@@ -14,7 +15,7 @@ class CreateBeerRequestSchema(BaseModel):
     min_stock_level: Decimal = Field(..., ge=0)
     
     # Beer específico
-    style: str = Field(..., min_length=1, max_length=255)
+    style: BeerStyle = Field(...)
     abv: float = Field(..., ge=0, le=100)
     ibu: int = Field(..., ge=0)
     fermentation_days: int = Field(..., gt=0)
@@ -23,7 +24,7 @@ class CreateBeerRequestSchema(BaseModel):
 
 class UpdateBeerRequestSchema(BaseModel):
     """Schema para actualizar datos de cerveza (no item base)."""
-    style: Optional[str] = Field(None, min_length=1, max_length=255)
+    style: Optional[BeerStyle] = None
     abv: Optional[float] = Field(None, ge=0, le=100)
     ibu: Optional[int] = Field(None, ge=0)
     fermentation_days: Optional[int] = Field(None, gt=0)
@@ -52,7 +53,7 @@ class BeerResponseSchema(BaseModel):
     deleted_at: Optional[datetime]
     
     # Datos específicos de Beer
-    style: str
+    style: BeerStyle
     abv: float
     ibu: int
     fermentation_days: int
@@ -69,7 +70,7 @@ class BeerListResponseSchema(BaseModel):
     id: int
     name: str
     brand_id: int
-    style: str
+    style: BeerStyle
     abv: float
     ibu: int
     status: ItemStatus
