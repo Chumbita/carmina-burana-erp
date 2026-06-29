@@ -13,33 +13,36 @@ const DashboardPage = lazy(
   () => import("@/features/dashboard/pages/DashboardPage"),
 );
 
-
-
-
-
 //insumos pages
-const SuppliesPage = lazy(() =>
-  import("@/features/Inventario/gestion_insumos/pages/SuppliesPage")
+const SuppliesPage = lazy(
+  () => import("@/features/Inventario/gestion_insumos/pages/SuppliesPage"),
 );
 
-const SupplyDetailPage = lazy(() =>
-  import('@/features/Inventario/gestion_insumos/pages/SupplyDetailPage')
+const SupplyDetailPage = lazy(
+  () => import("@/features/Inventario/gestion_insumos/pages/SupplyDetailPage"),
 );
 
-const InputEntryPage = lazy(() =>
-  import('@/features/Inventario/supply-entry/pages/InputEntryPage')
+const InputEntryPage = lazy(
+  () => import("@/features/Inventario/supply-entry/pages/InputEntryPage"),
 );
 
-const SupplyEntryDetailPage = lazy(() =>
-  import('@/features/Inventario/supply-entry/pages/SupplyEntryDetailPage')
+// production pages
+const CookingsPage = lazy(
+  () => import("@/features/production/cookings/pages/CookingsPage"),
 );
 
+const SupplyEntryDetailPage = lazy(
+  () =>
+    import("@/features/Inventario/supply-entry/pages/SupplyEntryDetailPage"),
+);
 
 // Auth pages
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));
 
 // User pages
-const UserSettingsPage = lazy(() => import("@/features/user/pages/UserSettingsPage"));
+const UserSettingsPage = lazy(
+  () => import("@/features/user/pages/UserSettingsPage"),
+);
 
 // Error pages
 const NotFoundPage = lazy(() => import("@/features/errors/pages/NotFoundPage"));
@@ -61,9 +64,9 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "user/settings",
-            element: <UserSettingsPage />
-          }
-        ]
+            element: <UserSettingsPage />,
+          },
+        ],
       },
       {
         path: "/inventario/insumos",
@@ -80,6 +83,10 @@ export const router = createBrowserRouter([
       {
         path: "/inventario/ingreso-insumos/:entryId",
         element: <SupplyEntryDetailPage />,
+      },
+      {
+        path: "/produccion/cocciones/nuevo",
+        element: <CookingsPage />,
       },
     ],
   },
