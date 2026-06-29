@@ -8,6 +8,7 @@ from decimal import Decimal
 from typing import Optional
 
 from src.domain.value_objects.item_status_enums import ItemStatus
+from src.domain.value_objects.beer_style import BeerStyle
 
 
 # --- Create Beer Command ────────────────────────────────────────────
@@ -57,7 +58,7 @@ class BeerResponse:
     deleted_at: Optional[datetime]
     
     # Beer específico
-    style: str
+    style: BeerStyle
     abv: float
     ibu: int
     fermentation_days: int
