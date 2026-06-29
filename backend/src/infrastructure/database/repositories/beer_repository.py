@@ -10,6 +10,7 @@ from sqlalchemy import select
 from src.domain.entities.beer import Beer
 from src.domain.repositories.beer_repository import IBeerRepository
 from src.infrastructure.database.models.beer_model import BeerModel
+from src.domain.value_objects.beer_style import BeerStyle
 
 
 class BeerRepository(IBeerRepository):
@@ -23,7 +24,7 @@ class BeerRepository(IBeerRepository):
     def _to_entity(model: BeerModel) -> Beer:
         return Beer(
             item_id=model.item_id,
-            style=model.style,
+            style=BeerStyle(model.style),
             abv=model.abv,                  # asdecimal=False -> ya es float
             ibu=model.ibu,
             fermentation_days=model.fermentation_days,
@@ -36,7 +37,7 @@ class BeerRepository(IBeerRepository):
     def _to_model(entity: Beer) -> BeerModel:
         return BeerModel(
             item_id=entity.item_id,
-            style=entity.style,
+            style=entity.style.value,
             abv=entity.abv,
             ibu=entity.ibu,
             fermentation_days=entity.fermentation_days,
