@@ -26,9 +26,9 @@ const InputEntryPage = lazy(
   () => import("@/features/Inventario/supply-entry/pages/InputEntryPage"),
 );
 
-// production pages
-const CookingsPage = lazy(
-  () => import("@/features/production/cookings/pages/CookingsPage"),
+// beer pages
+const BeerPage = lazy(
+  () => import("@/features/Inventario/beer/pages/BeerPage"),
 );
 
 const SupplyEntryDetailPage = lazy(
@@ -85,8 +85,8 @@ export const router = createBrowserRouter([
         element: <SupplyEntryDetailPage />,
       },
       {
-        path: "/produccion/cocciones/nuevo",
-        element: <CookingsPage />,
+        path: "/inventario/cervezas",
+        element: <BeerPage />,
       },
     ],
   },

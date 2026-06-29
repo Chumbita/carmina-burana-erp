@@ -90,6 +90,10 @@ export function AppSidebar({ ...props }) {
             title: "Alertas de Stock",
             url: "/inventario/alertas",
           },
+          {
+            title: "Cervezas",
+            url: "/inventario/cervezas",
+          },
         ],
       },
       {
