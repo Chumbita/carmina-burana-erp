@@ -57,5 +57,9 @@ export const ENDPOINTS = {
     // ITEMS
     ITEMS: {
       GET_OPTIONS: '/items/options',
-    }
+    },
+    // Beers
+    BEERS: {
+      CREATE: "/beers",
+  },
 }
