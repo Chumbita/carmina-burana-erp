@@ -18,6 +18,8 @@ class CreateBomLineRequestSchema(BaseModel):
 
 class CreateBomRequestSchema(BaseModel):
     parent_item_id: int
+    quantity: Decimal = Field(..., gt=0)
+    uom_id: int
     valid_from: Optional[datetime] = None
     lines: List[CreateBomLineRequestSchema] = Field(..., min_length=1)
 
@@ -30,6 +32,9 @@ class BomCreatedResponseSchema(BaseModel):
     parent_item_name: str
     version: int
     components_count: int
+    quantity: Decimal
+    uom_id: int
+    uom_symbol: str
     valid_from: datetime
 
     class Config:
