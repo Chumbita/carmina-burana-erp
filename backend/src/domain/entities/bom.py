@@ -18,6 +18,8 @@ class Bom:
     parent_item_id: int
     version: int
     is_active: bool
+    quantity: Decimal
+    uom_id: int
     valid_from: datetime
     created_at: datetime
 
@@ -43,6 +45,12 @@ class Bom:
 
         if self.valid_to is not None and self.valid_to < self.valid_from:
             raise ValueError("valid_to cannot be earlier than valid_from")
+
+        if self.quantity is None or self.quantity <= Decimal("0"):
+            raise ValueError("quantity must be greater than zero")
+
+        if self.uom_id is None:
+            raise ValueError("uom_id is required")
 
 
 @dataclass
