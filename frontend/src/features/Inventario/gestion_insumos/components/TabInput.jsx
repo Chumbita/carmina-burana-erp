@@ -1,4 +1,4 @@
-//componentes 
+//componentes
 import { SupplyForm } from "./SupplyForm"
 import { ConfirmNavigationModal } from "./ConfirmNavigationModal"
 
@@ -16,131 +16,135 @@ import {
 //hooks
 import { useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { useInputs } from "../hooks/useInputs"
+import { useSupplies } from "../hooks/useSupplies"
+import { useBrands } from "../hooks/useBrands"
+import { useUoms } from "../hooks/useUoms"
 import { useNotification } from "@/components/shared/notifications/useNotification"
-import { useFormBlocker } from "../hooks/useFormBlocker";
-import { useEntityDetail } from "@/components/shared/DetailPage/EntityDetailContext";
+import { useFormBlocker } from "../hooks/useFormBlocker"
+import { useEntityDetail } from "@/components/shared/DetailPage/EntityDetailContext"
 
 export function TabInput({ insumo }) {
   const formRef = useRef(null)
   const navigate = useNavigate()
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const { blocker } = useFormBlocker(formRef)
+  const { handleUpdated } = useEntityDetail()
 
-  const { handleUpdated } = useEntityDetail();
-
-  const {
-    updateInput,
-    deleteInput,
-    loading,
-    error,
-    inputs
-  } = useInputs()
+  const { updateSupply, deleteSupply, loading, supplies } = useSupplies()
+  const { brands, loading: brandsLoading } = useBrands()
+  const { uoms, loading: uomsLoading } = useUoms()
 
   const notify = useNotification()
 
-//editar insumo
-async function onSubmit(data) {
-  try {
-    await updateInput(insumo.id, data)
-    notify.success(`Insumo actualizado correctamente`)
+  // Resolver IDs a partir de los strings que devuelve el GET detallado
+  const resolvedBrandId = brands.find((b) => b.name === insumo?.brand)?.id
+  const resolvedUomId = uoms.find((u) => u.symbol === insumo?.base_uom_symbol)?.id
 
-    if (formRef.current?.reset) {
-      formRef.current.reset({
-        name: data.name,
-        brand: data.brand,
-        category: data.category,
-        unit: data.unit,
-        minimum_stock: data.minimum_stock,
-        image: data.image,
-      }, {
-        keepDirty: false,
-        keepDirtyValues: false,
-      })
+  // No montar el form hasta tener todos los datos (evita que useForm capture IDs undefined)
+  const isReady = insumo && !brandsLoading && !uomsLoading && resolvedBrandId && resolvedUomId
+
+  const defaultValues = isReady
+    ? {
+        name: insumo.name,
+        brand_id: resolvedBrandId,
+        supply_category: insumo.supply_category,
+        base_uom_id: resolvedUomId,
+        min_stock_level: Number(insumo.min_stock_level),
+      }
+    : null
+
+  // Editar insumo
+  async function onSubmit(data) {
+    try {
+      await updateSupply(insumo.id, data)
+      notify.success("Insumo actualizado correctamente")
+
+      if (formRef.current?.reset) {
+        formRef.current.reset(
+          {
+            name: data.name,
+            brand_id: data.brand_id,
+            supply_category: data.supply_category,
+            base_uom_id: data.base_uom_id,
+            min_stock_level: data.min_stock_level,
+          },
+          { keepDirty: false, keepDirtyValues: false }
+        )
+      }
+
+      if (handleUpdated) handleUpdated()
+
+      return true
+    } catch (error) {
+      console.error(error)
+      notify.error(`Error al actualizar el insumo: ${error}`)
+      return false
     }
-    
-    // Notificar que el insumo fue actualizado para refrescar el historial
-    if (handleUpdated) {
-      handleUpdated();
-    }
-    
-    return true
-  } catch (error) {
-    console.error(error)
-      notify.error(`Error al actualizar el insumo ${error}`)
-    return false
   }
-}
 
-//borrar insumo
+  // Borrar insumo
   function onDelete() {
     setOpenDeleteDialog(true)
   }
 
   const handleConfirmDelete = async () => {
     try {
-      await deleteInput(insumo.id)
-      setOpenDeleteDialog(false) 
-      navigate("/inventario/insumos", { 
-        state: { 
-          notification: { type: 'success', message: `${insumo.name} eliminado con éxito` } 
-        } 
+      await deleteSupply(insumo.id)
+      setOpenDeleteDialog(false)
+      navigate("/inventario/insumos", {
+        state: {
+          notification: { type: "success", message: `${insumo.name} eliminado con éxito` },
+        },
       })
-    }catch (error) {
-      notify.error(`Ha ocurrido un problema ${error}`)
+    } catch (error) {
+      notify.error(`Ha ocurrido un problema: ${error}`)
     }
   }
+
+  if (!isReady) return null
 
   return (
     <>
       <SupplyForm
         formRef={formRef}
-        defaultValues={{
-          name: insumo.name,
-          brand: insumo.brand,
-          category: insumo.category,
-          unit: insumo.unit,
-          minimum_stock: insumo.minimum_stock,
-          image: insumo.image,
-        }}
+        defaultValues={defaultValues}
         onSubmit={onSubmit}
         submitLabel="Guardar cambios"
         showDeleteButton={true}
         onDelete={onDelete}
         layout="page"
-        existingInputs={inputs} // Para validación de nombre único
-        excludeId={insumo.id} // Excluir el insumo actual de la validación
+        existingInputs={supplies}
+        excludeId={insumo.id}
       />
 
-      {/* confirm navegación */}
-     {blocker.state === "blocked" && (
-    <ConfirmNavigationModal
-      onSave={async () => {
-        const success = await formRef.current?.submit()  
-        blocker.proceed()
-        navigate("/inventario/insumos", { 
-        state: { 
-          notification: { type: 'success', message: `${insumo.name} actualizado con éxito` } 
-        } 
-      })
-      }}
-      onDiscard={() => {
-        // Resetear a los valores originales
-        formRef.current?.reset({
-          name: insumo.name,
-          brand: insumo.brand,
-          category: insumo.category,
-          unit: insumo.unit,
-          minimum_stock: insumo.minimum_stock,
-          image: insumo.image,
-        })
-        blocker.proceed()
-      }}
-      onCancel={() => blocker.reset()}
-    />
-  )}
-      {/* dialog delete */}
-      <DeleteInsumoDialog
+      {/* Confirmación de navegación con cambios sin guardar */}
+      {blocker.state === "blocked" && (
+        <ConfirmNavigationModal
+          onSave={async () => {
+            await formRef.current?.submit()
+            blocker.proceed()
+            navigate("/inventario/insumos", {
+              state: {
+                notification: { type: "success", message: `${insumo.name} actualizado con éxito` },
+              },
+            })
+          }}
+          onDiscard={() => {
+            formRef.current?.reset({
+              name: insumo.name,
+              brand_id: resolvedBrandId,
+              supply_category: insumo.supply_category,
+              base_uom_id: resolvedUomId,
+              min_stock_level: Number(insumo.min_stock_level),
+            })
+            blocker.proceed()
+          }}
+          onCancel={() => blocker.reset()}
+        />
+      )}
+
+      {/* Diálogo de confirmación de borrado */}
+      <DeleteSupplyDialog
         open={openDeleteDialog}
         onOpenChange={setOpenDeleteDialog}
         onConfirm={handleConfirmDelete}
@@ -150,19 +154,15 @@ async function onSubmit(data) {
   )
 }
 
-function DeleteInsumoDialog({
-  open,
-  onOpenChange,
-  onConfirm,
-  isDeleting,
-}) {
+function DeleteSupplyDialog({ open, onOpenChange, onConfirm, isDeleting }) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>¿Eliminar insumo?</AlertDialogTitle>
           <AlertDialogDescription>
-            Esta acción no se puede deshacer. El insumo será eliminado permanentemente. Para borrar el insumo, primero debes eliminar todos los lotes asociados.
+            Esta acción no se puede deshacer. El insumo será eliminado permanentemente. Para borrar
+            el insumo, primero debes eliminar todos los lotes asociados.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
