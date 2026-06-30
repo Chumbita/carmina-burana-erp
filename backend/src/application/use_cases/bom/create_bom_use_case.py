@@ -9,6 +9,7 @@ from src.application.dtos.bom.bom_responses_dtos import BomCreatedResponse
 from src.domain.entities.bom import Bom, BomLine
 from src.domain.repositories.bom_repository import IBomRepository
 from src.domain.repositories.item_repository import IItemRepostory
+from src.domain.repositories.uom_repository import IUomRepository
 from src.domain.exceptions.bom_exceptions import BomCreationException, BomNotFoundException
 from src.domain.exceptions.item_exceptions import ItemNotFoundException
 
@@ -22,9 +23,11 @@ class CreateBomUseCase:
         self,
         bom_repository: IBomRepository,
         item_repository: IItemRepostory,
+        uom_repository: IUomRepository,
     ) -> None:
         self._bom_repository = bom_repository
         self._item_repository = item_repository
+        self._uom_repository = uom_repository
 
     async def execute(self, command: CreateBomCommand) -> BomCreatedResponse:
         try:
@@ -49,6 +52,8 @@ class CreateBomUseCase:
                 parent_item_id=command.parent_item_id,
                 version=new_version,
                 is_active=True,
+                quantity=command.quantity,
+                uom_id=command.uom_id,
                 valid_from=command.valid_from or now,
                 valid_to=None,
                 created_at=now,
@@ -71,13 +76,20 @@ class CreateBomUseCase:
             if parent_item is None:
                 raise ItemNotFoundException(command.parent_item_id)
 
-            # Paso 7: Retornar respuesta ligera para el listado
+            # Paso 7: Obtener símbolo de la UOM
+            uom = await self._uom_repository.get_by_id(command.uom_id)
+            uom_symbol = uom.symbol if uom else ""
+
+            # Paso 8: Retornar respuesta ligera para el listado
             return BomCreatedResponse(
                 id=bom.id,
                 parent_item_id=bom.parent_item_id,
                 parent_item_name=parent_item.name,
                 version=bom.version,
                 components_count=len(bom.lines),
+                quantity=bom.quantity,
+                uom_id=bom.uom_id,
+                uom_symbol=uom_symbol,
                 valid_from=bom.valid_from,
             )
 
