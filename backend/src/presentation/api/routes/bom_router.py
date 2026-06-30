@@ -38,6 +38,8 @@ async def create_bom(
     """
     command = CreateBomCommand(
         parent_item_id=body.parent_item_id,
+        quantity=body.quantity,
+        uom_id=body.uom_id,
         valid_from=body.valid_from,
         lines=[
             CreateBomLineData(
