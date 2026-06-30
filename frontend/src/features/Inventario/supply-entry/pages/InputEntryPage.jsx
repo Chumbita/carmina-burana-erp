@@ -12,7 +12,7 @@ import { SupplyEntryTable } from '../components/SupplyEntryTable'
 // Hooks
 import { useSupplyEntryForm } from '../hooks/useSupplyEntryForm'
 import { useSupplyEntryPage } from '../hooks/useSupplyEntryPage'
-import { useInputs } from '../../gestion_insumos/hooks/useInputs'
+import { useSupplies } from '../../gestion_insumos/hooks/useSupplies'
 
 /**
  * InputEntryPage - Main page for supply entry management
@@ -46,8 +46,8 @@ export default function InputEntryPage() {
   } = useSupplyEntryPage()
 
   // Form hook for modal
-  const { inputs } = useInputs()
-  const formHook = useSupplyEntryForm(inputs, handleCreateSupplyEntry)
+  const { supplies } = useSupplies()
+  const formHook = useSupplyEntryForm(supplies, handleCreateSupplyEntry)
 
   if (loading) return <div className="flex items-center justify-center h-64"><Spinner /></div>
 
@@ -117,7 +117,7 @@ export default function InputEntryPage() {
 
           <SupplyEntryForm
             formHook={formHook}
-            availableInputs={inputs}
+            availableSupplies={supplies}
             layout="modal"
             onCancel={() => setOpenModal(false)}
             isSubmitting={formHook.loading}

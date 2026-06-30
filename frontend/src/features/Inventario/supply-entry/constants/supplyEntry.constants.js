@@ -24,7 +24,7 @@ export const FORM_DEFAULT_VALUES = {
   description: '',
   items: [
     {
-      inputId: 0,
+      supplyId: 0,
       quantity: 1,
       unitCost: 0,
       expirationDate: '',

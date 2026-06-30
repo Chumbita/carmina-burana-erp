@@ -7,6 +7,7 @@ from src.domain.exceptions.item_exceptions import ItemNotFoundException
 from src.domain.exceptions.supply_exceptions import SupplyHasStockException
 from src.domain.entities.user import User
 from src.domain.exceptions.item_exceptions import ItemNotFoundException
+from src.domain.exceptions.supply_exceptions import SupplyHasStockException
 
 from src.infrastructure.database.repositories.supply_repository import SupplyRepository
 
@@ -14,6 +15,7 @@ from src.application.dtos.items.item_commands_dtos import CreateItemCommand
 from src.application.dtos.items.item_commands_dtos import UpdateItemCommand
 
 from src.application.use_cases.supply.read_supply import GetActiveSupplyDetailUseCase, ListActiveSuppliesUseCase
+from src.application.use_cases.supply.delete_supply import DeleteSupplyUseCase
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
 from src.application.use_cases.supply.update_supply import UpdateSupplyUseCase
 
@@ -89,10 +91,10 @@ async def create_supply(
             "supply_category": body.supply_category.value,
         },
     )
-    
+
     item_result = await use_case.execute(command)
     supply = await supply_repository.get_by_item_id(item_result.id)
-    
+
     return SupplyResponseSchema(
         id=item_result.id,
         name=item_result.name,
