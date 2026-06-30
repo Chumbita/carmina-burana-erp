@@ -254,10 +254,10 @@ export function SupplyEntryForm({
                       <Input
                         type="number"
                         step="0.01"
-                        min="0.01"
+                        min="0"
                         placeholder="0.00"
                         className="h-9 text-sm"
-                        {...register(`items.${index}.unitCost`, { valueAsNumber: true })}
+                        {...control.register(`items.${index}.unitCost`, { valueAsNumber: true })}
                       />
                     </div>
 
