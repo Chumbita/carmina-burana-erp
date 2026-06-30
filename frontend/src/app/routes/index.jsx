@@ -35,6 +35,11 @@ const SupplyEntryDetailPage = lazy(() =>
 );
 
 
+// BOM pages
+const BomsPage = lazy(() =>
+  import('@/features/produccion/bom/pages/BomsPage')
+)
+
 // Auth pages
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));
 
@@ -64,6 +69,10 @@ export const router = createBrowserRouter([
             element: <UserSettingsPage />
           }
         ]
+      },
+      {
+        path: "/produccion/bom",
+        element: <BomsPage />,
       },
       {
         path: "/inventario/insumos",
