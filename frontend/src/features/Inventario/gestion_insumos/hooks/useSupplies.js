@@ -24,8 +24,29 @@ export function useSupplies() {
   async function createSupply(supplyData) {
     try {
       const newSupply = await supplyService.create(supplyData)
-      await getSupplies() // refresca desde GET /supplies con los campos legibles
+      await getSupplies()
       return newSupply
+    } catch (err) {
+      setError(err)
+      throw err
+    }
+  }
+
+  async function updateSupply(id, data) {
+    try {
+      const updated = await supplyService.patch(id, data)
+      await getSupplies()
+      return updated
+    } catch (err) {
+      setError(err)
+      throw err
+    }
+  }
+
+  async function deleteSupply(id) {
+    try {
+      await supplyService.delete(id)
+      await getSupplies()
     } catch (err) {
       setError(err)
       throw err
@@ -38,5 +59,7 @@ export function useSupplies() {
     error,
     getSupplies,
     createSupply,
+    updateSupply,
+    deleteSupply,
   }
 }
