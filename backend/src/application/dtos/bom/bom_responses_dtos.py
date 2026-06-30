@@ -4,6 +4,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime
+from decimal import Decimal
 from typing import Optional
 
 from src.domain.entities.bom import Bom
@@ -20,4 +21,7 @@ class BomCreatedResponse:
     parent_item_name: str
     version: int
     components_count: int
+    quantity: Decimal
+    uom_id: int
+    uom_symbol: str
     valid_from: datetime
