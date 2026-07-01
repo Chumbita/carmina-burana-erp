@@ -48,6 +48,7 @@ class SupplyEntryDetailResponse:
     description: Optional[str] = None
     status: Optional[SupplyEntryStatus] = None
     created_at: Optional[datetime] = None
+    canceled_at: Optional[datetime] = None
     lines: list[SupplyEntryDetailLineResponse] = field(default_factory=list)
 
     @property
@@ -74,6 +75,7 @@ class SupplyEntryListItemResponse:
     description: Optional[str] = None
     status: Optional[SupplyEntryStatus] = None
     created_at: Optional[datetime] = None
+    canceled_at: Optional[datetime] = None
     items_count: int = 0
     total_cost: Decimal = Decimal("0")
 

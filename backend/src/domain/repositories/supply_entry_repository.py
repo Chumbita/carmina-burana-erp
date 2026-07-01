@@ -49,6 +49,7 @@ class SupplyEntryDetailData:
     description: Optional[str] = None
     status: Optional[str] = None
     created_at: Optional[datetime] = None
+    canceled_at: Optional[datetime] = None
     lines: list[SupplyEntryLineDetailData] = field(default_factory=list)
 
 
@@ -66,5 +67,6 @@ class SupplyEntryListItemData:
     description: Optional[str] = None
     status: Optional[str] = None
     created_at: Optional[datetime] = None
+    canceled_at: Optional[datetime] = None
     items_count: int = 0
     total_cost: Decimal = Decimal("0")

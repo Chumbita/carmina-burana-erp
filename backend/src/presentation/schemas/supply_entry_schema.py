@@ -61,6 +61,7 @@ class SupplyEntryDetailResponse(BaseModel):
     description: Optional[str] = None
     status: SupplyEntryStatus
     created_at: datetime
+    canceled_at: Optional[datetime] = None
     total_cost: Decimal
     lines: list[SupplyEntryDetailLineResponse]
 
@@ -83,6 +84,7 @@ class SupplyEntryListItemResponse(BaseModel):
     description: Optional[str] = None
     status: SupplyEntryStatus
     created_at: datetime
+    canceled_at: Optional[datetime] = None
     items_count: int
     total_cost: Decimal
 

@@ -34,6 +34,7 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             description=model.description,
             status=SupplyEntryStatus(model.status),
             created_at=model.created_at,
+            canceled_at=model.canceled_at,
         )
 
     @staticmethod
@@ -45,6 +46,7 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             description=entity.description,
             status=entity.status.value,
             created_at=entity.created_at,
+            canceled_at=entity.canceled_at,
         )
 
     @staticmethod
@@ -147,6 +149,7 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             description=order_model.description,
             status=order_model.status,
             created_at=order_model.created_at,
+            canceled_at=order_model.canceled_at,
             lines=lines,
         )
 
@@ -185,6 +188,7 @@ class SupplyEntryRepository(ISupplyEntryRepository):
                 description=order_model.description,
                 status=order_model.status,
                 created_at=order_model.created_at,
+                canceled_at=order_model.canceled_at,
                 items_count=items_count or 0,
                 total_cost=total_cost or Decimal("0"),
             )

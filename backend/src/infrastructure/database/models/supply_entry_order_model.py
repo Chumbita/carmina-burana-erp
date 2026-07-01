@@ -12,3 +12,4 @@ class SupplyEntryOrderModel(Base):
     description = Column(Text, nullable=True)
     status = Column(String(20), nullable=False)
     created_at = Column(TIMESTAMP, nullable=False)
+    canceled_at = Column(TIMESTAMP, nullable=True)
