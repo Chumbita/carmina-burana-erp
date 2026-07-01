@@ -1,6 +1,7 @@
 from typing import Optional
+from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, update
 
 from src.domain.entities.supply_entry import SupplyEntryOrder, SupplyEntryLine
 from src.domain.value_objects.supply_entry_status import SupplyEntryStatus
@@ -85,6 +86,21 @@ class SupplyEntryRepository(ISupplyEntryRepository):
     async def add_line(self, line: SupplyEntryLine, supply_entry_id: int) -> None:
         model = self._line_to_model(line, supply_entry_id)
         self._session.add(model)
+        await self._session.flush()
+
+    async def set_cancelled(
+        self, order_id: int, canceled_at: datetime, reason: Optional[str] = None
+    ) -> None:
+        stmt = (
+            update(SupplyEntryOrderModel)
+            .where(SupplyEntryOrderModel.id == order_id)
+            .values(
+                status=SupplyEntryStatus.CANCELED.value,
+                canceled_at=canceled_at,
+                description=reason,
+            )
+        )
+        await self._session.execute(stmt)
         await self._session.flush()
 
     # ── Queries ──────────────────────────────────────────────────

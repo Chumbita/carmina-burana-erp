@@ -20,6 +20,11 @@ class ISupplyEntryRepository(Protocol):
     async def find_all(self) -> list["SupplyEntryListItemData"]:
         ...
 
+    async def set_cancelled(
+        self, order_id: int, canceled_at: datetime, reason: Optional[str] = None
+    ) -> None:
+        ...
+
 
 # ═══════════════════════════════════════════════════
 # Raw query result types  —  devueltos por find_by_id
