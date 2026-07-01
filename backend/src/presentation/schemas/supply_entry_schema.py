@@ -25,6 +25,12 @@ class CreateSupplyEntryRequest(BaseModel):
     lines: list[SupplyEntryLineRequest] = Field(..., min_length=1)
 
 
+# ── Cancel Request ─────────────────────────────────────────────────────
+
+class CancelSupplyEntryRequest(BaseModel):
+    reason: Optional[str] = None
+
+
 # ── Detail Response (GET /supply-entries/{id}) & (POST /supply_entries)───────
 
 class SupplierRef(BaseModel):
