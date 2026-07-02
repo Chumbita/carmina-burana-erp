@@ -2,11 +2,16 @@
 # REPOSITORIO DE LOTES
 # ══════════════════════════════════════════════════════════════════════════════
 
+from datetime import datetime, timezone
+from decimal import Decimal
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import and_, or_, select, update
 
 from src.domain.entities.inventory_lot import InventoryLot
+from src.domain.repositories.inventory_lot_repository import ItemLots
+from src.domain.value_objects.lot_status import LotStatus
+from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
 from src.infrastructure.database.models.inventory_lot_model import InventoryLotModel
 
 class InventoryLotRepository():
@@ -79,6 +84,63 @@ class InventoryLotRepository():
         if result is None:
             return None
         return self._to_entity(result)
+
+
+    async def find_by_item_id(
+        self,
+        item_id: int,
+        status: set[LotStatus] | None = None,
+    ) -> list[ItemLots]:
+        stmt = select(InventoryLotModel, InventoryBalanceModel).outerjoin(
+            InventoryBalanceModel,
+            InventoryBalanceModel.lot_id == InventoryLotModel.id
+        ).where(InventoryLotModel.item_id == item_id)
+
+        if status is not None:
+            conditions = []
+            if LotStatus.ACTIVE in status:
+                conditions.append(
+                    and_(
+                        InventoryBalanceModel.quantity > 0,
+                        or_(
+                            InventoryLotModel.expiration_date.is_(None),
+                            InventoryLotModel.expiration_date >= datetime.now(timezone.utc).replace(tzinfo=None),
+                        ),
+                    )
+                )
+            if LotStatus.DEPLETED in status:
+                conditions.append(InventoryBalanceModel.quantity <= 0)
+            if LotStatus.EXPIRED in status:
+                conditions.append(
+                    and_(
+                        InventoryLotModel.expiration_date.isnot(None),
+                        InventoryLotModel.expiration_date < datetime.now(timezone.utc).replace(tzinfo=None),
+                        InventoryBalanceModel.quantity > 0,
+                    )
+                )
+
+            if conditions:
+                stmt = stmt.where(or_(*conditions))
+
+        stmt = stmt.order_by(InventoryLotModel.created_at.desc())
+
+        result = await self._session.execute(stmt)
+        rows = result.all()
+
+        return [
+            ItemLots(
+                id=model_lot.id,
+                item_id=model_lot.item_id,
+                lot_code=model_lot.lot_code,
+                unit_cost=model_lot.unit_cost,
+                expiration_date=model_lot.expiration_date,
+                production_date=model_lot.production_date,
+                quantity=model_bal.quantity if model_bal else Decimal("0"),
+                reserved_quantity=model_bal.reserved_quantity if model_bal else Decimal("0"),
+                created_at=model_lot.created_at,
+            )
+            for model_lot, model_bal in rows
+        ]
 
 
     async def exists_by_code(self, item_id: int, lot_code: str) -> bool:
