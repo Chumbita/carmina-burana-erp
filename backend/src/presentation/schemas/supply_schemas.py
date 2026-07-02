@@ -11,7 +11,7 @@ class CreateSupplyRequestSchema(BaseModel):
     name: str = Field(..., min_length=1, max_length=120)
     brand_id: int
     base_uom_id: int
-    min_stock_level: Decimal = Field(..., gt=0)
+    min_stock_level: Decimal = Field(..., ge=0)
     supply_category: SupplyCategory
 
 
@@ -19,7 +19,7 @@ class UpdateSupplyRequestSchema(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=120)
     brand_id: Optional[int] = None
     base_uom_id: Optional[int] = None
-    min_stock_level: Optional[float] = Field(None, gt=0)
+    min_stock_level: Optional[float] = Field(None, ge=0)
     is_manufacturable: Optional[bool] = None
     is_purchasable: Optional[bool] = None
     is_sellable: Optional[bool] = None
