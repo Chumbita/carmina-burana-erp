@@ -18,13 +18,12 @@ class Uom:
     ya que su contenido varía por ítem o proveedor.
     """
 
-    id: int = 0
     name: str
     symbol: str
     uom_type: UomType
     is_base: bool
-    # Conversión
     factor_to_base: Optional[float] = None  # None para el tipo UNIT
+    id: int = 0
 
     def __post_init__(self):
         self._validate()
