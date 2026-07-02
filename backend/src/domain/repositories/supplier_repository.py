@@ -16,3 +16,7 @@ class ISupplierRepository(Protocol):
     async def find_all(self) -> list[Supplier]:
         """Retorna todos los proveedores activos ordenados por nombre."""
         ...
+
+    async def get_by_id(self, supplier_id: int) -> Supplier | None:
+        """Busca un proveedor por ID. Retorna None si no existe."""
+        ...

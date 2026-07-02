@@ -1,16 +1,19 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.domain.entities.user import User
+from src.domain.exceptions.supplier_exceptions import SupplierNotFoundError
 from src.presentation.dependencies.auth import get_current_user
 from src.presentation.schemas.supplier_schema import CreateSupplierRequest, SupplierResponse
 from src.presentation.dependencies.use_cases.supplier import (
     build_create_supplier_use_case,
     build_list_suppliers_use_case,
+    build_get_supplier_use_case,
 )
 from src.application.use_cases.supplier.create_supplier import CreateSupplierUseCase
 from src.application.use_cases.supplier.list_suppliers import ListSuppliersUseCase
+from src.application.use_cases.supplier.get_supplier import GetSupplierUseCase
 from src.application.dtos.supplier.supplier_commands_dtos import CreateSupplierCommand
 
 
@@ -48,3 +51,19 @@ async def list_suppliers(
     #current_user: User = Depends(get_current_user),  # auth
 ) -> list[SupplierResponse]:
     return await use_case.execute()
+
+
+@router.get(
+    "/{supplier_id}",
+    response_model=SupplierResponse,
+    summary="Obtener un proveedor por ID",
+)
+async def get_supplier(
+    supplier_id: int,
+    use_case: GetSupplierUseCase = Depends(build_get_supplier_use_case),
+    #current_user: User = Depends(get_current_user),  # auth
+) -> SupplierResponse:
+    try:
+        return await use_case.execute(supplier_id)
+    except SupplierNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
