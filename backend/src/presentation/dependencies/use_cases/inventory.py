@@ -18,3 +18,12 @@ def get_list_item_transactions_use_case(
     lot_repository = InventoryLotRepository(session)
     uom_repository = UomRepository(session)
     return ListItemTransactionsUseCase(item_repository, transaction_repository, lot_repository, uom_repository)
+
+
+def build_get_lots_by_item(
+    session: AsyncSession = Depends(get_db),
+) -> GetLotsByItemUseCase:
+    from src.application.use_cases.inventory.get_lots_by_item import GetLotsByItemUseCase
+
+    lot_repo = InventoryLotRepository(session)
+    return GetLotsByItemUseCase(lot_repo=lot_repo)
