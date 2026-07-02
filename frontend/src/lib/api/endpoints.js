@@ -48,6 +48,7 @@ export const ENDPOINTS = {
     },
     // Suppliers
     SUPPLIERS: {
+        OPTIONS: '/suppliers/options',
         GET_BY_NAME: (name) => `/suppliers?name=${encodeURIComponent(name)}`,
         CREATE: '/suppliers',
     },

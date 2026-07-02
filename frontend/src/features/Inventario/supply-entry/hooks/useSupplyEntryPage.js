@@ -1,24 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { ITEMS_PER_PAGE } from '../constants/supplyEntry.constants'
-import { supplierService } from '../services/supplierService'
 import { supplyEntryService } from '../services/supplyEntryService'
 import { useNotification } from '@/components/shared/notifications/useNotification'
-
-async function resolveSupplierId(name) {
-  const supplierName = name.trim()
-
-  try {
-    const supplier = await supplierService.getByName(supplierName)
-    return supplier.id
-  } catch (err) {
-    if (err.response?.status !== 404) {
-      throw err
-    }
-
-    const supplier = await supplierService.create({ name: supplierName })
-    return supplier.id
-  }
-}
 
 export function useSupplyEntryPage() {
   const [loading, setLoading] = useState(true)
@@ -116,10 +99,8 @@ export function useSupplyEntryPage() {
 
   const handleCreateSupplyEntry = useCallback(async (formData) => {
     try {
-      const supplierId = await resolveSupplierId(formData.supplier)
-
       const submissionData = {
-        supplier_id: supplierId,
+        supplier_id: formData.supplierId,
         document_number: formData.invoiceNumber || undefined,
         entry_date: new Date(formData.entryDate).toISOString(),
         description: formData.description || undefined,
