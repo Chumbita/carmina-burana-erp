@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TabInput } from './TabInput'
+import { TabSupply } from './TabSupply'
 
 //componentes shadcn
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs'
@@ -16,7 +16,7 @@ export function SupplyDetailTabs({ insumo, onInputUpdated, availableInputs = [] 
           <TabsTrigger value="lotes" className="cursor-pointer">Lotes</TabsTrigger>
         </TabsList>
 
-        {contentOption === "insumos" && <TabInput insumo={insumo} onInputUpdated={onInputUpdated} />}
+        {contentOption === "insumos" && <TabSupply insumo={insumo} onInputUpdated={onInputUpdated} />}
         {contentOption === "lotes" && <p>Contenido de Lotes</p>}
       </Tabs>
     </div>

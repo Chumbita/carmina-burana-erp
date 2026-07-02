@@ -23,7 +23,7 @@ import { useNotification } from "@/components/shared/notifications/useNotificati
 import { useFormBlocker } from "../hooks/useFormBlocker"
 import { useEntityDetail } from "@/components/shared/DetailPage/EntityDetailContext"
 
-export function TabInput({ insumo }) {
+export function TabSupply({ insumo }) {
   const formRef = useRef(null)
   const navigate = useNavigate()
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
