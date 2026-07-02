@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 
 from src.domain.entities.user import User
@@ -17,3 +17,21 @@ async def get_all_brands(
     current_user: User = Depends(get_current_user),
 ):
     return await use_case.execute()
+
+
+# ── DELETE BRAND ────────────────────────────────────────────────
+from src.domain.exceptions.brand_exceptions import BrandNotFoundError
+from src.application.use_cases.brand.delete_brand import DeleteBrandUseCase
+from src.presentation.dependencies.use_cases.brand import get_delete_brand_use_case
+
+@brand_router.delete("/{brand_id}")
+async def delete_brand(
+    brand_id: int,
+    use_case: DeleteBrandUseCase = Depends(get_delete_brand_use_case),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        await use_case.execute(brand_id)
+        return {"message": "Marca eliminada correctamente"}
+    except BrandNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
