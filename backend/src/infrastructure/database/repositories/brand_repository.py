@@ -4,14 +4,14 @@
 
 from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete as sa_delete
 
 from src.domain.entities.brand import Brand
 from src.domain.repositories.brand_repository import IBrandRepository
 from src.infrastructure.database.models.brand_model import BrandModel
 
 
-class BrandRepository():
+class BrandRepository(IBrandRepository):
 
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
@@ -54,3 +54,9 @@ class BrandRepository():
         rows = result.scalars().all()
 
         return [self._to_entity(row) for row in rows]
+
+    async def delete(self, brand_id: int) -> bool:
+        stmt = sa_delete(BrandModel).where(BrandModel.id == brand_id)
+        result = await self._session.execute(stmt)
+        await self._session.flush()
+        return result.rowcount > 0

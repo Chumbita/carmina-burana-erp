@@ -12,3 +12,10 @@ class IBrandRepository(Protocol):
         Obtiene un listado de todas las marcas registradas.
         """
         ...
+
+    async def delete(self, brand_id: int) -> bool:
+        """
+        Elimina una marca por su ID.
+        Retorna True si se eliminó, False si no existía.
+        """
+        ...
