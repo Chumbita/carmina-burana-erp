@@ -33,6 +33,24 @@ class UomRepository(IUomRepository):
             is_base=model.is_base,
         )
 
+    @staticmethod
+    def _to_model(entity: Uom) -> UomModel:
+        return UomModel(
+            name=entity.name,
+            symbol=entity.symbol,
+            uom_type=entity.uom_type.value,
+            factor_to_base=entity.factor_to_base,
+            is_base=entity.is_base,
+        )
+
+    # ── Commands ────────────────────────────────────────────────
+
+    async def add(self, uom: Uom) -> Uom:
+        model = self._to_model(uom)
+        self._session.add(model)
+        await self._session.flush()
+        return self._to_entity(model)
+
     # ── Queries ────────────────────────────────────────────────
 
     async def get_by_id(self, uom_id: int) -> Optional[Uom]:
