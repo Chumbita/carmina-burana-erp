@@ -13,6 +13,7 @@ from src.domain.repositories.inventory_lot_repository import ItemLots
 from src.domain.value_objects.lot_status import LotStatus
 from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
 from src.infrastructure.database.models.inventory_lot_model import InventoryLotModel
+from src.infrastructure.database.models.inventory_transaction_model import InventoryTransactionModel
 
 class InventoryLotRepository():
     def __init__(self, session: AsyncSession):
@@ -91,7 +92,22 @@ class InventoryLotRepository():
         item_id: int,
         status: set[LotStatus] | None = None,
     ) -> list[ItemLots]:
-        stmt = select(InventoryLotModel, InventoryBalanceModel).outerjoin(
+        supply_entry_subq = (
+            select(InventoryTransactionModel.reference_id)
+            .where(
+                InventoryTransactionModel.lot_id == InventoryLotModel.id,
+                InventoryTransactionModel.reference_type == "supply_entry",
+                InventoryTransactionModel.transaction_type == "PURCHASE",
+            )
+            .order_by(InventoryTransactionModel.created_at.desc())
+            .limit(1)
+            .correlate(InventoryLotModel)
+            .scalar_subquery()
+        )
+
+        stmt = select(
+            InventoryLotModel, InventoryBalanceModel, supply_entry_subq
+        ).outerjoin(
             InventoryBalanceModel,
             InventoryBalanceModel.lot_id == InventoryLotModel.id
         ).where(InventoryLotModel.item_id == item_id)
@@ -138,8 +154,9 @@ class InventoryLotRepository():
                 quantity=model_bal.quantity if model_bal else Decimal("0"),
                 reserved_quantity=model_bal.reserved_quantity if model_bal else Decimal("0"),
                 created_at=model_lot.created_at,
+                supply_entry_id=entry_id,
             )
-            for model_lot, model_bal in rows
+            for model_lot, model_bal, entry_id in rows
         ]
 
     async def list_by_ids(self, ids: list[int]) -> list[InventoryLot]:

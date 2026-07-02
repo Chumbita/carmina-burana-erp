@@ -66,3 +66,4 @@ class ItemLots:
     production_date: datetime | None = None
     created_at: datetime | None = None
     status: str | None = None
+    supply_entry_id: int | None = None
