@@ -2,8 +2,8 @@ import { ENDPOINTS } from '@/lib/api/endpoints'
 import privateClient from '@/lib/api/privateClient'
 
 export const supplierService = {
-  getAll: async () => {
-    const response = await privateClient.get(ENDPOINTS.SUPPLIERS.GET_ALL)
+  getOptions: async () => {
+    const response = await privateClient.get(ENDPOINTS.SUPPLIERS.OPTIONS)
     return response.data
   },
 

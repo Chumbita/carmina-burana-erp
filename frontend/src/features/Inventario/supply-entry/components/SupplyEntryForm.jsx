@@ -77,9 +77,6 @@ function SupplierCombobox({ value, onChange, suppliers = [], loading = false, on
                     />
                     <div className="flex min-w-0 flex-col">
                       <span className="truncate text-sm font-medium">{supplier.name}</span>
-                      <span className="truncate text-xs text-muted-foreground">
-                        {[supplier.email, supplier.phone].filter(Boolean).join(' · ') || 'Sin datos de contacto'}
-                      </span>
                     </div>
                   </CommandItem>
                 ))}
