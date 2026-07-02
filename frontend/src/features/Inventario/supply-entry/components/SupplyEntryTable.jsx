@@ -1,8 +1,7 @@
-import { Link } from 'react-router-dom'
-import { Button } from '@/components/ui/Button'
+import { useNavigate } from 'react-router-dom'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { Eye } from 'lucide-react'
+import { DataTable } from '@/components/shared/DataTable'
 
 /**
  * SupplyEntryTable - Component for displaying supply entries table
@@ -11,6 +10,58 @@ import { Eye } from 'lucide-react'
  * @param {boolean} props.loading - Loading state
  */
 export function SupplyEntryTable({ entries, loading }) {
+  const navigate = useNavigate()
+
+  const handleRowClick = (entry) => {
+    navigate(`/inventario/ingreso-insumos/${entry.id}`)
+  }
+
+  const tableData = entries.map((entry, index) => ({
+    ...entry,
+    row_number: index + 1,
+  }))
+
+  const columns = [
+    {
+      header: 'Nº',
+      accessor: 'row_number',
+    },
+    {
+      header: 'Código',
+      accessor: 'document_number',
+      render: (value, entry) => value || `REC-${entry.id}`,
+    },
+    {
+      header: 'Fecha',
+      accessor: 'entry_date',
+      render: (value) => new Date(value).toLocaleDateString('es-AR'),
+    },
+    {
+      header: 'Proveedor',
+      accessor: 'supplier',
+      render: (value) => value?.name || 'Sin proveedor',
+    },
+    {
+      header: 'Cantidad',
+      accessor: 'items_count',
+      render: (value) => `${value || 0} artículos`,
+    },
+    {
+      header: 'Costo Total',
+      accessor: 'total_cost',
+      render: (value) => `$${Number(value || 0).toFixed(2)}`,
+    },
+    {
+      header: 'Estado',
+      accessor: 'status',
+      render: (value) => (
+        <Badge variant={value === 'CANCELED' ? 'destructive' : 'default'}>
+          {value === 'CANCELED' ? 'Anulada' : 'Activa'}
+        </Badge>
+      ),
+    },
+  ]
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -30,84 +81,12 @@ export function SupplyEntryTable({ entries, loading }) {
   }
 
   return (
-    <Card>
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-neutral-50 border-b border-neutral-200">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                Nº
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                Fecha
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                Proveedor
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                Cantidad
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                Costo Total
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                Estado
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-neutral-200">
-            {entries.map((entry) => (
-              <tr
-                key={entry.id}
-                className="hover:bg-neutral-50 transition-colors"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">
-                  <Link
-                    to={`/inventario/ingreso-insumos/${entry.id}`}
-                    className="hover:underline"
-                  >
-                    {entry.document_number || `REC-${entry.id}`}
-                  </Link>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                  {new Date(entry.entry_date).toLocaleDateString('es-AR')}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                  {entry.supplier?.name || 'Sin proveedor'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                  {entry.items_count || 0} artículos
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">
-                  ${Number(entry.total_cost || 0).toFixed(2)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge variant={entry.status === 'CANCELED' ? 'destructive' : 'default'}>
-                    {entry.status === 'CANCELED' ? 'Anulada' : 'Activa'}
-                  </Badge>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                  <Link
-                    to={`/inventario/ingreso-insumos/${entry.id}`}
-                    className="inline-flex"
-                  >
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="cursor-pointer"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </Card>
+    <div className="overflow-x-auto">
+      <DataTable
+        columns={columns}
+        data={tableData}
+        onRowClick={handleRowClick}
+      />
+    </div>
   )
 }
