@@ -18,7 +18,7 @@ export const ANNULMENT_RESTRICTIONS = {
 }
 
 export const FORM_DEFAULT_VALUES = {
-  supplier: '',
+  supplierId: 0,
   entryDate: new Date().toISOString().split('T')[0],
   invoiceNumber: '',
   description: '',

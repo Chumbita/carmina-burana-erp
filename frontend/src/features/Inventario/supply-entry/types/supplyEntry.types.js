@@ -44,7 +44,7 @@
 
 /**
  * @typedef {Object} SupplyEntryFormData
- * @property {string} supplier - Proveedor
+ * @property {number} supplierId - ID del proveedor
  * @property {string} entryDate - Fecha de ingreso
  * @property {string} [invoiceNumber] - Número de factura
  * @property {string} [description] - Descripción

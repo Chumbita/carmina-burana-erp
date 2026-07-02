@@ -16,7 +16,7 @@ const supplyItemSchema = z.object({
 })
 
 const supplyEntrySchema = z.object({
-  supplier: z.string().min(1, 'El proveedor es requerido'),
+  supplierId: z.number().min(1, 'Seleccione un proveedor'),
   entryDate: z.string().min(1, 'La fecha de ingreso es requerida'),
   invoiceNumber: z.string().optional(),
   description: z.string().optional(),
@@ -54,6 +54,7 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
   })
 
   const watchedItems = watch('items')
+  const watchedSupplierId = watch('supplierId')
 
   // Calculate total cost
   const totalCost = watchedItems.reduce((sum, item) => {
@@ -140,6 +141,7 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
     register,
     fields,
     watchedItems,
+    watchedSupplierId,
     totalCost,
     isDirty,
     isValid,
