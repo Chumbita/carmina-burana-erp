@@ -15,3 +15,4 @@ class LotResponse(BaseModel):
     expiration_date: datetime | None = None
     status: str
     created_at: datetime | None = None
+    supply_entry_id: int | None = None
