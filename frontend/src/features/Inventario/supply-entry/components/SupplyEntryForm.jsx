@@ -464,7 +464,7 @@ export function SupplyEntryForm({
                         min="0"
                         placeholder="0.00"
                         className="h-9 text-sm"
-                        {...control.register(`items.${index}.unitCost`, { valueAsNumber: true })}
+                        {...register(`items.${index}.unitCost`, { valueAsNumber: true })}
                       />
                     </div>
 
