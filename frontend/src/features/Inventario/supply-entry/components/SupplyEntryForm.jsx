@@ -1,9 +1,16 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/Field'
+import { Field, FieldLabel } from '@/components/ui/Field'
 import { Card } from '@/components/ui/Card'
 import { Spinner } from '@/components/ui/Spinner'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/Dialog'
 import {
   Popover,
   PopoverContent,
@@ -20,6 +27,194 @@ import {
 
 import { Plus, Trash2, Package, Check, ChevronsUpDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+function SupplierCombobox({ value, onChange, suppliers = [], loading = false, onCreateClick }) {
+  const [open, setOpen] = useState(false)
+  const selected = suppliers.find((supplier) => supplier.id === value)
+
+  return (
+    <div className="flex gap-2">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            role="combobox"
+            aria-expanded={open}
+            disabled={loading}
+            className={cn(
+              'flex h-9 min-w-0 flex-1 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs',
+              'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+              'disabled:cursor-not-allowed disabled:opacity-50',
+              !selected && 'text-muted-foreground'
+            )}
+          >
+            <span className="truncate">
+              {selected ? selected.name : loading ? 'Cargando proveedores...' : 'Seleccionar proveedor'}
+            </span>
+            <ChevronsUpDown className="ml-1 size-3.5 shrink-0 opacity-50" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80 p-0" align="start">
+          <Command>
+            <CommandInput placeholder="Buscar proveedor..." />
+            <CommandList>
+              <CommandEmpty>Sin resultados.</CommandEmpty>
+              <CommandGroup>
+                {suppliers.map((supplier) => (
+                  <CommandItem
+                    key={supplier.id}
+                    value={supplier.name}
+                    onSelect={() => {
+                      onChange(supplier.id)
+                      setOpen(false)
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        'mr-2 size-4 shrink-0',
+                        value === supplier.id ? 'opacity-100' : 'opacity-0'
+                      )}
+                    />
+                    <div className="flex min-w-0 flex-col">
+                      <span className="truncate text-sm font-medium">{supplier.name}</span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        {[supplier.email, supplier.phone].filter(Boolean).join(' · ') || 'Sin datos de contacto'}
+                      </span>
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+      <Button
+        type="button"
+        variant="outline"
+        size="icon-sm"
+        onClick={onCreateClick}
+        disabled={loading}
+        aria-label="Crear proveedor"
+      >
+        <Plus />
+      </Button>
+    </div>
+  )
+}
+
+function CreateSupplierDialog({ open, onOpenChange, onCreate }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+  })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  function updateField(field, value) {
+    setFormData((current) => ({ ...current, [field]: value }))
+  }
+
+  async function handleCreate() {
+    const name = formData.name.trim()
+    if (!name) {
+      setError('El nombre del proveedor es requerido')
+      return
+    }
+
+    try {
+      setLoading(true)
+      setError(null)
+      const supplier = await onCreate({
+        name,
+        email: formData.email.trim() || undefined,
+        phone: formData.phone.trim() || undefined,
+        address: formData.address.trim() || undefined,
+      })
+      setFormData({ name: '', email: '', phone: '', address: '' })
+      onOpenChange(false)
+      return supplier
+    } catch (err) {
+      setError(err.response?.data?.detail || 'No se pudo crear el proveedor')
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Nuevo proveedor</DialogTitle>
+        </DialogHeader>
+
+        <div className="grid gap-3">
+          {error && (
+            <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+              {error}
+            </div>
+          )}
+
+          <Field>
+            <FieldLabel htmlFor="newSupplierName" className="text-xs">
+              Nombre <span className="text-destructive">*</span>
+            </FieldLabel>
+            <Input
+              id="newSupplierName"
+              value={formData.name}
+              onChange={(event) => updateField('name', event.target.value)}
+            />
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="newSupplierEmail" className="text-xs">
+              Email
+            </FieldLabel>
+            <Input
+              id="newSupplierEmail"
+              value={formData.email}
+              onChange={(event) => updateField('email', event.target.value)}
+            />
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="newSupplierPhone" className="text-xs">
+              Teléfono
+            </FieldLabel>
+            <Input
+              id="newSupplierPhone"
+              value={formData.phone}
+              onChange={(event) => updateField('phone', event.target.value)}
+            />
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="newSupplierAddress" className="text-xs">
+              Dirección
+            </FieldLabel>
+            <Input
+              id="newSupplierAddress"
+              value={formData.address}
+              onChange={(event) => updateField('address', event.target.value)}
+            />
+          </Field>
+        </div>
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+            Cancelar
+          </Button>
+          <Button type="button" onClick={handleCreate} disabled={loading}>
+            {loading ? 'Creando...' : 'Crear proveedor'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 /**
  * SupplyCombobox — selector de insumo con búsqueda tipo combobox.
@@ -92,10 +287,14 @@ function SupplyCombobox({ value, onChange, supplies = [] }) {
 export function SupplyEntryForm({
   formHook,
   availableSupplies = [],
+  supplierOptions = [],
+  suppliersLoading = false,
+  onCreateSupplier,
   layout = 'page',
   onCancel,
   isSubmitting = false,
 }) {
+  const [openCreateSupplier, setOpenCreateSupplier] = useState(false)
   const {
     register,
     fields,
@@ -114,6 +313,12 @@ export function SupplyEntryForm({
   } = formHook
 
   const currentLoading = layout === 'modal' ? isSubmitting : loading
+
+  async function handleCreateSupplier(data) {
+    const supplier = await onCreateSupplier(data)
+    setValue('supplierId', supplier.id, { shouldDirty: true, shouldValidate: true })
+    return supplier
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -134,13 +339,15 @@ export function SupplyEntryForm({
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field>
-                <FieldLabel htmlFor="supplier" className="text-xs">
+                <FieldLabel className="text-xs">
                   Proveedor <span className="text-destructive">*</span>
                 </FieldLabel>
-                <Input
-                  id="supplier"
-                  placeholder="Nombre del proveedor"
-                  {...register('supplier')}
+                <SupplierCombobox
+                  value={formHook.watchedSupplierId}
+                  onChange={(id) => setValue('supplierId', id, { shouldDirty: true, shouldValidate: true })}
+                  suppliers={supplierOptions}
+                  loading={suppliersLoading}
+                  onCreateClick={() => setOpenCreateSupplier(true)}
                 />
               </Field>
 
@@ -361,6 +568,12 @@ export function SupplyEntryForm({
           </div>
         </div>
       </form>
+
+      <CreateSupplierDialog
+        open={openCreateSupplier}
+        onOpenChange={setOpenCreateSupplier}
+        onCreate={handleCreateSupplier}
+      />
     </div>
   )
 }
