@@ -48,6 +48,7 @@ export const ENDPOINTS = {
     },
     // Suppliers
     SUPPLIERS: {
+        GET_ALL: '/suppliers',
         GET_BY_NAME: (name) => `/suppliers?name=${encodeURIComponent(name)}`,
         CREATE: '/suppliers',
     },
