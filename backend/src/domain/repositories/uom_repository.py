@@ -34,3 +34,9 @@ class IUomRepository(Protocol):
         a elementos del front-end.
         """
         ...
+
+    async def add(self, uom: Uom) -> Uom:
+        """
+        Persiste una nueva unidad de medida y la retorna con id asignado.
+        """
+        ...

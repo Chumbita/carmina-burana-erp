@@ -18,7 +18,7 @@ class Uom:
     ya que su contenido varía por ítem o proveedor.
     """
 
-    id: int
+    id: int = 0
     name: str
     symbol: str
     uom_type: UomType
