@@ -13,13 +13,7 @@ export default function SupplyEntryDetailPage() {
   const { entryId } = useParams()
   const navigate = useNavigate()
 
-  const detailHook = useSupplyEntryDetail(
-    entryId,
-    async (entryId, reason) => {
-      // Esta función ya no se usa, la lógica está en el hook
-      console.log('Annulling entry:', entryId, 'Reason:', reason)
-    }
-  )
+  const detailHook = useSupplyEntryDetail(entryId)
 
   const handleBack = () => {
     navigate('/inventario/ingreso-insumos')
