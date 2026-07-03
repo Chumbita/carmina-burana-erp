@@ -7,6 +7,11 @@ export const supplyEntryService = {
     return response.data
   },
 
+  getById: async (id) => {
+    const response = await privateClient.get(ENDPOINTS.SUPPLY_ENTRIES.GET_BY_ID(id))
+    return response.data
+  },
+
   create: async (data) => {
     const response = await privateClient.post(ENDPOINTS.SUPPLY_ENTRIES.CREATE, data)
     return response.data
