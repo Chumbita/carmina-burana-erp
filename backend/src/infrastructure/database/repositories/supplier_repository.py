@@ -61,7 +61,3 @@ class SupplierRepository(ISupplierRepository):
         stmt = select(SupplierModel).order_by(SupplierModel.name)
         result = await self._session.execute(stmt)
         return [self._to_entity(model) for model in result.scalars().all()]
-
-    async def get_by_id(self, supplier_id: int) -> Supplier | None:
-        model = await self._session.get(SupplierModel, supplier_id)
-        return self._to_entity(model) if model else None
