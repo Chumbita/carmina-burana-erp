@@ -39,3 +39,15 @@ class BomCreatedResponseSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class BomListItemResponseSchema(BaseModel):
+    id: int
+    parent_item_id: int
+    parent_item_name: str
+    version: int
+    components_count: int
+    valid_from: datetime
+
+    class Config:
+        from_attributes = True
