@@ -16,8 +16,6 @@ export function NewBomModal({ open, onClose, onSubmit }) {
     try {
       await onSubmit(data)
       onClose()
-    } catch {
-      // el error se maneja en useBomForm
     } finally {
       setIsSubmitting(false)
     }
