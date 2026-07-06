@@ -54,7 +54,7 @@ class CreateBomUseCase:
                 is_active=True,
                 quantity=command.quantity,
                 uom_id=command.uom_id,
-                valid_from=command.valid_from or now,
+                valid_from=command.valid_from.replace(tzinfo=None) if command.valid_from else now,
                 valid_to=None,
                 created_at=now,
                 lines=[
