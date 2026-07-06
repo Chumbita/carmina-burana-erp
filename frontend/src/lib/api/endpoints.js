@@ -46,5 +46,9 @@ export const ENDPOINTS = {
     BOM: {
       CREATE: '/bom',
       GET_ALL: '/bom',
+    },
+    // ITEMS
+    ITEMS: {
+      GET_OPTIONS: '/items/options',
     }
 }
