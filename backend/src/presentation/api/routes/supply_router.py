@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from typing import List
 
 from src.application.use_cases.supply.read_supply import GetActiveSupplyDetailUseCase, ListActiveSuppliesUseCase
@@ -18,6 +18,11 @@ from src.application.use_cases.supply.read_supply import GetActiveSupplyDetailUs
 from src.application.use_cases.supply.delete_supply import DeleteSupplyUseCase
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
 from src.application.use_cases.supply.update_supply import UpdateSupplyUseCase
+
+from src.application.use_cases.inventory.get_lots_by_item import GetLotsByItemUseCase
+from src.domain.value_objects.lot_status import LotStatus
+from src.presentation.dependencies.use_cases.inventory import build_get_lots_by_item
+from src.presentation.schemas.lot_schema import LotResponse
 
 from src.presentation.schemas.supply_schemas import (
     CreateSupplyRequestSchema,
@@ -144,6 +149,24 @@ async def delete_supply(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exc),
         ) from exc
+
+@router.get(
+    "/{item_id}/lots",
+    response_model=List[LotResponse],
+    summary="Listar lotes de un insumo",
+)
+async def get_supply_lots(
+    item_id: int,
+    status: list[LotStatus] | None = Query(default=None),
+    use_case: GetLotsByItemUseCase = Depends(build_get_lots_by_item),
+    #current_user: User = Depends(get_current_user),
+) -> list[LotResponse]:
+    return await use_case.execute(
+        item_id,
+        status=set(status) if status else None,
+    )
+
+
 @router.patch(
     "/{supply_id}",
     status_code=status.HTTP_200_OK,
