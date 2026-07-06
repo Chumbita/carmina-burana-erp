@@ -3,20 +3,27 @@
 # ══════════════════════════════════════════════════════════════════════════════
 
 from typing import Optional, List
+import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from src.domain.entities.item import Item
 from src.infrastructure.database.models.item_model import ItemModel
+from src.infrastructure.database.models.item_type_model import ItemTypeModel
+from src.infrastructure.database.models.brand_model import BrandModel
+from src.infrastructure.database.models.uom_model import UomModel
+from src.application.dtos.items.item_responses_dtos import ItemOptionResponseDTO
+
+logger = logging.getLogger(__name__)
 
 
 class ItemRepository:
     def __init__(self, session: AsyncSession):
         self._session = session
-        
-        
+
+
     # ── Utilidades ────────────────────────────────────────────────
-    
+
     @staticmethod
     def _to_entity(model: ItemModel) -> Item:
 
@@ -37,7 +44,7 @@ class ItemRepository:
             updated_at=model.updated_at,
             deleted_at=model.deleted_at
         )
-        
+
         return item
 
     @staticmethod
@@ -86,10 +93,10 @@ class ItemRepository:
             created_at=item.created_at,
         )
         self._session.add(model)
-        await self._session.flush() 
+        await self._session.flush()
         item.id = model.id
         return item
-    
+
     async def save(self, item: Item) -> Item:
         stmt = select(ItemModel).where(ItemModel.id == item.id)
         result = await self._session.execute(stmt)
@@ -118,7 +125,7 @@ class ItemRepository:
         stmt= select(ItemModel).where(ItemModel.id == item_id)
         result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
-        
+
         return self._to_entity(model) if model else None
 
     async def get_by_name(self, name: str) -> Optional[Item]:
@@ -159,3 +166,39 @@ class ItemRepository:
         result = await self.session.execute(stmt)
 
         return [self._to_domain(m) for m in result.scalars().all()]
+
+    async def list_options(self) -> List[ItemOptionResponseDTO]:
+        """
+        Opciones ligeras para selectores/comboboxes.
+        Retorna item_id, item_type, name, brand, uom_id, uom_symbol.
+        """
+        stmt = (
+            select(
+                ItemModel.id.label("item_id"),
+                ItemTypeModel.code.label("item_type"),
+                ItemModel.name,
+                BrandModel.name.label("brand"),
+                UomModel.id.label("uom_id"),
+                UomModel.symbol.label("uom_symbol"),
+            )
+            .join(ItemTypeModel, ItemModel.item_type_id == ItemTypeModel.id)
+            .join(BrandModel, ItemModel.brand_id == BrandModel.id)
+            .join(UomModel, ItemModel.base_uom_id == UomModel.id)
+            .where(ItemModel.status == "ACTIVE")
+        )
+        result = await self._session.execute(stmt)
+        rows = result.all()
+
+        logger.info("list_options: found %d active items", len(rows))
+
+        return [
+            ItemOptionResponseDTO(
+                item_id=row.item_id,
+                item_type=row.item_type,
+                name=row.name,
+                brand=row.brand,
+                uom_id=row.uom_id,
+                uom_symbol=row.uom_symbol,
+            )
+            for row in rows
+        ]
