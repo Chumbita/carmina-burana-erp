@@ -15,6 +15,7 @@ from src.application.use_cases.bom.list_active_boms_use_case import ListActiveBo
 from src.presentation.schemas.bom_schemas import (
     CreateBomRequestSchema,
     BomCreatedResponseSchema,
+    BomListItemResponseSchema,
 )
 from src.presentation.dependencies.use_cases.bom import (
     get_create_bom_use_case,
@@ -30,7 +31,7 @@ router = APIRouter(prefix="/bom", tags=["BOM"])
     "",
     status_code=status.HTTP_200_OK,
     summary="Listar BOMs activos",
-    response_model=List[BomCreatedResponseSchema],
+    response_model=List[BomListItemResponseSchema],
 )
 async def list_active_boms(
     use_case: ListActiveBomsUseCase = Depends(get_list_active_boms_use_case),
@@ -39,7 +40,7 @@ async def list_active_boms(
     Retorna la lista de todos los BOMs activos registrados en el sistema.
     """
     result = await use_case.execute()
-    return [BomCreatedResponseSchema.model_validate(item) for item in result]
+    return [BomListItemResponseSchema.model_validate(item) for item in result]
 
 
 @router.post(
