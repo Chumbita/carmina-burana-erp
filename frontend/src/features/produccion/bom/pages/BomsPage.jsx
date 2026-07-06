@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { BomsTable } from "../components/BomsTable"
 import { NewBomModal } from "../components/NewBomModal"
 import { bomService } from "../services/bomService"
+import { useNotification } from "@/components/shared/notifications/useNotification"
 
 // Componentes shadcn
 import { Button } from "@/components/ui/Button"
@@ -12,10 +13,19 @@ import { Plus } from "lucide-react"
 export default function BomsPage() {
   const [openModal, setOpenModal] = useState(false)
   const [boms, setBoms] = useState([])
+  const notify = useNotification()
 
   async function handleCreateBom(data) {
-    const newBom = await bomService.create(data)
-    setBoms(prev => [...prev, newBom])
+    try {
+      const newBom = await bomService.create(data)
+      setBoms(prev => [...prev, newBom])
+      notify.success(`Fórmula v${newBom.version} creada exitosamente`)
+      setOpenModal(false)
+    } catch (error) {
+      const msg = error?.response?.data?.detail || error?.message || 'Error al crear la fórmula'
+      notify.error(msg)
+      throw error
+    }
   }
 
   return (
