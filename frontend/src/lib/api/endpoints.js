@@ -54,6 +54,5 @@ export const ENDPOINTS = {
   // Production Orders
   PRODUCTION_ORDERS: {
     CREATE: "/production-orders",
-    OPTIONS: "/production-orders/options",
   },
 };
