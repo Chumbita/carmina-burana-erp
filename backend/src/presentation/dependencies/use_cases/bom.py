@@ -24,3 +24,13 @@ def get_create_bom_use_case(
     item_repository = ItemRepository(session)
     uom_repository = UomRepository(session)
     return CreateBomUseCase(bom_repository, item_repository, uom_repository)
+
+
+def get_list_active_boms_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> ListActiveBomsUseCase:
+    """
+    Fábrica que instancia ListActiveBomsUseCase con el repositorio de BOM.
+    """
+    bom_repository = BomRepository(session)
+    return ListActiveBomsUseCase(bom_repository)
