@@ -57,6 +57,18 @@ class InventoryBalanceRepository():
         return self._to_entity(balance_model) if balance_model else None
     
     
+    async def get_total_available_by_item(self, item_id: int) -> int | float:
+        """
+        Obtiene el stock disponible total para un ítem sumando los balances activos.
+        """
+        stmt = (
+            select(InventoryBalanceModel.quantity)
+            .where(InventoryBalanceModel.item_id == item_id)
+        )
+        result = await self._session.execute(stmt)
+        balances = result.scalars().all()
+        return sum(float(balance) for balance in balances)
+
     async def save(self, balance: InventoryBalance) -> None:
         """
         Decide internamente entre INSERT y UPDATE.

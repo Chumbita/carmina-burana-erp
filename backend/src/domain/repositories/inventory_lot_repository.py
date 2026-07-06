@@ -18,4 +18,16 @@ class IInventoryLotRepository(Protocol):
         ...
 
     async def find_by_item_and_code(self, item_id: int, lot_code: str) -> Optional[InventoryLot]:
+        """
+        Verifica si ya existe un lote con ese código para ese ítem.
+        Usado para prevenir duplicados antes de intentar el INSERT.
+        """
+        ...
+
+    async def get_available_by_item_fefo(self, item_id: int) -> list:
+        """
+        Devuelve los lotes disponibles de un ítem ordenados por
+        expiration_date ASC (FEFO). Se usa en la fase de EXECUTION
+        para seleccionar qué lotes consumir primero.
+        """
         ...
