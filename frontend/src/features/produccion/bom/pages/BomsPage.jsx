@@ -13,20 +13,7 @@ import { Plus } from "lucide-react"
 
 export default function BomsPage() {
   const [openModal, setOpenModal] = useState(false)
-  const [boms, setBoms] = useState([])
   const notify = useNotification()
-
-  async function handleCreateBom(data) {
-    try {
-      const newBom = await bomService.create(data)
-      setBoms(prev => [...prev, newBom])
-      notify.success(`Fórmula v${newBom.version} creada exitosamente`)
-      setOpenModal(false)
-    } catch (error) {
-      const msg = error?.response?.data?.detail || error?.message || 'Error al crear la fórmula'
-      notify.error(msg)
-      throw error
-    }
   const { boms, loading, error, getBoms } = useBoms()
   const {
     search,
@@ -39,8 +26,16 @@ export default function BomsPage() {
   const filteredData = filteredBoms(boms)
 
   async function handleCreateBom(data) {
-    await bomService.create(data)
-    await getBoms()
+    try {
+      await bomService.create(data)
+      await getBoms()
+      notify.success('Fórmula creada exitosamente')
+      setOpenModal(false)
+    } catch (error) {
+      const msg = error?.response?.data?.detail || error?.message || 'Error al crear la fórmula'
+      notify.error(msg)
+      throw error
+    }
   }
 
   if (loading) {
