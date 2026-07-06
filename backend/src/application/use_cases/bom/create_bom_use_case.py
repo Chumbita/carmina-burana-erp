@@ -76,9 +76,8 @@ class CreateBomUseCase:
             if parent_item is None:
                 raise ItemNotFoundException(command.parent_item_id)
 
-            # Paso 7: Obtener símbolo de la UOM
-            uom = await self._uom_repository.get_by_id(command.uom_id)
-            uom_symbol = uom.symbol if uom else ""
+            # Paso 7: Obtener símbolo de la UOM (consulta ligera)
+            uom_symbol = await self._uom_repository.get_symbol_by_id(command.uom_id) or ""
 
             # Paso 8: Retornar respuesta ligera para el listado
             return BomCreatedResponse(
