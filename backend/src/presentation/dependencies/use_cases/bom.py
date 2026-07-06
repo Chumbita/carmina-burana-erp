@@ -11,6 +11,7 @@ from src.infrastructure.database.repositories.item_repository import ItemReposit
 from src.infrastructure.database.repositories.uom_repository import UomRepository
 
 from src.application.use_cases.bom.create_bom_use_case import CreateBomUseCase
+from src.application.use_cases.bom.list_active_boms_use_case import ListActiveBomsUseCase
 
 
 def get_create_bom_use_case(
