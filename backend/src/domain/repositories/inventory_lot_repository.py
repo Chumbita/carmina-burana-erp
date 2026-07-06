@@ -30,3 +30,11 @@ class IInventoryLotRepository(Protocol):
         Usado para prevenir duplicados antes de intentar el INSERT.
         """
         ...
+
+    async def get_available_by_item_fefo(self, item_id: int) -> list:
+        """
+        Devuelve los lotes disponibles de un ítem ordenados por
+        expiration_date ASC (FEFO). Se usa en la fase de EXECUTION
+        para seleccionar qué lotes consumir primero.
+        """
+        ...

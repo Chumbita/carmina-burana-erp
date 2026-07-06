@@ -47,4 +47,13 @@ export const ENDPOINTS = {
   BEERS: {
     CREATE: "/beers",
   },
+  // Products
+  PRODUCTS: {
+    GET_ALL: "/products",
+  },
+  // Production Orders
+  PRODUCTION_ORDERS: {
+    CREATE: "/production-orders",
+    OPTIONS: "/production-orders/options",
+  },
 };

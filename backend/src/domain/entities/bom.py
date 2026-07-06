@@ -78,3 +78,10 @@ class BomLine:
 
         if self.scrap_factor > Decimal("1"):
             raise ValueError("scrap_factor cannot exceed 1 (100%)")
+
+    def effective_quantity(self) -> Decimal:
+        """
+        Devuelve la cantidad efectiva del componente considerando el scrap factor.
+        Las cantidades del BOM se expresan en unidad base por unidad del producto final.
+        """
+        return self.quantity * (Decimal("1") + self.scrap_factor)
