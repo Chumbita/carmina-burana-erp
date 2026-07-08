@@ -243,12 +243,17 @@ class BomRepository(IBomRepository):
                 BomModel.parent_item_id,
                 ItemModel.name.label("parent_item_name"),
                 BomModel.version,
+                BomModel.is_active,
                 func.coalesce(line_count_sub.c.components_count, 0).label("components_count"),
+                BomModel.quantity,
+                BomModel.uom_id.label("bom_uom_id"),
+                UomModel.symbol.label("bom_uom_symbol"),
                 BomModel.valid_from,
                 BomModel.created_at,
             )
             .join(ItemModel, BomModel.parent_item_id == ItemModel.id)
             .outerjoin(line_count_sub, BomModel.id == line_count_sub.c.bom_id)
+            .outerjoin(UomModel, BomModel.uom_id == UomModel.id)
             .where(BomModel.id == bom_id)
         )
 
@@ -281,7 +286,11 @@ class BomRepository(IBomRepository):
             "parent_item_id": header.parent_item_id,
             "parent_item_name": header.parent_item_name,
             "version": header.version,
+            "is_active": header.is_active,
             "components_count": header.components_count,
+            "quantity": header.quantity,
+            "bom_uom_id": header.bom_uom_id,
+            "bom_uom_symbol": header.bom_uom_symbol,
             "valid_from": header.valid_from,
             "created_at": header.created_at,
             "lines": [
