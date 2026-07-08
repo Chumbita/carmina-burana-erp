@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { DataTable } from "@/components/shared/DataTable"
 import { FilterBar } from "@/components/shared/FilterBar"
@@ -67,7 +67,10 @@ const columns = [
 export function TabLots({ itemId }) {
   const navigate = useNavigate()
   const [statusFilter, setStatusFilter] = useState("active")
-  const statusParam = statusFilter === "all" ? undefined : [statusFilter]
+  const statusParam = useMemo(
+    () => statusFilter === "all" ? undefined : [statusFilter],
+    [statusFilter]
+  )
   const { lots, loading, error } = useLots(itemId, statusParam)
 
   const rows = lots.map((lot, i) => ({ ...lot, _index: i + 1 }))
