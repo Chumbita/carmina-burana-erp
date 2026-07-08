@@ -229,6 +229,9 @@ class ItemRepository:
         ]
     
     async def get_manufacturable(self) -> list[Item]:
+        """
+        Obtiene todos los items marcados como manufacturables (no eliminados).
+        """
         stmt = select(ItemModel).where(
             ItemModel.is_manufacturable.is_(True),
             ItemModel.deleted_at.is_(None),
