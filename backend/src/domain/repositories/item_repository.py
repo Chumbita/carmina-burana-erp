@@ -57,3 +57,9 @@ class IItemRepostory(Protocol):
         Items que afectan inventario.
         """
         ...
+    
+    async def get_manufacturable(self) -> list[Item]:
+        """
+        Obtiene todos los items marcados como manufacturables (no eliminados).
+        """
+    ...
