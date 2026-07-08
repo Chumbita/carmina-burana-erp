@@ -70,7 +70,11 @@ class BomDetailResponseSchema(BaseModel):
     parent_item_id: int
     parent_item_name: str
     version: int
+    is_active: bool
     components_count: int
+    quantity: Decimal
+    bom_uom_id: int
+    bom_uom_symbol: str
     valid_from: datetime
     created_at: datetime
     lines: List[BomLineDetailSchema] = []
