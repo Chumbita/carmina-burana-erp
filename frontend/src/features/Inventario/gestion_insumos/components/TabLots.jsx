@@ -1,8 +1,18 @@
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { DataTable } from "@/components/shared/DataTable"
+import { FilterBar } from "@/components/shared/FilterBar"
 import { Badge } from "@/components/ui/Badge"
 import { formatDate, formatCurrency } from "@/lib/utils/formatters"
 import { useLots } from "../hooks/useLots"
+
+const STATUS_OPTIONS = [
+  { label: "Activo", value: "active" },
+  { label: "Agotado", value: "depleted" },
+  { label: "Vencido", value: "expired" },
+  { label: "Por vencer", value: "expiring_soon" },
+  { label: "Todos", value: "all" },
+]
 
 const lotStatusStyles = {
   active: "bg-green-100 text-green-800",
@@ -56,11 +66,9 @@ const columns = [
 
 export function TabLots({ itemId }) {
   const navigate = useNavigate()
-  const { lots, loading, error } = useLots(itemId)
-
-  if (loading) return <p className="text-gray-500 py-4">Cargando lotes...</p>
-  if (error) return <p className="text-red-500 py-4">Error al cargar lotes</p>
-  if (!lots.length) return <p className="text-gray-500 py-4">No hay lotes registrados</p>
+  const [statusFilter, setStatusFilter] = useState("active")
+  const statusParam = statusFilter === "all" ? undefined : [statusFilter]
+  const { lots, loading, error } = useLots(itemId, statusParam)
 
   const rows = lots.map((lot, i) => ({ ...lot, _index: i + 1 }))
 
@@ -71,10 +79,34 @@ export function TabLots({ itemId }) {
   }
 
   return (
-    <DataTable
-      columns={columns}
-      data={rows}
-      onRowClick={handleRowClick}
-    />
+    <div className="space-y-4">
+      <FilterBar
+        filters={[
+          {
+            key: "status",
+            placeholder: "Estado",
+            value: statusFilter,
+            options: STATUS_OPTIONS,
+            onChange: setStatusFilter,
+          },
+        ]}
+        hasActiveFilters={statusFilter !== "active"}
+        onClearFilters={() => setStatusFilter("active")}
+      />
+
+      {loading && <p className="text-gray-500 py-4">Cargando lotes...</p>}
+      {error && <p className="text-red-500 py-4">Error al cargar lotes</p>}
+      {!loading && !error && !lots.length && (
+        <p className="text-gray-500 py-4">No hay lotes registrados</p>
+      )}
+
+      {!loading && !error && lots.length > 0 && (
+        <DataTable
+          columns={columns}
+          data={rows}
+          onRowClick={handleRowClick}
+        />
+      )}
+    </div>
   )
 }
