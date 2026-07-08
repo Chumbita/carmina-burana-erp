@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { supplyService } from "../services/supplyService"
 
-export function useLots(itemId) {
+export function useLots(itemId, statusFilter = ["active"]) {
   const [lots, setLots] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -11,7 +11,7 @@ export function useLots(itemId) {
 
     async function load() {
       try {
-        const data = await supplyService.getLots(itemId)
+        const data = await supplyService.getLots(itemId, statusFilter)
         setLots(data)
       } catch (err) {
         setError(err)
@@ -21,7 +21,7 @@ export function useLots(itemId) {
     }
 
     load()
-  }, [itemId])
+  }, [itemId, statusFilter])
 
   return { lots, loading, error }
 }
