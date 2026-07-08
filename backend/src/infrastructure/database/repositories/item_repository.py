@@ -227,3 +227,11 @@ class ItemRepository:
             )
             for row in rows
         ]
+    
+    async def get_manufacturable(self) -> list[Item]:
+        stmt = select(ItemModel).where(
+            ItemModel.is_manufacturable.is_(True),
+            ItemModel.deleted_at.is_(None),
+        )
+        result = await self._session.execute(stmt)
+        return [self._to_entity(m) for m in result.scalars().all()]
