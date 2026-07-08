@@ -23,14 +23,16 @@ export const ENDPOINTS = {
     // Items
     ITEMS: {
         GET_TRANSACTIONS: (id) => `/items/${id}/transactions`,
+        GET_OPTIONS: '/items/options',
     },
     // Supplies
     SUPPLIES: {
-        GET_ALL:          '/supplies',
-        GET_BY_ID:        (id) => `/supplies/${id}`,
-        CREATE:           '/supplies',
-        PATCH:            (id) => `/supplies/${id}`,
-        DELETE:           (id) => `/supplies/${id}`,
+        GET_ALL:   '/supplies',
+        GET_BY_ID: (id) => `/supplies/${id}`,
+        CREATE:    '/supplies',
+        PATCH:     (id) => `/supplies/${id}`,
+        DELETE:    (id) => `/supplies/${id}`,
+        GET_LOTS:  (item_id) => `/supplies/${item_id}/lots`,
     },
     // Brands
     BRANDS: {
@@ -52,8 +54,4 @@ export const ENDPOINTS = {
       GET_ALL: '/bom',
       GET_BY_ID: (id) => `/bom/${id}`,
     },
-    // ITEMS
-    ITEMS: {
-      GET_OPTIONS: '/items/options',
-    }
 }
