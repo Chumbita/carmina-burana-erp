@@ -7,7 +7,7 @@ from src.application.use_cases.item.production_order.get_item_manufacturable imp
 
 from src.presentation.dependencies.auth import get_current_user
 
-router = APIRouter(prefix="/production-orders", tags=["Production Orders"])
+router = APIRouter(prefix="/items", tags=["Items"])
 
 
 @router.get("/manufacturable-items", response_model=list[ManufacturableItemSchema])
