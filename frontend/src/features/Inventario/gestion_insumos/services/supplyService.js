@@ -32,8 +32,9 @@ export const supplyService = {
   },
 
   // LOTS
-  getLots: async (itemId) => {
-    const response = await privateClient.get(ENDPOINTS.SUPPLIES.GET_LOTS(itemId))
+  getLots: async (itemId, status) => {
+    const params = status ? { status } : undefined
+    const response = await privateClient.get(ENDPOINTS.SUPPLIES.GET_LOTS(itemId), { params })
     return response.data
   },
 }
