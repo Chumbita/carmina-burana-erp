@@ -55,4 +55,8 @@ export const ENDPOINTS = {
   PRODUCTION_ORDERS: {
     CREATE: "/production-orders",
   },
+  // Items
+  ITEMS: {
+    GET_MANUFACTURABLE: "/items/manufacturable-items",
+  },
 };
