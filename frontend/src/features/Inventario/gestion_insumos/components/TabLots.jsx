@@ -10,7 +10,6 @@ const STATUS_OPTIONS = [
   { label: "Activo", value: "active" },
   { label: "Agotado", value: "depleted" },
   { label: "Vencido", value: "expired" },
-  { label: "Por vencer", value: "expiring_soon" },
   { label: "Todos", value: "all" },
 ]
 
@@ -68,7 +67,7 @@ export function TabLots({ itemId }) {
   const navigate = useNavigate()
   const [statusFilter, setStatusFilter] = useState("active")
   const statusParam = useMemo(
-    () => statusFilter === "all" ? undefined : [statusFilter],
+    () => statusFilter === "all" ? undefined : statusFilter,
     [statusFilter]
   )
   const { lots, loading, error } = useLots(itemId, statusParam)

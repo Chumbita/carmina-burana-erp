@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { supplyService } from "../services/supplyService"
 
-export function useLots(itemId, statusFilter = ["active"]) {
+export function useLots(itemId, statusFilter) {
   const [lots, setLots] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
