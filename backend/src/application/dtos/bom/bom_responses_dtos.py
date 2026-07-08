@@ -5,7 +5,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, List
 
 from src.domain.entities.bom import Bom
 
@@ -73,7 +73,11 @@ class BomDetailResponse:
     parent_item_id: int
     parent_item_name: str
     version: int
+    is_active: bool
     components_count: int
+    quantity: Decimal
+    bom_uom_id: int
+    bom_uom_symbol: str
     valid_from: datetime
     created_at: datetime
     lines: List[BomLineDetailResponse] = field(default_factory=list)
@@ -85,7 +89,11 @@ class BomDetailResponse:
             parent_item_id=data["parent_item_id"],
             parent_item_name=data["parent_item_name"],
             version=data["version"],
+            is_active=data["is_active"],
             components_count=data["components_count"],
+            quantity=data["quantity"],
+            bom_uom_id=data["bom_uom_id"],
+            bom_uom_symbol=data["bom_uom_symbol"],
             valid_from=data["valid_from"],
             created_at=data["created_at"],
             lines=[
