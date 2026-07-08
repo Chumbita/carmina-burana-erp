@@ -3,7 +3,6 @@ import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createProductionSchema } from "../schemas/production.schema";
 
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -17,18 +16,6 @@ import {
   SelectItem,
 } from "@/components/ui/Select";
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/Card";
-import {
-  FieldError,
-  Field,
-  FieldLabel,
-} from "@/components/ui/Field";
-import {
   Table,
   TableBody,
   TableCell,
@@ -36,11 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/Table";
-
-const itemTypeLabel = {
-  beer: "Cerveza",
-  product: "Producto",
-};
 
 function formatDecimal(value) {
   if (value === null || value === undefined || value === "") return "-";
@@ -56,20 +38,15 @@ export function ProductionForm({
   submitLabel = "Crear",
   cancelLabel = "Cancelar",
   isSubmitting = false,
-  layout = "modal",
-  // --- NUEVAS PROPS NECESARIAS PARA QUE EL COMPONENTE FUNCIONE ---
   beerOptions = [],
   productOptions = [],
   optionsLoading = false,
-  optionsError = false,
+  selectedBom = null, 
+  bomLoading = false,
 }) {
   const schema = createProductionSchema();
 
-  const {
-    handleSubmit,
-    control,
-    setValue,
-  } = useForm({
+  const { handleSubmit, control, setValue } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       item_id: defaultValues?.item_id ?? undefined,
@@ -81,357 +58,230 @@ export function ProductionForm({
     mode: "onChange",
   });
 
-  const isModal = layout === "modal";
-  
-  // Escuchamos los cambios en los selectores usando useWatch
   const selectedItemId = useWatch({ control, name: "item_id" });
-  const selectedBomId = useWatch({ control, name: "bom_id" });
+  const isItemSelected = selectedItemId !== undefined && selectedItemId !== null;
 
-  // Buscamos el item seleccionado dentro de las opciones disponibles
-  const selectedOption = useMemo(() => {
-    if (!selectedItemId) return null;
-    return (
-      beerOptions.find((b) => String(b.id) === String(selectedItemId)) ||
-      productOptions.find((p) => String(p.id) === String(selectedItemId)) ||
-      null
-    );
-  }, [selectedItemId, beerOptions, productOptions]);
+  const hasValidRecipe = isItemSelected && !bomLoading && selectedBom !== null && selectedBom?.id !== undefined;
 
-  // Las recetas dependen del item que esté seleccionado
-  const recipeOptions = useMemo(() => {
-    return selectedOption?.boms || []; 
-  }, [selectedOption]);
-
-  // Las líneas de insumos dependen de la receta (bom) seleccionada
   const selectedBomLines = useMemo(() => {
-    if (!selectedBomId || !recipeOptions.length) return [];
-    const currentBom = recipeOptions.find((bom) => String(bom.id) === String(selectedBomId));
-    return currentBom?.lines || [];
-  }, [selectedBomId, recipeOptions]);
+    return selectedBom?.lines || [];
+  }, [selectedBom]);
 
-  // Corregida la función que se había cortado en tu código
   const handleItemChange = (val, onChange) => {
-    const itemId = val === "0" ? undefined : Number(val);
+    const itemId = val === "placeholder" ? undefined : Number(val);
     onChange(itemId);
-
-    // Buscamos si el nuevo ítem tiene una receta por defecto
-    const targetItem =
-      beerOptions.find((b) => b.id === itemId) ||
-      productOptions.find((p) => p.id === itemId);
-
-    // Si tiene receta, la seteamos de forma automática
-    const defaultBomId = targetItem?.bom?.id || targetItem?.boms?.[0]?.id;
-
-    setValue("bom_id", defaultBomId ? Number(defaultBomId) : undefined, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
+    
+    if (!itemId) {
+      setValue("bom_id", undefined, { shouldValidate: true });
+    }
   };
 
+  useMemo(() => {
+    if (selectedBom?.id) {
+      setValue("bom_id", Number(selectedBom.id), { shouldValidate: true });
+    } else {
+      setValue("bom_id", undefined, { shouldValidate: true });
+    }
+  }, [selectedBom, setValue]);
+
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-4"
-    >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Datos principales (izquierda) */}
-        <Card className="md:col-span-2 shadow-sm border-neutral-200">
-          <CardHeader>
-            <CardTitle>Datos principales</CardTitle>
-            <CardDescription>
-              Elegí el producto final y su receta.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-neutral-800">
+      {/* Grid Principal */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+        
+        {/* COLUMNA IZQUIERDA: Formulario de Entrada */}
+        <div className="md:col-span-2 space-y-4 flex flex-col justify-between">
+          
+          {/* Bloque 1: Datos principales */}
+          <div className="space-y-3 border border-neutral-200 rounded-lg p-3.5 bg-white shadow-sm">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+              Datos principales
+            </h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Controller
                 name="item_id"
                 control={control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      ¿Qué se produce?
-                    </FieldLabel>
+                render={({ field }) => (
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-neutral-600">¿Qué se produce?</label>
                     <Select
-                      value={
-                        field.value !== undefined ? String(field.value) : "0"
-                      }
-                      onValueChange={(val) =>
-                        handleItemChange(val, field.onChange)
-                      }
+                      value={field.value !== undefined ? String(field.value) : "placeholder"}
+                      onValueChange={(val) => handleItemChange(val, field.onChange)}
                       disabled={optionsLoading}
                     >
-                      <SelectTrigger
-                        id={field.name}
-                        aria-invalid={fieldState.invalid}
-                      >
-                        <SelectValue
-                          placeholder={
-                            optionsLoading
-                              ? "Cargando opciones..."
-                              : "Selecciona un producto o cerveza..."
-                          }
-                        />
+                      <SelectTrigger className="h-9 text-xs px-3">
+                        <SelectValue placeholder="Seleccionar producto..." />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="placeholder" className="text-neutral-400 italic">
+                          Seleccionar producto...
+                        </SelectItem>
                         <SelectGroup>
                           <SelectLabel>Cervezas</SelectLabel>
-                          <SelectItem value="0">-- Seleccionar --</SelectItem>
-                          {beerOptions.length === 0 ? (
-                            <SelectItem value="no-beers" disabled>
-                              Sin cervezas disponibles
-                            </SelectItem>
-                          ) : (
-                            beerOptions.map((item) => (
-                              <SelectItem key={item.id} value={String(item.id)}>
-                                {item.name}
-                              </SelectItem>
-                            ))
-                          )}
+                          {beerOptions.map((item) => (
+                            <SelectItem key={item.id} value={String(item.id)}>{item.name}</SelectItem>
+                          ))}
                         </SelectGroup>
                         <SelectGroup>
                           <SelectLabel>Productos</SelectLabel>
-                          {productOptions.length === 0 ? (
-                            <SelectItem value="no-products" disabled>
-                              Sin productos disponibles
-                            </SelectItem>
-                          ) : (
-                            productOptions.map((item) => (
-                              <SelectItem key={item.id} value={String(item.id)}>
-                                {item.name}
-                              </SelectItem>
-                            ))
-                          )}
+                          {productOptions.map((item) => (
+                            <SelectItem key={item.id} value={String(item.id)}>{item.name}</SelectItem>
+                          ))}
                         </SelectGroup>
                       </SelectContent>
                     </Select>
-                    {optionsError && (
-                      <p className="text-sm text-destructive">
-                        No se pudieron cargar las opciones de producción.
-                      </p>
-                    )}
-                    {selectedOption && (
-                      <div className="mt-2">
-                        <Badge variant="outline">
-                          {itemTypeLabel[selectedOption.type] ?? "Item"}
-                        </Badge>
-                      </div>
-                    )}
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
+                  </div>
                 )}
               />
 
               <Controller
                 name="bom_id"
                 control={control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Receta / Lista de materiales
-                    </FieldLabel>
-                    <Select
-                      value={
-                        field.value !== undefined ? String(field.value) : "0"
-                      }
-                      onValueChange={(val) =>
-                        field.onChange(val === "0" ? undefined : Number(val))
-                      }
-                      disabled={!selectedOption}
-                    >
-                      <SelectTrigger
-                        id={field.name}
-                        aria-invalid={fieldState.invalid}
-                      >
-                        <SelectValue placeholder="Elegí primero un ítem" />
+                render={({ field }) => (
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-neutral-600">Receta / BOM</label>
+                    <Select value={field.value !== undefined ? String(field.value) : "placeholder"} disabled={true}>
+                      <SelectTrigger className="h-9 text-xs px-3 bg-neutral-50 border-neutral-200 text-neutral-500 cursor-not-allowed">
+                        <SelectValue>
+                          {bomLoading 
+                            ? "Cargando receta..." 
+                            : selectedBom 
+                              ? `Receta v${selectedBom.version || 1} (#${selectedBom.id})` 
+                              : isItemSelected 
+                                ? "⚠️ Este producto no tiene receta" 
+                                : "Automática por producto"
+                          }
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Recetas</SelectLabel>
-                          {recipeOptions.length === 0 ? (
-                            <SelectItem value="0" disabled>
-                              Sin receta seleccionada
-                            </SelectItem>
-                          ) : (
-                            recipeOptions.map((bom) => (
-                              <SelectItem key={bom.id} value={String(bom.id)}>
-                                Receta #{bom.id} - versión {bom.version}
-                              </SelectItem>
-                            ))
-                          )}
-                        </SelectGroup>
+                        <SelectItem value="placeholder" className="text-neutral-400 italic">
+                          Automática por producto
+                        </SelectItem>
                       </SelectContent>
                     </Select>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
+                  </div>
                 )}
               />
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Insumos (derecha) */}
-        <Card className="shadow-sm border-neutral-200">
-          <CardHeader>
-            <CardTitle>Lista de insumos</CardTitle>
-            <CardDescription>
-              Líneas de la receta seleccionada.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {optionsLoading ? (
-              <div className="rounded border-dashed border-2 border-neutral-200 p-6 text-center text-muted-foreground">
-                Cargando insumos...
+          {/* Bloque 2: Planificación */}
+          <div className="space-y-3 border border-neutral-200 rounded-lg p-3.5 bg-white shadow-sm flex-1 flex flex-col justify-between">
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+                Planificación
+              </h3>
+              <div className="grid grid-cols-2 gap-3 mt-1">
+                <Controller
+                  name="planned_quantity"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-medium text-neutral-600">Cant. a producir</label>
+                      <Input 
+                        {...field} 
+                        type="number" 
+                        className="h-9 text-xs px-3" 
+                        disabled={!hasValidRecipe} // Bloqueado si no hay receta válida
+                      />
+                    </div>
+                  )}
+                />
+                <Controller
+                  name="schedule_date"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-medium text-neutral-600">Fecha programada</label>
+                      <Input 
+                        {...field} 
+                        type="date" 
+                        className="h-9 text-xs px-3" 
+                        disabled={!hasValidRecipe} // Bloqueado si no hay receta válida
+                      />
+                    </div>
+                  )}
+                />
               </div>
-            ) : !selectedOption || !selectedBomId ? (
-              <div className="rounded border-dashed border-2 border-neutral-200 p-6 text-center text-muted-foreground">
-                Sin receta seleccionada.
+            </div>
+
+            <div className="mt-2">
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-neutral-600">Notas de planta</label>
+                    <Textarea 
+                      {...field} 
+                      className="min-h-[50px] text-xs py-1.5 px-3 leading-normal resize-none" 
+                      placeholder="Instrucciones para los operarios..." 
+                      disabled={!hasValidRecipe} // Bloqueado si no hay receta válida
+                    />
+                  </div>
+                )}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* COLUMNA DERECHA: Lista de Insumos */}
+        <div className="border border-neutral-200 rounded-lg p-3.5 bg-white shadow-sm flex flex-col h-full overflow-hidden">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">
+            Lista de insumos
+          </h3>
+          <div className="flex-1 overflow-y-auto pr-0.5">
+            {bomLoading ? (
+              <div className="h-full min-h-[160px] flex items-center justify-center text-xs text-neutral-400 border border-dashed border-neutral-200 rounded-md bg-neutral-50/50">
+                Buscando insumos de la receta...
+              </div>
+            ) : !isItemSelected ? (
+              <div className="h-full min-h-[160px] flex items-center justify-center text-xs text-neutral-400 border border-dashed border-neutral-200 rounded-md bg-neutral-50/50">
+                Esperando producto...
+              </div>
+            ) : !selectedBom ? (
+              <div className="h-full min-h-[160px] flex items-center justify-center text-xs text-red-500 font-medium border border-dashed border-red-200 rounded-md bg-red-50/30 p-4 text-center">
+                No se pueden cargar insumos porque el producto no cuenta con una receta registrada.
               </div>
             ) : selectedBomLines.length === 0 ? (
-              <div className="rounded border-dashed border-2 border-neutral-200 p-6 text-center text-muted-foreground">
-                La receta no tiene insumos cargados.
-              </div>
+              <div className="p-4 text-xs text-center text-neutral-400">Esta receta no contiene insumos.</div>
             ) : (
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Línea</TableHead>
-                    <TableHead>Insumo</TableHead>
-                    <TableHead>Cant.</TableHead>
-                    <TableHead>UOM</TableHead>
+                <TableHeader className="bg-neutral-50 sticky top-0 z-10">
+                  <TableRow className="hover:bg-transparent border-b border-neutral-200">
+                    <TableHead className="h-6 text-[10px] uppercase font-bold p-1 text-neutral-500">Insumo</TableHead>
+                    <TableHead className="h-6 text-[10px] uppercase font-bold text-right p-1 text-neutral-500">Cant.</TableHead>
+                    <TableHead className="h-6 text-[10px] uppercase font-bold text-right p-1 text-neutral-500">UOM</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {selectedBomLines.map((line) => (
-                    <TableRow key={line.id}>
-                      <TableCell>#{line.id}</TableCell>
-                      <TableCell>#{line.component_item_id}</TableCell>
-                      <TableCell>{formatDecimal(line.quantity)}</TableCell>
-                      <TableCell>{line.uom ? `#${line.uom}` : "-"}</TableCell>
+                    <TableRow key={line.id} className="border-b border-neutral-100 hover:bg-neutral-50/80">
+                      <TableCell className="p-1 py-1.5 text-xs truncate max-w-[80px]">#{line.component_item_id}</TableCell>
+                      <TableCell className="p-1 py-1.5 text-xs text-right font-medium">{formatDecimal(line.quantity)}</TableCell>
+                      <TableCell className="p-1 py-1.5 text-xs text-right text-neutral-400">{line.uom ?? "-"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      {/* Planificación */}
-      <Card className="shadow-sm border-neutral-200">
-        <CardHeader>
-          <CardTitle>Planificación</CardTitle>
-          <CardDescription>
-            Cantidad, fecha y notas para la planta.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Controller
-                name="planned_quantity"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Cantidad a producir
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      type="number"
-                      aria-invalid={fieldState.invalid}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === ""
-                            ? undefined
-                            : Number(e.target.value),
-                        )
-                      }
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-            </div>
-
-            <div>
-              <Controller
-                name="schedule_date"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Fecha programada
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      type="date"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <Controller
-                name="description"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Notas / descripción
-                    </FieldLabel>
-                    <Textarea
-                      {...field}
-                      id={field.name}
-                      placeholder="Instrucciones para los operarios, observaciones, etc."
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end mt-4 gap-2">
-            {onCancel && (
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={onCancel}
-                disabled={isSubmitting}
-                className="cursor-pointer"
-              >
-                {cancelLabel}
-              </Button>
-            )}
-
-            <Button
-              size="sm"
-              type="submit"
-              disabled={isSubmitting}
-              className="cursor-pointer"
-            >
-              {isSubmitting ? "Creando..." : submitLabel}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Footer del Formulario */}
+      <div className="flex justify-end gap-2 pt-3 border-t border-neutral-100">
+        {onCancel && (
+          <Button type="button" size="sm" variant="outline" onClick={onCancel} disabled={isSubmitting} className="h-8 text-xs px-3.5">
+            {cancelLabel}
+          </Button>
+        )}
+        {/* El botón de crear se bloquea por completo si no hay una receta válida cargada */}
+        <Button size="sm" type="submit" disabled={isSubmitting || !hasValidRecipe} className="h-8 text-xs px-3.5">
+          {isSubmitting ? "Creando..." : submitLabel}
+        </Button>
+      </div>
     </form>
   );
 }
