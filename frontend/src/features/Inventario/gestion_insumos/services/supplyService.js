@@ -30,4 +30,10 @@ export const supplyService = {
     const response = await privateClient.delete(ENDPOINTS.SUPPLIES.DELETE(id))
     return response.data
   },
+
+  // LOTS
+  getLots: async (itemId) => {
+    const response = await privateClient.get(ENDPOINTS.SUPPLIES.GET_LOTS(itemId))
+    return response.data
+  },
 }
