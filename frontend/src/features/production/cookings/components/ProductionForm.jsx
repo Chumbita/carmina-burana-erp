@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createProductionSchema } from "../schemas/production.schema";
@@ -6,7 +6,7 @@ import { createProductionSchema } from "../schemas/production.schema";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/TextArea";
+import { Textarea } from "@/components/ui/Textarea";
 import {
   Select,
   SelectTrigger,
@@ -36,7 +36,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/Table";
-import { useProductionOptions } from "../hooks/useProductionOptions";
 
 const itemTypeLabel = {
   beer: "Cerveza",
@@ -58,6 +57,11 @@ export function ProductionForm({
   cancelLabel = "Cancelar",
   isSubmitting = false,
   layout = "modal",
+  // --- NUEVAS PROPS NECESARIAS PARA QUE EL COMPONENTE FUNCIONE ---
+  beerOptions = [],
+  productOptions = [],
+  optionsLoading = false,
+  optionsError = false,
 }) {
   const schema = createProductionSchema();
 
@@ -78,58 +82,56 @@ export function ProductionForm({
   });
 
   const isModal = layout === "modal";
-  const {
-    options: productionOptions = [],
-    loading: optionsLoading,
-    error: optionsError,
-  } = useProductionOptions();
+  
+  // Escuchamos los cambios en los selectores usando useWatch
   const selectedItemId = useWatch({ control, name: "item_id" });
   const selectedBomId = useWatch({ control, name: "bom_id" });
 
-  const beerOptions = useMemo(
-    () => productionOptions.filter((option) => option.type === "beer"),
-    [productionOptions],
-  );
+  // Buscamos el item seleccionado dentro de las opciones disponibles
+  const selectedOption = useMemo(() => {
+    if (!selectedItemId) return null;
+    return (
+      beerOptions.find((b) => String(b.id) === String(selectedItemId)) ||
+      productOptions.find((p) => String(p.id) === String(selectedItemId)) ||
+      null
+    );
+  }, [selectedItemId, beerOptions, productOptions]);
 
-  const productOptions = useMemo(
-    () => productionOptions.filter((option) => option.type === "product"),
-    [productionOptions],
-  );
+  // Las recetas dependen del item que esté seleccionado
+  const recipeOptions = useMemo(() => {
+    return selectedOption?.boms || []; 
+  }, [selectedOption]);
 
-  const selectedOption = useMemo(
-    () => productionOptions.find((option) => option.id === selectedItemId),
-    [productionOptions, selectedItemId],
-  );
+  // Las líneas de insumos dependen de la receta (bom) seleccionada
+  const selectedBomLines = useMemo(() => {
+    if (!selectedBomId || !recipeOptions.length) return [];
+    const currentBom = recipeOptions.find((bom) => String(bom.id) === String(selectedBomId));
+    return currentBom?.lines || [];
+  }, [selectedBomId, recipeOptions]);
 
-  const selectedBom = selectedOption?.bom;
-  const selectedBomLines = selectedBom?.lines ?? [];
-  const recipeOptions = selectedBom ? [selectedBom] : [];
-
-  useEffect(() => {
-    if (!selectedOption?.bom?.id) return;
-    if (selectedBomId === selectedOption.bom.id) return;
-
-    setValue("bom_id", selectedOption.bom.id, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-  }, [selectedOption, selectedBomId, setValue]);
-
-  function handleItemChange(value, onChange) {
-    const itemId = value === "0" ? undefined : Number(value);
-    const option = productionOptions.find((item) => item.id === itemId);
-
+  // Corregida la función que se había cortado en tu código
+  const handleItemChange = (val, onChange) => {
+    const itemId = val === "0" ? undefined : Number(val);
     onChange(itemId);
-    setValue("bom_id", option?.bom?.id, {
+
+    // Buscamos si el nuevo ítem tiene una receta por defecto
+    const targetItem =
+      beerOptions.find((b) => b.id === itemId) ||
+      productOptions.find((p) => p.id === itemId);
+
+    // Si tiene receta, la seteamos de forma automática
+    const defaultBomId = targetItem?.bom?.id || targetItem?.boms?.[0]?.id;
+
+    setValue("bom_id", defaultBomId ? Number(defaultBomId) : undefined, {
       shouldDirty: true,
       shouldValidate: true,
     });
-  }
+  };
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className={isModal ? "space-y-4" : "space-y-4"}
+      className="space-y-4"
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Datos principales (izquierda) */}
@@ -205,13 +207,15 @@ export function ProductionForm({
                     </Select>
                     {optionsError && (
                       <p className="text-sm text-destructive">
-                        No se pudieron cargar las opciones de produccion.
+                        No se pudieron cargar las opciones de producción.
                       </p>
                     )}
                     {selectedOption && (
-                      <Badge variant="outline">
-                        {itemTypeLabel[selectedOption.type] ?? "Item"}
-                      </Badge>
+                      <div className="mt-2">
+                        <Badge variant="outline">
+                          {itemTypeLabel[selectedOption.type] ?? "Item"}
+                        </Badge>
+                      </div>
                     )}
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -241,7 +245,7 @@ export function ProductionForm({
                         id={field.name}
                         aria-invalid={fieldState.invalid}
                       >
-                        <SelectValue placeholder="Elegi primero un item" />
+                        <SelectValue placeholder="Elegí primero un ítem" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -253,7 +257,7 @@ export function ProductionForm({
                           ) : (
                             recipeOptions.map((bom) => (
                               <SelectItem key={bom.id} value={String(bom.id)}>
-                                Receta #{bom.id} - version {bom.version}
+                                Receta #{bom.id} - versión {bom.version}
                               </SelectItem>
                             ))
                           )}
@@ -275,7 +279,7 @@ export function ProductionForm({
           <CardHeader>
             <CardTitle>Lista de insumos</CardTitle>
             <CardDescription>
-              Lineas de la receta seleccionada.
+              Líneas de la receta seleccionada.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -283,7 +287,7 @@ export function ProductionForm({
               <div className="rounded border-dashed border-2 border-neutral-200 p-6 text-center text-muted-foreground">
                 Cargando insumos...
               </div>
-            ) : !selectedOption ? (
+            ) : !selectedOption || !selectedBomId ? (
               <div className="rounded border-dashed border-2 border-neutral-200 p-6 text-center text-muted-foreground">
                 Sin receta seleccionada.
               </div>
@@ -295,7 +299,7 @@ export function ProductionForm({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Linea</TableHead>
+                    <TableHead>Línea</TableHead>
                     <TableHead>Insumo</TableHead>
                     <TableHead>Cant.</TableHead>
                     <TableHead>UOM</TableHead>
