@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom"
 import { DataTable } from "@/components/shared/DataTable"
 import { Badge } from "@/components/ui/Badge"
+import { formatDate, formatCurrency } from "@/lib/utils/formatters"
 import { useLots } from "../hooks/useLots"
 
 const lotStatusStyles = {
@@ -15,18 +16,6 @@ const lotStatusLabels = {
   depleted: "Agotado",
   expired: "Vencido",
   expiring_soon: "Por vencer",
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return "—"
-  return new Date(dateStr).toLocaleDateString("es-AR")
-}
-
-function formatCurrency(value) {
-  return Number(value).toLocaleString("es-AR", {
-    style: "currency",
-    currency: "ARS",
-  })
 }
 
 const columns = [
