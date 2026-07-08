@@ -30,7 +30,7 @@ async def get_list_item_options(
     return result
 
 
-router = APIRouter(prefix="/production-orders", tags=["Production Orders"])
+router = APIRouter(prefix="/items", tags=["Items"])
 
 
 @router.get("/manufacturable-items", response_model=list[ManufacturableItemSchema])
