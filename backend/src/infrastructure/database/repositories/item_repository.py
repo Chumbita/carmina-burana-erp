@@ -8,6 +8,7 @@ from sqlalchemy import select
 
 from src.domain.entities.item import Item
 from src.infrastructure.database.models.item_model import ItemModel
+from src.infrastructure.database.models.item_type_model import ItemTypeModel
 
 
 class ItemRepository:
@@ -164,9 +165,21 @@ class ItemRepository:
         """
         Obtiene todos los items marcados como manufacturables (no eliminados).
         """
-        stmt = select(ItemModel).where(
-            ItemModel.is_manufacturable.is_(True),
-            ItemModel.deleted_at.is_(None),
+        stmt = (
+            select(
+                ItemModel.id,
+                ItemModel.name,
+                ItemTypeModel.code.label("item_type_name")
+            )
+            .join(ItemTypeModel, ItemModel.item_type_id == ItemTypeModel.id)
+            .where(
+                ItemModel.is_manufacturable.is_(True),
+                ItemModel.deleted_at.is_(None),
+            )
         )
         result = await self._session.execute(stmt)
-        return [self._to_entity(m) for m in result.scalars().all()]
+        rows = result.all()
+        return [
+            {"id": r.id, "name": r.name, "item_type_name": r.item_type_name}
+            for r in rows
+        ]
