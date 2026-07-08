@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { TabSupply } from './TabSupply'
 
+import { TabLots } from './TabLots'
+
 //componentes shadcn
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs'
 
@@ -18,7 +20,7 @@ export function SupplyDetailTabs({ insumo, onSupplyUpdated, availableSupplies = 
 
         <div className="overflow-y-auto min-h-0">
           {contentOption === "insumos" && <TabSupply insumo={insumo} onSupplyUpdated={onSupplyUpdated} availableSupplies={availableSupplies} />}
-          {contentOption === "lotes" && <p>Contenido de Lotes</p>}
+          {contentOption === "lotes" && <TabLots itemId={insumo?.id} />}
         </div>
       </Tabs>
     </div>
