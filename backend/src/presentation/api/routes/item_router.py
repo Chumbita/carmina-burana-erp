@@ -2,7 +2,6 @@
 # ROUTER - ITEM
 # ══════════════════════════════════════════════════════════════════════════════
 
-import logging
 from fastapi import APIRouter, Depends
 from typing import List
 
@@ -11,9 +10,11 @@ from src.presentation.dependencies.auth import get_current_user
 
 from src.presentation.schemas.item_schemas import ItemOptionResponse
 from src.application.use_cases.item.list_item_options_use_case import ListItemOptionsUseCase
+from src.presentation.schemas.item_schema import ManufacturableItemSchema
+from src.application.use_cases.item.production_order.get_item_manufacturable import GetManufacturableItemsUseCase
 from src.presentation.dependencies.use_cases.item import get_list_item_options_use_case
+from src.presentation.dependencies.use_cases.item import get_manufacturable_items_use_case
 
-logger = logging.getLogger(__name__)
 
 item_router = APIRouter(prefix="/items", tags=["Items"])
 
@@ -23,7 +24,18 @@ async def get_list_item_options(
     use_case: ListItemOptionsUseCase = Depends(get_list_item_options_use_case),
     current_user: User = Depends(get_current_user),
 ):
-    logger.info("GET /items/options called by user=%s", current_user.id)
+
     result = await use_case.execute()
-    logger.info("GET /items/options returning %d items", len(result))
+
     return result
+
+
+router = APIRouter(prefix="/production-orders", tags=["Production Orders"])
+
+
+@router.get("/manufacturable-items", response_model=list[ManufacturableItemSchema])
+async def get_manufacturable_items(
+    use_case: GetManufacturableItemsUseCase = Depends(get_manufacturable_items_use_case),
+    #current_user: User = Depends(get_current_user), 
+):
+    return await use_case.execute()
