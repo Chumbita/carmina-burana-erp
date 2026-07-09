@@ -15,3 +15,9 @@ class SupplierResponse:
     status: SupplierStatus = SupplierStatus.ACTIVE
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+
+
+@dataclass
+class SupplierOptionResponse:
+    id: int
+    name: str

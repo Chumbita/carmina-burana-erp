@@ -15,7 +15,10 @@ from src.domain.exceptions.inventory_exceptions import DuplicateLotCodeError
 
 from src.domain.exceptions.supply_entry_exceptions import SupplyEntryNotFound
 
-from src.domain.exceptions.supplier_exceptions import DuplicateSupplierNameError
+from src.domain.exceptions.supplier_exceptions import (
+    DuplicateSupplierNameError,
+    SupplierNotFoundError,
+)
 
 
 def register_exception_handlers(app: FastAPI) -> None:
@@ -73,6 +76,10 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(DuplicateSupplierNameError)
     async def duplicate_supplier_name_handler(request: Request, exc: DuplicateSupplierNameError):
         return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+    @app.exception_handler(SupplierNotFoundError)
+    async def supplier_not_found_handler(request: Request, exc: SupplierNotFoundError):
+        return JSONResponse(status_code=404, content={"detail": str(exc)})
 
     # ======================
     # INVENTORY EXCEPTIONS
