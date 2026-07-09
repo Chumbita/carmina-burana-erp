@@ -18,6 +18,7 @@ from src.application.use_cases.supply.read_supply import GetActiveSupplyDetailUs
 from src.application.use_cases.supply.delete_supply import DeleteSupplyUseCase
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
 from src.application.use_cases.supply.update_supply import UpdateSupplyUseCase
+from src.application.use_cases.supply.list_supply_transactions import ListSupplyTransactionsUseCase
 
 from src.presentation.schemas.supply_schemas import (
     CreateSupplyRequestSchema,
@@ -26,13 +27,15 @@ from src.presentation.schemas.supply_schemas import (
     SupplyResponseSchema,
     UpdateSupplyRequestSchema,
 )
+from src.presentation.schemas.inventory_transaction_schemas import TransactionResponseSchema
 from src.presentation.dependencies.use_cases.supply import (
     get_active_supply_detail_use_case,
     get_create_supply_use_case,
     get_list_active_supplies_use_case,
     get_supply_repository,
     get_delete_supply_use_case,
-    get_update_supply_use_case
+    get_update_supply_use_case,
+    get_list_supply_transactions_use_case,
 )
 from src.presentation.dependencies.auth import get_current_user
 
@@ -168,3 +171,19 @@ async def update_supply(
         specialized_data={"supply_category": body.supply_category.value} if body.supply_category else None,
     )
     return await use_case.execute(command)
+
+
+@router.get(
+    "/{item_id}/transactions",
+    response_model=List[TransactionResponseSchema],
+    summary="Historial de movimientos de un insumo",
+)
+async def list_supply_transactions(
+    item_id: int,
+    use_case: ListSupplyTransactionsUseCase = Depends(get_list_supply_transactions_use_case),
+    #current_user: User = Depends(get_current_user),
+) -> list[dict]:
+    try:
+        return await use_case.execute(item_id)
+    except ItemNotFoundException as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
