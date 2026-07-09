@@ -11,9 +11,11 @@ from .supply_entry_line_model import SupplyEntryLineModel
 from .inventory_lot_model import InventoryLotModel
 from .inventory_balance_model import InventoryBalanceModel
 from .inventory_transaction_model import InventoryTransactionModel
+from .packaging_supply_model import PackagingSupplyModel
 
 __all__ = [
     "UserModel", "ItemModel", "ItemTypeModel", "BrandModel", "UomModel", "SupplyModel",
     "SupplierModel", "SupplyEntryOrderModel", "SupplyEntryLineModel",
     "InventoryLotModel", "InventoryBalanceModel", "InventoryTransactionModel",
+    "PackagingSupplyModel",
 ]
