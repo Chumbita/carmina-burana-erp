@@ -16,8 +16,10 @@ export function SupplyDetailTabs({ insumo, onSupplyUpdated, availableSupplies = 
           <TabsTrigger value="lotes" className="cursor-pointer">Lotes</TabsTrigger>
         </TabsList>
 
-        {contentOption === "insumos" && <TabSupply insumo={insumo} onSupplyUpdated={onSupplyUpdated} availableSupplies={availableSupplies} />}
-        {contentOption === "lotes" && <p>Contenido de Lotes</p>}
+        <div className="overflow-y-auto min-h-0">
+          {contentOption === "insumos" && <TabSupply insumo={insumo} onSupplyUpdated={onSupplyUpdated} availableSupplies={availableSupplies} />}
+          {contentOption === "lotes" && <p>Contenido de Lotes</p>}
+        </div>
       </Tabs>
     </div>
   );

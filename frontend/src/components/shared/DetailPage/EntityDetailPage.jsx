@@ -43,7 +43,7 @@ function Sidebar({ icon, children }) {
 
 function Content({ children }) {
   return (
-    <main className="border rounded-md p-4">
+    <main className="border rounded-md p-4 overflow-y-auto min-h-0">
       {children}
     </main>
   );
@@ -51,7 +51,7 @@ function Content({ children }) {
 
 function History({ itemId }) {
   return (
-    <section>
+    <section className="lg:col-span-2">
       <h2 className="text-xl font-semibold mb-4">Historial de Movimientos</h2>
       <TransactionsTable itemId={itemId} />
     </section>
@@ -68,7 +68,7 @@ export function EntityDetailPage({ loading, error, children }) {
 
   return (
     <EntityDetailProvider>
-      <div className="grid grid-cols-1 grid-rows-[auto_auto_1fr] lg:grid-cols-[240px_1fr] lg:grid-rows-[auto_1fr] gap-6">
+      <div className="grid grid-cols-1 grid-rows-[auto_auto_1fr_auto] lg:grid-cols-[240px_1fr] lg:grid-rows-[auto_1fr_auto] gap-6 h-full">
         {children}
       </div>
     </EntityDetailProvider>
