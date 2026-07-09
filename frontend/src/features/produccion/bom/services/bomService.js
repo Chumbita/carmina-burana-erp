@@ -11,4 +11,9 @@ export const bomService = {
     const response = await privateClient.get(ENDPOINTS.BOM.GET_ALL)
     return response.data
   },
+
+  getById: async(id) => {
+    const response = await privateClient.get(ENDPOINTS.BOM.GET_BY_ID(id))
+    return response.data
+  }
 }

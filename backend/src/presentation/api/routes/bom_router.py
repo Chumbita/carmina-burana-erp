@@ -11,15 +11,18 @@ from src.domain.entities.user import User
 from src.application.dtos.bom.bom_commands_dtos import CreateBomCommand, CreateBomLineData
 from src.application.use_cases.bom.create_bom_use_case import CreateBomUseCase
 from src.application.use_cases.bom.list_active_boms_use_case import ListActiveBomsUseCase
+from src.application.use_cases.bom.get_bom_by_id_use_case import GetBomByIdUseCase
 
 from src.presentation.schemas.bom_schemas import (
     CreateBomRequestSchema,
     BomCreatedResponseSchema,
     BomListItemResponseSchema,
+    BomDetailResponseSchema,
 )
 from src.presentation.dependencies.use_cases.bom import (
     get_create_bom_use_case,
     get_list_active_boms_use_case,
+    get_bom_by_id_use_case,
 )
 from src.presentation.dependencies.auth import get_current_user
 
@@ -41,6 +44,23 @@ async def list_active_boms(
     """
     result = await use_case.execute()
     return [BomListItemResponseSchema.model_validate(item) for item in result]
+
+
+@router.get(
+    "/{id}",
+    status_code=status.HTTP_200_OK,
+    summary="Obtener detalle de un BOM",
+    response_model=BomDetailResponseSchema,
+)
+async def get_bom_by_id(
+    id: int,
+    use_case: GetBomByIdUseCase = Depends(get_bom_by_id_use_case),
+) -> dict:
+    """
+    Retorna el detalle completo de un BOM, incluyendo header y líneas de componente.
+    """
+    result = await use_case.execute(id)
+    return BomDetailResponseSchema.model_validate(result)
 
 
 @router.post(
