@@ -67,6 +67,10 @@ export function AppSidebar({ ...props }) {
             title: "Recetas",
             url: "/produccion/recetas",
           },
+          {
+            title: "Fórmulas",
+            url: "/produccion/bom",
+          },
         ],
       },
       {

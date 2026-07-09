@@ -19,6 +19,8 @@ from src.infrastructure.database.models.supply_entry_line_model import SupplyEnt
 from src.infrastructure.database.models.inventory_lot_model import InventoryLotModel
 from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
 from src.infrastructure.database.models.inventory_transaction_model import InventoryTransactionModel
+from src.infrastructure.database.models.bom_model import BomModel
+from src.infrastructure.database.models.bom_line_model import BomLineModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -90,7 +92,7 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",

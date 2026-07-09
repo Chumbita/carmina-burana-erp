@@ -61,3 +61,9 @@ class UomRepository(IUomRepository):
         rows = result.all()
 
         return [UomOption(id = row.id, name=row.name, symbol=row.symbol) for row in rows]
+
+    async def get_symbol_by_id(self, uom_id: int) -> Optional[str]:
+        stmt = select(UomModel.symbol).where(UomModel.id == uom_id)
+        result = await self._session.execute(stmt)
+        row = result.scalar_one_or_none()
+        return row
