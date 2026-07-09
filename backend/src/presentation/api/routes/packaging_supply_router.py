@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends
 from fastapi import status
 
@@ -5,15 +7,18 @@ from src.domain.entities.user import User
 
 from src.application.dtos.items.item_commands_dtos import CreateItemCommand
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
+from src.application.use_cases.packaging_supply.read_packaging_supply import ListActivePackagingSuppliesUseCase
 
 from src.infrastructure.database.repositories.packaging_supply_repository import PackagingSupplyRepository
 
 from src.presentation.schemas.packaging_supply_schemas import (
     CreatePackagingSupplyRequestSchema,
+    PackagingSupplyGeneralResponseSchema,
     PackagingSupplyResponseSchema,
 )
 from src.presentation.dependencies.use_cases.packaging_supply import (
     get_create_packaging_supply_use_case,
+    get_list_active_packaging_supplies_use_case,
     get_packaging_supply_repository,
     get_packaging_supply_item_type_id,
 )
@@ -22,6 +27,14 @@ from src.presentation.dependencies.auth import get_current_user
 
 
 router = APIRouter(prefix="/packaging-supplies", tags=["Packaging Supplies"])
+
+
+@router.get("", response_model=List[PackagingSupplyGeneralResponseSchema], summary="Listar packaging supplies activos")
+async def list_active_packaging_supplies(
+    use_case: ListActivePackagingSuppliesUseCase = Depends(get_list_active_packaging_supplies_use_case),
+    current_user: User = Depends(get_current_user),
+) -> list[dict]:
+    return await use_case.execute()
 
 
 @router.post(

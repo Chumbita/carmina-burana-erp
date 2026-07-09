@@ -7,7 +7,7 @@ from decimal import Decimal
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from src.domain.entities.packaging_supply import PackagingSupply
 from src.domain.repositories.packaging_supply_repository import (
@@ -17,6 +17,7 @@ from src.domain.repositories.packaging_supply_repository import (
 from src.infrastructure.database.models.packaging_supply_model import PackagingSupplyModel
 from src.infrastructure.database.models.item_model import ItemModel
 from src.infrastructure.database.models.brand_model import BrandModel
+from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
 from src.infrastructure.database.models.uom_model import UomModel
 
 from src.domain.exceptions.packaging_supply_exceptions import PackagingSupplyNotFoundException
@@ -115,3 +116,52 @@ class PackagingSupplyRepository(IPackagingSupplyRepository):
             material=row.material,
             capacity_ml=Decimal(str(row.capacity_ml)) if row.capacity_ml is not None else None,
         )
+
+    async def list_active_packaging_supplies_general(self) -> list[dict]:
+        balance_totals = (
+            select(
+                InventoryBalanceModel.item_id.label("item_id"),
+                func.sum(InventoryBalanceModel.quantity).label("stock_total"),
+            )
+            .where(InventoryBalanceModel.quantity > 0)
+            .group_by(InventoryBalanceModel.item_id)
+            .subquery()
+        )
+
+        stmt = (
+            select(
+                ItemModel.id.label("id"),
+                ItemModel.name.label("name"),
+                BrandModel.name.label("brand_name"),
+                UomModel.symbol.label("base_uom_symbol"),
+                ItemModel.min_stock_level.label("min_stock_level"),
+                PackagingSupplyModel.packaging_type.label("packaging_type"),
+                PackagingSupplyModel.material.label("material"),
+                PackagingSupplyModel.capacity_ml.label("capacity_ml"),
+                func.coalesce(balance_totals.c.stock_total, 0).label("stock_total"),
+            )
+            .join(PackagingSupplyModel, PackagingSupplyModel.item_id == ItemModel.id)
+            .join(BrandModel, BrandModel.id == ItemModel.brand_id)
+            .join(UomModel, UomModel.id == ItemModel.base_uom_id)
+            .outerjoin(balance_totals, balance_totals.c.item_id == ItemModel.id)
+            .where(ItemModel.status == "ACTIVE")
+            .order_by(ItemModel.name.asc())
+        )
+
+        result = await self._session.execute(stmt)
+        rows = result.all()
+
+        return [
+            {
+                "id": row.id,
+                "name": row.name,
+                "brand_name": row.brand_name,
+                "base_uom_symbol": row.base_uom_symbol,
+                "min_stock_level": row.min_stock_level,
+                "packaging_type": row.packaging_type,
+                "material": row.material,
+                "capacity_ml": Decimal(str(row.capacity_ml)) if row.capacity_ml is not None else None,
+                "stock_total": float(row.stock_total),
+            }
+            for row in rows
+        ]

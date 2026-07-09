@@ -8,6 +8,7 @@ from src.infrastructure.database.repositories.packaging_supply_repository import
 from src.infrastructure.database.models.item_type_model import ItemTypeModel
 
 from src.application.use_cases.packaging_supply.create_packaging_supply import PackagingSupplyItemCreator
+from src.application.use_cases.packaging_supply.read_packaging_supply import ListActivePackagingSuppliesUseCase
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
 
 
@@ -36,3 +37,9 @@ async def get_packaging_supply_item_type_id(
     if item_type_id is None:
         raise ValueError("Item type 'packaging_supply' not found. Run seed first.")
     return item_type_id
+
+
+def get_list_active_packaging_supplies_use_case(
+    repo: PackagingSupplyRepository = Depends(get_packaging_supply_repository),
+) -> ListActivePackagingSuppliesUseCase:
+    return ListActivePackagingSuppliesUseCase(repo)

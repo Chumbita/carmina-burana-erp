@@ -29,3 +29,16 @@ class PackagingSupplyResponseSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class PackagingSupplyGeneralResponseSchema(BaseModel):
+    id: int
+    name: str
+    brand_name: str
+    base_uom_symbol: str
+    min_stock_level: Decimal
+    packaging_type: PackagingType
+    material: str
+    capacity_ml: Optional[Decimal] = None
+    stock_total: float
+    estado_stock: str
