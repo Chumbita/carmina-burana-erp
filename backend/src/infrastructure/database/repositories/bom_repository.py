@@ -1,132 +1,307 @@
-from typing import List, Optional
-from sqlalchemy import select
+from typing import Optional, Sequence
+
+from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.domain.entities.bom import Bom, BomItem
+from src.domain.entities.bom import Bom, BomLine
+from src.domain.repositories.bom_repository import IBomRepository
 from src.infrastructure.database.models.bom_model import BomModel
-from src.infrastructure.database.models.bom_item_model import BomItemModel
+from src.infrastructure.database.models.bom_line_model import BomLineModel
+from src.infrastructure.database.models.item_model import ItemModel
 
-class BomRepository:
-    def __init__(self, session: AsyncSession):
+
+class BomRepository(IBomRepository):
+
+    def __init__(self, session: AsyncSession) -> None:
         self._session = session
-        
-    # ======================
-    # MAPPERS METHODS
-    # ======================
+
+    # ── Mappers ──────────────────────────────────────────────────
+
+    @staticmethod
+    def _to_entity(model: BomModel) -> Bom:
+        bom = Bom(
+            id=model.id,
+            parent_item_id=model.parent_item_id,
+            version=model.version,
+            is_active=model.is_active,
+            quantity=model.quantity,
+            uom_id=model.uom_id,
+            valid_from=model.valid_from,
+            valid_to=model.valid_to,
+            created_at=model.created_at,
+        )
+
+        bom.lines = [
+            BomLine(
+                id=line.id,
+                bom_id=line.bom_id,
+                component_item_id=line.component_item_id,
+                quantity=line.quantity,
+                uom=line.uom,
+                created_at=line.created_at,
+            )
+            for line in model.lines
+        ]
+
+        return bom
+
     @staticmethod
     def _to_model(bom: Bom) -> BomModel:
-        bom_model = BomModel(
-            id= bom.id,
-            product_id= bom.product_id,
-            version= bom.version,
-            base_quantity= bom.base_quantity,
-            base_unit= bom.base_unit,
-            standard_yield_pct= bom.standard_yield_pct,
-            is_active= bom.is_active,
-            created_at= bom.created_at
+        model = BomModel(
+            parent_item_id=bom.parent_item_id,
+            version=bom.version,
+            is_active=bom.is_active,
+            quantity=bom.quantity,
+            uom_id=bom.uom_id,
+            valid_from=bom.valid_from,
+            valid_to=bom.valid_to,
+            created_at=bom.created_at,
         )
-        
-        # mapear los items
-        bom_model.items = [
-            BomItemModel(
-                id= item.id,
-                bom_id= bom.id,
-                component_type= item.component_type,
-                input_id= item.input_id,
-                product_id= item.product_id,
-                quantity= item.quantity
-            )
-            for item in bom.items
-        ]
-        
-        return bom_model
-    
-    @staticmethod
-    def _to_entity(bom: BomModel) -> Bom:
-        bom_entity = Bom(
-            id= bom.id,
-            product_id= bom.product_id,
-            version= bom.version,
-            base_unit= bom.base_unit,
-            base_quantity= bom.base_quantity,
-            standard_yield_pct= bom.standard_yield_pct,
-            is_active= bom.is_active,
-            created_at= bom.created_at
-        )
-        
-        bom_entity.items = [
-            BomItem(
-                id= item.id,
-                component_type= item.component_type,
-                input_id= item.input_id,
-                product_id= item.product_id,
-                quantity= item.quantity
-            )
-            for item in bom.items
-        ]
-        
-        return bom_entity
 
-    # ======================
-    # READ METHODS
-    # ======================
-    
-    # Read all
-    async def find_all(self) -> List[Bom]:
-        stmt= select(BomModel).options(selectinload(BomModel.items))
-        result= await self._session.execute(stmt)
-        rows= result.scalars().all()
-        
-        return [self._to_entity(row) for row in rows]
-    
-    # Read only actives
-    async def find_actives(self) -> List[Bom]:
-        stmt= select(BomModel).where(BomModel.is_active.is_(True)).options(selectinload(BomModel.items))
-        result= await self._session.execute(stmt)
-        rows= result.scalars().all()
-        
-        return [self._to_entity(row) for row in rows]
-    
-    # Read by id
-    async def find_by_id(self, id: int) -> Optional[Bom]:
-        stmt= select(BomModel).where(BomModel.id == id).options(selectinload(BomModel.items))
-        result= await self._session.execute(stmt)
-        row= result.scalar_one_or_none()
-        
-        return self._to_entity(row) if row else None
-    
-    # ======================
-    # CREATE METHOD
-    # ======================
-    async def create(self, bom: Bom) -> Bom:
-        stmt= select(BomModel).where(BomModel.product_id == bom.product_id).order_by(BomModel.version.desc())
-        result= await self._session.execute(stmt)
-        last_bom = result.scalars().first()
-        
-        new_version= 1 if last_bom is None else last_bom.version + 1
-        model= self._to_model(bom)
-        model.id= None
-        model.version= new_version
-        
+        if bom.id is not None:
+            model.id = bom.id
+
+        model.lines = [
+            BomLineModel(
+                bom_id=bom.id,
+                component_item_id=line.component_item_id,
+                quantity=line.quantity,
+                uom=line.uom,
+                created_at=line.created_at,
+            )
+            for line in bom.lines
+        ]
+
+        return model
+
+
+    # ── Commands ──────────────────────────────────────────────
+
+    async def add(self, bom: Bom) -> None:
+        """
+        Persiste un nuevo BOM con sus líneas en una única transacción.
+        Después del flush, copia los IDs generados de vuelta a las entidades de dominio.
+        """
+        model = BomModel(
+            parent_item_id=bom.parent_item_id,
+            version=bom.version,
+            is_active=bom.is_active,
+            quantity=bom.quantity,
+            uom_id=bom.uom_id,
+            valid_from=bom.valid_from,
+            valid_to=bom.valid_to,
+            created_at=bom.created_at,
+        )
+        model.lines = [
+            BomLineModel(
+                component_item_id=line.component_item_id,
+                quantity=line.quantity,
+                uom=line.uom,
+                created_at=line.created_at,
+            )
+            for line in bom.lines
+        ]
         self._session.add(model)
-        await self._session.commit()
-        await self._session.refresh(model)
-        
-        return self._to_entity(model)
-        
-    
-    # ======================
-    # DELETE METHOD
-    # ======================
-    async def delete(self, id: int) -> bool:
-        stmt= select(BomModel).where(BomModel.id == id)
-        result= await self._session.execute(stmt)
-        row= result.scalar_one_or_none()
-        
-        if row is None:
-            return False
-        
-        row.is_active= False
-        await self._session.commit()
-        return True
+        await self._session.flush()
+
+        bom.id = model.id
+        for i, line_model in enumerate(model.lines):
+            bom.lines[i].id = line_model.id
+            bom.lines[i].bom_id = model.id
+
+    async def save(self, bom: Bom) -> None:
+        """
+        Persiste los cambios de un BOM existente (closing version).
+        Actualiza is_active y valid_to del BOM anterior.
+        """
+        stmt = select(BomModel).where(BomModel.id == bom.id)
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+
+        if model is None:
+            from src.domain.exceptions.bom_exceptions import BomNotFoundException
+            raise BomNotFoundException(bom.id)
+
+        model.is_active = bom.is_active
+        model.valid_to = bom.valid_to
+        await self._session.flush()
+
+
+    # ── Queries ──────────────────────────────────────────────────
+
+    async def get_by_id(self, bom_id: int) -> Optional[Bom]:
+        """
+        Obtiene un BOM por su ID.
+        """
+
+        stmt = (
+            select(BomModel)
+            .where(BomModel.id == bom_id)
+            .options(selectinload(BomModel.lines))
+        )
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+
+        return self._to_entity(model) if model else None
+
+
+    async def get_by_parent_item_id(self, parent_item_id: int) -> Optional[Bom]:
+        """
+        Obtiene un BOM por el ID del ítem padre.
+        """
+        stmt = (
+            select(BomModel)
+            .where(BomModel.parent_item_id == parent_item_id)
+            .options(selectinload(BomModel.lines))
+        )
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+
+        return self._to_entity(model) if model else None
+
+
+    async def get_active_by_parent_item_id(self, parent_item_id: int) -> Optional[Bom]:
+        """
+        Obtiene el BOM activo para un ítem padre.
+        Retorna None si no existe ningún BOM activo.
+        """
+        stmt = (
+            select(BomModel)
+            .where(BomModel.parent_item_id == parent_item_id, BomModel.is_active == True)
+            .options(selectinload(BomModel.lines))
+        )
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+
+        return self._to_entity(model) if model else None
+
+
+    async def get_active_boms(self) -> Sequence[dict]:
+        """
+        Obtiene un listado de todos los BOMs activos.
+        """
+        line_count_sub = (
+            select(
+                BomLineModel.bom_id,
+                func.count(BomLineModel.id).label("components_count"),
+            )
+            .group_by(BomLineModel.bom_id)
+            .subquery()
+        )
+
+        stmt = (
+            select(
+                BomModel.id,
+                BomModel.parent_item_id,
+                ItemModel.name.label("parent_item_name"),
+                BomModel.version,
+                func.coalesce(line_count_sub.c.components_count, 0).label("components_count"),
+                BomModel.valid_from,
+            )
+            .join(ItemModel, BomModel.parent_item_id == ItemModel.id)
+            .outerjoin(line_count_sub, BomModel.id == line_count_sub.c.bom_id)
+            .where(BomModel.is_active == True)
+            .order_by(BomModel.valid_from.desc())
+        )
+
+        result = await self._session.execute(stmt)
+        rows = result.all()
+
+        return [
+            {
+                "id": row.id,
+                "parent_item_id": row.parent_item_id,
+                "parent_item_name": row.parent_item_name,
+                "version": row.version,
+                "components_count": row.components_count,
+                "valid_from": row.valid_from,
+            }
+            for row in rows
+        ]
+
+
+    async def get_detailed_bom_by_id(self, bom_id: int) -> Optional[dict]:
+        """
+        Obtiene un BOM por su ID con toda la información detallada.
+        """
+        from src.infrastructure.database.models.uom_model import UomModel
+
+        line_count_sub = (
+            select(
+                BomLineModel.bom_id,
+                func.count(BomLineModel.id).label("components_count"),
+            )
+            .where(BomLineModel.bom_id == bom_id)
+            .group_by(BomLineModel.bom_id)
+            .subquery()
+        )
+
+        stmt = (
+            select(
+                BomModel.id,
+                BomModel.parent_item_id,
+                ItemModel.name.label("parent_item_name"),
+                BomModel.version,
+                BomModel.is_active,
+                func.coalesce(line_count_sub.c.components_count, 0).label("components_count"),
+                BomModel.quantity,
+                BomModel.uom_id.label("bom_uom_id"),
+                UomModel.symbol.label("bom_uom_symbol"),
+                BomModel.valid_from,
+                BomModel.created_at,
+            )
+            .join(ItemModel, BomModel.parent_item_id == ItemModel.id)
+            .outerjoin(line_count_sub, BomModel.id == line_count_sub.c.bom_id)
+            .outerjoin(UomModel, BomModel.uom_id == UomModel.id)
+            .where(BomModel.id == bom_id)
+        )
+
+        result = await self._session.execute(stmt)
+        header = result.first()
+
+        if header is None:
+            return None
+
+        lines_stmt = (
+            select(
+                BomLineModel.id,
+                BomLineModel.component_item_id,
+                ItemModel.name.label("component_item_name"),
+                BomLineModel.quantity,
+                BomLineModel.uom.label("uom_id"),
+                UomModel.symbol.label("uom_symbol"),
+            )
+            .join(ItemModel, BomLineModel.component_item_id == ItemModel.id)
+            .outerjoin(UomModel, BomLineModel.uom == UomModel.id)
+            .where(BomLineModel.bom_id == bom_id)
+            .order_by(BomLineModel.id)
+        )
+
+        lines_result = await self._session.execute(lines_stmt)
+        lines_rows = lines_result.all()
+
+        return {
+            "id": header.id,
+            "parent_item_id": header.parent_item_id,
+            "parent_item_name": header.parent_item_name,
+            "version": header.version,
+            "is_active": header.is_active,
+            "components_count": header.components_count,
+            "quantity": header.quantity,
+            "bom_uom_id": header.bom_uom_id,
+            "bom_uom_symbol": header.bom_uom_symbol,
+            "valid_from": header.valid_from,
+            "created_at": header.created_at,
+            "lines": [
+                {
+                    "id": line.id,
+                    "component_item_id": line.component_item_id,
+                    "component_item_name": line.component_item_name,
+                    "quantity": line.quantity,
+                    "uom_id": line.uom_id,
+                    "uom_symbol": line.uom_symbol,
+                }
+                for line in lines_rows
+            ],
+        }

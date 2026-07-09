@@ -34,3 +34,10 @@ class IUomRepository(Protocol):
         a elementos del front-end.
         """
         ...
+
+    async def get_symbol_by_id(self, uom_id: int) -> Optional[str]:
+        """
+        Retorna solo el symbol de una UOM por su ID.
+        Consulta ligera sin construir entidad de dominio.
+        """
+        ...

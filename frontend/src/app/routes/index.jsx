@@ -13,10 +13,6 @@ const DashboardPage = lazy(
   () => import("@/features/dashboard/pages/DashboardPage"),
 );
 
-
-
-
-
 //insumos pages
 const SuppliesPage = lazy(() =>
   import("@/features/Inventario/gestion_insumos/pages/SuppliesPage")
@@ -34,6 +30,15 @@ const SupplyEntryDetailPage = lazy(() =>
   import('@/features/Inventario/supply-entry/pages/SupplyEntryDetailPage')
 );
 
+
+// BOM pages
+const BomsPage = lazy(() =>
+  import('@/features/produccion/bom/pages/BomsPage')
+)
+
+const BomDetailPage = lazy(() =>
+  import('@/features/produccion/bom/pages/BomDetailPage')
+)
 
 // Auth pages
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));
@@ -64,6 +69,14 @@ export const router = createBrowserRouter([
             element: <UserSettingsPage />
           }
         ]
+      },
+      {
+        path: "/produccion/bom",
+        element: <BomsPage />,
+      },
+      {
+        path: "/produccion/bom/:bomId",
+        element: <BomDetailPage />,
       },
       {
         path: "/inventario/insumos",

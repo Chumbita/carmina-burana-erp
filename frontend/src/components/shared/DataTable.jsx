@@ -24,7 +24,7 @@ export function DataTable({ columns, data, onRowClick }) {
       </TableHeader>
 
       <TableBody>
-        {data.map((row) => (
+        {data.map((row, rowIndex) => (
           <TableRow
             key={row.id}
             className={onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
@@ -33,7 +33,7 @@ export function DataTable({ columns, data, onRowClick }) {
             {columns.map((column) => (
               <TableCell key={`${row.id}-${column.accessor}`}>
                 {column.render
-                  ? column.render(row[column.accessor], row)
+                  ? column.render(row[column.accessor], row, rowIndex)
                   : row[column.accessor]}
               </TableCell>
             ))}

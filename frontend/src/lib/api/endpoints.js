@@ -56,4 +56,14 @@ export const ENDPOINTS = {
     UOMS: {
         GET_OPTIONS: '/uom/options',
     },
+    // BOM
+    BOM: {
+      CREATE: '/bom',
+      GET_ALL: '/bom',
+      GET_BY_ID: (id) => `/bom/${id}`,
+    },
+    // ITEMS
+    ITEMS: {
+      GET_OPTIONS: '/items/options',
+    }
 }
