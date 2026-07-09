@@ -28,14 +28,10 @@ class ListSupplyTransactionsUseCase:
         if not transactions:
             return []
 
-        # TODO: optimizar con list_by_ids() cuando esté disponible en la rama de lotes.
-        # Actualmente hace N queries (uno por lote distinto).
+        # Obtiene todos los lot_code en una sola consulta mediante IN (ids)
         lot_ids = {txn.lot_id for txn in transactions}
-        lots = {}
-        for lot_id in lot_ids:
-            lot = await self._lot_repository.get_by_id(lot_id)
-            if lot:
-                lots[lot.id] = lot.lot_code
+        lots_list = await self._lot_repository.list_by_ids(list(lot_ids))
+        lots = {lot.id: lot.lot_code for lot in lots_list}
 
         return [
             TransactionResponseSchema(
