@@ -65,3 +65,9 @@ api_router.include_router(uom_router)
 # ════════════════════════════════
 from src.presentation.api.routes.brand_router import brand_router
 api_router.include_router(brand_router)
+
+# ======================
+# ITEMS ROUTER
+# ======================
+from src.presentation.api.routes.items_router import router as items_router
+api_router.include_router(items_router)

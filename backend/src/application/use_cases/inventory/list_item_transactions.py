@@ -1,34 +1,33 @@
 from src.domain.exceptions.item_exceptions import ItemNotFoundException
 from src.infrastructure.database.repositories.inventory_transaction_repository import InventoryTransactionRepository
 from src.infrastructure.database.repositories.inventory_lot_repository import InventoryLotRepository
-from src.infrastructure.database.repositories.supply_repository import SupplyRepository
+from src.infrastructure.database.repositories.item_repository import ItemRepository
 from src.presentation.schemas.inventory_transaction_schemas import (
     TRANSACTION_LABELS,
     TransactionResponseSchema,
 )
 
 
-class ListSupplyTransactionsUseCase:
+class ListItemTransactionsUseCase:
     def __init__(
         self,
-        supply_repository: SupplyRepository,
+        item_repository: ItemRepository,
         transaction_repository: InventoryTransactionRepository,
         lot_repository: InventoryLotRepository,
     ) -> None:
-        self._supply_repository = supply_repository
+        self._item_repository = item_repository
         self._transaction_repository = transaction_repository
         self._lot_repository = lot_repository
 
     async def execute(self, item_id: int) -> list[dict]:
-        supply = await self._supply_repository.get_by_item_id(item_id)
-        if supply is None:
+        item = await self._item_repository.get_by_id(item_id)
+        if item is None:
             raise ItemNotFoundException(item_id)
 
         transactions = await self._transaction_repository.list_by_item(item_id)
         if not transactions:
             return []
 
-        # Obtiene todos los lot_code en una sola consulta mediante IN (ids)
         lot_ids = {txn.lot_id for txn in transactions}
         lots_list = await self._lot_repository.list_by_ids(list(lot_ids))
         lots = {lot.id: lot.lot_code for lot in lots_list}
