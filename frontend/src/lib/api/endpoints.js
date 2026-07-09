@@ -20,6 +20,10 @@ export const ENDPOINTS = {
         GET_BY_ENTITY: (entity_type, entity_id) => `/audit-logs/${entity_type}/${entity_id}`,
         GET_BY_USER: (user_id) => `/audit-logs/user/${user_id}`,
     },
+    // Items
+    ITEMS: {
+        GET_TRANSACTIONS: (id) => `/items/${id}/transactions`,
+    },
     // Supplies
     SUPPLIES: {
         GET_ALL:          '/supplies',
@@ -27,7 +31,6 @@ export const ENDPOINTS = {
         CREATE:           '/supplies',
         PATCH:            (id) => `/supplies/${id}`,
         DELETE:           (id) => `/supplies/${id}`,
-        GET_TRANSACTIONS: (id) => `/supplies/${id}/transactions`,
     },
     // Brands
     BRANDS: {

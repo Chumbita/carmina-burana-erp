@@ -1,6 +1,6 @@
 // EntityDetailPage.jsx
 import { Spinner } from "@/components/ui/Spinner";
-import { AuditLogHistory } from "@/components/shared/AuditLogHistory";
+import { TransactionsTable } from "@/features/Inventario/gestion_insumos/components/TransactionsTable";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EntityDetailProvider, useEntityDetail } from "./EntityDetailContext";
@@ -49,12 +49,11 @@ function Content({ children }) {
   );
 }
 
-function History({ entityType, entityId }) {
-  const { refreshKey } = useEntityDetail();
+function History({ itemId }) {
   return (
     <section>
       <h2 className="text-xl font-semibold mb-4">Historial de Movimientos</h2>
-      <AuditLogHistory entityType={entityType} entityId={entityId} refreshKey={refreshKey} />
+      <TransactionsTable itemId={itemId} />
     </section>
   );
 }
