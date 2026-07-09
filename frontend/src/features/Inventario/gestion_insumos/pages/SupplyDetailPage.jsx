@@ -9,6 +9,7 @@ import { useSupplies } from "../hooks/useSupplies";
 
 //Componentes
 import { SupplyDetailTabs } from "../components/SupplyDetailTabs";
+import { TransactionsTable } from "../components/TransactionsTable";
 import { EntityDetailPage } from "@/components/shared/DetailPage/EntityDetailPage";
 import { estadoStyles } from "../utils/stockStyles";
 
@@ -35,7 +36,10 @@ export default function SupplyDetailPage() {
       <EntityDetailPage.Content>
         <SupplyDetailTabs insumo={supply} availableSupplies={supplies} />
       </EntityDetailPage.Content>
-      <EntityDetailPage.History entityType="input" entityId={supply?.id} />
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Historial de Movimientos</h2>
+        <TransactionsTable itemId={supply?.id} />
+      </section>
     </EntityDetailPage>
   );
 }
