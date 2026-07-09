@@ -72,14 +72,4 @@ def get_delete_supply_use_case(
     return DeleteSupplyUseCase(supply_repository)
 
 
-def get_list_supply_transactions_use_case(
-    session: AsyncSession = Depends(get_db),
-) -> "ListSupplyTransactionsUseCase":
-    from src.application.use_cases.supply.list_supply_transactions import ListSupplyTransactionsUseCase
-    from src.infrastructure.database.repositories.inventory_transaction_repository import InventoryTransactionRepository
-    from src.infrastructure.database.repositories.inventory_lot_repository import InventoryLotRepository
 
-    supply_repository = SupplyRepository(session)
-    transaction_repository = InventoryTransactionRepository(session)
-    lot_repository = InventoryLotRepository(session)
-    return ListSupplyTransactionsUseCase(supply_repository, transaction_repository, lot_repository)
