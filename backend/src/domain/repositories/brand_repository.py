@@ -12,3 +12,10 @@ class IBrandRepository(Protocol):
         Obtiene un listado de todas las marcas registradas.
         """
         ...
+
+    async def add(self, brand: Brand) -> Brand:
+        """
+        Agrega una nueva marca al repositorio.
+        Retorna la entidad con el id generado.
+        """
+        ...
