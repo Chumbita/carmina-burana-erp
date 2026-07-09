@@ -36,11 +36,12 @@ export const ENDPOINTS = {
     },
     // Supplies
     SUPPLIES: {
-        GET_ALL:   '/supplies',
-        GET_BY_ID: (id) => `/supplies/${id}`,
-        CREATE:    '/supplies',
-        PATCH:     (id) => `/supplies/${id}`,
-        DELETE:    (id) => `/supplies/${id}`,
+        GET_ALL:          '/supplies',
+        GET_BY_ID:        (id) => `/supplies/${id}`,
+        CREATE:           '/supplies',
+        PATCH:            (id) => `/supplies/${id}`,
+        DELETE:           (id) => `/supplies/${id}`,
+        GET_TRANSACTIONS: (id) => `/supplies/${id}/transactions`,
     },
     // Brands
     BRANDS: {
