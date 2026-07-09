@@ -56,3 +56,12 @@ class SupplierRepository(ISupplierRepository):
         result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model else None
+
+    async def find_active(self) -> list[Supplier]:
+        stmt = (
+            select(SupplierModel)
+            .where(SupplierModel.status == SupplierStatus.ACTIVE.value)
+            .order_by(SupplierModel.name)
+        )
+        result = await self._session.execute(stmt)
+        return [self._to_entity(model) for model in result.scalars().all()]

@@ -46,3 +46,11 @@ class SupplierResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class SupplierOptionResponse(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        from_attributes = True
