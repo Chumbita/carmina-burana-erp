@@ -30,10 +30,4 @@ export const supplyService = {
     const response = await privateClient.delete(ENDPOINTS.SUPPLIES.DELETE(id))
     return response.data
   },
-
-  // TRANSACTIONS
-  getTransactions: async (id) => {
-    const response = await privateClient.get(ENDPOINTS.SUPPLIES.GET_TRANSACTIONS(id))
-    return response.data
-  },
 }

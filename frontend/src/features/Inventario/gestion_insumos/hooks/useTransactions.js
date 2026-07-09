@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { supplyService } from "../services/supplyService"
+import { transactionService } from "@/services/transactionService"
 
 export function useTransactions(itemId) {
   const [transactions, setTransactions] = useState([])
@@ -13,7 +13,7 @@ export function useTransactions(itemId) {
     setError(null)
 
     try {
-      const data = await supplyService.getTransactions(itemId)
+      const data = await transactionService.getByItemId(itemId)
       setTransactions(data)
     } catch (err) {
       setError(err)
