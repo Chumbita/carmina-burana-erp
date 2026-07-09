@@ -13,7 +13,12 @@ from src.domain.exceptions.bom_exceptions import BomNotFoundException, BomCreati
 
 from src.domain.exceptions.inventory_exceptions import DuplicateLotCodeError
 
-from src.domain.exceptions.supply_entry_exceptions import SupplyEntryNotFound
+from src.domain.exceptions.supply_entry_exceptions import (
+    SupplyEntryNotFound,
+    SupplyEntryAlreadyCancelled,
+    SupplyEntryTimeWindowExceeded,
+    SupplyEntryItemsConsumed,
+)
 
 from src.domain.exceptions.supplier_exceptions import (
     DuplicateSupplierNameError,
@@ -69,6 +74,18 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(SupplyEntryNotFound)
     async def supply_entry_not_found_handler(request: Request, exc: SupplyEntryNotFound):
         return JSONResponse(status_code=404, content={"detail": str(exc)})
+
+    @app.exception_handler(SupplyEntryAlreadyCancelled)
+    async def supply_entry_already_cancelled_handler(request: Request, exc: SupplyEntryAlreadyCancelled):
+        return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+    @app.exception_handler(SupplyEntryTimeWindowExceeded)
+    async def supply_entry_time_window_handler(request: Request, exc: SupplyEntryTimeWindowExceeded):
+        return JSONResponse(status_code=422, content={"detail": str(exc)})
+
+    @app.exception_handler(SupplyEntryItemsConsumed)
+    async def supply_entry_items_consumed_handler(request: Request, exc: SupplyEntryItemsConsumed):
+        return JSONResponse(status_code=409, content={"detail": str(exc)})
 
     # ======================
     # SUPPLIER EXCEPTIONS

@@ -82,13 +82,18 @@ class InventoryLotRepository():
 
 
     async def exists_by_code(self, item_id: int, lot_code: str) -> bool:
-        """ 
-        Verifica si ya existe un lote con ese código para ese ítem.
-        Usado para prevenir duplicados antes de intentar el INSERT.
-        """
         stmt = select(InventoryLotModel.id).where(
             InventoryLotModel.item_id == item_id,
             InventoryLotModel.lot_code == lot_code,
         )
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none() is not None
+
+    async def find_by_item_and_code(self, item_id: int, lot_code: str) -> Optional[InventoryLot]:
+        stmt = select(InventoryLotModel).where(
+            InventoryLotModel.item_id == item_id,
+            InventoryLotModel.lot_code == lot_code,
+        )
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+        return self._to_entity(model) if model else None

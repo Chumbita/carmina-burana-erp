@@ -21,3 +21,9 @@ class CreateSupplyEntryCommand:
     entry_date: Optional[datetime] = None
     description: Optional[str] = None
     lines: list[SupplyEntryLineCommand] = field(default_factory=list)
+
+
+@dataclass
+class CancelSupplyEntryCommand:
+    entry_id: int
+    reason: Optional[str] = None

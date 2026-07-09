@@ -4,6 +4,7 @@ from src.domain.entities.user import User
 from src.presentation.dependencies.auth import get_current_user
 from src.presentation.schemas.supply_entry_schema import (
     CreateSupplyEntryRequest,
+    CancelSupplyEntryRequest,
     SupplyEntryDetailResponse,
     SupplyEntryListResponse,
 )
@@ -11,13 +12,16 @@ from src.presentation.dependencies.use_cases.supply_entry import (
     get_create_supply_entry_use_case,
     build_get_supply_entry_detail,
     build_list_supply_entries,
+    build_cancel_supply_entry,
 )
 from src.application.use_cases.supply_entry.create_supply_entry import CreateSupplyEntryUseCase
 from src.application.use_cases.supply_entry.get_supply_entry_detail import GetSupplyEntryDetail
 from src.application.use_cases.supply_entry.list_supply_entries import ListSupplyEntries
+from src.application.use_cases.supply_entry.cancel_supply_entry import CancelSupplyEntryUseCase
 from src.application.dtos.supply_entry.supply_entry_commands_dtos import (
     CreateSupplyEntryCommand,
     SupplyEntryLineCommand,
+    CancelSupplyEntryCommand,
 )
 
 
@@ -91,3 +95,26 @@ async def get_supply_entry_detail(
     current_user: User = Depends(get_current_user),
 ) -> SupplyEntryDetailResponse:
     return await use_case.execute(entry_id)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# POST /supply-entries/{entry_id}/cancel  —  Anular recepción de insumos
+# ──────────────────────────────────────────────────────────────────────────────
+
+@router.post(
+    "/{entry_id}/cancel",
+    status_code=status.HTTP_200_OK,
+    summary="Anular recepción de insumos",
+    response_model=SupplyEntryDetailResponse,
+)
+async def cancel_supply_entry(
+    entry_id: int,
+    body: CancelSupplyEntryRequest,
+    use_case: CancelSupplyEntryUseCase = Depends(build_cancel_supply_entry),
+    current_user: User = Depends(get_current_user),
+) -> SupplyEntryDetailResponse:
+    command = CancelSupplyEntryCommand(
+        entry_id=entry_id,
+        reason=body.reason,
+    )
+    return await use_case.execute(command)

@@ -3,7 +3,7 @@
 # ══════════════════════════════════════════════════════════════════════════════
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional
 
@@ -61,6 +61,7 @@ class SupplyEntryOrder:
     document_number: str
     entry_date: datetime
     created_at: datetime
+    canceled_at: Optional[datetime] = None
     supplier_id: Optional[int] = None
     description: Optional[str] = None
     lines: list[SupplyEntryLine] = field(default_factory=list)
@@ -87,12 +88,13 @@ class SupplyEntryOrder:
             raise ValueError("Cannot confirm an order with no lines")
         self.status = SupplyEntryStatus.CONFIRMED
 
-    def cancel(self) -> None:
-        """DRAFT → CANCELLED. No se puede cancelar una orden ya confirmada."""
+    def cancel(self, reason: Optional[str] = None) -> None:
+        """CONFIRMED → CANCELED. Anula la recepción y revierte el inventario."""
         self._guard_not_cancelled("cancel")
-        if self.status == SupplyEntryStatus.CONFIRMED:
-            raise ValueError("Cannot cancel a confirmed order")
+        if reason:
+            self.description = reason
         self.status = SupplyEntryStatus.CANCELED
+        self.canceled_at = datetime.now(timezone.utc).replace(tzinfo=None)
 
     # ── Aggregate Operations ───────────────────────────────────────
 
