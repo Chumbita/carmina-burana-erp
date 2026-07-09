@@ -81,6 +81,16 @@ class InventoryLotRepository():
         return self._to_entity(result)
 
 
+    async def list_by_ids(self, ids: list[int]) -> list[InventoryLot]:
+        """
+        Busca múltiples lotes por sus IDs en una sola consulta.
+        Retorna lista vacía si no encuentra ninguno.
+        """
+        stmt = select(InventoryLotModel).where(InventoryLotModel.id.in_(ids))
+        result = await self._session.execute(stmt)
+        models = result.scalars().all()
+        return [self._to_entity(m) for m in models]
+
     async def exists_by_code(self, item_id: int, lot_code: str) -> bool:
         """ 
         Verifica si ya existe un lote con ese código para ese ítem.
