@@ -2,36 +2,80 @@ import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-// Cliente HTTP reutilizable
+// Cliente HTTP reutilizable para peticiones autenticadas
 const privateClient = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
   timeout: 10000,
+  withCredentials: true,
 });
 
-// Interceptor para agregar el token en todas las peticiones
-privateClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// Flag para evitar múltiples intentos de refresh simultáneos
+let isRefreshing = false;
+// Cola de peticiones pendientes mientras se refresca el token
+let failedQueue = [];
 
-// Interceptor para manejar errores globales
+const processQueue = (error) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve();
+    }
+  });
+  failedQueue = [];
+};
+
+// Interceptor de respuesta: maneja 401 e intenta refresh automático
 privateClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Manejo de error cuando el token está expirado
-      localStorage.removeItem("access_token");
-      window.location.href = "/auth/login"; // -> Redireccionar al usuario al login
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Si no es 401 o ya se reintentó, rechazar directamente
+    if (error.response?.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
+
+    // Si ya se está refrescando, agregar a la cola
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      })
+        .then(() => privateClient(originalRequest))
+        .catch((err) => Promise.reject(err));
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    try {
+      // Intentar refresh del token
+      await axios.post(
+        `${API_BASE_URL}/auth/refresh`,
+        {},
+        { withCredentials: true }
+      );
+
+      // Refresh exitoso, reintentar la petición original
+      processQueue(null);
+      return privateClient(originalRequest);
+    } catch (refreshError) {
+      // Refresh falló, limpiar estado y redirigir a login
+      processQueue(refreshError);
+
+      // Disparar evento para que AuthContext limpie el estado
+      window.dispatchEvent(new Event("auth:logout"));
+
+      // Redirigir al login (solo si no ya estamos en login)
+      if (!window.location.pathname.includes("/auth/login")) {
+        window.location.href = "/auth/login";
+      }
+
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
   }
 );
 
