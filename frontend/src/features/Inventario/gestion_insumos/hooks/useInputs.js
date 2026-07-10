@@ -23,9 +23,9 @@ export function useInputs() {
   }, [])
 
   //crear insumos
-  async function createInput(inputData) {
+  async function createInput(inputData, userId = null) {
     try{
-      const newInput = await inputService.create(inputData)
+      const newInput = await inputService.create(inputData, userId)
       setInputs(prev => [...prev, { ...newInput, estadoStock: 'critico',stockTotal: 0 }])
       return newInput
     } 
@@ -52,9 +52,9 @@ export function useInputs() {
   }
 
   // actualizar insumos
-  async function updateInput(id, inputsData) {
+  async function updateInput(id, inputsData, userId = null) {
     try {
-      const inputUpdate = await inputService.patch(id, inputsData) 
+      const inputUpdate = await inputService.patch(id, inputsData, userId) 
       setInputs(prev => prev.map(i => i.id === id ? inputUpdate : i))
       return true  
       
