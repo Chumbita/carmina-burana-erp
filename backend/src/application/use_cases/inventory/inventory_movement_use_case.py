@@ -74,7 +74,7 @@ class InventoryMovementUseCase:
 
 
     # --- Método principal ----------------------------------------------------------------
-    async def execute(self, command: InventoryMovementCommand) -> None:
+    async def execute(self, command: InventoryMovementCommand) -> int:
         """
         Punto de entrada único del caso de uso.
         """
@@ -93,7 +93,7 @@ class InventoryMovementUseCase:
             signed_quantity=signed_quantity,
             transaction_type_is_adjustment=command.transaction_type in SIGN_PRESERVED_TYPES,
         )
-
+        return lot_id
 
     # --- Utilidades para el flujo principal -----------------------------------------------
 
