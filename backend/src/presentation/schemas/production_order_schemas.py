@@ -4,6 +4,8 @@ from decimal import Decimal
 from typing import Optional
 
 
+# ── REQUESTS ────────────────────────────────────────────────
+
 class CreateProductionOrderSchema(BaseModel):
     item_id: int
     bom_id: int
@@ -11,6 +13,8 @@ class CreateProductionOrderSchema(BaseModel):
     schedule_date: Optional[date] = None
     description: Optional[str] = Field(None, max_length=255)
 
+
+# ── RESPONSES ────────────────────────────────────────────────
 
 class ProductionOrderResponseSchema(BaseModel):
     id: int
@@ -25,4 +29,4 @@ class ProductionOrderResponseSchema(BaseModel):
     completed_at: Optional[datetime]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
