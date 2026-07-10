@@ -2,7 +2,10 @@
 export const ENDPOINTS = {
     // Auth
     AUTH: {
-        LOGIN: '/auth/login'
+        LOGIN: '/auth/login',
+        REFRESH: '/auth/refresh',
+        LOGOUT: '/auth/logout',
+        ME: '/auth/me',
     },
     // User
     USER: {

@@ -57,3 +57,14 @@ def get_item_repository(
     db: AsyncSession = Depends(get_db),
 ) -> IItemRepostory:
     return ItemRepository(db)
+
+# ══════════════════════════════
+# REFRESH TOKEN REPOSITORY
+# ══════════════════════════════
+from src.infrastructure.database.repositories.refresh_token_repository import RefreshTokenRepository
+from src.domain.repositories.refresh_token_repository import IRefreshTokenRepository
+
+def get_refresh_token_repository(
+    db: AsyncSession = Depends(get_db),
+) -> IRefreshTokenRepository:
+    return RefreshTokenRepository(db)

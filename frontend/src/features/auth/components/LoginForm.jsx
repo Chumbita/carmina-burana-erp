@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { replace, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "../schemas/loginForm.schema";
 import { authService } from "../services/authService";
@@ -15,13 +15,22 @@ import {
   FieldSet,
 } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/InputGroup";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
+
+// Iconos
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 export function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { isLoggedIn, login } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/dashboard";
@@ -36,12 +45,14 @@ export function LoginForm() {
       setError("");
       setLoading(true);
 
+      // Login: el backend guarda las cookies HttpOnly automáticamente
       const response = await authService.login(data.username, data.password);
-      login(response.user, response.access_token);
 
-      if (isLoggedIn) {
-        navigate(from, { replace: true });
-      }
+      // Almacenar solo los datos del usuario en memoria (no el token)
+      login(response.user);
+
+      // Navegar a la ruta original o al dashboard
+      navigate(from, { replace: true });
     } catch (error) {
       setError(error.message);
     } finally {
@@ -64,12 +75,27 @@ export function LoginForm() {
           </Field>
           <Field>
             <FieldLabel htmlFor="password">Contraseña</FieldLabel>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              {...register("password")}
-            />
+            <InputGroup>
+              <InputGroupInput
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                {...register("password")}
+              />
+              <InputGroupAddon align="inline-end">
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="focus:outline-none mr-2"
+                >
+                  {showPassword ? (
+                    <EyeIcon size={17} />
+                  ) : (
+                    <EyeOffIcon size={17} />
+                  )}
+                </button>
+              </InputGroupAddon>
+            </InputGroup>
           </Field>
           {error && (
             <FieldDescription className="text-sm text-red-500">
