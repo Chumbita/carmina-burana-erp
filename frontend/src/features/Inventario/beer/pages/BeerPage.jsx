@@ -21,7 +21,7 @@ const initialBeers = [
   },
 ];
 
-export default function CookingsPage() {
+export default function BeerPage() {
   const [beers, setBeers] = useState(initialBeers);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("name");
