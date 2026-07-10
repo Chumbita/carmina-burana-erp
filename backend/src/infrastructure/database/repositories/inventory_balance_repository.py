@@ -5,6 +5,7 @@
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from decimal import Decimal
 
 from src.domain.entities.inventory_balance import InventoryBalance
 from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
@@ -62,12 +63,12 @@ class InventoryBalanceRepository():
         Obtiene el stock disponible total para un ítem sumando los balances activos.
         """
         stmt = (
-            select(InventoryBalanceModel.quantity)
+            select(InventoryBalanceModel.quantity, InventoryBalanceModel.reserved_quantity)
             .where(InventoryBalanceModel.item_id == item_id)
         )
         result = await self._session.execute(stmt)
-        balances = result.scalars().all()
-        return sum(float(balance) for balance in balances)
+        balances = result.all()
+        return sum(Decimal(str(balance.quantity)) - Decimal(str(str(balance.reserved_quantity))) for balance in balances)
 
     async def save(self, balance: InventoryBalance) -> None:
         """
@@ -85,6 +86,10 @@ class InventoryBalanceRepository():
             # aquí simplemente lo persistimos.
             existing.quantity = balance.quantity
             existing.reserved_quantity = balance.reserved_quantity
-            existing.updated_at = balance.updated_at
+            # Si balance.updated_at tiene zona horaria, se la removemos (.replace(tzinfo=None))
+            if balance.updated_at and balance.updated_at.tzinfo is not None:
+                existing.updated_at = balance.updated_at.replace(tzinfo=None)
+            else:
+                existing.updated_at = balance.updated_at
 
         await self._session.flush()
