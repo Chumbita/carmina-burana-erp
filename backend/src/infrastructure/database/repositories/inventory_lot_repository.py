@@ -75,7 +75,7 @@ class InventoryLotRepository():
         """ 
         Busca un lote por su ID. Retorna None si no existe.
         """
-        result = await self._session.get(InventoryLot, lot_id)
+        result = await self._session.get(InventoryLotModel, lot_id)
         if result is None:
             return None
         return self._to_entity(result)
