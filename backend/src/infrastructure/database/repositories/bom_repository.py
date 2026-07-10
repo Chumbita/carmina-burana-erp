@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, Sequence
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,6 +8,7 @@ from src.domain.entities.bom import Bom, BomLine
 from src.domain.repositories.bom_repository import IBomRepository
 from src.infrastructure.database.models.bom_model import BomModel
 from src.infrastructure.database.models.bom_line_model import BomLineModel
+from src.infrastructure.database.models.item_model import ItemModel
 
 
 class BomRepository(IBomRepository):
@@ -24,6 +25,8 @@ class BomRepository(IBomRepository):
             parent_item_id=model.parent_item_id,
             version=model.version,
             is_active=model.is_active,
+            quantity=model.quantity,
+            uom_id=model.uom_id,
             valid_from=model.valid_from,
             valid_to=model.valid_to,
             created_at=model.created_at,
@@ -36,7 +39,6 @@ class BomRepository(IBomRepository):
                 component_item_id=line.component_item_id,
                 quantity=line.quantity,
                 uom=line.uom,
-                scrap_factor=line.scrap_factor,
                 created_at=line.created_at,
             )
             for line in model.lines
@@ -50,6 +52,8 @@ class BomRepository(IBomRepository):
             parent_item_id=bom.parent_item_id,
             version=bom.version,
             is_active=bom.is_active,
+            quantity=bom.quantity,
+            uom_id=bom.uom_id,
             valid_from=bom.valid_from,
             valid_to=bom.valid_to,
             created_at=bom.created_at,
@@ -64,7 +68,6 @@ class BomRepository(IBomRepository):
                 component_item_id=line.component_item_id,
                 quantity=line.quantity,
                 uom=line.uom,
-                scrap_factor=line.scrap_factor,
                 created_at=line.created_at,
             )
             for line in bom.lines
