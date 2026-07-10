@@ -1,20 +1,40 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.domain.entities.user import User
+from src.domain.entities.production_order import ProductionOrder
 from src.application.use_cases.production_order.create_production_order import CreateProductionOrderUseCase
 from src.application.use_cases.production_order.release_production_order import ReleaseProductionOrderUseCase
+from src.application.use_cases.production_order.start_production_order import StartProductionOrderUseCase
 from src.presentation.schemas.production_order_schemas import (
     CreateProductionOrderSchema,
     ProductionOrderResponseSchema,
 )
 from src.presentation.dependencies.use_cases.production_order import (
     get_create_production_order_use_case,
-    get_release_production_order_use_case
+    get_release_production_order_use_case,
+    get_start_production_order_use_case
 )
 from src.presentation.dependencies.auth import get_current_user
 
 router = APIRouter(prefix="/production-orders", tags=["Production Orders"])
 
+# ── HELPER DE RESPUESTA (Debe estar aquí arriba) ───────────────────────────
+
+def _build_response(order: ProductionOrder) -> ProductionOrderResponseSchema:
+    return ProductionOrderResponseSchema(
+        id=order.id,
+        item_id=order.item_id,
+        bom_id=order.bom_id,
+        planned_quantity=order.planned_quantity,
+        produced_quantity=order.produced_quantity,
+        status=order.status.value,
+        schedule_date=order.schedule_date,
+        description=order.description,
+        created_at=order.created_at,
+        completed_at=order.completed_at,
+    )
+
+# ── ENDPOINTS ──────────────────────────────────────────────────────────────
 
 @router.post(
     "",
@@ -25,7 +45,7 @@ router = APIRouter(prefix="/production-orders", tags=["Production Orders"])
 async def create_production_order(
     body: CreateProductionOrderSchema,
     use_case: CreateProductionOrderUseCase = Depends(get_create_production_order_use_case),
-    current_user: User = Depends(get_current_user),
+    #current_user: User = Depends(get_current_user),
 ) -> ProductionOrderResponseSchema:
     try:
         order = await use_case.execute(
@@ -80,3 +100,17 @@ async def release_production_order(
         )
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+@router.post(
+    "/{order_id}/start",
+    status_code=status.HTTP_200_OK,
+    response_model=ProductionOrderResponseSchema,
+    summary="Iniciar orden de producción",
+)
+async def start_production_order(
+    order_id: int,
+    use_case: StartProductionOrderUseCase = Depends(get_start_production_order_use_case),
+    # current_user: User = Depends(get_current_user),
+) -> ProductionOrderResponseSchema:
+    order = await use_case.execute(order_id)
+    return _build_response(order)
