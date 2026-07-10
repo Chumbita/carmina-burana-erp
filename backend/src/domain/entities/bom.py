@@ -3,7 +3,7 @@
 # ══════════════════════════════════════════════════════════════════════════════
 
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
@@ -18,11 +18,13 @@ class Bom:
     parent_item_id: int
     version: int
     is_active: bool
-    valid_from: date
+    quantity: Decimal
+    uom_id: int
+    valid_from: datetime
     created_at: datetime
 
     id: Optional[int] = None
-    valid_to: Optional[date] = None
+    valid_to: Optional[datetime] = None
     lines: list["BomLine"] = field(default_factory=list)
 
 
@@ -44,6 +46,12 @@ class Bom:
         if self.valid_to is not None and self.valid_to < self.valid_from:
             raise ValueError("valid_to cannot be earlier than valid_from")
 
+        if self.quantity is None or self.quantity <= Decimal("0"):
+            raise ValueError("quantity must be greater than zero")
+
+        if self.uom_id is None:
+            raise ValueError("uom_id is required")
+
 
 @dataclass
 class BomLine:
@@ -53,7 +61,6 @@ class BomLine:
 
     component_item_id: int
     quantity: Decimal
-    scrap_factor: Decimal
     created_at: datetime
 
     id: Optional[int] = None
@@ -72,16 +79,3 @@ class BomLine:
 
         if self.quantity is None or self.quantity <= Decimal("0"):
             raise ValueError("quantity must be greater than zero")
-
-        if self.scrap_factor is None or self.scrap_factor < Decimal("0"):
-            raise ValueError("scrap_factor cannot be negative")
-
-        if self.scrap_factor > Decimal("1"):
-            raise ValueError("scrap_factor cannot exceed 1 (100%)")
-
-    def effective_quantity(self) -> Decimal:
-        """
-        Devuelve la cantidad efectiva del componente considerando el scrap factor.
-        Las cantidades del BOM se expresan en unidad base por unidad del producto final.
-        """
-        return self.quantity * (Decimal("1") + self.scrap_factor)
