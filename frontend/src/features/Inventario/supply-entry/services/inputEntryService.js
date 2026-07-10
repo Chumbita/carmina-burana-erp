@@ -33,16 +33,12 @@ export const inputEntryService = {
   },
 
   // CREATE
-  create: async (data) => {
-    // Obtener usuario actual
-    const savedUser = localStorage.getItem("user");
-    const user = savedUser ? JSON.parse(savedUser) : null;
-
+  create: async (data, userId = null) => {
     const response = await privateClient.post(
       ENDPOINTS.INPUT_ENTRIES.CREATE,
       {
         ...data,
-        performed_by: user?.id || null
+        performed_by: userId
       }
     );
     return response.data;
