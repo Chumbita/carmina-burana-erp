@@ -19,14 +19,23 @@ class ListActiveSuppliesUseCase:
             min_stock_level = float(row["min_stock_level"])
             stock_status = StockStatus.from_levels(stock_total, min_stock_level)
 
+            if row["item_type_code"] == "supply":
+                name = row["name"]
+                category = row["supply_category"]
+            else:
+                suffix = f" {int(row['capacity_ml'])}ml" if row["capacity_ml"] else ""
+                name = f"{row['name']}{suffix}"
+                category = row["packaging_type"]
+
             response.append(
                 {
                     "id": row["id"],
-                    "name": row["name"],
+                    "name": name,
                     "brand_name": row["brand_name"],
                     "base_uom_symbol": row["base_uom_symbol"],
                     "min_stock_level": Decimal(row["min_stock_level"]),
-                    "supply_category": row["supply_category"],
+                    "category": category,
+                    "item_type": row["item_type_code"].upper(),
                     "stock_total": stock_total,
                     "estado_stock": stock_status.value,
                 }

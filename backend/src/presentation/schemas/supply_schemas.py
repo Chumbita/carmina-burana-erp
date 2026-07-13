@@ -59,7 +59,8 @@ class SupplyGeneralResponseSchema(BaseModel):
     brand_name: str
     base_uom_symbol: str
     min_stock_level: Decimal
-    supply_category: SupplyCategory
+    category: str
+    item_type: str
     stock_total: float
     estado_stock: str
 

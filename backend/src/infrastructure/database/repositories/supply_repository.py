@@ -14,6 +14,7 @@ from src.infrastructure.database.models.inventory_balance_model import Inventory
 from src.infrastructure.database.models.brand_model import BrandModel
 from src.infrastructure.database.models.item_model import ItemModel
 from src.infrastructure.database.models.item_type_model import ItemTypeModel
+from src.infrastructure.database.models.packaging_supply_model import PackagingSupplyModel
 from src.infrastructure.database.models.supply_model import SupplyModel
 from src.infrastructure.database.models.uom_model import UomModel
 
@@ -104,14 +105,20 @@ class SupplyRepository(ISupplyRepository):
                 BrandModel.name.label("brand_name"),
                 UomModel.symbol.label("base_uom_symbol"),
                 ItemModel.min_stock_level.label("min_stock_level"),
+                ItemTypeModel.code.label("item_type_code"),
                 SupplyModel.supply_category.label("supply_category"),
+                PackagingSupplyModel.packaging_type.label("packaging_type"),
+                PackagingSupplyModel.capacity_ml.label("capacity_ml"),
                 func.coalesce(balance_totals.c.stock_total, 0).label("stock_total"),
             )
-            .join(SupplyModel, SupplyModel.item_id == ItemModel.id)
+            .join(ItemTypeModel, ItemTypeModel.id == ItemModel.item_type_id)
+            .outerjoin(SupplyModel, SupplyModel.item_id == ItemModel.id)
+            .outerjoin(PackagingSupplyModel, PackagingSupplyModel.item_id == ItemModel.id)
             .join(BrandModel, BrandModel.id == ItemModel.brand_id)
             .join(UomModel, UomModel.id == ItemModel.base_uom_id)
             .outerjoin(balance_totals, balance_totals.c.item_id == ItemModel.id)
             .where(ItemModel.status == "ACTIVE")
+            .where(ItemTypeModel.code.in_(["supply", "packaging_supply"]))
             .order_by(ItemModel.name.asc())
         )
 
@@ -125,8 +132,11 @@ class SupplyRepository(ISupplyRepository):
                 "brand_name": row.brand_name,
                 "base_uom_symbol": row.base_uom_symbol,
                 "min_stock_level": row.min_stock_level,
+                "item_type_code": row.item_type_code,
                 "supply_category": row.supply_category,
-                "stock_total": row.stock_total,
+                "packaging_type": row.packaging_type,
+                "capacity_ml": float(row.capacity_ml) if row.capacity_ml is not None else None,
+                "stock_total": float(row.stock_total),
             }
             for row in rows
         ]
