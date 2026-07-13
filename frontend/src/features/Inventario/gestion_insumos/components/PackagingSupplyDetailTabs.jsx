@@ -1,17 +1,29 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs"
+import { useNotification } from "@/components/shared/notifications/useNotification"
+import { PackagingSupplyForm } from "./PackagingSupplyForm"
 
-function DetailRow({ label, value }) {
-  return (
-    <div className="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[180px_1fr] sm:items-center">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium">{value ?? "-"}</span>
-    </div>
-  )
-}
-
-export function PackagingSupplyDetailTabs({ packagingSupply }) {
+export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUpdated, availableInputs = [] }) {
   const [contentOption, setContentOption] = useState("detalle")
+  const formRef = useRef(null)
+  const notify = useNotification()
+
+  async function handleSubmit(data) {
+    try {
+      await onPackagingSupplyUpdated(data)
+      notify.success("Packaging actualizado correctamente")
+
+      formRef.current?.reset(data, {
+        keepDirty: false,
+        keepDirtyValues: false,
+      })
+
+      return true
+    } catch (error) {
+      notify.error(`Error al actualizar el packaging ${error?.message ?? ""}`)
+      return false
+    }
+  }
 
   return (
     <div>
@@ -22,21 +34,15 @@ export function PackagingSupplyDetailTabs({ packagingSupply }) {
         </TabsList>
 
         {contentOption === "detalle" && (
-          <section className="mt-4 divide-y">
-            <DetailRow label="Tipo de envase" value={packagingSupply?.packaging_type} />
-            <DetailRow label="Material" value={packagingSupply?.material} />
-            <DetailRow
-              label="Capacidad"
-              value={
-                packagingSupply?.capacity_ml
-                  ? `${packagingSupply.capacity_ml} ml`
-                  : "-"
-              }
-            />
-            <DetailRow label="Marca" value={packagingSupply?.brand} />
-            <DetailRow label="Unidad de medida" value={packagingSupply?.base_uom_symbol} />
-            <DetailRow label="Stock mínimo" value={packagingSupply?.min_stock_level} />
-          </section>
+          <PackagingSupplyForm
+            formRef={formRef}
+            defaultValues={packagingSupply}
+            onSubmit={handleSubmit}
+            submitLabel="Guardar cambios"
+            layout="page"
+            existingInputs={availableInputs}
+            excludeId={packagingSupply?.id}
+          />
         )}
 
         {contentOption === "lotes" && <p className="mt-4">Contenido de Lotes</p>}
