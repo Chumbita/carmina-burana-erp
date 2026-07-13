@@ -20,15 +20,18 @@ export default function SuppliesPage() {
     loading,
     search,
     categoryFilter,
+    itemTypeFilter,
     stockFilter,
     sortBy,
     sortOrder,
     currentPage,
     itemsPerPage,
     categories,
+    itemTypes,
     stockStatuses,
     setSearch,
     setCategoryFilter,
+    setItemTypeFilter,
     setStockFilter,
     setSortBy,
     setSortOrder,
@@ -59,6 +62,13 @@ export default function SuppliesPage() {
               onChange: setCategoryFilter,
             },
             {
+              key: "itemType",
+              placeholder: "Tipo",
+              value: itemTypeFilter,
+              options: itemTypes,
+              onChange: setItemTypeFilter,
+            },
+            {
               key: "stock",
               placeholder: "Estado stock",
               value: stockFilter,
@@ -77,11 +87,12 @@ export default function SuppliesPage() {
           onSortOrderChange={setSortOrder}
           // Limpiar
           hasActiveFilters={
-            search || categoryFilter !== "all" || stockFilter !== "all"
+            search || categoryFilter !== "all" || itemTypeFilter !== "all" || stockFilter !== "all"
           }
           onClearFilters={() => {
             setSearch("");
             setCategoryFilter("all");
+            setItemTypeFilter("all");
             setStockFilter("all");
           }}
         />
