@@ -30,6 +30,8 @@ export function PackagingSupplyForm({
   submitLabel = "Guardar",
   cancelLabel = "Cancelar",
   isSubmitting = false,
+  layout = "modal",
+  formRef,
   existingInputs = [],
   excludeId = null,
 }) {
@@ -38,7 +40,12 @@ export function PackagingSupplyForm({
 
   const schema = createPackagingSupplySchema(existingInputs, excludeId)
 
-  const { handleSubmit, control } = useForm({
+  const {
+    handleSubmit,
+    control,
+    reset,
+    formState: { isDirty },
+  } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       name:             defaultValues?.name             ?? "",
@@ -52,9 +59,22 @@ export function PackagingSupplyForm({
     mode: "onChange",
   })
 
+  if (formRef) {
+    formRef.current = {
+      submit: () => handleSubmit(onSubmit)(),
+      reset,
+      isDirty,
+    }
+  }
+
+  const isModal = layout === "modal"
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <FieldGroup className="-space-y-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className={isModal ? "space-y-4" : "grid grid-cols-1 md:grid-cols-2 gap-4"}
+    >
+      <FieldGroup className={isModal ? "-space-y-4" : "contents"}>
         <Controller
           name="name"
           control={control}
@@ -222,7 +242,7 @@ export function PackagingSupplyForm({
         </div>
       </FieldGroup>
 
-      <div className="flex justify-between gap-2">
+      <div className={isModal ? "flex justify-between gap-2" : "md:col-span-2 flex justify-end mt-4 gap-2"}>
         {onCancel && (
           <Button
             type="button"
@@ -236,7 +256,12 @@ export function PackagingSupplyForm({
           </Button>
         )}
 
-        <Button size="sm" type="submit" disabled={isSubmitting} className="cursor-pointer">
+        <Button
+          size="sm"
+          type="submit"
+          disabled={isModal ? isSubmitting : !isDirty || isSubmitting}
+          className="cursor-pointer"
+        >
           {isSubmitting ? "Guardando..." : submitLabel}
         </Button>
       </div>
