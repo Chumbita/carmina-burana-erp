@@ -6,20 +6,27 @@ export function usePackagingSupply(id) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await packagingSupplyService.getById(id)
-        setPackagingSupply(data)
-      } catch (error) {
-        setError(error)
-      } finally {
-        setLoading(false)
-      }
+  async function load() {
+    try {
+      const data = await packagingSupplyService.getById(id)
+      setPackagingSupply(data)
+      setError(null)
+    } catch (error) {
+      setError(error)
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     load()
   }, [id])
 
-  return { packagingSupply, loading, error }
+  async function updatePackagingSupply(data) {
+    const updated = await packagingSupplyService.patch(id, data)
+    setPackagingSupply(updated)
+    return updated
+  }
+
+  return { packagingSupply, loading, error, updatePackagingSupply, refetch: load }
 }
