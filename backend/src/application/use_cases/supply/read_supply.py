@@ -21,11 +21,11 @@ class ListActiveSuppliesUseCase:
 
             if row["item_type_code"] == "supply":
                 name = row["name"]
-                category = row["supply_category"]
+                category = row["supply_category"] or ""
             else:
                 suffix = f" {int(row['capacity_ml'])}ml" if row["capacity_ml"] else ""
                 name = f"{row['name']}{suffix}"
-                category = row["packaging_type"]
+                category = row["packaging_type"] or ""
 
             response.append(
                 {

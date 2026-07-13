@@ -41,8 +41,12 @@ router = APIRouter(prefix="/supplies", tags=["Supplies"])
 @router.get("", response_model=List[SupplyGeneralResponseSchema], summary="Listar insumos activos")
 async def list_active_supplies(
     use_case: ListActiveSuppliesUseCase = Depends(get_list_active_supplies_use_case),
-    current_user: User = Depends(get_current_user),
+    # current_user: User = Depends(get_current_user),
 ) -> list[dict]:
+    """
+    Lista todos los insumos activos (supply + packaging_supply).
+    Incluye stock total y estado del stock.
+    """
     return await use_case.execute()
 
 
