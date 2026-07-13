@@ -29,7 +29,14 @@ export function useInputFilters(inputs = []) {
     { value: "optimo", label: "Normal" },
   ]
 
+  const itemTypes = [
+    { value: "all", label: "Tipo..." },
+    { value: "SUPPLY", label: "Insumo" },
+    { value: "PACKAGING_SUPPLY", label: "Packaging" },
+  ]
+
   const [categoryFilter, setCategoryFilter] = useState("all")
+  const [itemTypeFilter, setItemTypeFilter] = useState("all")
   const [stockFilter, setStockFilter] = useState("all")
   const [search, setSearch] = useState("")
   const [sortBy, setSortBy] = useState("id") // "id", "name" o "stock"
@@ -47,6 +54,11 @@ export function useInputFilters(inputs = []) {
 
   const handleSetCategoryFilter = (value) => {
     setCategoryFilter(value)
+    resetPage()
+  }
+
+  const handleSetItemTypeFilter = (value) => {
+    setItemTypeFilter(value)
     resetPage()
   }
 
@@ -81,12 +93,16 @@ export function useInputFilters(inputs = []) {
         categoryFilter === "all" ||
         normalize(getCategory(input)) === normalize(categoryFilter)
 
+      const matchesItemType =
+        itemTypeFilter === "all" ||
+        normalize(input.item_type) === normalize(itemTypeFilter)
+
       // Filtro de estado de stock
       const matchesStockStatus =
         stockFilter === "all" ||
         input.estado_stock === stockFilter
 
-      return matchesSearch && matchesCategory && matchesStockStatus
+      return matchesSearch && matchesCategory && matchesItemType && matchesStockStatus
     })
 
     // Aplicar ordenamiento
@@ -126,9 +142,11 @@ export function useInputFilters(inputs = []) {
 
   return {
     categories,
+    itemTypes,
     stockStatuses,
     search,
     categoryFilter,
+    itemTypeFilter,
     stockFilter,
     sortBy,
     sortOrder,
@@ -136,6 +154,7 @@ export function useInputFilters(inputs = []) {
     itemsPerPage,
     setSearch: handleSetSearch,
     setCategoryFilter: handleSetCategoryFilter,
+    setItemTypeFilter: handleSetItemTypeFilter,
     setStockFilter: handleSetStockFilter,
     setSortBy: handleSetSortBy,
     setSortOrder: handleSetSortOrder,
