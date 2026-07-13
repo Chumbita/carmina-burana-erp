@@ -16,6 +16,7 @@ from src.domain.repositories.packaging_supply_repository import (
 )
 from src.infrastructure.database.models.packaging_supply_model import PackagingSupplyModel
 from src.infrastructure.database.models.item_model import ItemModel
+from src.infrastructure.database.models.item_type_model import ItemTypeModel
 from src.infrastructure.database.models.brand_model import BrandModel
 from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
 from src.infrastructure.database.models.uom_model import UomModel
@@ -165,3 +166,58 @@ class PackagingSupplyRepository(IPackagingSupplyRepository):
             }
             for row in rows
         ]
+
+    async def get_active_packaging_supply_detail(self, item_id: int) -> Optional[dict]:
+        stock_total_subquery = (
+            select(func.sum(InventoryBalanceModel.quantity))
+            .where(
+                InventoryBalanceModel.item_id == item_id,
+                InventoryBalanceModel.quantity > 0,
+            )
+            .scalar_subquery()
+        )
+
+        stmt = (
+            select(
+                ItemModel.id.label("id"),
+                ItemModel.name.label("name"),
+                ItemTypeModel.code.label("item_type_code"),
+                BrandModel.name.label("brand_name"),
+                UomModel.symbol.label("base_uom_symbol"),
+                ItemModel.min_stock_level.label("min_stock_level"),
+                ItemModel.created_at.label("created_at"),
+                ItemModel.updated_at.label("item_updated_at"),
+                PackagingSupplyModel.packaging_type.label("packaging_type"),
+                PackagingSupplyModel.material.label("material"),
+                PackagingSupplyModel.capacity_ml.label("capacity_ml"),
+                PackagingSupplyModel.updated_at.label("ps_updated_at"),
+                func.coalesce(stock_total_subquery, 0).label("stock_total"),
+            )
+            .join(PackagingSupplyModel, PackagingSupplyModel.item_id == ItemModel.id)
+            .join(ItemTypeModel, ItemTypeModel.id == ItemModel.item_type_id)
+            .join(BrandModel, BrandModel.id == ItemModel.brand_id)
+            .join(UomModel, UomModel.id == ItemModel.base_uom_id)
+            .outerjoin(InventoryBalanceModel, InventoryBalanceModel.item_id == ItemModel.id)
+            .where(ItemModel.id == item_id, ItemModel.status == "ACTIVE")
+        )
+
+        result = await self._session.execute(stmt)
+        row = result.one_or_none()
+        if row is None:
+            return None
+
+        return {
+            "id": row.id,
+            "name": row.name,
+            "item_type_code": row.item_type_code,
+            "brand_name": row.brand_name,
+            "base_uom_symbol": row.base_uom_symbol,
+            "min_stock_level": row.min_stock_level,
+            "packaging_type": row.packaging_type,
+            "material": row.material,
+            "capacity_ml": Decimal(str(row.capacity_ml)) if row.capacity_ml is not None else None,
+            "stock_total": row.stock_total,
+            "created_at": row.created_at,
+            "item_updated_at": row.item_updated_at,
+            "ps_updated_at": row.ps_updated_at,
+        }

@@ -1,13 +1,16 @@
 from typing import List
 
 from fastapi import APIRouter, Depends
-from fastapi import status
+from fastapi import HTTPException, status
 
 from src.domain.entities.user import User
 
 from src.application.dtos.items.item_commands_dtos import CreateItemCommand
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
-from src.application.use_cases.packaging_supply.read_packaging_supply import ListActivePackagingSuppliesUseCase
+from src.application.use_cases.packaging_supply.read_packaging_supply import (
+    ListActivePackagingSuppliesUseCase,
+    GetActivePackagingSupplyDetailUseCase,
+)
 
 from src.infrastructure.database.repositories.packaging_supply_repository import PackagingSupplyRepository
 
@@ -15,15 +18,18 @@ from src.presentation.schemas.packaging_supply_schemas import (
     CreatePackagingSupplyRequestSchema,
     PackagingSupplyGeneralResponseSchema,
     PackagingSupplyResponseSchema,
+    PackagingSupplyDetailResponseSchema,
 )
 from src.presentation.dependencies.use_cases.packaging_supply import (
     get_create_packaging_supply_use_case,
     get_list_active_packaging_supplies_use_case,
     get_packaging_supply_repository,
     get_packaging_supply_item_type_id,
+    get_active_packaging_supply_detail_use_case,
 )
 from src.domain.value_objects.packaging_type import PackagingType
 from src.presentation.dependencies.auth import get_current_user
+from src.domain.exceptions.item_exceptions import ItemNotFoundException
 
 
 router = APIRouter(prefix="/packaging-supplies", tags=["Packaging Supplies"])
@@ -35,6 +41,18 @@ async def list_active_packaging_supplies(
     current_user: User = Depends(get_current_user),
 ) -> list[dict]:
     return await use_case.execute()
+
+
+@router.get("/{item_id}", response_model=PackagingSupplyDetailResponseSchema, summary="Detalle de packaging supply activo")
+async def get_active_packaging_supply_detail(
+    item_id: int,
+    use_case: GetActivePackagingSupplyDetailUseCase = Depends(get_active_packaging_supply_detail_use_case),
+  #  current_user: User = Depends(get_current_user),
+) -> dict:
+    try:
+        return await use_case.execute(item_id)
+    except ItemNotFoundException as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 
 @router.post(

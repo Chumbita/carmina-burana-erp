@@ -34,3 +34,6 @@ class IPackagingSupplyRepository(Protocol):
 
     async def list_active_packaging_supplies_general(self) -> list[dict]:
         ...
+
+    async def get_active_packaging_supply_detail(self, item_id: int) -> Optional[dict]:
+        ...

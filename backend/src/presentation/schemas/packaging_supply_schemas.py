@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, Field
 from typing import Optional
 from decimal import Decimal
@@ -42,3 +43,24 @@ class PackagingSupplyGeneralResponseSchema(BaseModel):
     capacity_ml: Optional[Decimal] = None
     stock_total: float
     estado_stock: str
+
+
+class PackagingSupplyInventoryBalanceSchema(BaseModel):
+    quantity: float
+
+
+class PackagingSupplyDetailResponseSchema(BaseModel):
+    id: int
+    name: str
+    item_type: str
+    brand: str
+    base_uom_symbol: str
+    min_stock_level: Decimal
+    packaging_type: PackagingType
+    material: str
+    capacity_ml: Optional[Decimal] = None
+    stock_total: float
+    estado_stock: str
+    created_at: datetime
+    updated_at: datetime
+    inventory_balance: list[PackagingSupplyInventoryBalanceSchema]
