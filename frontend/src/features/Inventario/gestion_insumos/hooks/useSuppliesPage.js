@@ -9,7 +9,7 @@ import { useLocationNotification } from "./useLocationNotification"
 
 export function useSuppliesPage() {
   const { supplies, loading, error, createSupply, createPackagingSupply } = useSupplies()
-  const { search, categoryFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, stockStatuses, setSearch, setCategoryFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage, filteredInputs } = useInputFilters(supplies)
+  const { search, categoryFilter, itemTypeFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, itemTypes, stockStatuses, setSearch, setCategoryFilter, setItemTypeFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage, filteredInputs } = useInputFilters(supplies)
   const notify = useNotification()
   
   useLocationNotification(notify)
@@ -77,15 +77,18 @@ export function useSuppliesPage() {
     // filtros
     search,
     categoryFilter,
+    itemTypeFilter,
     stockFilter,
     sortBy,
     sortOrder,
     currentPage,
     itemsPerPage,
     categories,
+    itemTypes,
     stockStatuses,
     setSearch,
     setCategoryFilter,
+    setItemTypeFilter,
     setStockFilter,
     setSortBy,
     setSortOrder,
