@@ -1,13 +1,26 @@
 
 // /hooks/useFilter.js
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { SUPPLY_CATEGORIES } from "../schemas/supply.schema"
 
-export function useInputFilters() {
-  const categories = [
-    { value: "all", label: "Categorías..." },
-    ...SUPPLY_CATEGORIES.map(cat => ({ value: cat, label: cat }))
-  ]
+function getCategory(input) {
+  return input?.category ?? input?.supply_category ?? input?.packaging_type ?? ""
+}
+
+export function useInputFilters(inputs = []) {
+  const categories = useMemo(() => {
+    const categoryValues = new Set(SUPPLY_CATEGORIES)
+
+    inputs.forEach((input) => {
+      const category = getCategory(input)
+      if (category) categoryValues.add(category)
+    })
+
+    return [
+      { value: "all", label: "Categorías..." },
+      ...Array.from(categoryValues).map(cat => ({ value: cat, label: cat }))
+    ]
+  }, [inputs])
 
   const stockStatuses = [
     { value: "all", label: "Estado de stock..." },
@@ -66,7 +79,7 @@ export function useInputFilters() {
       // Filtro de categoría
       const matchesCategory =
         categoryFilter === "all" ||
-        normalize(input?.supply_category) === normalize(categoryFilter)
+        normalize(getCategory(input)) === normalize(categoryFilter)
 
       // Filtro de estado de stock
       const matchesStockStatus =

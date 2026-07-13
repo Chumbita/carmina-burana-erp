@@ -16,6 +16,7 @@ import { Plus } from "lucide-react";
 export default function SuppliesPage() {
   const {
     filteredData,
+    inputs,
     loading,
     search,
     categoryFilter,
@@ -97,6 +98,7 @@ export default function SuppliesPage() {
         open={openModal}
         onClose={() => setOpenModal(false)}
         onSubmit={handleCreateInput}
+        existingInputs={inputs}
       />
 
       <div ref={tableRef}>

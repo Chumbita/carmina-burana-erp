@@ -7,16 +7,23 @@ export function SuppliesTable({ insumos }) {
   const navigate = useNavigate();
 
   const handleRowClick = (insumo) => {
+    if (insumo.item_type?.toUpperCase() === "PACKAGING_SUPPLY") {
+      navigate(`/inventario/insumos/envases/${insumo.id}`);
+      return;
+    }
+
     navigate(`/inventario/insumos/${insumo.id}`);
   };
-  console.log(insumos);
-  
 
   const tableHeaders = [
     { header: "Nro", accessor: "id" },
     { header: "Nombre", accessor: "name" },
     { header: "Marca", accessor: "brand_name" },
-    { header: "Categoria", accessor: "supply_category" },
+    {
+      header: "Categoria",
+      accessor: "category",
+      render: (value, insumo) => value ?? insumo.supply_category ?? insumo.packaging_type ?? "-",
+    },
     { header: "Stock", accessor: "stock_total" ,
       render: (value, insumo) => (
         <div className="w-8">

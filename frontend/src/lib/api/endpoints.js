@@ -34,6 +34,10 @@ export const ENDPOINTS = {
         GET_BY_ID: (id) => `/supplies/${id}`,
         CREATE:    '/supplies',
     },
+    PACKAGING_SUPPLIES: {
+        GET_BY_ID: (id) => `/packaging-supplies/${id}`,
+        CREATE:    '/packaging-supplies',
+    },
     // Brands
     BRANDS: {
         GET_ALL: '/brands/',

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { supplyService } from "../services/supplyService"
+import { packagingSupplyService } from "../services/packagingSupplyService"
 
 export function useSupplies() {
   const [supplies, setSupplies] = useState([])
@@ -32,11 +33,23 @@ export function useSupplies() {
     }
   }
 
+  async function createPackagingSupply(packagingSupplyData) {
+    try {
+      const newPackagingSupply = await packagingSupplyService.create(packagingSupplyData)
+      await getSupplies()
+      return newPackagingSupply
+    } catch (err) {
+      setError(err)
+      throw err
+    }
+  }
+
   return {
     supplies,
     loading,
     error,
     getSupplies,
     createSupply,
+    createPackagingSupply,
   }
 }

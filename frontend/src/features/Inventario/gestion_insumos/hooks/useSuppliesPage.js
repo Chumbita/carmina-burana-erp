@@ -8,8 +8,8 @@ import { useLocationNotification } from "./useLocationNotification"
 // manteniendo la page limpia de lógica y centrada solo en el renderizado.
 
 export function useSuppliesPage() {
-  const { supplies, loading, error, createSupply } = useSupplies()
-  const { search, categoryFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, stockStatuses, setSearch, setCategoryFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage, filteredInputs } = useInputFilters()
+  const { supplies, loading, error, createSupply, createPackagingSupply } = useSupplies()
+  const { search, categoryFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, stockStatuses, setSearch, setCategoryFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage, filteredInputs } = useInputFilters(supplies)
   const notify = useNotification()
   
   useLocationNotification(notify)
@@ -19,6 +19,24 @@ export function useSuppliesPage() {
 
   async function handleCreateInput(formData) {
     try {
+      if (formData.item_type === "PACKAGING_SUPPLY") {
+        const payload = {
+          name:            formData.name,
+          brand_id:        formData.brand_id,
+          base_uom_id:     formData.base_uom_id,
+          min_stock_level: formData.min_stock_level ?? 0,
+          packaging_type:  formData.packaging_type,
+          material:        formData.material,
+          capacity_ml:     formData.capacity_ml || null,
+        }
+        const newPackagingSupply = await createPackagingSupply(payload)
+        setOpenModal(false)
+        notify.success(`Envase "${newPackagingSupply.name}" creado exitosamente`, {
+          onClick: () => handleNotificationClick(newPackagingSupply.id)
+        })
+        return
+      }
+
       const payload = {
         name:            formData.name,
         brand_id:        formData.brand_id,
@@ -32,7 +50,7 @@ export function useSuppliesPage() {
         onClick: () => handleNotificationClick(newSupply.id)
       })
     } catch (error) {
-      notify.error(`Error al crear el insumo: ${error.message}` || 'Error al crear el insumo')
+      notify.error(error?.message ? `Error al crear el insumo: ${error.message}` : 'Error al crear el insumo')
     }
   }
 
