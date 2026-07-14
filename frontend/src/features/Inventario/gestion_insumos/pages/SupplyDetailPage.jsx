@@ -33,10 +33,7 @@ export default function SupplyDetailPage() {
       </EntityDetailPage.Sidebar>
 
       <EntityDetailPage.Content>
-        <SupplyDetailTabs
-          insumo={supply}
-          availableInputs={supplies}
-        />
+        <SupplyDetailTabs insumo={supply} availableSupplies={supplies} />
       </EntityDetailPage.Content>
       <EntityDetailPage.History entityType="input" entityId={supply?.id} />
     </EntityDetailPage>

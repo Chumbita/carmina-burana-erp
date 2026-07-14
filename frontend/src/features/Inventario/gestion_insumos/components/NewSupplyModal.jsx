@@ -1,11 +1,11 @@
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog"
 import { SupplyForm } from "./SupplyForm"
-import { useInputs } from "../hooks/useInputs"
+import { useSupplies } from "../hooks/useSupplies"
 
 export function NewSupplyModal({ open, onClose, onSubmit }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { inputs } = useInputs() // Obtener inputs existentes para validación
+  const { supplies } = useSupplies()
 
   function handleClose() {
     onClose()
@@ -16,7 +16,6 @@ export function NewSupplyModal({ open, onClose, onSubmit }) {
 
     try {
       await onSubmit(data)
-    } catch (error) {
     } finally {
       setIsSubmitting(false)
     }
@@ -44,7 +43,7 @@ export function NewSupplyModal({ open, onClose, onSubmit }) {
           cancelLabel="Cancelar"
           isSubmitting={isSubmitting}
           layout="modal"
-          existingInputs={inputs} // Pasar inputs para validación
+          existingSupplies={supplies}
         />
       </DialogContent>
     </Dialog>

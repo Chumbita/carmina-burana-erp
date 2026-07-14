@@ -113,7 +113,7 @@ export function TabSupply({ insumo }) {
         showDeleteButton={true}
         onDelete={onDelete}
         layout="page"
-        existingInputs={supplies}
+        existingSupplies={supplies}
         excludeId={insumo.id}
       />
 
