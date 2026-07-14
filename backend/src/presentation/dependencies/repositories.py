@@ -15,17 +15,6 @@ def get_user_repository(
     return UserRepository(db)
 
 # ══════════════════════════════
-# INPUT REPOSITORY
-# ══════════════════════════════
-from src.infrastructure.database.repositories.input_repository_impl import InputRepositoryImpl
-from src.domain.repositories.input_repository import InputRepository
-
-def get_input_repository(
-    db: AsyncSession = Depends(get_db),
-) -> InputRepository:
-    return InputRepositoryImpl(db)
-
-# ══════════════════════════════
 # UOM REPOSITORY
 # ══════════════════════════════
 from src.infrastructure.database.repositories.uom_repository import UomRepository
