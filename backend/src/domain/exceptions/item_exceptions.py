@@ -62,3 +62,14 @@ class SpecializedItemUpdateException(DomainException):
         super().__init__(
             f"Failed to update specialized item record: {reason}"
         )
+
+
+class ItemHasStockException(DomainException):
+    """
+    Excepción lanzada cuando se intenta eliminar un item que tiene stock activo.
+    """
+    def __init__(self, item_id: int) -> None:
+        super().__init__(
+            f"Item with id={item_id} cannot be deleted: it has active stock."
+        )
+        self.item_id = item_id

@@ -57,3 +57,15 @@ class IItemRepostory(Protocol):
         Items que afectan inventario.
         """
         ...
+
+    async def has_stock(self, item_id: int) -> bool:
+        """
+        Retorna True si el item tiene stock disponible (quantity > 0).
+        """
+        ...
+
+    async def soft_delete(self, item_id: int) -> bool:
+        """
+        Marca el item como DELETED (soft delete). Retorna True si se encontró y eliminó.
+        """
+        ...
