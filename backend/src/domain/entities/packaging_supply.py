@@ -55,13 +55,16 @@ class PackagingSupply:
 
     def update(
         self,
-        packaging_type: PackagingType,
-        material: str,
+        packaging_type: Optional[PackagingType] = None,
+        material: Optional[str] = None,
         capacity_ml: Optional[Decimal] = None,
     ) -> None:
 
-        self.packaging_type = packaging_type
-        self.material = material
-        self.capacity_ml = capacity_ml
+        if packaging_type is not None:
+            self.packaging_type = packaging_type
+        if material is not None:
+            self.material = material
+        if capacity_ml is not None:
+            self.capacity_ml = capacity_ml
         self.updated_at = datetime.now()
         self._validate()
