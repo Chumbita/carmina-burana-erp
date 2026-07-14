@@ -12,7 +12,10 @@ from src.application.use_cases.packaging_supply.read_packaging_supply import (
     ListActivePackagingSuppliesUseCase,
     GetActivePackagingSupplyDetailUseCase,
 )
+from src.application.use_cases.packaging_supply.packaging_supply_item_updater import PackagingSupplyItemUpdater
+from src.application.use_cases.packaging_supply.update_packaging_supply import UpdatePackagingSupplyUseCase
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
+from src.application.use_cases.item.update_item_use_case import UpdateItemUseCase
 
 
 def get_create_packaging_supply_use_case(
@@ -52,3 +55,13 @@ def get_active_packaging_supply_detail_use_case(
     repo: PackagingSupplyRepository = Depends(get_packaging_supply_repository),
 ) -> GetActivePackagingSupplyDetailUseCase:
     return GetActivePackagingSupplyDetailUseCase(repo)
+
+
+def get_update_packaging_supply_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> UpdatePackagingSupplyUseCase:
+    item_repository = ItemRepository(session)
+    ps_repository = PackagingSupplyRepository(session)
+    ps_updater = PackagingSupplyItemUpdater(ps_repository)
+    update_item_use_case = UpdateItemUseCase(item_repository, ps_updater)
+    return UpdatePackagingSupplyUseCase(update_item_use_case, ps_repository)

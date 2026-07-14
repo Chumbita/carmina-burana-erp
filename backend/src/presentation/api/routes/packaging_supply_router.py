@@ -5,17 +5,19 @@ from fastapi import HTTPException, status
 
 from src.domain.entities.user import User
 
-from src.application.dtos.items.item_commands_dtos import CreateItemCommand
+from src.application.dtos.items.item_commands_dtos import CreateItemCommand, UpdateItemCommand
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
 from src.application.use_cases.packaging_supply.read_packaging_supply import (
     ListActivePackagingSuppliesUseCase,
     GetActivePackagingSupplyDetailUseCase,
 )
+from src.application.use_cases.packaging_supply.update_packaging_supply import UpdatePackagingSupplyUseCase
 
 from src.infrastructure.database.repositories.packaging_supply_repository import PackagingSupplyRepository
 
 from src.presentation.schemas.packaging_supply_schemas import (
     CreatePackagingSupplyRequestSchema,
+    UpdatePackagingSupplyRequestSchema,
     PackagingSupplyGeneralResponseSchema,
     PackagingSupplyResponseSchema,
     PackagingSupplyDetailResponseSchema,
@@ -26,6 +28,7 @@ from src.presentation.dependencies.use_cases.packaging_supply import (
     get_packaging_supply_repository,
     get_packaging_supply_item_type_id,
     get_active_packaging_supply_detail_use_case,
+    get_update_packaging_supply_use_case,
 )
 from src.domain.value_objects.packaging_type import PackagingType
 from src.presentation.dependencies.auth import get_current_user
@@ -53,6 +56,33 @@ async def get_active_packaging_supply_detail(
         return await use_case.execute(item_id)
     except ItemNotFoundException as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@router.patch(
+    "/{item_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=PackagingSupplyDetailResponseSchema,
+    summary="Actualizar insumo de packaging",
+)
+async def update_packaging_supply(
+    item_id: int,
+    body: UpdatePackagingSupplyRequestSchema,
+    use_case: UpdatePackagingSupplyUseCase = Depends(get_update_packaging_supply_use_case),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    command = UpdateItemCommand(
+        item_id=item_id,
+        name=body.name,
+        brand_id=body.brand_id,
+        base_uom_id=body.base_uom_id,
+        min_stock_level=body.min_stock_level,
+        specialized_data={
+            "packaging_type": body.packaging_type.value,
+            "material": body.material,
+            "capacity_ml": body.capacity_ml,
+        } if body.packaging_type or body.material or body.capacity_ml is not None else None,
+    )
+    return await use_case.execute(command)
 
 
 @router.post(

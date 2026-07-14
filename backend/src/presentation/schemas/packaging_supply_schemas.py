@@ -16,6 +16,16 @@ class CreatePackagingSupplyRequestSchema(BaseModel):
     capacity_ml: Optional[Decimal] = None
 
 
+class UpdatePackagingSupplyRequestSchema(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=120)
+    brand_id: Optional[int] = None
+    base_uom_id: Optional[int] = None
+    min_stock_level: Optional[float] = Field(None, gt=0)
+    packaging_type: Optional[PackagingType] = None
+    material: Optional[str] = Field(None, min_length=1)
+    capacity_ml: Optional[Decimal] = None
+
+
 # ── RESPONSES ────────────────────────────────────────────────
 
 class PackagingSupplyResponseSchema(BaseModel):
