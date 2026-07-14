@@ -1,12 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 
-from src.application.use_cases.supply.read_supply import GetActiveSupplyDetailUseCase, ListActiveSuppliesUseCase
-from src.application.use_cases.supply.delete_supply import DeleteSupplyUseCase
-from src.domain.exceptions.item_exceptions import ItemNotFoundException
-from src.domain.exceptions.supply_exceptions import SupplyHasStockException
+from src.application.use_cases.item.delete_item import DeleteItemUseCase
+from src.domain.exceptions.item_exceptions import ItemNotFoundException, ItemHasStockException
 from src.domain.entities.user import User
-from src.domain.exceptions.item_exceptions import ItemNotFoundException
 
 from src.infrastructure.database.repositories.supply_repository import SupplyRepository
 
@@ -29,7 +26,7 @@ from src.presentation.dependencies.use_cases.supply import (
     get_create_supply_use_case,
     get_list_active_supplies_use_case,
     get_supply_repository,
-    get_delete_supply_use_case,
+    get_delete_item_use_case,
     get_update_supply_use_case
 )
 from src.presentation.dependencies.auth import get_current_user
@@ -124,7 +121,7 @@ async def create_supply(
 )
 async def delete_supply(
     item_id: int,
-    use_case: DeleteSupplyUseCase = Depends(get_delete_supply_use_case),
+    use_case: DeleteItemUseCase = Depends(get_delete_item_use_case),
     current_user: User = Depends(get_current_user),
 ) -> dict:
     """
@@ -135,7 +132,7 @@ async def delete_supply(
         await use_case.execute(item_id)
         return {"message": "Insumo eliminado correctamente"}
 
-    except SupplyHasStockException as exc:
+    except ItemHasStockException as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(exc),
