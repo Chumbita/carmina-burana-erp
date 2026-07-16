@@ -61,13 +61,13 @@ def get_active_supply_detail_use_case(
     return GetActiveSupplyDetailUseCase(supply_repository)
 
 
-def get_delete_item_use_case(
-    item_repository: ItemRepository = Depends(get_item_repository),
-) -> DeleteItemUseCase:
-    return DeleteItemUseCase(item_repository)
-
-
 def get_item_repository(
     session: AsyncSession = Depends(get_db),
 ) -> ItemRepository:
     return ItemRepository(session)
+
+
+def get_delete_item_use_case(
+    item_repository: ItemRepository = Depends(get_item_repository),
+) -> DeleteItemUseCase:
+    return DeleteItemUseCase(item_repository)
