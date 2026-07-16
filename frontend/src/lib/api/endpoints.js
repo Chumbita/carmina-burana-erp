@@ -33,6 +33,7 @@ export const ENDPOINTS = {
         GET_ALL:   '/supplies',
         GET_BY_ID: (id) => `/supplies/${id}`,
         CREATE:    '/supplies',
+        DELETE:    (id) => `/supplies/${id}`,
     },
     PACKAGING_SUPPLIES: {
         GET_BY_ID: (id) => `/packaging-supplies/${id}`,

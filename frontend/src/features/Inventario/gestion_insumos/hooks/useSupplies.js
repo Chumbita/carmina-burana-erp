@@ -44,6 +44,17 @@ export function useSupplies() {
     }
   }
 
+  async function deleteSupply(id) {
+    try {
+      const result = await supplyService.remove(id)
+      await getSupplies()
+      return result
+    } catch (err) {
+      setError(err)
+      throw err
+    }
+  }
+
   return {
     supplies,
     loading,
@@ -51,5 +62,6 @@ export function useSupplies() {
     getSupplies,
     createSupply,
     createPackagingSupply,
+    deleteSupply,
   }
 }

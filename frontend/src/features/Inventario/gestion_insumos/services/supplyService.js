@@ -18,4 +18,10 @@ export const supplyService = {
     const response = await privateClient.post(ENDPOINTS.SUPPLIES.CREATE, data)
     return response.data
   },
+
+  // DELETE
+  remove: async (id) => {
+    const response = await privateClient.delete(ENDPOINTS.SUPPLIES.DELETE(id))
+    return response.data
+  },
 }

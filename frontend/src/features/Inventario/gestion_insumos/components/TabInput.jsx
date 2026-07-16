@@ -17,6 +17,7 @@ import {
 import { useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useInputs } from "../hooks/useInputs"
+import { useSupplies } from "../hooks/useSupplies"
 import { useNotification } from "@/components/shared/notifications/useNotification"
 import { useFormBlocker } from "../hooks/useFormBlocker";
 import { useEntityDetail } from "@/components/shared/DetailPage/EntityDetailContext";
@@ -29,13 +30,8 @@ export function TabInput({ insumo }) {
 
   const { handleUpdated } = useEntityDetail();
 
-  const {
-    updateInput,
-    deleteInput,
-    loading,
-    error,
-    inputs
-  } = useInputs()
+  const { updateInput, loading } = useInputs()
+  const { supplies: allSupplies, deleteSupply } = useSupplies()
 
   const notify = useNotification()
 
@@ -79,14 +75,14 @@ async function onSubmit(data) {
 
   const handleConfirmDelete = async () => {
     try {
-      await deleteInput(insumo.id)
-      setOpenDeleteDialog(false) 
-      navigate("/inventario/insumos", { 
-        state: { 
-          notification: { type: 'success', message: `${insumo.name} eliminado con éxito` } 
-        } 
+      await deleteSupply(insumo.id)
+      setOpenDeleteDialog(false)
+      navigate("/inventario/insumos", {
+        state: {
+          notification: { type: 'success', message: `${insumo.name} eliminado con éxito` }
+        }
       })
-    }catch (error) {
+    } catch (error) {
       notify.error(`Ha ocurrido un problema ${error}`)
     }
   }
@@ -108,7 +104,7 @@ async function onSubmit(data) {
         showDeleteButton={true}
         onDelete={onDelete}
         layout="page"
-        existingInputs={inputs} // Para validación de nombre único
+        existingInputs={allSupplies} // Para validación de nombre único
         excludeId={insumo.id} // Excluir el insumo actual de la validación
       />
 

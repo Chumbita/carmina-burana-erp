@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { packagingSupplyService } from "../services/packagingSupplyService"
+import { supplyService } from "../services/supplyService"
 
 export function usePackagingSupply(id) {
   const [packagingSupply, setPackagingSupply] = useState(null)
@@ -28,5 +29,10 @@ export function usePackagingSupply(id) {
     return updated
   }
 
-  return { packagingSupply, loading, error, updatePackagingSupply, refetch: load }
+  async function deleteSupply() {
+    const result = await supplyService.remove(id)
+    return result
+  }
+
+  return { packagingSupply, loading, error, updatePackagingSupply, deleteSupply, refetch: load }
 }
