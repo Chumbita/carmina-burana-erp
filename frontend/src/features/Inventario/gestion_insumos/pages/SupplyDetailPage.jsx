@@ -13,8 +13,8 @@ import { EntityDetailPage } from "@/components/shared/DetailPage/EntityDetailPag
 import { estadoStyles } from "../utils/stockStyles";
 
 export default function SupplyDetailPage() {
-  const { inputId } = useParams();
-  const { supply, loading, error } = useSupply(inputId);
+  const { supplyId } = useParams();
+  const { supply, loading, error } = useSupply(supplyId);
   const { supplies } = useSupplies();
 
   return (
