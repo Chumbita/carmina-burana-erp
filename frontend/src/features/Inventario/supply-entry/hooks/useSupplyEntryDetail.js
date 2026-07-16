@@ -25,8 +25,8 @@ function normalizeEntry(entry) {
     annulmentReason: entry.description,
     items: (entry.lines ?? []).map((line) => ({
       id: line.lot_id ?? line.item?.id,
-      id_input: line.item?.id,
-      input_name: line.item?.name,
+      supply_id: line.item?.id,
+      supply_name: line.item?.name,
       amount: Number(line.quantity ?? 0),
       unit_cost: Number(line.unit_cost ?? 0),
       expire_date: line.expiration_date?.split('T')[0],
