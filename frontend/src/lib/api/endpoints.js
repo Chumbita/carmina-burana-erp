@@ -8,20 +8,12 @@ export const ENDPOINTS = {
     USER: {
         CHANGE_PASSWORD: '/user/change-password'
     },
-    // Inputs
-    INPUTS: {
-        GET_ALL: '/inputs/',
-        GET_BY_ID: (input_id) => `/inputs/${input_id}`,
-        CREATE: '/inputs/',
-        DELETE: (input_id) => `/inputs/${input_id}`,
-        PATCH: (input_id) => `/inputs/${input_id}`,
-    },
-    // Input Entries (Supply Entry)
-    INPUT_ENTRIES: {
-        GET_ALL: '/inputs-entries/',
-        GET_BY_ID: (entry_id) => `/inputs-entries/${entry_id}`,
-        CREATE: '/inputs-entries/',
-        CANCEL: (entry_id) => `/inputs-entries/${entry_id}/cancel`,
+    // Supply Entries
+    SUPPLY_ENTRIES: {
+        GET_ALL: '/supply-entries',
+        GET_BY_ID: (entry_id) => `/supply-entries/${entry_id}`,
+        CREATE: '/supply-entries',
+        CANCEL: (entry_id) => `/supply-entries/${entry_id}/cancel`,
     },
     // Audit Logs
     AUDIT_LOGS: {
@@ -40,13 +32,30 @@ export const ENDPOINTS = {
         GET_BY_ID: (id) => `/packaging-supplies/${id}`,
         CREATE:    '/packaging-supplies',
         PATCH:     (id) => `/packaging-supplies/${id}`,
+        DELETE:    (id) => `/packaging-supplies/${id}`,
     },
     // Brands
     BRANDS: {
         GET_ALL: '/brands/',
     },
+    // Suppliers
+    SUPPLIERS: {
+        OPTIONS: '/suppliers/options',
+        GET_BY_NAME: (name) => `/suppliers?name=${encodeURIComponent(name)}`,
+        CREATE: '/suppliers',
+    },
     // UOM
     UOMS: {
         GET_OPTIONS: '/uom/options',
     },
+    // BOM
+    BOM: {
+      CREATE: '/bom',
+      GET_ALL: '/bom',
+      GET_BY_ID: (id) => `/bom/${id}`,
+    },
+    // ITEMS
+    ITEMS: {
+      GET_OPTIONS: '/items/options',
+    }
 }

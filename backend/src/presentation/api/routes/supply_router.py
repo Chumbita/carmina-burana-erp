@@ -38,7 +38,7 @@ router = APIRouter(prefix="/supplies", tags=["Supplies"])
 @router.get("", response_model=List[SupplyGeneralResponseSchema], summary="Listar insumos activos")
 async def list_active_supplies(
     use_case: ListActiveSuppliesUseCase = Depends(get_list_active_supplies_use_case),
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> list[dict]:
     """
     Lista todos los insumos activos (supply + packaging_supply).
@@ -90,10 +90,10 @@ async def create_supply(
             "supply_category": body.supply_category.value,
         },
     )
-    
+
     item_result = await use_case.execute(command)
     supply = await supply_repository.get_by_item_id(item_result.id)
-    
+
     return SupplyResponseSchema(
         id=item_result.id,
         name=item_result.name,
@@ -143,6 +143,8 @@ async def delete_supply(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exc),
         ) from exc
+
+
 @router.patch(
     "/{supply_id}",
     status_code=status.HTTP_200_OK,

@@ -1,26 +1,26 @@
-
-// /hooks/useFilter.js
 import { useMemo, useState } from "react"
 import { SUPPLY_CATEGORIES } from "../schemas/supply.schema"
 
-function getCategory(input) {
-  return input?.category ?? input?.supply_category ?? input?.packaging_type ?? ""
+function getCategory(supply) {
+  return supply?.category ?? supply?.supply_category ?? supply?.packaging_type ?? ""
 }
 
-export function useInputFilters(inputs = []) {
-  const categories = useMemo(() => {
-    const categoryValues = new Set(SUPPLY_CATEGORIES)
+const normalize = (value) => value?.trim().toLowerCase()
 
-    inputs.forEach((input) => {
-      const category = getCategory(input)
-      if (category) categoryValues.add(category)
+export function useSupplyFilters(supplies = []) {
+  const categories = useMemo(() => {
+    const values = new Set(SUPPLY_CATEGORIES)
+
+    supplies.forEach((supply) => {
+      const category = getCategory(supply)
+      if (category) values.add(category)
     })
 
     return [
       { value: "all", label: "Categorías..." },
-      ...Array.from(categoryValues).map(cat => ({ value: cat, label: cat }))
+      ...Array.from(values).map((category) => ({ value: category, label: category })),
     ]
-  }, [inputs])
+  }, [supplies])
 
   const stockStatuses = [
     { value: "all", label: "Estado de stock..." },
@@ -39,75 +39,44 @@ export function useInputFilters(inputs = []) {
   const [itemTypeFilter, setItemTypeFilter] = useState("all")
   const [stockFilter, setStockFilter] = useState("all")
   const [search, setSearch] = useState("")
-  const [sortBy, setSortBy] = useState("id") // "id", "name" o "stock"
-  const [sortOrder, setSortOrder] = useState("asc") // "asc" o "desc"
+  const [sortBy, setSortBy] = useState("id")
+  const [sortOrder, setSortOrder] = useState("asc")
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 20
 
-  // Resetear página cuando cambian los filtros
   const resetPage = () => setCurrentPage(1)
 
-  const handleSetSearch = (value) => {
-    setSearch(value)
+  const withPageReset = (setter) => (value) => {
+    setter(value)
     resetPage()
   }
 
-  const handleSetCategoryFilter = (value) => {
-    setCategoryFilter(value)
-    resetPage()
-  }
-
-  const handleSetItemTypeFilter = (value) => {
-    setItemTypeFilter(value)
-    resetPage()
-  }
-
-  const handleSetStockFilter = (value) => {
-    setStockFilter(value)
-    resetPage()
-  }
-
-  const handleSetSortBy = (value) => {
-    setSortBy(value)
-    resetPage()
-  }
-
-  const handleSetSortOrder = (value) => {
-    setSortOrder(value)
-    resetPage()
-  }
-
-  const normalize = (str) => str?.trim().toLowerCase()
-
-  const filteredInputs = (inputs) => {
-    let filtered = inputs.filter(input => {
+  const filteredSupplies = (items) => {
+    const filtered = items.filter((supply) => {
       const searchLower = search.trim().toLowerCase()
 
-      // Filtro de búsqueda (nombre o marca)
       const matchesSearch =
-        input.name?.toLowerCase().includes(searchLower) ||
-        input.brand_name?.toLowerCase().includes(searchLower)
+        supply.name?.toLowerCase().includes(searchLower) ||
+        supply.brand_name?.toLowerCase().includes(searchLower)
 
-      // Filtro de categoría
       const matchesCategory =
         categoryFilter === "all" ||
-        normalize(getCategory(input)) === normalize(categoryFilter)
+        normalize(getCategory(supply)) === normalize(categoryFilter)
 
       const matchesItemType =
         itemTypeFilter === "all" ||
-        normalize(input.item_type) === normalize(itemTypeFilter)
+        normalize(supply.item_type) === normalize(itemTypeFilter)
 
-      // Filtro de estado de stock
       const matchesStockStatus =
         stockFilter === "all" ||
-        input.estado_stock === stockFilter
+        supply.estado_stock === stockFilter
 
       return matchesSearch && matchesCategory && matchesItemType && matchesStockStatus
     })
 
-    // Aplicar ordenamiento
     filtered.sort((a, b) => {
-      let aValue, bValue
+      let aValue
+      let bValue
 
       if (sortBy === "id") {
         aValue = a.id || 0
@@ -122,15 +91,13 @@ export function useInputFilters(inputs = []) {
 
       if (sortOrder === "asc") {
         return aValue > bValue ? 1 : aValue < bValue ? -1 : 0
-      } else {
-        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
       }
+
+      return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
     })
 
-    // Aplicar paginación
     const startIndex = (currentPage - 1) * itemsPerPage
-    const endIndex = startIndex + itemsPerPage
-    const paginatedResults = filtered.slice(startIndex, endIndex)
+    const paginatedResults = filtered.slice(startIndex, startIndex + itemsPerPage)
 
     return {
       items: paginatedResults,
@@ -152,13 +119,13 @@ export function useInputFilters(inputs = []) {
     sortOrder,
     currentPage,
     itemsPerPage,
-    setSearch: handleSetSearch,
-    setCategoryFilter: handleSetCategoryFilter,
-    setItemTypeFilter: handleSetItemTypeFilter,
-    setStockFilter: handleSetStockFilter,
-    setSortBy: handleSetSortBy,
-    setSortOrder: handleSetSortOrder,
+    setSearch: withPageReset(setSearch),
+    setCategoryFilter: withPageReset(setCategoryFilter),
+    setItemTypeFilter: withPageReset(setItemTypeFilter),
+    setStockFilter: withPageReset(setStockFilter),
+    setSortBy: withPageReset(setSortBy),
+    setSortOrder: withPageReset(setSortOrder),
     setCurrentPage,
-    filteredInputs,
+    filteredSupplies,
   }
 }

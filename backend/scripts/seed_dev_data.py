@@ -19,6 +19,11 @@ from src.infrastructure.database.models.uom_model import UomModel
 from src.infrastructure.database.models.item_model import ItemModel
 from src.infrastructure.database.models.supply_model import SupplyModel
 from src.infrastructure.database.models.supplier_model import SupplierModel
+from src.infrastructure.database.models.supply_entry_order_model import SupplyEntryOrderModel
+from src.infrastructure.database.models.supply_entry_line_model import SupplyEntryLineModel
+from src.infrastructure.database.models.inventory_lot_model import InventoryLotModel
+from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
+from src.infrastructure.database.models.inventory_transaction_model import InventoryTransactionModel
 
 
 SEED_DATA = {
@@ -206,6 +211,73 @@ async def seed() -> None:
             await session.flush()
 
             print(f"  OK item+supply: {item_data['name']} (item_id={item.id})")
+
+        # ── Supply Entries ───────────────────────────────────────
+        entry = SupplyEntryOrderModel(
+            supplier_id=suppliers["MaltCo"].id,
+            document_number=f"RCP-{now.strftime('%Y%m%d%H%M%S')}",
+            entry_date=now,
+            description="Recepción de prueba: maltas y lúpulos",
+            status="CONFIRMED",
+            created_at=now,
+        )
+        session.add(entry)
+        await session.flush()
+
+        entry_lines = [
+            {"item_name": "Malta Pilsen", "quantity": Decimal("100"), "unit_cost": Decimal("2.50"), "lot_code": f"LOT-{now.strftime('%Y%m%d')}-{entry.id}-malta"},
+            {"item_name": "Lúpulo Cascade", "quantity": Decimal("50"), "unit_cost": Decimal("5.00"), "lot_code": f"LOT-{now.strftime('%Y%m%d')}-{entry.id}-lupulo"},
+        ]
+        items_by_name = {item_data["name"]: item_data for item_data in SEED_DATA["items"]}
+
+        for line_data in entry_lines:
+            item = await session.execute(
+                select(ItemModel).where(ItemModel.name == line_data["item_name"])
+            )
+            item_model = item.scalar_one()
+
+            lot = InventoryLotModel(
+                item_id=item_model.id,
+                lot_code=line_data["lot_code"],
+                unit_cost=line_data["unit_cost"],
+                expiration_date=datetime(now.year + 1, now.month, now.day),
+                created_at=now,
+            )
+            session.add(lot)
+            await session.flush()
+
+            balance = InventoryBalanceModel(
+                item_id=item_model.id,
+                lot_id=lot.id,
+                quantity=line_data["quantity"],
+                reserved_quantity=Decimal("0"),
+                updated_at=now,
+            )
+            session.add(balance)
+
+            txn = InventoryTransactionModel(
+                item_id=item_model.id,
+                lot_id=lot.id,
+                quantity=line_data["quantity"],
+                transaction_type="PURCHASE",
+                reference_type="supply_entry",
+                reference_id=entry.id,
+                created_at=now,
+            )
+            session.add(txn)
+
+            line = SupplyEntryLineModel(
+                supply_entry_id=entry.id,
+                item_id=item_model.id,
+                quantity=line_data["quantity"],
+                unit_cost=line_data["unit_cost"],
+                expiration_date=datetime(now.year + 1, now.month, now.day),
+                lot_code=line_data["lot_code"],
+            )
+            session.add(line)
+            await session.flush()
+
+        print(f"  OK supply_entry: {entry.document_number} (id={entry.id}) with {len(entry_lines)} lines")
 
         await session.commit()
         print("\n✅ Seed completado.")

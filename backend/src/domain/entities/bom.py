@@ -1,57 +1,81 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# BOM ENTITY
+# ══════════════════════════════════════════════════════════════════════════════
+
 from dataclasses import dataclass, field
 from datetime import datetime
+from decimal import Decimal
+from typing import Optional
+
 
 @dataclass
 class Bom:
-    id:int = field(default=None)
-    product_id:int = field(default=None)
-    version:int = field(default=None)
-    base_unit:str = field(default="")
-    base_quantity:float = field(default=None)
-    standard_yield_pct:float = field(default=None)
-    is_active:bool = field(default=True)
-    created_at:datetime = field(default_factory=datetime.now)
-    items:list["BomItem"] = field(default_factory=list)
-    
+    """
+    Bill of Materials. Representa la lista de materiales de un ítem padre,
+    con soporte para versionado y vigencia temporal.
+    """
+
+    parent_item_id: int
+    version: int
+    is_active: bool
+    quantity: Decimal
+    uom_id: int
+    valid_from: datetime
+    created_at: datetime
+
+    id: Optional[int] = None
+    valid_to: Optional[datetime] = None
+    lines: list["BomLine"] = field(default_factory=list)
+
+
+    # ── Initialization & Validation ────────────────────────────────
+
     def __post_init__(self):
-        if self.standard_yield_pct <=0 or self.standard_yield_pct > 100:
-            raise ValueError(f"Campo standard_yield_pct inválido. El rendimiento estándar debe estar entre 0 y 100.")
-        
-    def add_item(self, component_type:str, input_id:int | None, product_id:int | None, quantity:float):
-        if quantity <= 0 :
-            raise ValueError(f"Campo quantity inválid. La cantidad debe ser mayor a cero.")
-        if any(item.input_id  == input_id for item in self.items) or any(item.product_id == product_id for item in self.items):
-            raise ValueError(f"El componente ya existe en la lista de ítems del BOM.")
-        
-        new_item = BomItem(
-            component_type=component_type,
-            input_id=input_id,
-            product_id=product_id,
-            quantity=quantity
-        )
-        self.items.append(new_item)
-    
-    
+        self._validate()
+
+    def _validate(self):
+        if self.parent_item_id is None:
+            raise ValueError("parent_item_id is required")
+
+        if self.version is None or self.version < 1:
+            raise ValueError("version must be a positive integer (>= 1)")
+
+        if self.valid_from is None:
+            raise ValueError("valid_from is required")
+
+        if self.valid_to is not None and self.valid_to < self.valid_from:
+            raise ValueError("valid_to cannot be earlier than valid_from")
+
+        if self.quantity is None or self.quantity <= Decimal("0"):
+            raise ValueError("quantity must be greater than zero")
+
+        if self.uom_id is None:
+            raise ValueError("uom_id is required")
+
+
 @dataclass
-class BomItem:
-    id:int = field(default=None)
-    component_type:str = field(default="")
-    input_id:int = field(default=None)
-    product_id:int = field(default=None)
-    quantity:float = field(default=None)
-    
+class BomLine:
+    """
+    Línea de componente dentro de un BOM.
+    """
+
+    component_item_id: int
+    quantity: Decimal
+    created_at: datetime
+
+    id: Optional[int] = None
+    bom_id: Optional[int] = None
+    uom: Optional[int] = None
+
+
+    # ── Initialization & Validation ────────────────────────────────
+
     def __post_init__(self):
-        allow_types = {"MATERIAL, PRODUCT"}
-        if not self.component_type in allow_types:
-            raise ValueError(f"Campo component_type inválido. El tipo de producto debe ser alguno de los siguientes: {allow_types}.")
-        
-        if self.component_type == "MATERIAL":
-            if self.input_id is None or self.product_id is not None:
-                raise ValueError("Para ítems de tipo MATERIAL, 'input_id' debe tener valor y 'product_id' debe ser nulo.")
-        elif self.component_type == "PRODUCT":
-            if self.product_id is None or self.input_id is not None:
-                raise ValueError("Para ítems de tipo PRODUCT, 'product_id' debe tener valor y 'input_id' debe ser nulo.")
-            
-        if self.quantity is None or self.quantity <= 0:
-            raise ValueError("Campo 'quantity' inválido. La cantidad debe ser mayor que cero.")
-    
+        self._validate()
+
+    def _validate(self):
+        if self.component_item_id is None:
+            raise ValueError("component_item_id is required")
+
+        if self.quantity is None or self.quantity <= Decimal("0"):
+            raise ValueError("quantity must be greater than zero")

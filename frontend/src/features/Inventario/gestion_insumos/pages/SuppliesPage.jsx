@@ -1,7 +1,6 @@
 //componentes
 import { SuppliesTable } from "../components/SuppliesTable";
 import { NewSupplyModal } from "../components/NewSupplyModal";
-import { NotificationContainer } from "@/components/shared/notifications/NotificationContainer";
 import { Pagination } from "../components/Pagination";
 //componentes genéricos
 import { FilterBar } from "@/components/shared/FilterBar";
@@ -9,22 +8,19 @@ import { FilterBar } from "@/components/shared/FilterBar";
 import { useSuppliesPage } from "../hooks/useSuppliesPage";
 //componentes shadcn
 import { Button } from "@/components/ui/Button";
-import { Spinner } from "@/components/ui/Spinner";
 //iconos
 import { Plus } from "lucide-react";
 
 export default function SuppliesPage() {
   const {
+    supplies,
     filteredData,
-    inputs,
-    loading,
     search,
     categoryFilter,
     itemTypeFilter,
     stockFilter,
     sortBy,
     sortOrder,
-    currentPage,
     itemsPerPage,
     categories,
     itemTypes,
@@ -38,9 +34,7 @@ export default function SuppliesPage() {
     setCurrentPage,
     openModal,
     setOpenModal,
-    notification,
-    clearNotification,
-    handleCreateInput,
+    handleCreateSupply,
     tableRef,
   } = useSuppliesPage();
 
@@ -108,8 +102,8 @@ export default function SuppliesPage() {
       <NewSupplyModal
         open={openModal}
         onClose={() => setOpenModal(false)}
-        onSubmit={handleCreateInput}
-        existingInputs={inputs}
+        onSubmit={handleCreateSupply}
+        existingSupplies={supplies}
       />
 
       <div ref={tableRef}>

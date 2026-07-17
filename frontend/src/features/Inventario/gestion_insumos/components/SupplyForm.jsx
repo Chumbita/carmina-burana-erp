@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createSupplySchema, SUPPLY_CATEGORIES } from "../schemas/supply.schema"
@@ -34,13 +35,13 @@ export function SupplyForm({
   onDelete,
   layout = "modal",
   formRef,
-  existingInputs = [],
+  existingSupplies = [],
   excludeId = null,
 }) {
   const { brands, loading: brandsLoading } = useBrands()
   const { uoms, loading: uomsLoading } = useUoms()
 
-  const schema = createSupplySchema(existingInputs, excludeId)
+  const schema = createSupplySchema(existingSupplies, excludeId)
 
   const {
     handleSubmit,
@@ -59,13 +60,15 @@ export function SupplyForm({
     mode: "onChange",
   })
 
-  if (formRef) {
+  useEffect(() => {
+    if (!formRef) return
+
     formRef.current = {
       submit: () => handleSubmit(onSubmit)(),
       reset,
       isDirty,
     }
-  }
+  }, [formRef, handleSubmit, isDirty, onSubmit, reset])
 
   const isModal = layout === "modal"
 

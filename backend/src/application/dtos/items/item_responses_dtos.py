@@ -11,6 +11,19 @@ from src.domain.value_objects.item_status_enums import ItemStatus
 
 
 @dataclass
+class ItemOptionResponseDTO:
+    """
+    DTO para selectores/comboboxes.
+    """
+    item_id: int
+    item_type: str
+    name: str
+    brand: str
+    uom_id: int
+    uom_symbol: str
+
+
+@dataclass
 class ItemResponse:
     id: int
     name: str

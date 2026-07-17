@@ -5,6 +5,7 @@
 from typing import Protocol, Optional, List
 
 from src.domain.entities.item import Item
+from src.application.dtos.items.item_responses_dtos import ItemOptionResponseDTO
 
 class IItemRepostory(Protocol):
     
@@ -67,5 +68,12 @@ class IItemRepostory(Protocol):
     async def soft_delete(self, item_id: int) -> bool:
         """
         Marca el item como DELETED (soft delete). Retorna True si se encontró y eliminó.
+        """
+        ...
+
+    async def list_options(self) -> List[ItemOptionResponseDTO]:
+        """
+        Opciones ligeras para selectores/comboboxes.
+        Retorna solo item_id, item_type, name, brand, uom_id, uom_symbol.
         """
         ...

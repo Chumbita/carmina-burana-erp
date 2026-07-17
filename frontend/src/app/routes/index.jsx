@@ -13,10 +13,6 @@ const DashboardPage = lazy(
   () => import("@/features/dashboard/pages/DashboardPage"),
 );
 
-
-
-
-
 //insumos pages
 const SuppliesPage = lazy(() =>
   import("@/features/Inventario/gestion_insumos/pages/SuppliesPage")
@@ -30,14 +26,23 @@ const PackagingSupplyDetailPage = lazy(() =>
   import('@/features/Inventario/gestion_insumos/pages/PackagingSupplyDetailPage')
 );
 
-const InputEntryPage = lazy(() =>
-  import('@/features/Inventario/supply-entry/pages/InputEntryPage')
+const SupplyEntryPage = lazy(() =>
+  import('@/features/Inventario/supply-entry/pages/SupplyEntryPage')
 );
 
 const SupplyEntryDetailPage = lazy(() =>
   import('@/features/Inventario/supply-entry/pages/SupplyEntryDetailPage')
 );
 
+
+// BOM pages
+const BomsPage = lazy(() =>
+  import('@/features/produccion/bom/pages/BomsPage')
+)
+
+const BomDetailPage = lazy(() =>
+  import('@/features/produccion/bom/pages/BomDetailPage')
+)
 
 // Auth pages
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));
@@ -70,20 +75,28 @@ export const router = createBrowserRouter([
         ]
       },
       {
+        path: "/produccion/bom",
+        element: <BomsPage />,
+      },
+      {
+        path: "/produccion/bom/:bomId",
+        element: <BomDetailPage />,
+      },
+      {
         path: "/inventario/insumos",
         element: <SuppliesPage />,
       },
       {
-        path: "/inventario/insumos/:inputId",
+        path: "/inventario/insumos/:supplyId",
         element: <SupplyDetailPage />,
       },
       {
-        path: "/inventario/insumos/envases/:inputId",
+        path: "/inventario/insumos/envases/:supplyId",
         element: <PackagingSupplyDetailPage />,
       },
       {
         path: "/inventario/ingreso-insumos",
-        element: <InputEntryPage />,
+        element: <SupplyEntryPage />,
       },
       {
         path: "/inventario/ingreso-insumos/:entryId",

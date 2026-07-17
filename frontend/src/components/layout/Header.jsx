@@ -21,6 +21,7 @@ const routeNames = {
   nuevo: "Nueva Cocción",
   recetas: "Recetas",
   planificacion: "Planificación",
+  bom: "Fórmulas",
   inventario: "Inventario",
   insumos: "Insumos",
   productos: "Productos Terminados",

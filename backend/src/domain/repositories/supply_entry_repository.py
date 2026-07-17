@@ -20,6 +20,11 @@ class ISupplyEntryRepository(Protocol):
     async def find_all(self) -> list["SupplyEntryListItemData"]:
         ...
 
+    async def set_cancelled(
+        self, order_id: int, canceled_at: datetime, reason: Optional[str] = None
+    ) -> None:
+        ...
+
 
 # ═══════════════════════════════════════════════════
 # Raw query result types  —  devueltos por find_by_id
@@ -49,6 +54,7 @@ class SupplyEntryDetailData:
     description: Optional[str] = None
     status: Optional[str] = None
     created_at: Optional[datetime] = None
+    canceled_at: Optional[datetime] = None
     lines: list[SupplyEntryLineDetailData] = field(default_factory=list)
 
 
@@ -66,5 +72,6 @@ class SupplyEntryListItemData:
     description: Optional[str] = None
     status: Optional[str] = None
     created_at: Optional[datetime] = None
+    canceled_at: Optional[datetime] = None
     items_count: int = 0
     total_cost: Decimal = Decimal("0")

@@ -25,6 +25,12 @@ class CreateSupplyEntryRequest(BaseModel):
     lines: list[SupplyEntryLineRequest] = Field(..., min_length=1)
 
 
+# ── Cancel Request ─────────────────────────────────────────────────────
+
+class CancelSupplyEntryRequest(BaseModel):
+    reason: Optional[str] = None
+
+
 # ── Detail Response (GET /supply-entries/{id}) & (POST /supply_entries)───────
 
 class SupplierRef(BaseModel):
@@ -61,6 +67,7 @@ class SupplyEntryDetailResponse(BaseModel):
     description: Optional[str] = None
     status: SupplyEntryStatus
     created_at: datetime
+    canceled_at: Optional[datetime] = None
     total_cost: Decimal
     lines: list[SupplyEntryDetailLineResponse]
 
@@ -83,6 +90,7 @@ class SupplyEntryListItemResponse(BaseModel):
     description: Optional[str] = None
     status: SupplyEntryStatus
     created_at: datetime
+    canceled_at: Optional[datetime] = None
     items_count: int
     total_cost: Decimal
 

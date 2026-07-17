@@ -1,21 +1,56 @@
-from typing import Protocol, Optional, List
-from src.domain.entities.bom import Bom, BomItem
+# ══════════════════════════════════════════════════════════════════════════════
+# INTERFAZ DE BOM
+# ══════════════════════════════════════════════════════════════════════════════
+
+from typing import Protocol, Optional, Sequence
+from src.domain.entities.bom import Bom
+
 
 class IBomRepository(Protocol):
-    async def create(self, bom: Bom) -> Bom:
+
+    # ── Comandos ────────────────────────────────────────────────
+
+    async def add(self, bom: Bom) -> None:
+        """
+        Persiste un nuevo BOM con sus líneas en una única transacción.
+        """
         ...
-    
-    async def update(self, bom: Bom) -> Bom:
+
+    async def save(self, bom: Bom) -> None:
+        """
+        Persiste los cambios de un BOM existente (closing version).
+        """
         ...
-    
-    async def delete(self, id: int) -> bool:
+
+    # ── Queries ────────────────────────────────────────────────
+
+    async def get_by_id(self, bom_id: int) -> Optional[Bom]:
+        """
+        Obtiene un BOM por su ID.
+        """
         ...
-    
-    async def find_active_bom(self) -> List[Bom]:
+
+    async def get_by_parent_item_id(self, parent_item_id: int) -> Optional[Bom]:
+        """
+        Obtiene un BOM por el ID del ítem padre.
+        """
         ...
-    
-    async def find_all_bom(self) -> List[Bom]:
+
+    async def get_active_by_parent_item_id(self, parent_item_id: int) -> Optional[Bom]:
+        """
+        Obtiene el BOM activo para un ítem padre.
+        Retorna None si no existe ningún BOM activo.
+        """
         ...
-    
-    async def find_by_id(self, id: int) ->  Optional[Bom]:
+
+    async def get_active_boms(self) -> Sequence[dict]:
+        """
+        Obtiene un listado de todos los BOMs activos.
+        """
+        ...
+
+    async def get_detailed_bom_by_id(self, bom_id: int) -> Optional[dict]:
+        """
+        Obtiene un BOM por su ID con toda la información detallada.
+        """
         ...

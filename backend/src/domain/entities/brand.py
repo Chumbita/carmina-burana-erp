@@ -5,7 +5,6 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
-from decimal import Decimal
 
 @dataclass
 class Brand:
@@ -20,12 +19,11 @@ class Brand:
     # Identidad
     id: Optional[int] = None
 
+    # ── Initialization & Validation ────────────────────────────────
 
-# ── Initialization & Validation ────────────────────────────────
+    def __post_init__(self):
+        self._validate()
 
-def __post_init__(self):
-    self._validate()
-
-def _validate(self):
-    if not self.name or not self.name.strip():
-        raise ValueError("'name' attribute is required")
+    def _validate(self):
+        if not self.name or not self.name.strip():
+            raise ValueError("'name' attribute is required")

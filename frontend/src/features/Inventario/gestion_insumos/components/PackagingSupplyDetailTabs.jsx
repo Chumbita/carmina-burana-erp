@@ -16,7 +16,7 @@ import { useFormBlocker } from "../hooks/useFormBlocker"
 import { ConfirmNavigationModal } from "./ConfirmNavigationModal"
 import { PackagingSupplyForm } from "./PackagingSupplyForm"
 
-export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUpdated, onDeleteSupply, availableInputs = [] }) {
+export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUpdated, onDeleteSupply, availableSupplies = [] }) {
   const [contentOption, setContentOption] = useState("detalle")
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -77,7 +77,7 @@ export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUp
               layout="page"
               showDeleteButton
               onDelete={() => setOpenDeleteDialog(true)}
-              existingInputs={availableInputs}
+              existingSupplies={availableSupplies}
               excludeId={packagingSupply?.id}
             />
           </div>

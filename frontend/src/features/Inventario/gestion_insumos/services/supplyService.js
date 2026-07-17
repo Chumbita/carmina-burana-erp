@@ -20,13 +20,13 @@ export const supplyService = {
   },
 
   // UPDATE
-  update: async (id, data) => {
+  patch: async (id, data) => {
     const response = await privateClient.patch(ENDPOINTS.SUPPLIES.PATCH(id), data)
     return response.data
   },
 
   // DELETE
-  remove: async (id) => {
+  delete: async (id) => {
     const response = await privateClient.delete(ENDPOINTS.SUPPLIES.DELETE(id))
     return response.data
   },

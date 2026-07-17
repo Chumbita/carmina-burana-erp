@@ -109,7 +109,7 @@ class InventoryBalance:
             )
 
         self.quantity = projected
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
 
     def force_apply_delta(self, delta: Decimal) -> None:
         """
@@ -120,7 +120,7 @@ class InventoryBalance:
         """
         
         self.quantity += delta
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
 
     
     # Operaciones de reserva:
@@ -142,7 +142,7 @@ class InventoryBalance:
             )
 
         self.reserved_quantity += amount
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
 
     def release_reservation(self, amount: Decimal) -> None:
         """
@@ -159,4 +159,4 @@ class InventoryBalance:
             )
 
         self.reserved_quantity -= amount
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)

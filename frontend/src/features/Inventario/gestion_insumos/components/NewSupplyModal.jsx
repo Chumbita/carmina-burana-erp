@@ -6,11 +6,11 @@ import { PackagingSupplyForm } from "./PackagingSupplyForm"
 import { useSupplies } from "../hooks/useSupplies"
 import { Boxes, Package } from "lucide-react"
 
-export function NewSupplyModal({ open, onClose, onSubmit, existingInputs }) {
+export function NewSupplyModal({ open, onClose, onSubmit, existingSupplies }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedType, setSelectedType] = useState(null)
   const { supplies } = useSupplies()
-  const validationInputs = existingInputs ?? supplies
+  const validationSupplies = existingSupplies ?? supplies
 
   function handleClose() {
     setSelectedType(null)
@@ -85,7 +85,7 @@ export function NewSupplyModal({ open, onClose, onSubmit, existingInputs }) {
             cancelLabel="Cancelar"
             isSubmitting={isSubmitting}
             layout="modal"
-            existingInputs={validationInputs} // Pasar inputs para validación
+            existingSupplies={validationSupplies}
           />
         )}
 
@@ -105,7 +105,7 @@ export function NewSupplyModal({ open, onClose, onSubmit, existingInputs }) {
             submitLabel="Guardar"
             cancelLabel="Cancelar"
             isSubmitting={isSubmitting}
-            existingInputs={validationInputs}
+            existingSupplies={validationSupplies}
           />
         )}
       </DialogContent>

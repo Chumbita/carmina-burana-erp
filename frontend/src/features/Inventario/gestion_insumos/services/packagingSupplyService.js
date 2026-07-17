@@ -16,4 +16,9 @@ export const packagingSupplyService = {
     const response = await privateClient.patch(ENDPOINTS.PACKAGING_SUPPLIES.PATCH(id), data)
     return response.data
   },
+
+  delete: async (id) => {
+    const response = await privateClient.delete(ENDPOINTS.PACKAGING_SUPPLIES.DELETE(id))
+    return response.data
+  },
 }

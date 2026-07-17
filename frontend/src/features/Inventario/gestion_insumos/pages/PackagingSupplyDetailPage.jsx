@@ -10,8 +10,8 @@ import { EntityDetailPage } from "@/components/shared/DetailPage/EntityDetailPag
 import { estadoStyles } from "../utils/stockStyles"
 
 export default function PackagingSupplyDetailPage() {
-  const { inputId } = useParams()
-  const { packagingSupply, loading, error, updatePackagingSupply, deleteSupply } = usePackagingSupply(inputId)
+  const { supplyId } = useParams()
+  const { packagingSupply, loading, error, updatePackagingSupply, deleteSupply } = usePackagingSupply(supplyId)
   const { supplies } = useSupplies()
 
   return (
@@ -23,6 +23,10 @@ export default function PackagingSupplyDetailPage() {
         <EntityDetailPage.Sidebar.Row
           label="Stock actual"
           value={`${packagingSupply?.stock_total ?? 0} ${packagingSupply?.base_uom_symbol ?? ""}`}
+        />
+        <EntityDetailPage.Sidebar.Row
+          label="Unidad"
+          value={packagingSupply?.base_uom_symbol ?? "-"}
         />
         <EntityDetailPage.Sidebar.Row
           label="Estado"
@@ -39,7 +43,7 @@ export default function PackagingSupplyDetailPage() {
           packagingSupply={packagingSupply}
           onPackagingSupplyUpdated={updatePackagingSupply}
           onDeleteSupply={deleteSupply}
-          availableInputs={supplies}
+          availableSupplies={supplies}
         />
       </EntityDetailPage.Content>
       <EntityDetailPage.History entityType="input" entityId={packagingSupply?.id} />

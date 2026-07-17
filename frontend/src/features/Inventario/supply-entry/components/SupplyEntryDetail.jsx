@@ -80,7 +80,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
   }
 
   return (
-    <div className="w-full p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4">
         <header className="flex items-center justify-between w-full">
@@ -286,7 +286,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                     <td className="px-4 py-4">
                       <div>
                         <p className="text-sm font-medium text-neutral-900">
-                          {item.input_name || `Insumo #${item.id_input}`}
+                          {item.supply_name || `Insumo #${item.supply_id}`}
                         </p>
                         <p className="text-xs text-neutral-500">
                           {item.comment}

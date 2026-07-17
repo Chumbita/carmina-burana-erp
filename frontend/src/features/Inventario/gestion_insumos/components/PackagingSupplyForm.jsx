@@ -34,13 +34,13 @@ export function PackagingSupplyForm({
   onDelete,
   layout = "modal",
   formRef,
-  existingInputs = [],
+  existingSupplies = [],
   excludeId = null,
 }) {
   const { brands, loading: brandsLoading } = useBrands()
   const { uoms, loading: uomsLoading } = useUoms()
 
-  const schema = createPackagingSupplySchema(existingInputs, excludeId)
+  const schema = createPackagingSupplySchema(existingSupplies, excludeId)
 
   const {
     handleSubmit,

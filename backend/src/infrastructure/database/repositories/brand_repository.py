@@ -11,7 +11,7 @@ from src.domain.repositories.brand_repository import IBrandRepository
 from src.infrastructure.database.models.brand_model import BrandModel
 
 
-class BrandRepository():
+class BrandRepository(IBrandRepository):
 
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
@@ -54,3 +54,9 @@ class BrandRepository():
         rows = result.scalars().all()
 
         return [self._to_entity(row) for row in rows]
+
+    async def add(self, brand: Brand) -> Brand:
+        model = self._to_model(brand)
+        self._session.add(model)
+        await self._session.flush()
+        return self._to_entity(model)

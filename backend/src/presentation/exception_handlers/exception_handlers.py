@@ -9,11 +9,21 @@ from src.domain.exceptions.item_exceptions import (
 )
 from src.domain.exceptions.supply_exceptions import SupplyNotFoundException
 
+from src.domain.exceptions.bom_exceptions import BomNotFoundException, BomCreationException
+
 from src.domain.exceptions.inventory_exceptions import DuplicateLotCodeError
 
-from src.domain.exceptions.supply_entry_exceptions import SupplyEntryNotFound
+from src.domain.exceptions.supply_entry_exceptions import (
+    SupplyEntryNotFound,
+    SupplyEntryAlreadyCancelled,
+    SupplyEntryTimeWindowExceeded,
+    SupplyEntryItemsConsumed,
+)
 
-from src.domain.exceptions.supplier_exceptions import DuplicateSupplierNameError
+from src.domain.exceptions.supplier_exceptions import (
+    DuplicateSupplierNameError,
+    SupplierNotFoundError,
+)
 
 
 def register_exception_handlers(app: FastAPI) -> None:
@@ -65,6 +75,18 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def supply_entry_not_found_handler(request: Request, exc: SupplyEntryNotFound):
         return JSONResponse(status_code=404, content={"detail": str(exc)})
 
+    @app.exception_handler(SupplyEntryAlreadyCancelled)
+    async def supply_entry_already_cancelled_handler(request: Request, exc: SupplyEntryAlreadyCancelled):
+        return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+    @app.exception_handler(SupplyEntryTimeWindowExceeded)
+    async def supply_entry_time_window_handler(request: Request, exc: SupplyEntryTimeWindowExceeded):
+        return JSONResponse(status_code=422, content={"detail": str(exc)})
+
+    @app.exception_handler(SupplyEntryItemsConsumed)
+    async def supply_entry_items_consumed_handler(request: Request, exc: SupplyEntryItemsConsumed):
+        return JSONResponse(status_code=409, content={"detail": str(exc)})
+
     # ======================
     # SUPPLIER EXCEPTIONS
     # ======================
@@ -72,9 +94,24 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def duplicate_supplier_name_handler(request: Request, exc: DuplicateSupplierNameError):
         return JSONResponse(status_code=409, content={"detail": str(exc)})
 
+    @app.exception_handler(SupplierNotFoundError)
+    async def supplier_not_found_handler(request: Request, exc: SupplierNotFoundError):
+        return JSONResponse(status_code=404, content={"detail": str(exc)})
+
     # ======================
     # INVENTORY EXCEPTIONS
     # ======================
     @app.exception_handler(DuplicateLotCodeError)
     async def duplicate_lot_code_handler(request: Request, exc: DuplicateLotCodeError):
         return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+    # ======================
+    # BOM EXCEPTIONS
+    # ======================
+    @app.exception_handler(BomNotFoundException)
+    async def bom_not_found_handler(request: Request, exc: BomNotFoundException):
+        return JSONResponse(status_code=404, content={"detail": str(exc)})
+
+    @app.exception_handler(BomCreationException)
+    async def bom_creation_handler(request: Request, exc: BomCreationException):
+        return JSONResponse(status_code=422, content={"detail": str(exc)})
