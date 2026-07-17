@@ -1,4 +1,3 @@
-//componentes 
 import { SupplyForm } from "./SupplyForm"
 import { ConfirmNavigationModal } from "./ConfirmNavigationModal"
 
@@ -13,73 +12,58 @@ import {
   AlertDialogAction,
 } from "@/components/ui/AlertDialog"
 
-//hooks
 import { useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { useInputs } from "../hooks/useInputs"
 import { useSupplies } from "../hooks/useSupplies"
 import { useNotification } from "@/components/shared/notifications/useNotification"
 import { useFormBlocker } from "../hooks/useFormBlocker";
 import { useEntityDetail } from "@/components/shared/DetailPage/EntityDetailContext";
 
-export function TabInput({ insumo }) {
+export function TabInput({ supply, onSupplyUpdated }) {
   const formRef = useRef(null)
   const navigate = useNavigate()
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const { blocker } = useFormBlocker(formRef)
 
   const { handleUpdated } = useEntityDetail();
-
-  const { updateInput, loading } = useInputs()
-  const { supplies: allSupplies, deleteSupply } = useSupplies()
-
+  const { supplies: allSupplies, updateSupply, deleteSupply } = useSupplies()
   const notify = useNotification()
 
-//editar insumo
-async function onSubmit(data) {
-  try {
-    await updateInput(insumo.id, data)
-    notify.success(`Insumo actualizado correctamente`)
+  async function onSubmit(data) {
+    try {
+      const updated = onSupplyUpdated
+        ? await onSupplyUpdated(data)
+        : await updateSupply(supply.id, data)
 
-    if (formRef.current?.reset) {
-      formRef.current.reset({
-        name: data.name,
-        brand: data.brand,
-        category: data.category,
-        unit: data.unit,
-        minimum_stock: data.minimum_stock,
-        image: data.image,
-      }, {
+      notify.success(`Insumo actualizado correctamente`)
+
+      formRef.current?.reset(updated || data, {
         keepDirty: false,
         keepDirtyValues: false,
       })
-    }
-    
-    // Notificar que el insumo fue actualizado para refrescar el historial
-    if (handleUpdated) {
-      handleUpdated();
-    }
-    
-    return true
-  } catch (error) {
-    console.error(error)
-      notify.error(`Error al actualizar el insumo ${error}`)
-    return false
-  }
-}
 
-//borrar insumo
+      if (handleUpdated) {
+        handleUpdated();
+      }
+
+      return true
+    } catch (error) {
+      notify.error(`Error al actualizar el insumo ${error}`)
+      return false
+    }
+  }
+
   function onDelete() {
     setOpenDeleteDialog(true)
   }
 
   const handleConfirmDelete = async () => {
     try {
-      await deleteSupply(insumo.id)
+      await deleteSupply(supply.id)
       setOpenDeleteDialog(false)
       navigate("/inventario/insumos", {
         state: {
-          notification: { type: 'success', message: `${insumo.name} eliminado con éxito` }
+          notification: { type: 'success', message: `${supply.name} eliminado con éxito` }
         }
       })
     } catch (error) {
@@ -87,71 +71,57 @@ async function onSubmit(data) {
     }
   }
 
+  const formDefaults = {
+    name:            supply?.name            ?? "",
+    brand_id:        supply?.brand_id        ?? undefined,
+    supply_category: supply?.supply_category ?? "",
+    base_uom_id:     supply?.base_uom_id     ?? undefined,
+    min_stock_level: supply?.min_stock_level ?? 0,
+  }
+
   return (
     <>
       <SupplyForm
         formRef={formRef}
-        defaultValues={{
-          name: insumo.name,
-          brand: insumo.brand,
-          category: insumo.category,
-          unit: insumo.unit,
-          minimum_stock: insumo.minimum_stock,
-          image: insumo.image,
-        }}
+        defaultValues={formDefaults}
         onSubmit={onSubmit}
         submitLabel="Guardar cambios"
         showDeleteButton={true}
         onDelete={onDelete}
         layout="page"
-        existingInputs={allSupplies} // Para validación de nombre único
-        excludeId={insumo.id} // Excluir el insumo actual de la validación
+        existingInputs={allSupplies}
+        excludeId={supply.id}
       />
 
-      {/* confirm navegación */}
-     {blocker.state === "blocked" && (
-    <ConfirmNavigationModal
-      onSave={async () => {
-        const success = await formRef.current?.submit()  
-        blocker.proceed()
-        navigate("/inventario/insumos", { 
-        state: { 
-          notification: { type: 'success', message: `${insumo.name} actualizado con éxito` } 
-        } 
-      })
-      }}
-      onDiscard={() => {
-        // Resetear a los valores originales
-        formRef.current?.reset({
-          name: insumo.name,
-          brand: insumo.brand,
-          category: insumo.category,
-          unit: insumo.unit,
-          minimum_stock: insumo.minimum_stock,
-          image: insumo.image,
-        })
-        blocker.proceed()
-      }}
-      onCancel={() => blocker.reset()}
-    />
-  )}
-      {/* dialog delete */}
+      {blocker.state === "blocked" && (
+        <ConfirmNavigationModal
+          onSave={async () => {
+            await formRef.current?.submit()
+            blocker.proceed()
+            navigate("/inventario/insumos", {
+              state: {
+                notification: { type: 'success', message: `${supply.name} actualizado con éxito` }
+              }
+            })
+          }}
+          onDiscard={() => {
+            formRef.current?.reset(formDefaults)
+            blocker.proceed()
+          }}
+          onCancel={() => blocker.reset()}
+        />
+      )}
+
       <DeleteInsumoDialog
         open={openDeleteDialog}
         onOpenChange={setOpenDeleteDialog}
         onConfirm={handleConfirmDelete}
-        isDeleting={loading}
       />
     </>
   )
 }
 
-function DeleteInsumoDialog({
-  open,
-  onOpenChange,
-  onConfirm,
-  isDeleting,
-}) {
+function DeleteInsumoDialog({ open, onOpenChange, onConfirm }) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -163,16 +133,15 @@ function DeleteInsumoDialog({
         </AlertDialogHeader>
 
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting} className="hover:bg-neutral-200 cursor-pointer">
+          <AlertDialogCancel className="hover:bg-neutral-200 cursor-pointer">
             Cancelar
           </AlertDialogCancel>
 
           <AlertDialogAction
             onClick={onConfirm}
-            disabled={isDeleting}
             className="bg-red-600 hover:bg-red-700 cursor-pointer"
           >
-            {isDeleting ? "Eliminando..." : "Eliminar"}
+            Eliminar
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

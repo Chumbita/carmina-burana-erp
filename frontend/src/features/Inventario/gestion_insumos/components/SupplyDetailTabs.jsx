@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { TabInput } from './TabInput'
 
-//componentes shadcn
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs'
 
-export function SupplyDetailTabs({ insumo, onInputUpdated, availableInputs = [] }) {
+export function SupplyDetailTabs({ supply, onSupplyUpdated, availableInputs = [] }) {
 
   const [contentOption, setContentOption] = useState("insumos");
 
@@ -16,7 +15,7 @@ export function SupplyDetailTabs({ insumo, onInputUpdated, availableInputs = [] 
           <TabsTrigger value="lotes" className="cursor-pointer">Lotes</TabsTrigger>
         </TabsList>
 
-        {contentOption === "insumos" && <TabInput insumo={insumo} onInputUpdated={onInputUpdated} />}
+        {contentOption === "insumos" && <TabInput supply={supply} onSupplyUpdated={onSupplyUpdated} />}
         {contentOption === "lotes" && <p>Contenido de Lotes</p>}
       </Tabs>
     </div>

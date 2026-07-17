@@ -73,7 +73,9 @@ class SupplyDetailResponseSchema(BaseModel):
     id: int
     name: str
     item_type: str
+    brand_id: int
     brand: str
+    base_uom_id: int
     base_uom_symbol: str
     min_stock_level: Decimal
     supply_category: SupplyCategory

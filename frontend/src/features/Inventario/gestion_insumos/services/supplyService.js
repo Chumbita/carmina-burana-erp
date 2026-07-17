@@ -19,6 +19,12 @@ export const supplyService = {
     return response.data
   },
 
+  // UPDATE
+  update: async (id, data) => {
+    const response = await privateClient.patch(ENDPOINTS.SUPPLIES.PATCH(id), data)
+    return response.data
+  },
+
   // DELETE
   remove: async (id) => {
     const response = await privateClient.delete(ENDPOINTS.SUPPLIES.DELETE(id))
