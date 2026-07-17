@@ -30,6 +30,8 @@ export function PackagingSupplyForm({
   submitLabel = "Guardar",
   cancelLabel = "Cancelar",
   isSubmitting = false,
+  showDeleteButton = false,
+  onDelete,
   layout = "modal",
   formRef,
   existingInputs = [],
@@ -72,14 +74,14 @@ export function PackagingSupplyForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className={isModal ? "space-y-4" : "grid grid-cols-1 md:grid-cols-2 gap-4"}
+      className={isModal ? "space-y-4" : "grid grid-cols-1 md:grid-cols-4 gap-4"}
     >
       <FieldGroup className={isModal ? "-space-y-4" : "contents"}>
         <Controller
           name="name"
           control={control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
+            <Field data-invalid={fieldState.invalid} className="md:col-span-2">
               <FieldLabel htmlFor={field.name}>
                 Nombre <span className="text-red-500 -ml-1">*</span>
               </FieldLabel>
@@ -122,8 +124,7 @@ export function PackagingSupplyForm({
           )}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Controller
+        <Controller
             name="packaging_type"
             control={control}
             render={({ field, fieldState }) => (
@@ -164,9 +165,7 @@ export function PackagingSupplyForm({
               </Field>
             )}
           />
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Controller
             name="capacity_ml"
             control={control}
@@ -177,11 +176,12 @@ export function PackagingSupplyForm({
                   {...field}
                   id={field.name}
                   type="number"
+                  step="0.01"
                   aria-invalid={fieldState.invalid}
-                  value={field.value ?? ""}
+                  value={field.value != null ? Number(field.value).toFixed(2) : ""}
                   onChange={(event) => {
                     const value = event.target.value
-                    field.onChange(value === "" ? undefined : event.target.valueAsNumber)
+                    field.onChange(value === "" ? undefined : Math.round(parseFloat(value) * 100) / 100)
                   }}
                 />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -199,8 +199,10 @@ export function PackagingSupplyForm({
                   {...field}
                   id={field.name}
                   type="number"
+                  step="1"
                   aria-invalid={fieldState.invalid}
-                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  value={field.value != null ? parseInt(field.value, 10) : ""}
+                  onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
                 />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -239,10 +241,20 @@ export function PackagingSupplyForm({
               </Field>
             )}
           />
-        </div>
       </FieldGroup>
 
-      <div className={isModal ? "flex justify-between gap-2" : "md:col-span-2 flex justify-end mt-4 gap-2"}>
+      <div className={isModal ? "flex justify-between gap-2" : "md:col-span-4 flex justify-end mt-4 gap-2"}>
+        {showDeleteButton && (
+          <Button
+            type="button"
+            size="sm"
+            onClick={onDelete}
+            className="bg-red-100 text-red-600 hover:bg-red-200 cursor-pointer"
+          >
+            Eliminar
+          </Button>
+        )}
+
         {onCancel && (
           <Button
             type="button"

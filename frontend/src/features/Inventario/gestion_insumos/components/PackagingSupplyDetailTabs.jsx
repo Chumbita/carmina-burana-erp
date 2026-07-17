@@ -2,7 +2,6 @@ import { useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs"
 import { useNotification } from "@/components/shared/notifications/useNotification"
-import { Button } from "@/components/ui/Button"
 import {
   AlertDialog,
   AlertDialogContent,
@@ -73,19 +72,11 @@ export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUp
               onSubmit={handleSubmit}
               submitLabel="Guardar cambios"
               layout="page"
+              showDeleteButton
+              onDelete={() => setOpenDeleteDialog(true)}
               existingInputs={availableInputs}
               excludeId={packagingSupply?.id}
             />
-            <div className="flex justify-end">
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => setOpenDeleteDialog(true)}
-                className="bg-red-100 text-red-600 hover:bg-red-200 cursor-pointer"
-              >
-                Eliminar envase
-              </Button>
-            </div>
           </div>
         )}
 
