@@ -1,15 +1,15 @@
 import { useRef, useState } from "react"
 import { useSupplies } from "./useSupplies"
-import { useInputFilters } from "./useFiltersSupplies"
+import { useSupplyFilters } from "./useFiltersSupplies"
 import { useNotification } from "@/components/shared/notifications/useNotification"
 import { useLocationNotification } from "./useLocationNotification"
 // Hook orquestador de la página de insumos.
-// Compone useSupplies, useInputFilters y useNotification en un único punto de entrada,
+// Compone useSupplies, useSupplyFilters y useNotification en un único punto de entrada,
 // manteniendo la page limpia de lógica y centrada solo en el renderizado.
 
 export function useSuppliesPage() {
   const { supplies, loading, error, createSupply } = useSupplies()
-  const { search, categoryFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, stockStatuses, setSearch, setCategoryFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage, filteredInputs } = useInputFilters()
+  const { search, categoryFilter, stockFilter, sortBy, sortOrder, currentPage, itemsPerPage, categories, stockStatuses, setSearch, setCategoryFilter, setStockFilter, setSortBy, setSortOrder, setCurrentPage, filteredSupplies } = useSupplyFilters()
   const notify = useNotification()
   
   useLocationNotification(notify)
@@ -17,7 +17,7 @@ export function useSuppliesPage() {
   const [openModal, setOpenModal] = useState(false)
   const tableRef = useRef(null)
 
-  async function handleCreateInput(formData) {
+  async function handleCreateSupply(formData) {
     try {
       const payload = {
         name:            formData.name,
@@ -32,7 +32,7 @@ export function useSuppliesPage() {
         onClick: () => handleNotificationClick(newSupply.id)
       })
     } catch (error) {
-      notify.error(`Error al crear el insumo: ${error.message}` || 'Error al crear el insumo')
+      notify.error(`Error al crear el insumo: ${error.message || 'Error desconocido'}`)
     }
   }
 
@@ -48,11 +48,11 @@ export function useSuppliesPage() {
   }
 
   // Calcular datos filtrados con paginación
-  const filteredData = filteredInputs(supplies)
+  const filteredData = filteredSupplies(supplies)
 
   return {
     // datos
-    inputs: supplies,   // alias para compatibilidad con componentes existentes
+    supplies,
     loading,
     error,
     filteredData,
@@ -76,7 +76,7 @@ export function useSuppliesPage() {
     openModal,
     setOpenModal,
     // handlers
-    handleCreateInput,
+    handleCreateSupply,
     // ref
     tableRef,
   }

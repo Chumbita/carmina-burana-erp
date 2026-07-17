@@ -13,8 +13,8 @@ import { EntityDetailPage } from "@/components/shared/DetailPage/EntityDetailPag
 import { estadoStyles } from "../utils/stockStyles";
 
 export default function SupplyDetailPage() {
-  const { inputId } = useParams();
-  const { supply, loading, error } = useSupply(inputId);
+  const { supplyId } = useParams();
+  const { supply, loading, error } = useSupply(supplyId);
   const { supplies } = useSupplies();
 
   return (
@@ -33,10 +33,7 @@ export default function SupplyDetailPage() {
       </EntityDetailPage.Sidebar>
 
       <EntityDetailPage.Content>
-        <SupplyDetailTabs
-          insumo={supply}
-          availableInputs={supplies}
-        />
+        <SupplyDetailTabs insumo={supply} availableSupplies={supplies} />
       </EntityDetailPage.Content>
       <EntityDetailPage.History entityType="input" entityId={supply?.id} />
     </EntityDetailPage>

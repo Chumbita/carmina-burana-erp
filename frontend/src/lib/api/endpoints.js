@@ -8,26 +8,12 @@ export const ENDPOINTS = {
     USER: {
         CHANGE_PASSWORD: '/user/change-password'
     },
-    // Inputs
-    INPUTS: {
-        GET_ALL: '/inputs/',
-        GET_BY_ID: (input_id) => `/inputs/${input_id}`,
-        CREATE: '/inputs/',
-        DELETE: (input_id) => `/inputs/${input_id}`,
-        PATCH: (input_id) => `/inputs/${input_id}`,
-    },
-    // Input Entries (Supply Entry)
-    INPUT_ENTRIES: {
-        GET_ALL: '/inputs-entries/',
-        GET_BY_ID: (entry_id) => `/inputs-entries/${entry_id}`,
-        CREATE: '/inputs-entries/',
-        CANCEL: (entry_id) => `/inputs-entries/${entry_id}/cancel`,
-    },
     // Supply Entries
     SUPPLY_ENTRIES: {
         GET_ALL: '/supply-entries',
         GET_BY_ID: (entry_id) => `/supply-entries/${entry_id}`,
         CREATE: '/supply-entries',
+        CANCEL: (entry_id) => `/supply-entries/${entry_id}/cancel`,
     },
     // Audit Logs
     AUDIT_LOGS: {

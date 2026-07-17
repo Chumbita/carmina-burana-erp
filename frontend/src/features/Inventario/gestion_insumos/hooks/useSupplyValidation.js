@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
-import { useInputs } from './useInputs'
+import { useSupplies } from './useSupplies'
 
 export function useSupplyValidation() {
-  const { inputs } = useInputs()
+  const { supplies } = useSupplies()
 
   const validateUniqueName = useCallback((name, excludeId = null) => {
     if (!name || !name.trim()) return true // Dejar que zod maneje vacíos
@@ -10,13 +10,13 @@ export function useSupplyValidation() {
     const normalizedName = name.trim().toLowerCase()
     
     // Verificar si ya existe un insumo con este nombre
-    const existingInput = inputs.find(input => {
-      if (excludeId && input.id === excludeId) return false // Excluir en edición
-      return input.name.toLowerCase() === normalizedName
+    const existingSupply = supplies.find(supply => {
+      if (excludeId && supply.id === excludeId) return false // Excluir en edición
+      return supply.name.toLowerCase() === normalizedName
     })
     
-    return !existingInput
-  }, [inputs])
+    return !existingSupply
+  }, [supplies])
 
   const getNameError = useCallback((name, excludeId = null) => {
     if (!validateUniqueName(name, excludeId)) {

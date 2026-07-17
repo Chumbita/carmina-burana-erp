@@ -83,7 +83,7 @@ export const router = createBrowserRouter([
         element: <SuppliesPage />,
       },
       {
-        path: "/inventario/insumos/:inputId",
+        path: "/inventario/insumos/:supplyId",
         element: <SupplyDetailPage />,
       },
       {

@@ -1,9 +1,8 @@
 
-// /hooks/useFilter.js
 import { useState } from "react"
 import { SUPPLY_CATEGORIES } from "../schemas/supply.schema"
 
-export function useInputFilters() {
+export function useSupplyFilters() {
   const categories = [
     { value: "all", label: "Categorías..." },
     ...SUPPLY_CATEGORIES.map(cat => ({ value: cat, label: cat }))
@@ -54,24 +53,24 @@ export function useInputFilters() {
 
   const normalize = (str) => str?.trim().toLowerCase()
 
-  const filteredInputs = (inputs) => {
-    let filtered = inputs.filter(input => {
+  const filteredSupplies = (supplies) => {
+    let filtered = supplies.filter(supply => {
       const searchLower = search.trim().toLowerCase()
 
       // Filtro de búsqueda (nombre o marca)
       const matchesSearch =
-        input.name?.toLowerCase().includes(searchLower) ||
-        input.brand_name?.toLowerCase().includes(searchLower)
+        supply.name?.toLowerCase().includes(searchLower) ||
+        supply.brand_name?.toLowerCase().includes(searchLower)
 
       // Filtro de categoría
       const matchesCategory =
         categoryFilter === "all" ||
-        normalize(input?.supply_category) === normalize(categoryFilter)
+        normalize(supply?.supply_category) === normalize(categoryFilter)
 
       // Filtro de estado de stock
       const matchesStockStatus =
         stockFilter === "all" ||
-        input.estado_stock === stockFilter
+        supply.estado_stock === stockFilter
 
       return matchesSearch && matchesCategory && matchesStockStatus
     })
@@ -127,6 +126,6 @@ export function useInputFilters() {
     setSortBy: handleSetSortBy,
     setSortOrder: handleSetSortOrder,
     setCurrentPage,
-    filteredInputs,
+    filteredSupplies,
   }
 }
