@@ -12,6 +12,8 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/AlertDialog"
+import { useFormBlocker } from "../hooks/useFormBlocker"
+import { ConfirmNavigationModal } from "./ConfirmNavigationModal"
 import { PackagingSupplyForm } from "./PackagingSupplyForm"
 
 export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUpdated, onDeleteSupply, availableInputs = [] }) {
@@ -21,6 +23,7 @@ export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUp
   const formRef = useRef(null)
   const notify = useNotification()
   const navigate = useNavigate()
+  const { blocker } = useFormBlocker(formRef)
 
   async function handleSubmit(data) {
     try {
@@ -82,6 +85,21 @@ export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUp
 
         {contentOption === "lotes" && <p className="mt-4">Contenido de Lotes</p>}
       </Tabs>
+
+      {blocker.state === "blocked" && (
+        <ConfirmNavigationModal
+          onSave={async () => {
+            await formRef.current?.submit()
+            blocker.proceed()
+            navigate("/inventario/insumos")
+          }}
+          onDiscard={() => {
+            formRef.current?.reset(packagingSupply)
+            blocker.proceed()
+          }}
+          onCancel={() => blocker.reset()}
+        />
+      )}
 
       <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <AlertDialogContent>

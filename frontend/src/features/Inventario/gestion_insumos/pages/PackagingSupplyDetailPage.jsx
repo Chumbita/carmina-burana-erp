@@ -25,10 +25,6 @@ export default function PackagingSupplyDetailPage() {
           value={`${packagingSupply?.stock_total ?? 0} ${packagingSupply?.base_uom_symbol ?? ""}`}
         />
         <EntityDetailPage.Sidebar.Row
-          label="Unidad"
-          value={packagingSupply?.base_uom_symbol ?? "-"}
-        />
-        <EntityDetailPage.Sidebar.Row
           label="Estado"
           value={
             <Badge className={estadoStyles[packagingSupply?.estado_stock]}>
