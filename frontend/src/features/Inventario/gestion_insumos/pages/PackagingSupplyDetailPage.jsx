@@ -19,7 +19,7 @@ export default function PackagingSupplyDetailPage() {
       <EntityDetailPage.Header name={packagingSupply?.name} />
 
       <EntityDetailPage.Sidebar icon={<PackageIcon className="h-10 w-10 text-gray-400" />}>
-        <EntityDetailPage.Sidebar.Row label="Tipo" value="Packaging" />
+        <EntityDetailPage.Sidebar.Row label="Tipo" value="Envase" />
         <EntityDetailPage.Sidebar.Row
           label="Stock actual"
           value={`${packagingSupply?.stock_total ?? 0} ${packagingSupply?.base_uom_symbol ?? ""}`}

@@ -3,14 +3,14 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/Button"
 import { SupplyForm } from "./SupplyForm"
 import { PackagingSupplyForm } from "./PackagingSupplyForm"
-import { useInputs } from "../hooks/useInputs"
+import { useSupplies } from "../hooks/useSupplies"
 import { Boxes, Package } from "lucide-react"
 
 export function NewSupplyModal({ open, onClose, onSubmit, existingInputs }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedType, setSelectedType] = useState(null)
-  const { inputs } = useInputs() // Obtener inputs existentes para validación
-  const validationInputs = existingInputs ?? inputs
+  const { supplies } = useSupplies()
+  const validationInputs = existingInputs ?? supplies
 
   function handleClose() {
     setSelectedType(null)

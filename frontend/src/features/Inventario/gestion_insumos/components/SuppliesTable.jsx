@@ -21,7 +21,7 @@ export function SuppliesTable({ insumos }) {
     {
       header: "Tipo",
       accessor: "item_type",
-      render: (value) => value?.toUpperCase() === "PACKAGING_SUPPLY" ? "Packaging" : "Insumo",
+      render: (value) => value?.toUpperCase() === "PACKAGING_SUPPLY" ? "Envase" : "Producción",
     },
     { header: "Marca", accessor: "brand_name" },
     {

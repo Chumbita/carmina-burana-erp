@@ -31,8 +31,8 @@ export function useInputFilters(inputs = []) {
 
   const itemTypes = [
     { value: "all", label: "Tipo..." },
-    { value: "SUPPLY", label: "Insumo" },
-    { value: "PACKAGING_SUPPLY", label: "Packaging" },
+    { value: "SUPPLY", label: "Producción" },
+    { value: "PACKAGING_SUPPLY", label: "Envase" },
   ]
 
   const [categoryFilter, setCategoryFilter] = useState("all")
