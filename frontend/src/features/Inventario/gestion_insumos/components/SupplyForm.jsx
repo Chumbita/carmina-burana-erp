@@ -72,7 +72,7 @@ export function SupplyForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className={isModal ? "space-y-4" : "grid grid-cols-1 md:grid-cols-2 gap-4"}
+      className={isModal ? "space-y-4" : "grid grid-cols-1 md:grid-cols-4 gap-4"}
     >
       <FieldGroup className={isModal ? "-space-y-4" : "contents"}>
 
@@ -81,7 +81,7 @@ export function SupplyForm({
           name="name"
           control={control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
+            <Field data-invalid={fieldState.invalid} className="md:col-span-2">
               <FieldLabel htmlFor={field.name}>
                 Nombre <span className="text-red-500 -ml-1">*</span>
               </FieldLabel>
@@ -100,7 +100,7 @@ export function SupplyForm({
           name="brand_id"
           control={control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
+            <Field data-invalid={fieldState.invalid} className="md:col-span-2">
               <FieldLabel htmlFor={field.name}>
                 Marca <span className="text-red-500 -ml-1">*</span>
               </FieldLabel>
@@ -136,7 +136,7 @@ export function SupplyForm({
           name="supply_category"
           control={control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
+            <Field data-invalid={fieldState.invalid} className="md:col-span-2">
               <FieldLabel htmlFor={field.name}>
                 Categoría <span className="text-red-500 -ml-1">*</span>
               </FieldLabel>
@@ -293,7 +293,7 @@ export function SupplyForm({
         className={
           isModal
             ? "flex justify-between gap-2"
-            : "md:col-span-2 flex justify-end mt-4 gap-2"
+            : "md:col-span-4 flex justify-end mt-4 gap-2"
         }
       >
         {showDeleteButton && (
