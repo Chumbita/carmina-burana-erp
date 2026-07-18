@@ -16,9 +16,9 @@ class IProductionOrderRepository(Protocol):
         """
         ...
 
-    async def get_all(self) -> list[ProductionOrder]:
+    async def get_all_incomplete(self) -> list[dict]:
         """
-        Obtiene todas las órdenes de producción.
+        Obtiene todas las órdenes de producción incompletas.
         """
         ...
 

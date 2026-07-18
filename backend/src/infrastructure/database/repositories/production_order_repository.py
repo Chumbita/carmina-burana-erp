@@ -1,9 +1,6 @@
 # ══════════════════════════════════════════════════════════════════════════════
 # REPOSITORIO DE PRODUCTION ORDER
 # ══════════════════════════════════════════════════════════════════════════════
-# ══════════════════════════════════════════════════════════════════════════════
-# REPOSITORIO DE PRODUCTION ORDER
-# ══════════════════════════════════════════════════════════════════════════════
 
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -21,7 +18,9 @@ from src.infrastructure.database.models.production_order_model import (
     ProductionConsumptionModel,
     ProductionOutputModel,
 )
-
+from src.infrastructure.database.models.bom_model import BomModel
+from src.infrastructure.database.models.item_model import ItemModel
+from src.infrastructure.database.models.uom_model import UomModel
 
 class ProductionOrderRepository(IProductionOrderRepository):
 
@@ -171,3 +170,42 @@ class ProductionOrderRepository(IProductionOrderRepository):
             self._session.add(model)
 
         await self._session.flush()
+
+    async def get_all_incomplete(self) -> list[dict]:
+        """
+        Obtiene todas las órdenes de producción incompletas incluyendo 
+        el nombre del producto y la versión de la receta.
+        """
+        stmt = (
+            select(
+                ProductionOrderModel.id,
+                ItemModel.name.label("item_name"),    
+                BomModel.version.label("bom_version"),
+                ProductionOrderModel.planned_quantity,
+                UomModel.symbol.label("base_uom_symbol"),
+                ProductionOrderModel.schedule_date,
+                ProductionOrderModel.status,
+            )
+            .join(ItemModel, ProductionOrderModel.item_id == ItemModel.id)
+            .join(BomModel, ProductionOrderModel.bom_id == BomModel.id)
+            .join(UomModel, ItemModel.base_uom_id == UomModel.id)
+            .where(
+                ProductionOrderModel.status.in_(["PLANNED", "RELEASED", "IN_PROGRESS"])
+            )
+        )
+
+        result = await self._session.execute(stmt)
+        rows = result.all()
+
+        return [
+            {
+                "id": row.id,
+                "item_name": row.item_name,
+                "bom_version": row.bom_version,
+                "planned_quantity": row.planned_quantity,
+                "base_uom_symbol": row.base_uom_symbol,
+                "schedule_date": row.schedule_date,
+                "status": row.status,
+            }
+            for row in rows
+        ]
