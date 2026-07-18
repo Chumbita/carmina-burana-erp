@@ -10,6 +10,7 @@ from src.infrastructure.database.repositories.inventory_transaction_repository i
 from src.application.use_cases.production_order.create_production_order import CreateProductionOrderUseCase
 from src.application.use_cases.production_order.release_production_order import ReleaseProductionOrderUseCase
 from src.application.use_cases.production_order.start_production_order import StartProductionOrderUseCase
+from src.application.use_cases.production_order.complete_production_order import CompleteProductionOrderUseCase
 from src.application.use_cases.inventory.inventory_movement_use_case import InventoryMovementUseCase
 from src.domain.services.inventory_movement_service import InventoryDomainService
 
@@ -53,5 +54,13 @@ def get_start_production_order_use_case(
         bom_repository=BomRepository(session),
         lot_repository=InventoryLotRepository(session),
         balance_repository=InventoryBalanceRepository(session),
+        inventory_movement_use_case=_get_inventory_movement_use_case(session),
+    )
+
+def get_complete_production_order_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> CompleteProductionOrderUseCase:
+    return CompleteProductionOrderUseCase(
+        production_order_repository=ProductionOrderRepository(session),
         inventory_movement_use_case=_get_inventory_movement_use_case(session),
     )
