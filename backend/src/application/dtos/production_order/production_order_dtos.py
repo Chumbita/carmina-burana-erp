@@ -17,6 +17,17 @@ class CreateProductionOrderCommand:
     schedule_date: Optional[date] = None
     description: Optional[str] = None
 
+@dataclass
+class CompleteProductionOrderCommand:
+    """
+    Comando para completar una orden de producción.
+    Incluye los datos del lote de output que se va a crear.
+    """
+    produced_quantity: Decimal
+    lot_code: str
+    unit_cost: Decimal
+    production_date: Optional[date] = None
+    expiration_date: Optional[date] = None
 
 @dataclass
 class ProductionOrderResponse:
