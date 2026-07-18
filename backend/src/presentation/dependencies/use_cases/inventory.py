@@ -5,6 +5,7 @@ from src.infrastructure.database.deps import get_db
 from src.infrastructure.database.repositories.item_repository import ItemRepository
 from src.infrastructure.database.repositories.inventory_transaction_repository import InventoryTransactionRepository
 from src.infrastructure.database.repositories.inventory_lot_repository import InventoryLotRepository
+from src.infrastructure.database.repositories.uom_repository import UomRepository
 
 
 def get_list_item_transactions_use_case(
@@ -15,4 +16,5 @@ def get_list_item_transactions_use_case(
     item_repository = ItemRepository(session)
     transaction_repository = InventoryTransactionRepository(session)
     lot_repository = InventoryLotRepository(session)
-    return ListItemTransactionsUseCase(item_repository, transaction_repository, lot_repository)
+    uom_repository = UomRepository(session)
+    return ListItemTransactionsUseCase(item_repository, transaction_repository, lot_repository, uom_repository)

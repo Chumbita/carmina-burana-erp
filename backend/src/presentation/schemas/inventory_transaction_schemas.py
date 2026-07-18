@@ -22,6 +22,7 @@ class TransactionResponseSchema(BaseModel):
     lot_id: int
     lot_code: str
     quantity: Decimal
+    uom_symbol: str
     transaction_type: str
     transaction_label: str
     reference_type: str

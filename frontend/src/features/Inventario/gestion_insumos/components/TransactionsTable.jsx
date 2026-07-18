@@ -17,12 +17,12 @@ const columns = [
   {
     header: "Cantidad",
     accessor: "quantity",
-    render: (value) => {
+    render: (value, row) => {
       const isPositive = value > 0
       return (
         <span className={`${quantityClass} ${isPositive ? "text-green-600" : "text-red-600"}`}>
           {isPositive ? "+" : ""}
-          {Number(value).toFixed(2)}
+          {Number(value).toFixed(2)} {row.uom_symbol}
         </span>
       )
     },
