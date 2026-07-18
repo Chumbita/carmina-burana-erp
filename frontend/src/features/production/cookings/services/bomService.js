@@ -1,10 +1,16 @@
-// Simple BOM service: backend endpoint not available, return single BOM with id=2
-export const bomService = {
-  getAll: async () => {
-    return [
-      { id: 2, name: "Receta #2" },
-    ]
-  },
-}
+import { ENDPOINTS } from "@/lib/api/endpoints";
+import privateClient from "@/lib/api/privateClient";
 
-export default bomService
+export const bomService = {
+  /*
+   Obtiene la receta (BOM) activa asociada a un ítem específico.
+   */
+  getItemBom: async (itemId) => {
+    const response = await privateClient.get(
+      ENDPOINTS.ITEMS.GET_ITEM_BOM(itemId),
+    );
+    return response.data;
+  },
+};
+
+export default bomService;
