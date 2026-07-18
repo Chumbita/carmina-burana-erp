@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.encoders import jsonable_encoder
 
 from src.domain.entities.user import User
 from src.domain.entities.production_order import ProductionOrder
@@ -12,7 +13,7 @@ from src.application.use_cases.production_order.create_production_order import C
 from src.application.use_cases.production_order.release_production_order import ReleaseProductionOrderUseCase
 from src.application.use_cases.production_order.start_production_order import StartProductionOrderUseCase
 from src.application.use_cases.production_order.complete_production_order import CompleteProductionOrderUseCase
-
+from src.application.use_cases.production_order.get_production_order import ListIncompleteProductionsUseCase
 from src.presentation.schemas.production_order_schemas import (
     CreateProductionOrderSchema,
     CompleteProductionOrderRequestSchema,
@@ -23,6 +24,7 @@ from src.presentation.dependencies.use_cases.production_order import (
     get_release_production_order_use_case,
     get_start_production_order_use_case,
     get_complete_production_order_use_case,
+    get_list_incomplete_productions_use_case,
 )
 from src.presentation.dependencies.auth import get_current_user
 
@@ -48,6 +50,21 @@ def _build_response(order: ProductionOrder) -> ProductionOrderResponseSchema:
 
 
 # ── Endpoints ──────────────────────────────────────────────────────────────
+
+@router.get(
+    "/incomplete",
+    status_code=status.HTTP_200_OK,
+    response_model=list[dict], 
+    summary="Obtener todas las órdenes de producción incompletas",
+)
+async def get_incomplete_productions(
+    use_case: ListIncompleteProductionsUseCase = Depends(get_list_incomplete_productions_use_case),
+    # current_user: User = Depends(get_current_user),
+) -> list[dict]:
+    try:
+        return await use_case.execute()
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
 @router.post(
     "",
@@ -94,10 +111,10 @@ async def release_production_order(
     except InsufficientStockForProductionException as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail={
-                "message": "Stock insuficiente para liberar la orden",
-                "missing": exc.missing,
-            },
+            detail=jsonable_encoder({
+            "message": "Stock insuficiente para liberar la orden",
+            "missing": exc.missing
+        })
         ) from exc
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
