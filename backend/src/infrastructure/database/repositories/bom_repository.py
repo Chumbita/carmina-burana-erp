@@ -9,6 +9,7 @@ from src.domain.repositories.bom_repository import IBomRepository
 from src.infrastructure.database.models.bom_model import BomModel
 from src.infrastructure.database.models.bom_line_model import BomLineModel
 from src.infrastructure.database.models.item_model import ItemModel
+from src.infrastructure.database.models.uom_model import UomModel
 
 
 class BomRepository(IBomRepository):
@@ -91,3 +92,42 @@ class BomRepository(IBomRepository):
         model = result.scalar_one_or_none()
 
         return self._to_entity(model) if model else None
+
+    async def get_bom_by_item(self, item_id: int) -> Optional[dict]:
+        """
+        Obtiene la BOM activa de un item, con sus líneas, nombre de componente
+        y unidad de medida resueltos. Devuelve None si no hay BOM activa.
+        """
+        stmt = (
+            select(BomModel)
+            .where(BomModel.parent_item_id == item_id, BomModel.is_active.is_(True))
+            .options(
+                selectinload(BomModel.lines).selectinload(BomLineModel.component_item),
+                selectinload(BomModel.lines).selectinload(BomLineModel.uom_ref),
+            )
+        )
+        result = await self._session.execute(stmt)
+        bom_model = result.scalar_one_or_none()
+
+        if not bom_model:
+            return None
+
+        uom_symbol = None
+        if bom_model.uom_id is not None:
+            uom_stmt = select(UomModel.symbol).where(UomModel.id == bom_model.uom_id)
+            uom_symbol = (await self._session.execute(uom_stmt)).scalar_one_or_none()
+
+        return {
+            "id": bom_model.id,
+            "version": bom_model.version,
+            "quantity": bom_model.quantity,
+            "uom": uom_symbol,
+            "lines": [
+                {
+                    "name": line.component_item.name if line.component_item else None,
+                    "quantity": line.quantity,
+                    "uom": line.uom_ref.symbol if line.uom_ref else None,
+                }
+                for line in bom_model.lines
+            ],
+        }
