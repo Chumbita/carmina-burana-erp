@@ -16,6 +16,7 @@ export function useTransactions(itemId) {
       const data = await transactionService.getByItemId(itemId)
       setTransactions(data)
     } catch (err) {
+      console.error("Error al cargar transacciones:", err.response?.data || err.message)
       setError(err)
     } finally {
       setLoading(false)

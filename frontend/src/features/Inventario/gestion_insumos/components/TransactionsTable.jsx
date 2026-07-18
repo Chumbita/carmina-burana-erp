@@ -1,5 +1,14 @@
+import { Link } from "react-router-dom"
 import { DataTable } from "@/components/shared/DataTable"
 import { useTransactions } from "../hooks/useTransactions"
+
+const REFERENCE_LABELS = {
+  supply_entry: "Entrada",
+}
+
+const REFERENCE_ROUTES = {
+  supply_entry: (id) => `/inventario/ingreso-insumos/${id}`,
+}
 
 function localFormatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString("es-ES", {
@@ -31,8 +40,17 @@ const columns = [
     header: "Referencia",
     accessor: "reference_type",
     render: (value, row) => {
-      const label = value === "supply_entry" ? "Entrada" : value
-      return `${label} #${row.reference_id}`
+      const label = REFERENCE_LABELS[value] ?? value
+      const toRoute = REFERENCE_ROUTES[value]
+      const text = `${label} #${row.reference_id}`
+      if (toRoute) {
+        return (
+          <Link to={toRoute(row.reference_id)} className="text-primary underline-offset-2 hover:underline font-medium">
+            {text}
+          </Link>
+        )
+      }
+      return text
     },
   },
   {

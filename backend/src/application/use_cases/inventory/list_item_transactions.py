@@ -27,8 +27,7 @@ class ListItemTransactionsUseCase:
         if item is None:
             raise ItemNotFoundException(item_id)
 
-        uom = await self._uom_repository.get_by_id(item.base_uom_id)
-        uom_symbol = uom.symbol if uom else ""
+        uom_symbol = (await self._uom_repository.get_symbol_by_id(item.base_uom_id)) or ""
 
         transactions = await self._transaction_repository.list_by_item(item_id)
         if not transactions:

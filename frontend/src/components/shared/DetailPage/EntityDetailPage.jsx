@@ -1,6 +1,8 @@
 // EntityDetailPage.jsx
 import { Spinner } from "@/components/ui/Spinner";
 import { TransactionsTable } from "@/features/Inventario/gestion_insumos/components/TransactionsTable";
+import { AuditLogHistory } from "@/components/shared/AuditLogHistory";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EntityDetailProvider, useEntityDetail } from "./EntityDetailContext";
@@ -49,11 +51,24 @@ function Content({ children }) {
   );
 }
 
-function History({ itemId }) {
+function History({ itemId, entityType }) {
+  const { refreshKey } = useEntityDetail();
+
   return (
     <section className="lg:col-span-2">
-      <h2 className="text-xl font-semibold mb-4">Historial de Movimientos</h2>
-      <TransactionsTable itemId={itemId} />
+      <h2 className="text-xl font-semibold mb-4">Historial</h2>
+      <Tabs defaultValue="stock">
+        <TabsList variant="line">
+          <TabsTrigger value="stock" className="cursor-pointer">Movimientos de stock</TabsTrigger>
+          <TabsTrigger value="audit" className="cursor-pointer">Auditoría</TabsTrigger>
+        </TabsList>
+        <TabsContent value="stock">
+          <TransactionsTable itemId={itemId} />
+        </TabsContent>
+        <TabsContent value="audit">
+          <AuditLogHistory entityType={entityType} entityId={itemId} refreshKey={refreshKey} />
+        </TabsContent>
+      </Tabs>
     </section>
   );
 }
