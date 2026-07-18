@@ -52,8 +52,6 @@ export default function ProductionPage() {
       <div ref={tableRef}>
         {loading ? (
           <div>Cargando...</div>
-        ) : productions.length === 0 ? (
-          <div className="text-muted">No hay órdenes de producción.</div>
         ) : (
           <ProductionTable productions={productions} />
         )}
