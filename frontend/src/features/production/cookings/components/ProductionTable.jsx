@@ -10,9 +10,10 @@ export function ProductionTable({ productions }) {
   };
 
   const columns = [
+    { header: "Nro", accessor: "row_number" },
     { header: "Producto", accessor: "item_id" },
     { header: "Receta", accessor: "bom_id" },
-    { header: "Cantidad Producida", accessor: "planned_quantity" },
+    { header: "Cantidad", accessor: "planned_quantity" },
     { header: "Fecha planeada", accessor: "schedule_date" },
     {
       header: "Estado",
@@ -20,12 +21,17 @@ export function ProductionTable({ productions }) {
       render: (value) => <Badge variant="outline">{value}</Badge>,
     },
   ];
+  const formattedProductions = productions?.map((production, index) => ({
+    ...production,
+    row_number: index + 1,
+  })) || [];
 
   return (
     <DataTable
       columns={columns}
-      data={productions}
+      data={formattedProductions}
       onRowClick={handleRowClick}
+      emptyMessage="No hay órdenes de producción."
     />
   );
 }
