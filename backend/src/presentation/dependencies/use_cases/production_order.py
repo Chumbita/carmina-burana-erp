@@ -12,6 +12,7 @@ from src.application.use_cases.production_order.release_production_order import 
 from src.application.use_cases.production_order.start_production_order import StartProductionOrderUseCase
 from src.application.use_cases.production_order.complete_production_order import CompleteProductionOrderUseCase
 from src.application.use_cases.inventory.inventory_movement_use_case import InventoryMovementUseCase
+from src.application.use_cases.production_order.get_production_order import ListIncompleteProductionsUseCase
 from src.domain.services.inventory_movement_service import InventoryDomainService
 
 
@@ -64,3 +65,9 @@ def get_complete_production_order_use_case(
         production_order_repository=ProductionOrderRepository(session),
         inventory_movement_use_case=_get_inventory_movement_use_case(session),
     )
+
+def get_list_incomplete_productions_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> ListIncompleteProductionsUseCase:
+    production_order_repository = ProductionOrderRepository(session)
+    return ListIncompleteProductionsUseCase(production_order_repository)
