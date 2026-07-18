@@ -41,12 +41,13 @@ export function ProductionForm({
   beerOptions = [],
   productOptions = [],
   optionsLoading = false,
-  selectedBom = null, 
+  selectedBom = null,
   bomLoading = false,
+  onItemChange,
 }) {
   const schema = createProductionSchema();
 
-  const { handleSubmit, control, setValue } = useForm({
+  const { handleSubmit, control, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       item_id: defaultValues?.item_id ?? undefined,
@@ -59,18 +60,36 @@ export function ProductionForm({
   });
 
   const selectedItemId = useWatch({ control, name: "item_id" });
-  const isItemSelected = selectedItemId !== undefined && selectedItemId !== null;
+  const isItemSelected =
+    selectedItemId !== undefined && selectedItemId !== null;
 
-  const hasValidRecipe = isItemSelected && !bomLoading && selectedBom !== null && selectedBom?.id !== undefined;
-
+  const plannedQuantity = useWatch({ control, name: "planned_quantity" }) || 0;
   const selectedBomLines = useMemo(() => {
-    return selectedBom?.lines || [];
-  }, [selectedBom]);
+    const lines = selectedBom?.lines || [];
+    const bomBaseQuantity = Number(selectedBom?.quantity || 1);
+
+    if (bomBaseQuantity <= 0) return lines;
+    const scale = Number(plannedQuantity) / bomBaseQuantity;
+    return lines.map(line => ({
+      ...line,
+      quantity: Number(line.quantity || 0) * scale
+    }));
+  }, [selectedBom, plannedQuantity]);
+
+  const hasValidRecipe =
+    isItemSelected &&
+    !bomLoading &&
+    selectedBom !== null &&
+    (selectedBom?.version !== undefined || selectedBom?.lines !== undefined);
 
   const handleItemChange = (val, onChange) => {
     const itemId = val === "placeholder" ? undefined : Number(val);
     onChange(itemId);
-    
+
+    if (onItemChange) {
+      onItemChange(itemId);
+    }
+
     if (!itemId) {
       setValue("bom_id", undefined, { shouldValidate: true });
     }
@@ -79,54 +98,74 @@ export function ProductionForm({
   useMemo(() => {
     if (selectedBom?.id) {
       setValue("bom_id", Number(selectedBom.id), { shouldValidate: true });
+      setValue("planned_quantity", Number(selectedBom.quantity || 0), {
+        shouldValidate: true,
+      });
     } else {
       setValue("bom_id", undefined, { shouldValidate: true });
+      setValue("planned_quantity", 0, { shouldValidate: true });
     }
   }, [selectedBom, setValue]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-neutral-800">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4 text-neutral-800"
+    >
       {/* Grid Principal */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
-        
         {/* COLUMNA IZQUIERDA: Formulario de Entrada */}
         <div className="md:col-span-2 space-y-4 flex flex-col justify-between">
-          
           {/* Bloque 1: Datos principales */}
           <div className="space-y-3 border border-neutral-200 rounded-lg p-3.5 bg-white shadow-sm">
             <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
               Datos principales
             </h3>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Controller
                 name="item_id"
                 control={control}
                 render={({ field }) => (
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs font-medium text-neutral-600">¿Qué se produce?</label>
+                    <label className="text-xs font-medium text-neutral-600">
+                      ¿Qué se produce?
+                    </label>
                     <Select
-                      value={field.value !== undefined ? String(field.value) : "placeholder"}
-                      onValueChange={(val) => handleItemChange(val, field.onChange)}
+                      value={
+                        field.value !== undefined
+                          ? String(field.value)
+                          : "placeholder"
+                      }
+                      onValueChange={(val) =>
+                        handleItemChange(val, field.onChange)
+                      }
                       disabled={optionsLoading}
                     >
                       <SelectTrigger className="h-9 text-xs px-3">
                         <SelectValue placeholder="Seleccionar producto..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="placeholder" className="text-neutral-400 italic">
+                        <SelectItem
+                          value="placeholder"
+                          className="text-neutral-400 italic"
+                        >
                           Seleccionar producto...
                         </SelectItem>
                         <SelectGroup>
                           <SelectLabel>Cervezas</SelectLabel>
                           {beerOptions.map((item) => (
-                            <SelectItem key={item.id} value={String(item.id)}>{item.name}</SelectItem>
+                            <SelectItem key={item.id} value={String(item.id)}>
+                              {item.name}
+                            </SelectItem>
                           ))}
                         </SelectGroup>
                         <SelectGroup>
                           <SelectLabel>Productos</SelectLabel>
                           {productOptions.map((item) => (
-                            <SelectItem key={item.id} value={String(item.id)}>{item.name}</SelectItem>
+                            <SelectItem key={item.id} value={String(item.id)}>
+                              {item.name}
+                            </SelectItem>
                           ))}
                         </SelectGroup>
                       </SelectContent>
@@ -135,34 +174,33 @@ export function ProductionForm({
                 )}
               />
 
-              <Controller
-                name="bom_id"
-                control={control}
-                render={({ field }) => (
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-medium text-neutral-600">Receta / BOM</label>
-                    <Select value={field.value !== undefined ? String(field.value) : "placeholder"} disabled={true}>
-                      <SelectTrigger className="h-9 text-xs px-3 bg-neutral-50 border-neutral-200 text-neutral-500 cursor-not-allowed">
-                        <SelectValue>
-                          {bomLoading 
-                            ? "Cargando receta..." 
-                            : selectedBom 
-                              ? `Receta v${selectedBom.version || 1} (#${selectedBom.id})` 
-                              : isItemSelected 
-                                ? "⚠️ Este producto no tiene receta" 
-                                : "Automática por producto"
-                          }
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="placeholder" className="text-neutral-400 italic">
-                          Automática por producto
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-neutral-600">
+                  Receta
+                </label>
+
+                {bomLoading ? (
+                  <div className="h-9 flex items-center px-3 text-xs bg-neutral-50 border border-neutral-200 rounded-md text-neutral-400 italic animate-pulse">
+                    Cargando receta...
+                  </div>
+                ) : selectedBom ? (
+                  <div className="h-9 flex items-center justify-between px-3 text-xs bg-emerald-50/60 border border-emerald-200 rounded-md text-emerald-800 font-medium">
+                    <span>Versión {selectedBom.version || 1}</span>
+                    <span className="text-neutral-500 font-normal bg-white px-2 py-0.5 rounded border border-neutral-200/60 shadow-sm text-[11px]">
+                      Base: {formatDecimal(selectedBom.quantity)}{" "}
+                      {selectedBom.uom || ""}
+                    </span>
+                  </div>
+                ) : isItemSelected ? (
+                  <div className="h-9 flex items-center px-3 text-xs bg-red-50 border border-red-200 rounded-md text-red-600 font-medium">
+                    ⚠️ Este producto no tiene receta activa
+                  </div>
+                ) : (
+                  <div className="h-9 flex items-center px-3 text-xs bg-neutral-50 border border-neutral-200/80 rounded-md text-neutral-400 italic">
+                    Automática por producto
                   </div>
                 )}
-              />
+              </div>
             </div>
           </div>
 
@@ -178,28 +216,41 @@ export function ProductionForm({
                   control={control}
                   render={({ field }) => (
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs font-medium text-neutral-600">Cant. a producir</label>
-                      <Input 
-                        {...field} 
-                        type="number" 
-                        className="h-9 text-xs px-3" 
+                      <label className="text-xs font-medium text-neutral-600">
+                        Cant. a producir
+                      </label>
+                      <Input
+                        {...field}
+                        type="number"
+                        className="h-9 text-xs px-3"
                         disabled={!hasValidRecipe} // Bloqueado si no hay receta válida
                       />
                     </div>
                   )}
                 />
-                <Controller
+               <Controller
                   name="schedule_date"
                   control={control}
                   render={({ field }) => (
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs font-medium text-neutral-600">Fecha programada</label>
-                      <Input 
-                        {...field} 
-                        type="date" 
-                        className="h-9 text-xs px-3" 
-                        disabled={!hasValidRecipe} // Bloqueado si no hay receta válida
+                      <label className="text-xs font-medium text-neutral-600">
+                        Fecha programada
+                      </label>
+                      <Input
+                        {...field}
+                        type="date"
+                        // Agrega borde rojo si falla la validación
+                        className={`h-9 text-xs px-3 ${
+                          errors.schedule_date ? "border-red-500 focus-visible:ring-red-500" : ""
+                        }`}
+                        disabled={!hasValidRecipe}
                       />
+                      
+                      {errors.schedule_date && (
+                        <p className="text-[10px] text-red-500 font-medium mt-0.5 animate-fadeIn">
+                          {errors.schedule_date.message}
+                        </p>
+                      )}
                     </div>
                   )}
                 />
@@ -212,11 +263,12 @@ export function ProductionForm({
                 control={control}
                 render={({ field }) => (
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs font-medium text-neutral-600">Notas de planta</label>
-                    <Textarea 
-                      {...field} 
+                    <label className="text-xs font-medium text-neutral-600">
+                      Notas de producción
+                    </label>
+                    <Textarea
+                      {...field}
                       className="min-h-[50px] text-xs py-1.5 px-3 leading-normal resize-none" 
-                      placeholder="Instrucciones para los operarios..." 
                       disabled={!hasValidRecipe} // Bloqueado si no hay receta válida
                     />
                   </div>
@@ -242,25 +294,45 @@ export function ProductionForm({
               </div>
             ) : !selectedBom ? (
               <div className="h-full min-h-[160px] flex items-center justify-center text-xs text-red-500 font-medium border border-dashed border-red-200 rounded-md bg-red-50/30 p-4 text-center">
-                No se pueden cargar insumos porque el producto no cuenta con una receta registrada.
+                No se pueden cargar insumos porque el producto no cuenta con una
+                receta registrada.
               </div>
             ) : selectedBomLines.length === 0 ? (
-              <div className="p-4 text-xs text-center text-neutral-400">Esta receta no contiene insumos.</div>
+              <div className="p-4 text-xs text-center text-neutral-400">
+                Esta receta no contiene insumos.
+              </div>
             ) : (
               <Table>
                 <TableHeader className="bg-neutral-50 sticky top-0 z-10">
                   <TableRow className="hover:bg-transparent border-b border-neutral-200">
-                    <TableHead className="h-6 text-[10px] uppercase font-bold p-1 text-neutral-500">Insumo</TableHead>
-                    <TableHead className="h-6 text-[10px] uppercase font-bold text-right p-1 text-neutral-500">Cant.</TableHead>
-                    <TableHead className="h-6 text-[10px] uppercase font-bold text-right p-1 text-neutral-500">UOM</TableHead>
+                    <TableHead className="h-6 text-[10px] uppercase font-bold p-1 text-neutral-500">
+                      Insumo
+                    </TableHead>
+                    <TableHead className="h-6 text-[10px] uppercase font-bold text-right p-1 text-neutral-500">
+                      Cant.
+                    </TableHead>
+                    <TableHead className="h-6 text-[10px] uppercase font-bold text-right p-1 text-neutral-500">
+                      Unidad
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {selectedBomLines.map((line) => (
-                    <TableRow key={line.id} className="border-b border-neutral-100 hover:bg-neutral-50/80">
-                      <TableCell className="p-1 py-1.5 text-xs truncate max-w-[80px]">#{line.component_item_id}</TableCell>
-                      <TableCell className="p-1 py-1.5 text-xs text-right font-medium">{formatDecimal(line.quantity)}</TableCell>
-                      <TableCell className="p-1 py-1.5 text-xs text-right text-neutral-400">{line.uom ?? "-"}</TableCell>
+                  {selectedBomLines.map((line, index) => (
+                    // Usamos el index o line.id como key segura
+                    <TableRow
+                      key={line.id || index}
+                      className="border-b border-neutral-100 hover:bg-neutral-50/80"
+                    >
+                      {/* Mostramos el 'name' que viene del backend, o el ID si no existiera */}
+                      <TableCell className="p-1 py-1.5 text-xs truncate max-w-[120px] font-medium">
+                        {line.name || `#${line.component_item_id}`}
+                      </TableCell>
+                      <TableCell className="p-1 py-1.5 text-xs text-right font-medium">
+                        {formatDecimal(line.quantity)}
+                      </TableCell>
+                      <TableCell className="p-1 py-1.5 text-xs text-right text-neutral-400">
+                        {line.uom ?? "-"}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -273,12 +345,24 @@ export function ProductionForm({
       {/* Footer del Formulario */}
       <div className="flex justify-end gap-2 pt-3 border-t border-neutral-100">
         {onCancel && (
-          <Button type="button" size="sm" variant="outline" onClick={onCancel} disabled={isSubmitting} className="h-8 text-xs px-3.5">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+            className="h-8 text-xs px-3.5"
+          >
             {cancelLabel}
           </Button>
         )}
         {/* El botón de crear se bloquea por completo si no hay una receta válida cargada */}
-        <Button size="sm" type="submit" disabled={isSubmitting || !hasValidRecipe} className="h-8 text-xs px-3.5">
+        <Button
+          size="sm"
+          type="submit"
+          disabled={isSubmitting || !hasValidRecipe}
+          className="h-8 text-xs px-3.5"
+        >
           {isSubmitting ? "Creando..." : submitLabel}
         </Button>
       </div>
