@@ -31,6 +31,18 @@ class ProductionOrderResponseSchema(BaseModel):
     class Config:
         from_attributes = True
 
+class ProductionOrderListResponseSchema(BaseModel):
+    id: int
+    item_name: str
+    bom_version: str
+    planned_quantity: Decimal
+    base_uom_symbol: str
+    schedule_date: datetime
+    status: str
+
+    class Config:
+        from_attributes = True
+
 class CompleteProductionOrderRequestSchema(BaseModel):
     """
     Schema para completar una orden de producción.
