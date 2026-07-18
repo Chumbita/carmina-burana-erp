@@ -58,5 +58,6 @@ export const ENDPOINTS = {
   // Items
   ITEMS: {
     GET_MANUFACTURABLE: "/items/manufacturable-items",
+    GET_ITEM_BOM: (item_id) => `/items/${item_id}/bom`,
   },
 };
