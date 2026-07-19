@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createProductionSchema } from "../schemas/production.schema";
@@ -47,7 +47,12 @@ export function ProductionForm({
 }) {
   const schema = createProductionSchema();
 
-  const { handleSubmit, control, setValue, formState: { errors } } = useForm({
+  const {
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       item_id: defaultValues?.item_id ?? undefined,
@@ -64,15 +69,16 @@ export function ProductionForm({
     selectedItemId !== undefined && selectedItemId !== null;
 
   const plannedQuantity = useWatch({ control, name: "planned_quantity" }) || 0;
+
   const selectedBomLines = useMemo(() => {
     const lines = selectedBom?.lines || [];
     const bomBaseQuantity = Number(selectedBom?.quantity || 1);
 
     if (bomBaseQuantity <= 0) return lines;
     const scale = Number(plannedQuantity) / bomBaseQuantity;
-    return lines.map(line => ({
+    return lines.map((line) => ({
       ...line,
-      quantity: Number(line.quantity || 0) * scale
+      quantity: Number(line.quantity || 0) * scale,
     }));
   }, [selectedBom, plannedQuantity]);
 
@@ -95,7 +101,7 @@ export function ProductionForm({
     }
   };
 
-  useMemo(() => {
+  useEffect(() => {
     if (selectedBom?.id) {
       setValue("bom_id", Number(selectedBom.id), { shouldValidate: true });
       setValue("planned_quantity", Number(selectedBom.quantity || 0), {
@@ -106,7 +112,6 @@ export function ProductionForm({
       setValue("planned_quantity", 0, { shouldValidate: true });
     }
   }, [selectedBom, setValue]);
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -114,7 +119,6 @@ export function ProductionForm({
     >
       {/* Grid Principal */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
-        {/* COLUMNA IZQUIERDA: Formulario de Entrada */}
         <div className="md:col-span-2 space-y-4 flex flex-col justify-between">
           {/* Bloque 1: Datos principales */}
           <div className="space-y-3 border border-neutral-200 rounded-lg p-3.5 bg-white shadow-sm">
@@ -223,12 +227,17 @@ export function ProductionForm({
                         {...field}
                         type="number"
                         className="h-9 text-xs px-3"
-                        disabled={!hasValidRecipe} // Bloqueado si no hay receta válida
+                        disabled={!hasValidRecipe}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value === "" ? 0 : Number(e.target.value),
+                          )
+                        }
                       />
                     </div>
                   )}
                 />
-               <Controller
+                <Controller
                   name="schedule_date"
                   control={control}
                   render={({ field }) => (
@@ -239,13 +248,14 @@ export function ProductionForm({
                       <Input
                         {...field}
                         type="date"
-                        // Agrega borde rojo si falla la validación
                         className={`h-9 text-xs px-3 ${
-                          errors.schedule_date ? "border-red-500 focus-visible:ring-red-500" : ""
+                          errors.schedule_date
+                            ? "border-red-500 focus-visible:ring-red-500"
+                            : ""
                         }`}
                         disabled={!hasValidRecipe}
                       />
-                      
+
                       {errors.schedule_date && (
                         <p className="text-[10px] text-red-500 font-medium mt-0.5 animate-fadeIn">
                           {errors.schedule_date.message}
@@ -268,8 +278,8 @@ export function ProductionForm({
                     </label>
                     <Textarea
                       {...field}
-                      className="min-h-[50px] text-xs py-1.5 px-3 leading-normal resize-none" 
-                      disabled={!hasValidRecipe} // Bloqueado si no hay receta válida
+                      className="min-h-[50px] text-xs py-1.5 px-3 leading-normal resize-none"
+                      disabled={!hasValidRecipe}
                     />
                   </div>
                 )}
@@ -318,12 +328,10 @@ export function ProductionForm({
                 </TableHeader>
                 <TableBody>
                   {selectedBomLines.map((line, index) => (
-                    // Usamos el index o line.id como key segura
                     <TableRow
                       key={line.id || index}
                       className="border-b border-neutral-100 hover:bg-neutral-50/80"
                     >
-                      {/* Mostramos el 'name' que viene del backend, o el ID si no existiera */}
                       <TableCell className="p-1 py-1.5 text-xs truncate max-w-[120px] font-medium">
                         {line.name || `#${line.component_item_id}`}
                       </TableCell>
@@ -356,7 +364,6 @@ export function ProductionForm({
             {cancelLabel}
           </Button>
         )}
-        {/* El botón de crear se bloquea por completo si no hay una receta válida cargada */}
         <Button
           size="sm"
           type="submit"
