@@ -54,6 +54,10 @@ export const ENDPOINTS = {
   // Production Orders
   PRODUCTION_ORDERS: {
     CREATE: "/production-orders",
+    GET_INCOMPLETE: "/production-orders/incomplete",
+    RELEASE: (order_id) => `/production-orders/${order_id}/release`,
+    START: (order_id) => `/production-orders/${order_id}/start`,
+    COMPLETE: (order_id) => `/production-orders/${order_id}/complete`,
   },
   // Items
   ITEMS: {
