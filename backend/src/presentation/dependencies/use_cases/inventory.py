@@ -22,7 +22,7 @@ def get_list_item_transactions_use_case(
 
 def build_get_lots_by_item(
     session: AsyncSession = Depends(get_db),
-) -> GetLotsByItemUseCase:
+) -> "GetLotsByItemUseCase":
     from src.application.use_cases.inventory.get_lots_by_item import GetLotsByItemUseCase
 
     lot_repo = InventoryLotRepository(session)
