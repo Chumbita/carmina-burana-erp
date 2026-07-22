@@ -1,7 +1,7 @@
 """add bom and bom_line tables
 
 Revision ID: 35312fa99b28
-Revises: a606a4ebf4f7
+Revises: b8e7ddcfbe16
 Create Date: 2026-06-25 17:25:18.925464
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '35312fa99b28'
-down_revision: Union[str, Sequence[str], None] = 'a606a4ebf4f7'
+down_revision: Union[str, Sequence[str], None] = 'b8e7ddcfbe16'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

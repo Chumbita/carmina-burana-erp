@@ -1,7 +1,7 @@
 """add canceled_at to supply_entry_order
 
 Revision ID: 6f7a3b2c1d0e
-Revises: c02f140f8d9c
+Revises: f1a2b3c4d5e6
 Create Date: 2026-07-01 16:20:00.000000
 
 """
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 revision: str = "6f7a3b2c1d0e"
-down_revision: Union[str, Sequence[str], None] = 'a606a4ebf4f7'
+down_revision: Union[str, Sequence[str], None] = 'f1a2b3c4d5e6'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
