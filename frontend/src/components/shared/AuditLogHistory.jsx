@@ -45,41 +45,14 @@ function formatDate(dateStr) {
   })
 }
 
-function formatChanges(oldData, newData, action, brandMap, uomMap) {
+function getChangedKeys(oldData, newData, action) {
   if (action === "CREATED" && !oldData) {
-    const keyFields = ["name", "brand_id", "base_uom_id", "min_stock_level"]
-    const items = keyFields
-      .filter(key => key in (newData || {}))
-      .map(key => (
-        <div key={key}>
-          <span>{label(key)}:</span>{" "}
-          {resolveValue(key, newData[key], brandMap, uomMap)}
-        </div>
-      ))
-    return items.length > 0
-      ? <div className="space-y-1">{items}</div>
-      : "Item creado"
+    return ["name", "brand_id", "base_uom_id", "min_stock_level"].filter(k => k in (newData || {}))
   }
-
   if (action === "UPDATED" && oldData && newData) {
-    const changedKeys = Object.keys(newData).filter(
-      key => oldData[key] !== newData[key]
-    )
-    if (changedKeys.length === 0) return "Sin cambios detectados"
-    const items = changedKeys.map(key => {
-      const oldVal = resolveValue(key, oldData[key], brandMap, uomMap)
-      const newVal = resolveValue(key, newData[key], brandMap, uomMap)
-      return (
-        <div key={key}>
-          <span>{label(key)}:</span>{" "}
-          {oldVal} <span className="text-muted-foreground">→</span> {newVal}
-        </div>
-      )
-    })
-    return <div className="space-y-1">{items}</div>
+    return Object.keys(newData).filter(k => oldData[k] !== newData[k])
   }
-
-  return "-"
+  return []
 }
 
 export function AuditLogHistory({ entityType, entityId, refreshKey }) {
@@ -106,7 +79,7 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
     }).catch(() => {})
   }, []);
 
-  const columns = [
+  const columns = React.useMemo(() => [
     {
       accessor: "action",
       header: "Acción",
@@ -117,21 +90,52 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
       ),
     },
     {
-      accessor: "old_data",
+      accessor: "action",
       header: "Cambios",
-      render: (value, row) => formatChanges(row.old_data, row.new_data, row.action, brandMap, uomMap),
+      render: (_, row) => {
+        const keys = getChangedKeys(row.old_data, row.new_data, row.action)
+        if (keys.length === 0) return row.action === "CREATED" ? "Item creado" : "Sin cambios"
+        return <div className="space-y-1">{keys.map(k => <div key={k}>{label(k)}</div>)}</div>
+      },
     },
     {
-      accessor: "user_id",
-      header: "Usuario",
-      render: (value) => value ? `Usuario #${value}` : "Sistema",
+      accessor: "old_data",
+      header: "Antes",
+      render: (value, row) => {
+        const keys = getChangedKeys(row.old_data, row.new_data, row.action)
+        if (keys.length === 0) return "—"
+        return (
+          <div className="space-y-1">
+            {keys.map(k => (
+              <div key={k} className="text-muted-foreground tabular-nums">
+                {row.action === "CREATED" ? "—" : resolveValue(k, row.old_data?.[k], brandMap, uomMap)}
+              </div>
+            ))}
+          </div>
+        )
+      },
+    },
+    {
+      accessor: "new_data",
+      header: "Después",
+      render: (value, row) => {
+        const keys = getChangedKeys(row.old_data, row.new_data, row.action)
+        if (keys.length === 0) return "—"
+        return (
+          <div className="space-y-1">
+            {keys.map(k => (
+              <div key={k} className="tabular-nums">{resolveValue(k, row.new_data?.[k], brandMap, uomMap)}</div>
+            ))}
+          </div>
+        )
+      },
     },
     {
       accessor: "created_at",
       header: "Fecha",
       render: (value) => formatDate(value),
     },
-  ]
+  ], [brandMap, uomMap])
 
   if (isLoading) {
     return <p className="text-sm text-muted-foreground">Cargando historial...</p>
