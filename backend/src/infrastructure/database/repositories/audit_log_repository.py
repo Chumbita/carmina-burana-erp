@@ -13,7 +13,7 @@ class AuditLogRepository:
     def __init__(self, session: AsyncSession):
         self._session = session
 
-    async def save(self, audit_log: AuditLog) -> AuditLog:
+    async def add(self, audit_log: AuditLog) -> AuditLog:
         db_model = AuditLogModel(
             user_id=audit_log.user_id,
             entity_type=audit_log.entity_type,
