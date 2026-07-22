@@ -4,12 +4,15 @@
 
 from datetime import datetime, timezone
 
+from typing import Optional
+
 from src.application.interfaces.specialized_item_creator_port import SpecializedItemCreatorPort
 from src.application.dtos.items.item_commands_dtos import CreateItemCommand
 from src.application.dtos.items.item_responses_dtos import ItemResponse
 from src.domain.entities.item import Item
 from src.domain.repositories.item_repository import IItemRepostory
 from src.domain.exceptions.item_exceptions import SpecializedItemCreationException
+from src.domain.services.audit_log_service import AuditLogService
 
 class CreateItemUseCase:
     """ 
@@ -32,11 +35,13 @@ class CreateItemUseCase:
         self,
         item_repository: IItemRepostory,
         specialized_creator: SpecializedItemCreatorPort,
+        audit_log_service: Optional[AuditLogService] = None,
     ) -> None:
         self._item_repository = item_repository
         self._specialized_creator = specialized_creator
+        self._audit_log_service = audit_log_service
 
-    async def execute(self, command: CreateItemCommand) -> ItemResponse:
+    async def execute(self, command: CreateItemCommand, user_id: int | None = None) -> ItemResponse:
         # Paso 1: Construir entidad
         item = Item(
             name=command.name.strip(),
@@ -63,5 +68,25 @@ class CreateItemUseCase:
             raise
         except Exception as exc:
             raise SpecializedItemCreationException(str(exc)) from exc
+
+        # Paso 4: Registrar log de auditoría
+        if self._audit_log_service is not None:
+            await self._audit_log_service.log_item_create(
+                entity_id=saved_item.id,
+                new_data={
+                    "name": saved_item.name,
+                    "item_type_id": saved_item.item_type_id,
+                    "brand_id": saved_item.brand_id,
+                    "base_uom_id": saved_item.base_uom_id,
+                    "is_stockable": saved_item.is_stockable,
+                    "is_batch_tracked": saved_item.is_batch_tracked,
+                    "min_stock_level": float(saved_item.min_stock_level) if saved_item.min_stock_level else None,
+                    "is_manufacturable": saved_item.is_manufacturable,
+                    "is_purchasable": saved_item.is_purchasable,
+                    "is_sellable": saved_item.is_sellable,
+                    "status": saved_item.status.value if hasattr(saved_item.status, 'value') else str(saved_item.status),
+                },
+                user_id=user_id,
+            )
 
         return ItemResponse.from_entity(saved_item)
