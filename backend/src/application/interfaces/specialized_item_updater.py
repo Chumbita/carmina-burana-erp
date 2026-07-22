@@ -15,9 +15,11 @@ class SpecializedItemUpdater(ABC):
         self, 
         item_id: int, 
         specialized_data: Optional[Dict[str,Any]]
-    ) -> None:
+    ) -> Optional[Dict[str, Any]]:
         """ 
         Actualiza el registro especializado asociado al ítem.
+        Retorna un dict con los valores ANTIGUOS de los campos modificados,
+        o None si no hubo cambios.
  
         Parámetros:
             item_id : ID del ítem base. Usar como FK para ubicar el registro especializado.

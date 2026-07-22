@@ -35,7 +35,7 @@ export default function SupplyDetailPage() {
       <EntityDetailPage.Content>
         <SupplyDetailTabs insumo={supply} base_uom_symbol={supply?.base_uom_symbol} availableSupplies={supplies} />
       </EntityDetailPage.Content>
-      <EntityDetailPage.History itemId={supply?.id} entityType="input" />
+      <EntityDetailPage.History itemId={supply?.id} entityType="supply" />
     </EntityDetailPage>
   );
 }

@@ -6,6 +6,8 @@ from src.infrastructure.database.deps import get_db
 from src.infrastructure.database.repositories.supply_repository import SupplyRepository
 from src.infrastructure.database.repositories.item_repository import ItemRepository
 from src.infrastructure.database.repositories.audit_log_repository import AuditLogRepository
+from src.infrastructure.database.repositories.brand_repository import BrandRepository
+from src.infrastructure.database.repositories.uom_repository import UomRepository
 
 from src.application.use_cases.supply.create_supply import SupplyItemCreator
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
@@ -31,14 +33,16 @@ def _build_audit_log_service(session: AsyncSession) -> AuditLogService:
 def get_create_supply_use_case(
     session: AsyncSession = Depends(get_db),
 ) -> CreateItemUseCase:
-    """
-    Fábrica que instancia CreateItemUseCase con el creator específico de supply.
-    """
     item_repository = ItemRepository(session)
     supply_repository = SupplyRepository(session)
     supply_creator = SupplyItemCreator(supply_repository)
     audit_log_service = _build_audit_log_service(session)
-    return CreateItemUseCase(item_repository, supply_creator, audit_log_service)
+    brand_repository = BrandRepository(session)
+    uom_repository = UomRepository(session)
+    return CreateItemUseCase(
+        item_repository, supply_creator, audit_log_service,
+        brand_repository, uom_repository,
+    )
 
 
 def get_supply_repository(
@@ -55,7 +59,12 @@ def get_update_supply_use_case(
     supply_repository = SupplyRepository(session)
     supply_updater = SupplyItemUpdater(supply_repository)
     audit_log_service = _build_audit_log_service(session)
-    update_item_use_case = UpdateItemUseCase(item_repository, supply_updater, audit_log_service)
+    brand_repository = BrandRepository(session)
+    uom_repository = UomRepository(session)
+    update_item_use_case = UpdateItemUseCase(
+        item_repository, supply_updater, audit_log_service,
+        brand_repository, uom_repository,
+    )
     return UpdateSupplyUseCase(update_item_use_case, supply_repository)
 
 
