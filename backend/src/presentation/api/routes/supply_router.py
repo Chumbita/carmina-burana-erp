@@ -97,7 +97,7 @@ async def create_supply(
         },
     )
 
-    item_result = await use_case.execute(command)
+    item_result = await use_case.execute(command, user_id=current_user.id)
     supply = await supply_repository.get_by_item_id(item_result.id)
 
     return SupplyResponseSchema(
@@ -190,7 +190,7 @@ async def update_supply(
         is_sellable=body.is_sellable,
         specialized_data={"supply_category": body.supply_category.value} if body.supply_category else None,
     )
-    return await use_case.execute(command)
+    return await use_case.execute(command, user_id=current_user.id)
 
 
 
