@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { TabSupply } from './TabSupply'
 
-//componentes shadcn
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs'
 
 export function SupplyDetailTabs({ insumo, onSupplyUpdated, availableSupplies = [] }) {

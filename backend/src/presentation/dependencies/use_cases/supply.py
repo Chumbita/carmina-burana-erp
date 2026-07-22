@@ -18,6 +18,8 @@ from src.application.use_cases.supply.read_supply import (
     ListActiveSuppliesUseCase,
 )
 
+from src.application.use_cases.item.delete_item import DeleteItemUseCase
+
 def get_create_supply_use_case(
     session: AsyncSession = Depends(get_db),
 ) -> CreateItemUseCase:
@@ -65,8 +67,7 @@ def get_item_repository(
     return ItemRepository(session)
 
 
-def get_delete_supply_use_case(
-    supply_repository: SupplyRepository = Depends(get_supply_repository),
-) -> "DeleteSupplyUseCase":
-    from src.application.use_cases.supply.delete_supply import DeleteSupplyUseCase
-    return DeleteSupplyUseCase(supply_repository)
+def get_delete_item_use_case(
+    item_repository: ItemRepository = Depends(get_item_repository),
+) -> DeleteItemUseCase:
+    return DeleteItemUseCase(item_repository)

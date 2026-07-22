@@ -19,6 +19,7 @@ from src.infrastructure.database.models.supply_entry_line_model import SupplyEnt
 from src.infrastructure.database.models.inventory_lot_model import InventoryLotModel
 from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
 from src.infrastructure.database.models.inventory_transaction_model import InventoryTransactionModel
+from src.infrastructure.database.models.packaging_supply_model import PackagingSupplyModel
 from src.infrastructure.database.models.bom_model import BomModel
 from src.infrastructure.database.models.bom_line_model import BomLineModel
 

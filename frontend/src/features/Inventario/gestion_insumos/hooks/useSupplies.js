@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { supplyService } from "../services/supplyService"
+import { packagingSupplyService } from "../services/packagingSupplyService"
 
 export function useSupplies() {
   const [supplies, setSupplies] = useState([])
@@ -32,6 +33,17 @@ export function useSupplies() {
     }
   }
 
+  async function createPackagingSupply(packagingSupplyData) {
+    try {
+      const newPackagingSupply = await packagingSupplyService.create(packagingSupplyData)
+      await getSupplies()
+      return newPackagingSupply
+    } catch (err) {
+      setError(err)
+      throw err
+    }
+  }
+
   async function updateSupply(id, data) {
     try {
       const updated = await supplyService.patch(id, data)
@@ -45,8 +57,9 @@ export function useSupplies() {
 
   async function deleteSupply(id) {
     try {
-      await supplyService.delete(id)
+      const result = await supplyService.delete(id)
       await getSupplies()
+      return result
     } catch (err) {
       setError(err)
       throw err
@@ -59,6 +72,7 @@ export function useSupplies() {
     error,
     getSupplies,
     createSupply,
+    createPackagingSupply,
     updateSupply,
     deleteSupply,
   }
