@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from typing import List
 
 from src.application.use_cases.supply.read_supply import GetActiveSupplyDetailUseCase, ListActiveSuppliesUseCase
@@ -19,6 +19,11 @@ from src.application.use_cases.supply.delete_supply import DeleteSupplyUseCase
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
 from src.application.use_cases.supply.update_supply import UpdateSupplyUseCase
 
+from src.application.use_cases.inventory.get_lots_by_item import GetLotsByItemUseCase
+from src.domain.value_objects.lot_status import LotStatus
+from src.presentation.dependencies.use_cases.inventory import build_get_lots_by_item
+from src.presentation.schemas.lot_schema import LotResponse
+
 from src.presentation.schemas.supply_schemas import (
     CreateSupplyRequestSchema,
     SupplyDetailResponseSchema,
@@ -32,7 +37,7 @@ from src.presentation.dependencies.use_cases.supply import (
     get_list_active_supplies_use_case,
     get_supply_repository,
     get_delete_supply_use_case,
-    get_update_supply_use_case
+    get_update_supply_use_case,
 )
 from src.presentation.dependencies.auth import get_current_user
 
@@ -92,7 +97,7 @@ async def create_supply(
         },
     )
 
-    item_result = await use_case.execute(command)
+    item_result = await use_case.execute(command, user_id=current_user.id)
     supply = await supply_repository.get_by_item_id(item_result.id)
 
     return SupplyResponseSchema(
@@ -144,6 +149,24 @@ async def delete_supply(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exc),
         ) from exc
+
+@router.get(
+    "/{item_id}/lots",
+    response_model=List[LotResponse],
+    summary="Listar lotes de un insumo",
+)
+async def get_supply_lots(
+    item_id: int,
+    status: list[LotStatus] | None = Query(default=None),
+    use_case: GetLotsByItemUseCase = Depends(build_get_lots_by_item),
+    #current_user: User = Depends(get_current_user),
+) -> list[LotResponse]:
+    return await use_case.execute(
+        item_id,
+        status=set(status) if status else None,
+    )
+
+
 @router.patch(
     "/{supply_id}",
     status_code=status.HTTP_200_OK,
@@ -167,4 +190,7 @@ async def update_supply(
         is_sellable=body.is_sellable,
         specialized_data={"supply_category": body.supply_category.value} if body.supply_category else None,
     )
-    return await use_case.execute(command)
+    return await use_case.execute(command, user_id=current_user.id)
+
+
+

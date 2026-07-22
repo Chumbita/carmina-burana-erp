@@ -6,11 +6,12 @@ from datetime import datetime, timezone
 from typing import Any, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import func, select
+from sqlalchemy import func, select, and_, or_
 
 from src.domain.entities.supply import Supply
 from src.domain.repositories.supply_repository import ISupplyRepository
 from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
+from src.infrastructure.database.models.inventory_lot_model import InventoryLotModel
 from src.infrastructure.database.models.brand_model import BrandModel
 from src.infrastructure.database.models.item_model import ItemModel
 from src.infrastructure.database.models.item_type_model import ItemTypeModel
@@ -87,12 +88,24 @@ class SupplyRepository(ISupplyRepository):
         return self._to_entity(model) if model else None
 
     async def list_active_supplies_general(self) -> list[dict[str, Any]]:
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+
         balance_totals = (
             select(
                 InventoryBalanceModel.item_id.label("item_id"),
                 func.sum(InventoryBalanceModel.quantity).label("stock_total"),
             )
-            .where(InventoryBalanceModel.quantity > 0)
+            .join(
+                InventoryLotModel,
+                InventoryLotModel.id == InventoryBalanceModel.lot_id,
+            )
+            .where(
+                InventoryBalanceModel.quantity > 0,
+                or_(
+                    InventoryLotModel.expiration_date.is_(None),
+                    InventoryLotModel.expiration_date >= now,
+                ),
+            )
             .group_by(InventoryBalanceModel.item_id)
             .subquery()
         )
@@ -132,11 +145,21 @@ class SupplyRepository(ISupplyRepository):
         ]
 
     async def get_active_supply_detail(self, item_id: int) -> Optional[dict[str, Any]]:
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+
         stock_total_subquery = (
             select(func.sum(InventoryBalanceModel.quantity))
+            .join(
+                InventoryLotModel,
+                InventoryLotModel.id == InventoryBalanceModel.lot_id,
+            )
             .where(
                 InventoryBalanceModel.item_id == item_id,
                 InventoryBalanceModel.quantity > 0,
+                or_(
+                    InventoryLotModel.expiration_date.is_(None),
+                    InventoryLotModel.expiration_date >= now,
+                ),
             )
             .scalar_subquery()
         )
@@ -181,12 +204,18 @@ class SupplyRepository(ISupplyRepository):
         }
 
     async def has_stock(self, item_id: int) -> bool:
-        """Retorna True si el insumo tiene stock disponible (quantity > 0)."""
+        """Retorna True si el insumo tiene stock disponible (quantity > 0, excluyendo lotes vencidos)."""
         from sqlalchemy import exists as sa_exists
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         stmt = select(
             sa_exists().where(
                 InventoryBalanceModel.item_id == item_id,
                 InventoryBalanceModel.quantity > 0,
+                InventoryBalanceModel.lot_id == InventoryLotModel.id,
+                or_(
+                    InventoryLotModel.expiration_date.is_(None),
+                    InventoryLotModel.expiration_date >= now,
+                ),
             )
         )
         result = await self._session.execute(stmt)

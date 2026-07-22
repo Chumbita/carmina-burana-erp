@@ -47,6 +47,12 @@ class UomRepository(IUomRepository):
         return self._to_entity(model) if model else None
 
 
+    async def get_symbol_by_id(self, uom_id: int) -> Optional[str]:
+        stmt = select(UomModel.symbol).where(UomModel.id == uom_id)
+        result = await self._session.execute(stmt)
+        row = result.scalar_one_or_none()
+        return row
+
     async def list_options(self) -> List[UomOption]:
         """
         Obtiene todas las unidades de medidas para poblar de información

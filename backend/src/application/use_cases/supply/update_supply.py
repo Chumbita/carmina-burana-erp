@@ -18,8 +18,8 @@ class UpdateSupplyUseCase:
         self._update_item_use_case = update_item_use_case
         self._supply_repository = supply_repository
 
-    async def execute(self, command: UpdateItemCommand) -> dict:
-        await self._update_item_use_case.execute(command)
+    async def execute(self, command: UpdateItemCommand, user_id: int | None = None) -> dict:
+        await self._update_item_use_case.execute(command, user_id=user_id)
 
         row = await self._supply_repository.get_active_supply_detail(command.item_id)
         if row is None:

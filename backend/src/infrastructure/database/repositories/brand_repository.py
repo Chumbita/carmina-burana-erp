@@ -44,6 +44,12 @@ class BrandRepository(IBrandRepository):
 
     # ── Queries ─────────────────────────────────────────────────────
 
+    async def get_by_id(self, brand_id: int) -> Optional[Brand]:
+        stmt = select(BrandModel).where(BrandModel.id == brand_id)
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+        return self._to_entity(model) if model else None
+
     async def get_all(self) -> List[Brand]:
         """
         Obtiene un listado de todas las marcas registradas.
