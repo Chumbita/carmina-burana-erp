@@ -150,7 +150,6 @@ async def delete_supply(
             detail=str(exc),
         ) from exc
 
-<<<<<<< HEAD
 @router.get(
     "/{item_id}/lots",
     response_model=List[LotResponse],
@@ -167,8 +166,6 @@ async def get_supply_lots(
         status=set(status) if status else None,
     )
 
-=======
->>>>>>> origin/main
 
 @router.patch(
     "/{supply_id}",
