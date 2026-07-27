@@ -5,7 +5,7 @@ import { createProductionSchema } from "../schemas/production.schema";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/Textarea";
+import { Textarea } from "@/components/ui/TextArea";
 import {
   Select,
   SelectTrigger,
