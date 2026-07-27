@@ -34,6 +34,12 @@ export const ENDPOINTS = {
         DELETE:    (id) => `/supplies/${id}`,
         GET_LOTS:  (item_id) => `/supplies/${item_id}/lots`,
     },
+    PACKAGING_SUPPLIES: {
+        GET_BY_ID: (id) => `/packaging-supplies/${id}`,
+        CREATE:    '/packaging-supplies',
+        PATCH:     (id) => `/packaging-supplies/${id}`,
+        DELETE:    (id) => `/packaging-supplies/${id}`,
+    },
     // Brands
     BRANDS: {
         GET_ALL: '/brands/',

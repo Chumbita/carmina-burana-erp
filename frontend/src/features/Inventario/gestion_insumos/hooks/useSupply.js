@@ -6,22 +6,28 @@ export function useSupply(id) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
+  async function load() {
     if (!id) return
-
-    async function load() {
-      try {
-        const data = await supplyService.getById(id)
-        setSupply(data)
-      } catch (err) {
-        setError(err)
-      } finally {
-        setLoading(false)
-      }
+    try {
+      const data = await supplyService.getById(id)
+      setSupply(data)
+      setError(null)
+    } catch (err) {
+      setError(err)
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     load()
   }, [id])
 
-  return { supply, loading, error }
+  async function updateSupply(data) {
+    const updated = await supplyService.update(id, data)
+    setSupply(updated)
+    return updated
+  }
+
+  return { supply, loading, error, updateSupply, refetch: load }
 }

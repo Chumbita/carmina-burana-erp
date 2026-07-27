@@ -9,6 +9,7 @@ from sqlalchemy import select
 
 from src.domain.entities.item import Item
 from src.infrastructure.database.models.item_model import ItemModel
+from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
 from src.infrastructure.database.models.item_type_model import ItemTypeModel
 from src.infrastructure.database.models.brand_model import BrandModel
 from src.infrastructure.database.models.uom_model import UomModel
@@ -166,6 +167,30 @@ class ItemRepository:
         result = await self.session.execute(stmt)
 
         return [self._to_domain(m) for m in result.scalars().all()]
+
+    async def has_stock(self, item_id: int) -> bool:
+        from sqlalchemy import exists as sa_exists
+        stmt = select(
+            sa_exists().where(
+                InventoryBalanceModel.item_id == item_id,
+                InventoryBalanceModel.quantity > 0,
+            )
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar()
+
+    async def soft_delete(self, item_id: int) -> bool:
+        from datetime import datetime, timezone
+        from sqlalchemy import update
+
+        stmt = (
+            update(ItemModel)
+            .where(ItemModel.id == item_id, ItemModel.status == "ACTIVE")
+            .values(status="DELETED", deleted_at=datetime.now(timezone.utc).replace(tzinfo=None))
+        )
+        result = await self._session.execute(stmt)
+        await self._session.flush()
+        return result.rowcount > 0
 
     async def list_options(self) -> List[ItemOptionResponseDTO]:
         """
