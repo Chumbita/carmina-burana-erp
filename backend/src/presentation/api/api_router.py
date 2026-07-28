@@ -73,3 +73,20 @@ api_router.include_router(packaging_supply_router)
 # ════════════════════════
 from src.presentation.api.routes.item_router import item_router
 api_router.include_router(item_router)
+# ════════════════════════════════
+# BEER ROUTER
+# ════════════════════════════════
+from src.presentation.api.routes.beer_router import router as beer_router
+api_router.include_router(beer_router)
+
+# ════════════════════════════════
+# PRODUCTION ORDER ROUTER
+# ════════════════════════════════
+from src.presentation.api.routes.production_order_router import router as production_order_router
+api_router.include_router(production_order_router)
+
+# ════════════════════════════════
+# ITEM ROUTER
+# ════════════════════════════════
+from src.presentation.api.routes.item_router import router as item_router
+api_router.include_router(item_router)

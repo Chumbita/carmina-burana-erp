@@ -13,10 +13,13 @@ from .inventory_transaction_model import InventoryTransactionModel
 from .packaging_supply_model import PackagingSupplyModel
 from .bom_model import BomModel
 from .bom_line_model import BomLineModel
+from .beer_model import BeerModel
+from .production_order_model import ProductionOrderModel, ProductionConsumptionModel, ProductionOutputModel
 
 __all__ = [
     "UserModel", "ItemModel", "ItemTypeModel", "BrandModel", "UomModel", "SupplyModel",
     "SupplierModel", "SupplyEntryOrderModel", "SupplyEntryLineModel",
     "InventoryLotModel", "InventoryBalanceModel", "InventoryTransactionModel",
     "PackagingSupplyModel", "BomModel", "BomLineModel",
+    "BeerModel","ProductionOrderModel", "ProductionConsumptionModel", "ProductionOutputModel",
 ]
