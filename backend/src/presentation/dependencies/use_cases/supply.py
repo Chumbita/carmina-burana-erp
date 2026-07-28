@@ -89,6 +89,14 @@ def get_item_repository(
     return ItemRepository(session)
 
 
+def get_delete_supply_use_case(
+    supply_repository: SupplyRepository = Depends(get_supply_repository),
+) -> "DeleteSupplyUseCase":
+    from src.application.use_cases.supply.delete_supply import DeleteSupplyUseCase
+    return DeleteSupplyUseCase(supply_repository)
+
+
+
 def get_delete_item_use_case(
     item_repository: ItemRepository = Depends(get_item_repository),
 ) -> DeleteItemUseCase:

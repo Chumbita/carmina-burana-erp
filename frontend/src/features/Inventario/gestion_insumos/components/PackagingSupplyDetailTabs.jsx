@@ -15,6 +15,7 @@ import {
 import { useFormBlocker } from "../hooks/useFormBlocker"
 import { ConfirmNavigationModal } from "./ConfirmNavigationModal"
 import { PackagingSupplyForm } from "./PackagingSupplyForm"
+import { TabLots } from "./TabLots"
 
 export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUpdated, onDeleteSupply, availableSupplies = [] }) {
   const [contentOption, setContentOption] = useState("detalle")
@@ -83,7 +84,7 @@ export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUp
           </div>
         )}
 
-        {contentOption === "lotes" && <p className="mt-4">Contenido de Lotes</p>}
+        {contentOption === "lotes" && <TabLots itemId={packagingSupply?.id} base_uom_symbol={packagingSupply?.base_uom_symbol} />}
       </Tabs>
 
       {blocker.state === "blocked" && (
