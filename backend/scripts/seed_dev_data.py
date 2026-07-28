@@ -32,7 +32,6 @@ SEED_DATA = {
     ],
     "item_types": [
         {"code": "supply"},
-        {"code": "beer"},
     ],
     "uoms": [
         {"name": "Kilogramo", "symbol": "kg", "uom_type": "MASS", "is_base": True, "factor_to_base": None},

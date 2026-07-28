@@ -14,12 +14,7 @@ class IInventoryBalanceRepository(Protocol):
         """
         ...
 
-    async def get_total_available_by_item(self, item_id: int) -> int | float:
-        """
-        Obtiene el stock disponible total para un ítem.
-        """
-        ...
-
+    
     async def save(self, balance: InventoryBalance) -> None:
         """
         Persiste el estado actual de la entidad:

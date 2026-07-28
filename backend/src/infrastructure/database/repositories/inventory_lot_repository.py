@@ -75,7 +75,7 @@ class InventoryLotRepository():
         """ 
         Busca un lote por su ID. Retorna None si no existe.
         """
-        result = await self._session.get(InventoryLotModel, lot_id)
+        result = await self._session.get(InventoryLot, lot_id)
         if result is None:
             return None
         return self._to_entity(result)
@@ -97,18 +97,3 @@ class InventoryLotRepository():
         result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model else None
-    
-    
-    async def get_available_by_item_fefo(self, item_id: int) -> list[InventoryLot]:
-        """
-        Devuelve los lotes disponibles de un ítem ordenados por
-        expiration_date ASC (FEFO). Se usa en la fase de EXECUTION
-        para seleccionar qué lotes consumir primero.
-        """
-        stmt = ( select(InventoryLotModel)
-            .where(InventoryLotModel.item_id == item_id)
-            .order_by(InventoryLotModel.expiration_date.asc())
-        )
-        result = await self._session.execute(stmt)
-        models = result.scalars().all()
-        return [self._to_entity(model) for model in models]

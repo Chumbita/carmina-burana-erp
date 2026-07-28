@@ -57,26 +57,5 @@ export const ENDPOINTS = {
     // ITEMS
     ITEMS: {
       GET_OPTIONS: '/items/options',
-    },
-    // Beers
-    BEERS: {
-      CREATE: "/beers",
-  },
-    // Products
-  PRODUCTS: {
-    GET_ALL: "/products",
-  },
-  // Production Orders
-  PRODUCTION_ORDERS: {
-    CREATE: "/production-orders",
-    GET_INCOMPLETE: "/production-orders/incomplete",
-    RELEASE: (order_id) => `/production-orders/${order_id}/release`,
-    START: (order_id) => `/production-orders/${order_id}/start`,
-    COMPLETE: (order_id) => `/production-orders/${order_id}/complete`,
-  },
-  // Items
-  ITEMS: {
-    GET_MANUFACTURABLE: "/items/manufacturable-items",
-    GET_ITEM_BOM: (item_id) => `/items/${item_id}/bom`,
-  },
-};
+    }
+}
