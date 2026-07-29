@@ -34,4 +34,4 @@ class RecordAuditLogUseCase:
             created_at=datetime.now(tz=timezone.utc),
             user_id=user_id,
         )
-        return await self._audit_log_repo.save(audit_log)
+        return await self._audit_log_repo.add(audit_log)

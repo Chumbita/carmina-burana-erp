@@ -53,10 +53,10 @@ export function PackagingSupplyForm({
       name:             defaultValues?.name             ?? "",
       brand_id:         defaultValues?.brand_id         ?? undefined,
       base_uom_id:      defaultValues?.base_uom_id      ?? undefined,
-      min_stock_level:  defaultValues?.min_stock_level  ?? 1,
+      min_stock_level:  defaultValues?.min_stock_level != null ? Number(defaultValues.min_stock_level) : 1,
       packaging_type:   defaultValues?.packaging_type   ?? "",
       material:         defaultValues?.material         ?? "",
-      capacity_ml:      defaultValues?.capacity_ml      ?? undefined,
+      capacity_ml:      defaultValues?.capacity_ml != null ? Number(defaultValues.capacity_ml) : undefined,
     },
     mode: "onChange",
   })
@@ -178,7 +178,6 @@ export function PackagingSupplyForm({
                   type="number"
                   step="0.01"
                   aria-invalid={fieldState.invalid}
-                  value={field.value != null ? Number(field.value).toFixed(2) : ""}
                   onChange={(event) => {
                     const value = event.target.value
                     field.onChange(value === "" ? undefined : Math.round(parseFloat(value) * 100) / 100)
@@ -201,7 +200,6 @@ export function PackagingSupplyForm({
                   type="number"
                   step="1"
                   aria-invalid={fieldState.invalid}
-                  value={field.value != null ? parseInt(field.value, 10) : ""}
                   onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
                 />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

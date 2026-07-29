@@ -16,9 +16,9 @@ class PackagingSupplyItemUpdater(SpecializedItemUpdater):
         self,
         item_id: int,
         specialized_data: Optional[Dict[str, Any]]
-    ) -> None:
+    ) -> Optional[Dict[str, Any]]:
         if not specialized_data:
-            return
+            return None
 
         try:
             packaging_supply = await self._repository.get_by_item_id(item_id)
@@ -26,21 +26,20 @@ class PackagingSupplyItemUpdater(SpecializedItemUpdater):
             if packaging_supply is None:
                 raise PackagingSupplyNotFoundException(item_id)
 
-            packaging_type = (
-                PackagingType(specialized_data["packaging_type"])
-                if "packaging_type" in specialized_data
-                else None
-            )
-            material = specialized_data.get("material")
-            capacity_ml = specialized_data.get("capacity_ml")
-
-            packaging_supply.update(
-                packaging_type=packaging_type,
-                material=material,
-                capacity_ml=capacity_ml,
-            )
+            old = {}
+            if "packaging_type" in specialized_data:
+                raw = packaging_supply.packaging_type
+                old["packaging_type"] = raw.value if isinstance(raw, PackagingType) else raw
+                packaging_supply.update(packaging_type=PackagingType(specialized_data["packaging_type"]))
+            if "material" in specialized_data:
+                old["material"] = packaging_supply.material
+                packaging_supply.update(material=specialized_data["material"])
+            if "capacity_ml" in specialized_data:
+                old["capacity_ml"] = packaging_supply.capacity_ml
+                packaging_supply.update(capacity_ml=specialized_data["capacity_ml"])
 
             await self._repository.save(packaging_supply)
+            return old
 
         except SpecializedItemUpdateException:
             raise

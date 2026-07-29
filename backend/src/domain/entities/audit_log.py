@@ -5,7 +5,7 @@ from datetime import datetime
 @dataclass(frozen=True)
 class AuditLog:
     id: int
-    entity_type: str    # "input" | "product" | "recipe" | "beer" | ...
+    entity_type: str    # "supply" | "product" | "recipe" | "beer" | ...
     entity_id: int
     action: str         # "CREATED" | "UPDATED"
     old_data: dict | None

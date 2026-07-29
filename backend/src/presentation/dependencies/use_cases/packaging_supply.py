@@ -5,6 +5,9 @@ from fastapi import Depends
 from src.infrastructure.database.deps import get_db
 from src.infrastructure.database.repositories.item_repository import ItemRepository
 from src.infrastructure.database.repositories.packaging_supply_repository import PackagingSupplyRepository
+from src.infrastructure.database.repositories.audit_log_repository import AuditLogRepository
+from src.infrastructure.database.repositories.brand_repository import BrandRepository
+from src.infrastructure.database.repositories.uom_repository import UomRepository
 from src.infrastructure.database.models.item_type_model import ItemTypeModel
 
 from src.application.use_cases.packaging_supply.create_packaging_supply import PackagingSupplyItemCreator
@@ -16,6 +19,14 @@ from src.application.use_cases.packaging_supply.packaging_supply_item_updater im
 from src.application.use_cases.packaging_supply.update_packaging_supply import UpdatePackagingSupplyUseCase
 from src.application.use_cases.item.create_specialized_item import CreateItemUseCase
 from src.application.use_cases.item.update_item_use_case import UpdateItemUseCase
+from src.application.use_cases.audit_logs.record_audit_log import RecordAuditLogUseCase
+from src.domain.services.audit_log_service import AuditLogService
+
+
+def _build_audit_log_service(session: AsyncSession) -> AuditLogService:
+    audit_log_repo = AuditLogRepository(session)
+    record_use_case = RecordAuditLogUseCase(audit_log_repo)
+    return AuditLogService(record_use_case)
 
 
 def get_create_packaging_supply_use_case(
@@ -24,7 +35,13 @@ def get_create_packaging_supply_use_case(
     item_repository = ItemRepository(session)
     ps_repository = PackagingSupplyRepository(session)
     ps_creator = PackagingSupplyItemCreator(ps_repository)
-    return CreateItemUseCase(item_repository, ps_creator)
+    audit_log_service = _build_audit_log_service(session)
+    brand_repository = BrandRepository(session)
+    uom_repository = UomRepository(session)
+    return CreateItemUseCase(
+        item_repository, ps_creator, audit_log_service,
+        brand_repository, uom_repository,
+    )
 
 
 def get_packaging_supply_repository(
@@ -63,5 +80,11 @@ def get_update_packaging_supply_use_case(
     item_repository = ItemRepository(session)
     ps_repository = PackagingSupplyRepository(session)
     ps_updater = PackagingSupplyItemUpdater(ps_repository)
-    update_item_use_case = UpdateItemUseCase(item_repository, ps_updater)
+    audit_log_service = _build_audit_log_service(session)
+    brand_repository = BrandRepository(session)
+    uom_repository = UomRepository(session)
+    update_item_use_case = UpdateItemUseCase(
+        item_repository, ps_updater, audit_log_service,
+        brand_repository, uom_repository,
+    )
     return UpdatePackagingSupplyUseCase(update_item_use_case, ps_repository)

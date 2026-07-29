@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, Column, Integer, String, TIMESTAMP
+from sqlalchemy import BigInteger, Column, Index, Integer, String, TIMESTAMP
 from sqlalchemy.dialects.postgresql import JSONB
 
 from src.infrastructure.database.base import Base
@@ -15,3 +15,8 @@ class AuditLogModel(Base):
     old_data    = Column(JSONB,       nullable=True)
     new_data    = Column(JSONB,       nullable=True)
     created_at  = Column(TIMESTAMP(timezone=True), nullable=False, server_default="now()")
+
+    __table_args__ = (
+        Index("ix_audit_logs_entity_type_id", "entity_type", "entity_id"),
+        Index("ix_audit_logs_user_id", "user_id"),
+    )

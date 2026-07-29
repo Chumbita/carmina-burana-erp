@@ -16,9 +16,9 @@ class SupplyItemUpdater(SpecializedItemUpdater):
         self,
         item_id: int,
         specialized_data: Optional[Dict[str, Any]]
-    ) -> None:
+    ) -> Optional[Dict[str, Any]]:
         if not specialized_data:
-            return
+            return None
 
         try:
             supply = await self._supply_repository.get_by_item_id(item_id)
@@ -26,10 +26,14 @@ class SupplyItemUpdater(SpecializedItemUpdater):
             if supply is None:
                 raise SupplyNotFoundException(item_id)
 
+            old = {}
             if "supply_category" in specialized_data:
+                raw = supply.supply_category
+                old["supply_category"] = raw.value if isinstance(raw, SupplyCategory) else raw
                 supply.update(SupplyCategory(specialized_data["supply_category"]))
 
             await self._supply_repository.save(supply)
+            return old
 
         except SpecializedItemUpdateException:
             raise

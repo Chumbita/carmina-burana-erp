@@ -13,6 +13,7 @@ from .inventory_transaction_model import InventoryTransactionModel
 from .packaging_supply_model import PackagingSupplyModel
 from .bom_model import BomModel
 from .bom_line_model import BomLineModel
+from .audit_log_model import AuditLogModel
 from .beer_model import BeerModel
 from .production_order_model import ProductionOrderModel, ProductionConsumptionModel, ProductionOutputModel
 from .refresh_token_model import RefreshTokenModel
@@ -21,6 +22,7 @@ __all__ = [
     "UserModel", "ItemModel", "ItemTypeModel", "BrandModel", "UomModel", "SupplyModel",
     "SupplierModel", "SupplyEntryOrderModel", "SupplyEntryLineModel",
     "InventoryLotModel", "InventoryBalanceModel", "InventoryTransactionModel",
+    "BomModel", "BomLineModel", "AuditLogModel",
     "PackagingSupplyModel", "BomModel", "BomLineModel",
     "BeerModel","ProductionOrderModel", "ProductionConsumptionModel", "ProductionOutputModel",
     "RefreshTokenModel",

@@ -46,7 +46,7 @@ export default function PackagingSupplyDetailPage() {
           availableSupplies={supplies}
         />
       </EntityDetailPage.Content>
-      <EntityDetailPage.History entityType="input" entityId={packagingSupply?.id} />
+      <EntityDetailPage.History entityType="supply" itemId={packagingSupply?.id} />
     </EntityDetailPage>
   )
 }

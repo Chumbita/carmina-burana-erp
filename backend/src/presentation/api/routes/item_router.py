@@ -21,6 +21,9 @@ from src.presentation.dependencies.use_cases.item import (
 )
 from src.presentation.dependencies.use_cases.bom import get_item_bom_use_case
 
+from src.presentation.schemas.inventory_transaction_schemas import TransactionResponseSchema
+from src.presentation.dependencies.use_cases.inventory import get_list_item_transactions_use_case
+
 
 item_router = APIRouter(prefix="/items", tags=["Items"])
 
@@ -76,3 +79,19 @@ async def get_item_bom(
         )
 
     return ItemBomSchema.model_validate(bom)
+
+
+@item_router.get(
+    "/{item_id}/transactions",
+    response_model=List[TransactionResponseSchema],
+    summary="Historial de movimientos de inventario de un ítem",
+)
+async def list_item_transactions(
+    item_id: int,
+    use_case: "ListItemTransactionsUseCase" = Depends(get_list_item_transactions_use_case),
+    current_user: User = Depends(get_current_user),
+) -> list[dict]:
+    try:
+        return await use_case.execute(item_id)
+    except ItemNotFoundException as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc

@@ -23,6 +23,7 @@ export const ENDPOINTS = {
         GET_BY_ENTITY: (entity_type, entity_id) => `/audit-logs/${entity_type}/${entity_id}`,
         GET_BY_USER: (user_id) => `/audit-logs/user/${user_id}`,
     },
+
     // Supplies
     SUPPLIES: {
         GET_ALL:   '/supplies',
@@ -30,6 +31,7 @@ export const ENDPOINTS = {
         CREATE:    '/supplies',
         PATCH:     (id) => `/supplies/${id}`,
         DELETE:    (id) => `/supplies/${id}`,
+        GET_LOTS:  (item_id) => `/supplies/${item_id}/lots`,
     },
     PACKAGING_SUPPLIES: {
         GET_BY_ID: (id) => `/packaging-supplies/${id}`,
@@ -57,11 +59,9 @@ export const ENDPOINTS = {
       GET_ALL: '/bom',
       GET_BY_ID: (id) => `/bom/${id}`,
     },
-    // ITEMS
-    ITEMS: {
-      GET_OPTIONS: '/items/options',
-    },
-    // Beers
+
+    // Beersendpoints.js
+
     BEERS: {
       CREATE: "/beers",
   },
@@ -77,9 +77,10 @@ export const ENDPOINTS = {
     START: (order_id) => `/production-orders/${order_id}/start`,
     COMPLETE: (order_id) => `/production-orders/${order_id}/complete`,
   },
-  // Items
   ITEMS: {
-    GET_MANUFACTURABLE: "/items/manufacturable-items",
+    GET_OPTIONS: '/items/options',
+    GET_TRANSACTIONS: (id) => `/items/${id}/transactions`,
+    GET_MANUFACTURABLE: '/items/manufacturable-items',
     GET_ITEM_BOM: (item_id) => `/items/${item_id}/bom`,
   },
 };

@@ -82,7 +82,7 @@ async def update_packaging_supply(
             "capacity_ml": body.capacity_ml,
         } if body.packaging_type or body.material or body.capacity_ml is not None else None,
     )
-    return await use_case.execute(command)
+    return await use_case.execute(command, user_id=current_user.id)
 
 
 @router.post(
@@ -116,7 +116,7 @@ async def create_packaging_supply(
         },
     )
 
-    item_result = await use_case.execute(command)
+    item_result = await use_case.execute(command, user_id=current_user.id)
     detail = await repo.get_creation_detail(item_result.id)
 
     return PackagingSupplyResponseSchema(
