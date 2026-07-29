@@ -23,11 +23,7 @@ export const ENDPOINTS = {
         GET_BY_ENTITY: (entity_type, entity_id) => `/audit-logs/${entity_type}/${entity_id}`,
         GET_BY_USER: (user_id) => `/audit-logs/user/${user_id}`,
     },
-    // Items
-    ITEMS: {
-        GET_TRANSACTIONS: (id) => `/items/${id}/transactions`,
-        GET_OPTIONS: '/items/options',
-    },
+
     // Supplies
     SUPPLIES: {
         GET_ALL:   '/supplies',
@@ -64,10 +60,6 @@ export const ENDPOINTS = {
       GET_BY_ID: (id) => `/bom/${id}`,
     },
 
-    // ITEMS
-    ITEMS: {
-      GET_OPTIONS: '/items/options',
-    },
     // Beersendpoints.js
 
     BEERS: {
@@ -85,9 +77,10 @@ export const ENDPOINTS = {
     START: (order_id) => `/production-orders/${order_id}/start`,
     COMPLETE: (order_id) => `/production-orders/${order_id}/complete`,
   },
-  // Items
   ITEMS: {
-    GET_MANUFACTURABLE: "/items/manufacturable-items",
+    GET_OPTIONS: '/items/options',
+    GET_TRANSACTIONS: (id) => `/items/${id}/transactions`,
+    GET_MANUFACTURABLE: '/items/manufacturable-items',
     GET_ITEM_BOM: (item_id) => `/items/${item_id}/bom`,
   },
 };

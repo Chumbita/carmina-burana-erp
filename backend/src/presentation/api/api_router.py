@@ -75,9 +75,6 @@ api_router.include_router(packaging_supply_router)
 from src.presentation.api.routes.item_router import item_router
 api_router.include_router(item_router)
 
-from src.presentation.api.routes.items_router import router as items_router
-api_router.include_router(items_router)
-
 
 
 # ════════════════════════════════
