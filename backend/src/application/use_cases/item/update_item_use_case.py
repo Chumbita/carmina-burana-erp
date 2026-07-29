@@ -3,6 +3,7 @@
 # ══════════════════════════════════════════════════════════════════════════════
 
 from typing import Optional
+from decimal import Decimal
 
 from src.application.interfaces.specialized_item_updater import SpecializedItemUpdater
 from src.application.dtos.items.item_commands_dtos import UpdateItemCommand
@@ -86,9 +87,13 @@ class UpdateItemUseCase():
         if self._audit_log_service is not None and (command.has_base_changes or command.has_specialized_changes):
             new_data = self._extract_item_data(updated_item)
             if old_specialized:
-                old_data.update(old_specialized)
+                old_data.update({
+                    k: float(v) if isinstance(v, Decimal) else v for k, v in old_specialized.items()
+                })
             if command.specialized_data:
-                new_data.update(command.specialized_data)
+                new_data.update({
+                    k: float(v) if isinstance(v, Decimal) else v for k, v in command.specialized_data.items()
+                })
             await self._enrich_audit_data(old_data, new_data)
             await self._audit_log_service.log_item_update(
                 entity_id=command.item_id,
