@@ -23,6 +23,9 @@ from src.infrastructure.database.models.packaging_supply_model import PackagingS
 from src.infrastructure.database.models.bom_model import BomModel
 from src.infrastructure.database.models.bom_line_model import BomLineModel
 from src.infrastructure.database.models.audit_log_model import AuditLogModel
+from src.infrastructure.database.models.beer_model import BeerModel
+from src.infrastructure.database.models.production_order_model import ProductionOrderModel, ProductionConsumptionModel, ProductionOutputModel
+from src.infrastructure.database.models.refresh_token_model import RefreshTokenModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

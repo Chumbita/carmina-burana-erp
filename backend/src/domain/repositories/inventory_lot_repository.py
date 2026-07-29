@@ -27,7 +27,21 @@ class IInventoryLotRepository(Protocol):
         ...
 
     async def find_by_item_and_code(self, item_id: int, lot_code: str) -> Optional[InventoryLot]:
+        """
+        Verifica si ya existe un lote con ese código para ese ítem.
+        Usado para prevenir duplicados antes de intentar el INSERT.
+        """
         ...
+
+    
+    async def get_available_by_item_fefo(self, item_id: int) -> list:
+        """
+        Devuelve los lotes disponibles de un ítem ordenados por
+        expiration_date ASC (FEFO). Se usa en la fase de EXECUTION
+        para seleccionar qué lotes consumir primero.
+        """
+        ...
+    
 
     async def find_by_item_id(
         self,
@@ -52,8 +66,7 @@ class ItemLots:
     """
     Datos de un lote con su información de balance.
 
-    quantity y reserved_quantity vienen de la tabla inventory_balance.
-    Si el lote no tiene balance registrado, se devuelven en 0.
+    quantity y reserved_quantity vienen de inventory_balance.
     El campo status lo asigna el use case.
     """
     id: int
@@ -67,3 +80,4 @@ class ItemLots:
     created_at: datetime | None = None
     status: str | None = None
     supply_entry_id: int | None = None
+

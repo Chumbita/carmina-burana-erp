@@ -1,10 +1,11 @@
-import publicCliente from "@/lib/api/publicClient";
+import publicClient from "@/lib/api/publicClient";
+import privateClient from "@/lib/api/privateClient";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 
 export const authService = {
   login: async (username, password) => {
     try {
-      const response = await publicCliente.post(ENDPOINTS.AUTH.LOGIN, {
+      const response = await publicClient.post(ENDPOINTS.AUTH.LOGIN, {
         username,
         password,
       });
@@ -12,13 +13,17 @@ export const authService = {
       return response.data;
     } catch (error) {
       if (error.response?.status === 401) {
-        // Manejo de errores cuando las credenciales son incorrectas.
         throw new Error("Usuario y/o contraseña incorrectas.");
       }
-      // Manejo de cualquier otro tipo de error.
       throw new Error("Error de conexión con el servidor.");
     }
   },
 
-  // logout
+  logout: async () => {
+    try {
+      await privateClient.post(ENDPOINTS.AUTH.LOGOUT);
+    } catch {
+      // Si falla, el AuthContext se encargará de limpiar el estado
+    }
+  },
 };

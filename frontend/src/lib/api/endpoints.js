@@ -2,7 +2,10 @@
 export const ENDPOINTS = {
     // Auth
     AUTH: {
-        LOGIN: '/auth/login'
+        LOGIN: '/auth/login',
+        REFRESH: '/auth/refresh',
+        LOGOUT: '/auth/logout',
+        ME: '/auth/me',
     },
     // User
     USER: {
@@ -60,4 +63,31 @@ export const ENDPOINTS = {
       GET_ALL: '/bom',
       GET_BY_ID: (id) => `/bom/${id}`,
     },
-}
+
+    // ITEMS
+    ITEMS: {
+      GET_OPTIONS: '/items/options',
+    },
+    // Beersendpoints.js
+
+    BEERS: {
+      CREATE: "/beers",
+  },
+    // Products
+  PRODUCTS: {
+    GET_ALL: "/products",
+  },
+  // Production Orders
+  PRODUCTION_ORDERS: {
+    CREATE: "/production-orders",
+    GET_INCOMPLETE: "/production-orders/incomplete",
+    RELEASE: (order_id) => `/production-orders/${order_id}/release`,
+    START: (order_id) => `/production-orders/${order_id}/start`,
+    COMPLETE: (order_id) => `/production-orders/${order_id}/complete`,
+  },
+  // Items
+  ITEMS: {
+    GET_MANUFACTURABLE: "/items/manufacturable-items",
+    GET_ITEM_BOM: (item_id) => `/items/${item_id}/bom`,
+  },
+};
