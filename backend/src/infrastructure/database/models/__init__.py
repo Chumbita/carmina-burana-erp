@@ -15,6 +15,7 @@ from .bom_model import BomModel
 from .bom_line_model import BomLineModel
 from .beer_model import BeerModel
 from .production_order_model import ProductionOrderModel, ProductionConsumptionModel, ProductionOutputModel
+from .refresh_token_model import RefreshTokenModel
 
 __all__ = [
     "UserModel", "ItemModel", "ItemTypeModel", "BrandModel", "UomModel", "SupplyModel",
@@ -22,4 +23,5 @@ __all__ = [
     "InventoryLotModel", "InventoryBalanceModel", "InventoryTransactionModel",
     "PackagingSupplyModel", "BomModel", "BomLineModel",
     "BeerModel","ProductionOrderModel", "ProductionConsumptionModel", "ProductionOutputModel",
+    "RefreshTokenModel",
 ]
