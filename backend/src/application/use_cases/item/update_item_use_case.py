@@ -96,7 +96,7 @@ class UpdateItemUseCase():
                 })
             await self._enrich_audit_data(old_data, new_data)
             changed_keys = [k for k in new_data if old_data.get(k) != new_data.get(k)]
-            old_data = {k: old_data[k] for k in changed_keys}
+            old_data = {k: old_data.get(k) for k in changed_keys}
             new_data = {k: new_data[k] for k in changed_keys}
             await self._audit_log_service.log_item_update(
                 entity_id=command.item_id,
