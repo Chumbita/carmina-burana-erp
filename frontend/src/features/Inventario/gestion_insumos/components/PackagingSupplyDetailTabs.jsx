@@ -16,6 +16,8 @@ import { useFormBlocker } from "../hooks/useFormBlocker"
 import { ConfirmNavigationModal } from "./ConfirmNavigationModal"
 import { PackagingSupplyForm } from "./PackagingSupplyForm"
 import { TabLots } from "./TabLots"
+import { useSupplies } from "../hooks/useSupplies"
+import { useEntityDetail } from "@/components/shared/DetailPage/EntityDetailContext"
 
 export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUpdated, onDeleteSupply, availableSupplies = [] }) {
   const [contentOption, setContentOption] = useState("detalle")
@@ -25,10 +27,14 @@ export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUp
   const notify = useNotification()
   const navigate = useNavigate()
   const { blocker } = useFormBlocker(formRef)
+  const { getSupplies } = useSupplies()
+  const { handleUpdated } = useEntityDetail()
 
   async function handleSubmit(data) {
     try {
       await onPackagingSupplyUpdated(data)
+      await getSupplies()
+      handleUpdated?.()
       notify.success("Packaging actualizado correctamente")
 
       formRef.current?.reset(data, {
