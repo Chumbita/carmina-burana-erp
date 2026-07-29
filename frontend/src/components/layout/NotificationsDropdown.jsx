@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 // Componentes shadcn
@@ -12,35 +12,15 @@ import { ScrollArea } from "@/components/ui/ScrollArea";
 
 // Iconoa
 import { Bell, X } from "lucide-react";
+import { useNotifications } from "./useNotifications";
 
 export default function NotificationsDropdown() {
-  // Simulación de notificaciones hasta conectar con backend
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: "warning",
-      title: "Stock bajo de Malta",
-      message: "El stock de malta está por debajo del mínimo (15kg restantes)",
-      time: "Hace 5 minutos",
-      read: false,
-    },
-    {
-      id: 2,
-      type: "info",
-      title: "Barriles sin devolver",
-      message: "12 barriles en Bar Chilecito desde hace 45 días",
-      time: "Hace 2 horas",
-      read: false,
-    },
-    {
-      id: 3,
-      type: "alert",
-      title: "Insumo próximo a vencer",
-      message: "Levadura Lote-2024-089 vence en 3 días",
-      time: "Ayer",
-      read: true,
-    },
-  ]);
+  const { notifications: loadedNotifications, loading, error } = useNotifications();
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    setNotifications(loadedNotifications);
+  }, [loadedNotifications]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -124,7 +104,17 @@ export default function NotificationsDropdown() {
 
         {/* Lista de notificaciones */}
         <ScrollArea className="h-[400px]">
-          {notifications.length === 0 ? (
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+              <Bell className="h-12 w-12 text-gray-300 mb-3" />
+              <p className="text-sm text-gray-500">Cargando notificaciones...</p>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+              <Bell className="h-12 w-12 text-gray-300 mb-3" />
+              <p className="text-sm text-red-500">Error al cargar notificaciones</p>
+            </div>
+          ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
               <Bell className="h-12 w-12 text-gray-300 mb-3" />
               <p className="text-sm text-gray-500">No hay notificaciones</p>
@@ -170,6 +160,21 @@ export default function NotificationsDropdown() {
                           {notification.time}
                         </span>
                         <div className="flex gap-2">
+                          {notification.href && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-auto p-0 text-xs text-blue-600 hover:text-blue-700"
+                              asChild
+                            >
+                              <Link
+                                to={notification.href}
+                                onClick={() => markAsRead(notification.id)}
+                              >
+                                Ver detalle
+                              </Link>
+                            </Button>
+                          )}
                           {!notification.read && (
                             <Button
                               variant="ghost"
