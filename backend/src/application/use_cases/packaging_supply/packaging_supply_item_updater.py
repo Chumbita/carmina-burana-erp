@@ -28,7 +28,8 @@ class PackagingSupplyItemUpdater(SpecializedItemUpdater):
 
             old = {}
             if "packaging_type" in specialized_data:
-                old["packaging_type"] = packaging_supply.packaging_type.value
+                raw = packaging_supply.packaging_type
+                old["packaging_type"] = raw.value if isinstance(raw, PackagingType) else raw
                 packaging_supply.update(packaging_type=PackagingType(specialized_data["packaging_type"]))
             if "material" in specialized_data:
                 old["material"] = packaging_supply.material
