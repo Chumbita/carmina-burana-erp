@@ -36,6 +36,8 @@ class UpdatePackagingSupplyUseCase:
             "id": row["id"],
             "name": row["name"],
             "item_type": row["item_type_code"],
+            "brand_id": row["brand_id"],
+            "base_uom_id": row["base_uom_id"],
             "brand": row["brand_name"],
             "base_uom_symbol": row["base_uom_symbol"],
             "min_stock_level": row["min_stock_level"],

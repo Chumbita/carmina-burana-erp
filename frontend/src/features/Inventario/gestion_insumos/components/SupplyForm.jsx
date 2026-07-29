@@ -55,7 +55,7 @@ export function SupplyForm({
       brand_id:         defaultValues?.brand_id         ?? undefined,
       supply_category:  defaultValues?.supply_category  ?? "",
       base_uom_id:      defaultValues?.base_uom_id      ?? undefined,
-      min_stock_level:  defaultValues?.min_stock_level  ?? 0,
+      min_stock_level:  defaultValues?.min_stock_level != null ? Number(defaultValues.min_stock_level) : 0,
     },
     mode: "onChange",
   })

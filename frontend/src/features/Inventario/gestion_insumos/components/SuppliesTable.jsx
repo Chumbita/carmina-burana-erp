@@ -18,16 +18,16 @@ export function SuppliesTable({ insumos }) {
   const tableHeaders = [
     { header: "Nro", accessor: "id" },
     { header: "Nombre", accessor: "name" },
-    {
-      header: "Tipo",
-      accessor: "item_type",
-      render: (value) => value?.toUpperCase() === "PACKAGING_SUPPLY" ? "Envase" : "Producción",
-    },
     { header: "Marca", accessor: "brand_name" },
     {
       header: "Categoria",
       accessor: "category",
       render: (value, insumo) => value ?? insumo.supply_category ?? insumo.packaging_type ?? "-",
+    },
+    {
+      header: "Tipo",
+      accessor: "item_type",
+      render: (value) => value?.toUpperCase() === "PACKAGING_SUPPLY" ? "Envase" : "Producción",
     },
     { header: "Stock", accessor: "stock_total" ,
       render: (value, insumo) => (
