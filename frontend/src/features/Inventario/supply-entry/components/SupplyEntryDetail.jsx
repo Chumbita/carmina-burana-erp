@@ -13,9 +13,18 @@ import {
   AlertDialogAction,
 } from '@/components/ui/AlertDialog'
 
-import { ArrowLeft, Package, Calendar, DollarSign, User, Download, Trash2, AlertTriangle, ExternalLink } from 'lucide-react'
+import {
+  ArrowLeft,
+  Package,
+  Calendar,
+  DollarSign,
+  User,
+  Download,
+  Trash2,
+  AlertTriangle,
+  ExternalLink,
+} from 'lucide-react'
 
-// Helper functions for better code organization
 const getStatusLabel = (status) => {
   const statusMap = {
     active: 'Activa',
@@ -24,18 +33,49 @@ const getStatusLabel = (status) => {
   return statusMap[status] || 'Desconocido'
 }
 
-const getAnnulmentTooltip = (canAnnul) => {
-  return canAnnul 
-    ? '' 
-    : 'No se puede anular: pasaron más de 48hs o hay lotes consumidos'
+const getAnnulmentTooltip = (canAnnul) =>
+  canAnnul ? '' : 'No se puede anular: pasaron más de 48hs o hay lotes consumidos'
+
+const formatDateTime = (date) =>
+  new Date(date).toLocaleString('es-AR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+const formatDate = (date) =>
+  date ? new Date(`${date}T00:00:00`).toLocaleDateString('es-AR') : '-'
+
+const formatMoney = (value) => `$${Number(value || 0).toFixed(2)}`
+
+function SummaryItem({ icon: Icon, label, value }) {
+  return (
+    <div className="rounded-lg border bg-white px-4 py-3">
+      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-neutral-500">
+        <Icon className="h-4 w-4" />
+        {label}
+      </div>
+      <p className="mt-2 truncate text-sm font-semibold text-neutral-900">{value}</p>
+    </div>
+  )
 }
 
-/**
- * SupplyEntryDetail - Component for supply entry detail view
- * @param {Object} props - Component props
- * @param {Object} props.detailHook - Detail hook from useSupplyEntryDetail
- * @param {Function} props.onBack - Callback to go back
- */
+function InfoBlock({ label, value, detail, tone = 'default' }) {
+  const isDanger = tone === 'danger'
+
+  return (
+    <div className="px-4 py-3">
+      <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">{label}</p>
+      <p className={isDanger ? 'mt-1 text-sm font-medium text-red-700' : 'mt-1 text-sm text-neutral-900'}>
+        {value}
+      </p>
+      {detail && <p className="mt-1 text-xs text-neutral-500">{detail}</p>}
+    </div>
+  )
+}
+
 export function SupplyEntryDetail({ detailHook, onBack }) {
   const {
     loading,
@@ -56,7 +96,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <Spinner />
       </div>
     )
@@ -64,7 +104,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
 
   if (error || !entry) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-4xl p-6">
         <Card className="border-red-200 bg-red-50">
           <div className="p-4">
             <p className="text-sm text-red-600">
@@ -79,277 +119,187 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
     )
   }
 
+  const totalItems = entry.items.reduce((total, item) => total + Number(item.amount || 0), 0)
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4">
-        <header className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onBack}
-              className="p-2 hover:bg-neutral-100 rounded-md transition-colors"
-              aria-label="Volver"
-            >
-              <ArrowLeft className="w-5 h-5 text-neutral-600" />
-            </button>
-            
-            <div>
-              <h1 className="text-2xl font-bold text-neutral-900">
-                Detalle de Abastecimiento
+    <div className="space-y-4">
+      <header className="flex flex-col gap-3 border-b pb-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0 cursor-pointer">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="truncate text-2xl font-semibold tracking-tight text-neutral-900">
+                {entry.reception_number || `REC-${entry.id}`}
               </h1>
-              <p className="text-neutral-600 mt-1">
-                ID: {entry.reception_number || `REC-${entry.id}`}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-              <Badge 
+              <Badge
                 variant={entry.status === 'active' ? 'default' : 'secondary'}
                 className={entry.status === 'cancelled' ? 'bg-red-100 text-red-700' : ''}
               >
                 {getStatusLabel(entry.status)}
               </Badge>
-              
-              {entry.status === 'active' && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowAnnulDialog(true)}
-                  disabled={!canAnnul}
-                  title={getAnnulmentTooltip(canAnnul)}
+            </div>
+            <p className="text-sm text-neutral-500">Ingreso de insumos</p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {entry.status === 'active' && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAnnulDialog(true)}
+              disabled={!canAnnul}
+              title={getAnnulmentTooltip(canAnnul)}
+              className="cursor-pointer"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className="h-4 w-4" />
               Anular
             </Button>
           )}
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExport}
-          >
-            <Download className="w-4 h-4 mr-2" />
+          <Button variant="outline" size="sm" onClick={handleExport} className="cursor-pointer">
+            <Download className="h-4 w-4" />
             Exportar
           </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePrint}
-          >
+          <Button variant="outline" size="sm" onClick={handlePrint} className="cursor-pointer">
             Imprimir
           </Button>
+        </div>
+      </header>
+
+      {entry.status === 'active' && !canAnnul && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-600" />
+          <div>
+            <h2 className="font-medium text-amber-900">Restricciones de anulación</h2>
+            <p className="mt-1 text-sm text-amber-700">
+              Esta recepción no puede ser anulada porque pasaron más de 48 horas o algunos lotes ya fueron consumidos.
+            </p>
           </div>
-        </header>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <SummaryItem icon={Calendar} label="Recepción" value={formatDateTime(entry.created_at || entry.entry_date)} />
+        <SummaryItem icon={User} label="Proveedor" value={entry.supplier} />
+        <SummaryItem icon={Package} label="Cantidad recibida" value={`${totalItems} unidades`} />
+        <SummaryItem icon={DollarSign} label="Costo total" value={formatMoney(entry.total_cost)} />
       </div>
 
-      {/* Warning */}
-      {entry.status === 'active' && !canAnnul && (
-        <Card className="border-amber-200 bg-amber-50">
-          <div className="p-4 flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-amber-900">Restricciones de Anulación</h3>
-              <p className="text-sm text-amber-700 mt-1">
-                Esta recepción no puede ser anulada porque han pasado más de 48 horas 
-                o algunos de los lotes generados ya han sido consumidos.
-              </p>
-            </div>
+      {(entry.invoiceNumber || entry.description || entry.status === 'cancelled') && (
+        <Card className="gap-0 rounded-lg py-0 shadow-none">
+          <div className="grid grid-cols-1 divide-y text-sm md:grid-cols-3 md:divide-x md:divide-y-0">
+            {entry.invoiceNumber && <InfoBlock label="Documento" value={entry.invoiceNumber} />}
+            {entry.description && <InfoBlock label="Descripción" value={entry.description} />}
+            {entry.status === 'cancelled' && (
+              <InfoBlock
+                label="Anulación"
+                value={entry.annulmentReason || 'Sin motivo registrado'}
+                detail={entry.annulledAt ? formatDateTime(entry.annulledAt) : null}
+                tone="danger"
+              />
+            )}
           </div>
         </Card>
       )}
 
-      {/* General Information */}
-      <Card>
-        <div className="p-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center">
-            <Package className="w-5 h-5 mr-2" />
-            Información General
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-neutral-400 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-neutral-900">Fecha de Recepción</p>
-                  <p className="text-sm text-neutral-600">
-                    {new Date(entry.created_at || entry.entry_date).toLocaleString('es-AR', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <User className="w-5 h-5 text-neutral-400 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-neutral-900">Proveedor</p>
-                  <p className="text-sm text-neutral-600">{entry.supplier}</p>
-                </div>
-              </div>
-              
-              {entry.invoiceNumber && (
-                <div className="flex items-center gap-3">
-                  <Download className="w-5 h-5 text-neutral-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-neutral-900">Número de Factura</p>
-                    <p className="text-sm text-neutral-600">{entry.invoiceNumber}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <DollarSign className="w-5 h-5 text-neutral-400 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-neutral-900">Costo Total</p>
-                  <p className="text-lg font-semibold text-neutral-900">
-                    ${entry.total_cost?.toFixed(2) || '0.00'}
-                  </p>
-                </div>
-              </div>
-              
-              {entry.description && (
-                <div className="flex items-center gap-3">
-                  <Package className="w-5 h-5 text-neutral-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-neutral-900">Descripción</p>
-                    <p className="text-sm text-neutral-600 capitalize">{entry.description}</p>
-                  </div>
-                </div>
-              )}
-              
-              {entry.status === 'annulled' && (
-                <div className="flex items-center gap-3">
-                  <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-red-900">Estado: Anulada</p>
-                    <p className="text-sm text-red-700">
-                      Motivo: {entry.annulmentReason}
-                    </p>
-                    <p className="text-xs text-red-600">
-                      Fecha de anulación: {new Date(entry.annulledAt).toLocaleString('es-AR')}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+      <Card className="gap-0 rounded-lg py-0 shadow-none">
+        <div className="flex items-center justify-between border-b px-4 py-3">
+          <h2 className="text-base font-semibold text-neutral-900">Insumos recibidos</h2>
+          <span className="text-sm text-neutral-500">{entry.items.length} líneas</span>
         </div>
-      </Card>
 
-      {/* Items Detail */}
-      <Card>
-        <div className="p-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center">
-            <Package className="w-5 h-5 mr-2" />
-            Detalle de Insumos Recibidos
-          </h3>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-neutral-50 border-b border-neutral-200">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Insumo
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Cantidad
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Costo Unitario
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Subtotal
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Lote
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Vencimiento
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Acciones
-                  </th>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[920px]">
+            <thead className="border-b bg-neutral-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-neutral-500">
+                  Insumo
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-neutral-500">
+                  Cantidad
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-neutral-500">
+                  Costo Unitario
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-neutral-500">
+                  Subtotal
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-neutral-500">
+                  Lote
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-neutral-500">
+                  Vencimiento
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-neutral-500">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y bg-white">
+              {entry.items.map((item) => (
+                <tr key={item.id} className="hover:bg-neutral-50">
+                  <td className="px-4 py-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-neutral-900">
+                        {item.supply_name || `Insumo #${item.supply_id}`}
+                      </p>
+                      <p className="truncate text-xs text-neutral-500">{item.comment}</p>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-right text-sm tabular-nums text-neutral-700">{item.amount}</td>
+                  <td className="px-4 py-3 text-right text-sm tabular-nums text-neutral-700">
+                    {formatMoney(item.unit_cost)}
+                  </td>
+                  <td className="px-4 py-3 text-right text-sm font-medium tabular-nums text-neutral-900">
+                    {formatMoney(item.amount * item.unit_cost)}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-neutral-700">
+                    {item.batch?.id ? `#${item.batch.id}` : 'Sin lote'}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-neutral-700">{formatDate(item.expire_date)}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-center gap-2">
+                      {item.batch?.current_amount < item.batch?.initial_amount && (
+                        <Badge variant="secondary" className="text-xs">
+                          Consumido
+                        </Badge>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleNavigateToBatch(item.batch?.id)}
+                        className="cursor-pointer"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-neutral-200">
-                {entry.items.map((item) => (
-                  <tr key={item.id}>
-                    <td className="px-4 py-4">
-                      <div>
-                        <p className="text-sm font-medium text-neutral-900">
-                          {item.supply_name || `Insumo #${item.supply_id}`}
-                        </p>
-                        <p className="text-xs text-neutral-500">
-                          {item.comment}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-sm text-neutral-600 text-center">
-                      {item.amount}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-neutral-600 text-right">
-                      ${item.unit_cost?.toFixed(2) || '0.00'}
-                    </td>
-                    <td className="px-4 py-4 text-sm font-medium text-neutral-900 text-right">
-                      ${(item.amount * item.unit_cost).toFixed(2)}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-neutral-600 text-center">
-                      {item.batch?.id ? `#${item.batch.id}` : 'Sin lote'}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-neutral-600 text-center">
-                      {new Date(item.expire_date + 'T00:00:00').toLocaleDateString('es-AR')}
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        {item.batch?.current_amount < item.batch?.initial_amount && (
-                          <Badge variant="secondary" className="text-xs">
-                            Consumido
-                          </Badge>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleNavigateToBatch(item.batch?.id)}
-                          className="cursor-pointer"
-                        >
-                          <ExternalLink className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       </Card>
 
-      {/* Annulment Dialog */}
       <AlertDialog open={showAnnulDialog} onOpenChange={setShowAnnulDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <AlertTriangle className="h-5 w-5 text-red-600" />
               Anular Recepción
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará los lotes generados, revertirá el stock 
-              y cambiará el estado a "Anulada". Esta acción no se puede deshacer.
+              Esta acción eliminará los lotes generados, revertirá el stock y cambiará el estado a "Anulada".
+              Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           <form onSubmit={handleAnnulmentSubmit(handleAnnul)}>
             <div className="py-4">
-              <label className="block text-sm font-medium text-neutral-900 mb-2">
+              <label className="mb-2 block text-sm font-medium text-neutral-900">
                 Motivo de anulación <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -360,17 +310,13 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
             </div>
 
             <AlertDialogFooter>
-              <AlertDialogCancel
-                type="button"
-                disabled={annulling}
-                className="cursor-pointer"
-              >
+              <AlertDialogCancel type="button" disabled={annulling} className="cursor-pointer">
                 Cancelar
               </AlertDialogCancel>
               <AlertDialogAction
                 type="submit"
                 disabled={!isAnnulmentValid || annulling}
-                className="bg-red-600 hover:bg-red-700 cursor-pointer"
+                className="cursor-pointer bg-red-600 hover:bg-red-700"
               >
                 {annulling ? 'Anulando...' : 'Anular Recepción'}
               </AlertDialogAction>
