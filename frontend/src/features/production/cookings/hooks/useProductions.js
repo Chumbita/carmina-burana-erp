@@ -3,7 +3,8 @@ import { productionService } from "../services/productionService";
 
 export function useProductions() {
   const [productions, setProductions] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);       // solo carga inicial / refetch de listado
+  const [actionLoading, setActionLoading] = useState(false); // start/release/complete/create
   const [error, setError] = useState(null);
 
   const fetchProductions = useCallback(async () => {
@@ -24,21 +25,21 @@ export function useProductions() {
   }, [fetchProductions]);
 
   async function createProduction(data) {
-    setLoading(true);
+    setActionLoading(true);
     try {
       const created = await productionService.create(data);
-      await fetchProductions();
+      await fetchProductions(); // este SÍ togglea `loading`, está bien porque no hay modal abierto acá
       return created;
     } catch (err) {
       setError(err);
       throw err;
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   }
 
   async function releaseProduction(id) {
-    setLoading(true);
+    setActionLoading(true);
     try {
       const updated = await productionService.release(id);
       await fetchProductions();
@@ -47,12 +48,12 @@ export function useProductions() {
       setError(err);
       throw err;
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   }
 
   async function startProduction(id) {
-    setLoading(true);
+    setActionLoading(true);
     try {
       const updated = await productionService.start(id);
       await fetchProductions();
@@ -61,12 +62,12 @@ export function useProductions() {
       setError(err);
       throw err;
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   }
 
   async function completeProduction(id, data) {
-    setLoading(true);
+    setActionLoading(true);
     try {
       const updated = await productionService.complete(id, data);
       await fetchProductions();
@@ -75,13 +76,14 @@ export function useProductions() {
       setError(err);
       throw err;
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   }
 
   return {
     productions,
     loading,
+    actionLoading,
     error,
     createProduction,
     releaseProduction,
