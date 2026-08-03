@@ -51,25 +51,26 @@ class ReleaseProductionOrderUseCase:
         if order is None:
             raise ProductionOrderNotFoundException(order_id)
 
-        bom = await self._bom_repository.get_by_id(order.bom_id)
+        bom = await self._bom_repository.get_detailed_bom_by_id(order.bom_id)
         if bom is None:
             raise BomNotFoundException(order.bom_id)
 
         # 2. Calcular escala
-        scale = order.planned_quantity / bom.quantity
+        scale = order.planned_quantity / bom["quantity"]
 
         # 3. Verificar stock disponible por cada línea antes de reservar
         missing = []
-        for line in bom.lines:
-            required = line.quantity * scale
+        for line in bom["lines"]:
+            required = line["quantity"] * scale
             available = await self._balance_repository.get_total_available_by_item(
-                line.component_item_id
+                line["component_item_id"]
             )
             if available < required:
                 missing.append({
-                    "item_id": line.component_item_id,
+                    "name": line["component_item_name"],
                     "required": required,
                     "available": available,
+                    "uom_symbol": line["uom_symbol"],
                 })
 
         # 4. Si falta stock → bloquear sin reservar nada
