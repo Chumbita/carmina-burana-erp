@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useNavigate } from "react-router-dom";
-import { Play, CheckCircle, ArrowUpCircle } from "lucide-react";
+import { Play, CheckCircle, ArrowUpCircle, AlertTriangle, Package, X } from "lucide-react";
 import { useNotification } from "@/components/shared/notifications/useNotification";
 import { completeProductionSchema } from "../schemas/production.schema";
 
@@ -18,6 +18,9 @@ export function ProductionTable({ productions, onRelease, onStart, onComplete })
   // Estado para controlar las confirmaciones de un solo clic (RELEASE y START)
   const [confirmTarget, setConfirmTarget] = useState(null); 
   
+  // Estado para el modal de insumos faltantes
+  const [missingIngredientsTarget, setMissingIngredientsTarget] = useState(null);
+
   // Estados para controlar el modal de formulario (COMPLETE)
   const [completeTarget, setCompleteTarget] = useState(null); 
 
@@ -82,22 +85,26 @@ export function ProductionTable({ productions, onRelease, onStart, onComplete })
       if (type === "RELEASE") {
         await onRelease(row.id);
         notify.success(`Orden Nro ${row.row_number} liberada con éxito.`);
+        setConfirmTarget(null);
       } else if (type === "START") {
         await onStart(row.id);
         notify.success(`¡Producción Nro ${row.row_number} iniciada!`);
+        setConfirmTarget(null);
       }
     } catch (err) {
-      const errorData = err.response?.data?.detail;
-      if (errorData?.missing && errorData.missing.length > 0) {
-        const detalleFaltantes = errorData.missing
-          .map(insumo => `• ID Insumo ${insumo.item_id}: Falta ${insumo.required - insumo.available}`)
-          .join("\n");
-        notify.error(`${errorData.message}:\n${detalleFaltantes}`);
+      const errorData = err.response?.data?.detail || err.response?.data;
+
+      if (errorData?.missing && Array.isArray(errorData.missing) && errorData.missing.length > 0) {
+        setMissingIngredientsTarget({
+          row,
+          missing: errorData.missing,
+          message: errorData.message || "Stock insuficiente para iniciar la producción",
+        });
+        setConfirmTarget(null);
       } else {
         notify.error(errorData?.message || "Ocurrió un error al procesar la acción.");
+        setConfirmTarget(null);
       }
-    } finally {
-      setConfirmTarget(null);
     }
   };
 
@@ -306,6 +313,73 @@ export function ProductionTable({ productions, onRelease, onStart, onComplete })
               </Button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* MODAL INSUMOS FALTANTES */}
+      {missingIngredientsTarget && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in" onClick={() => { setMissingIngredientsTarget(null); setConfirmTarget(null); }}>
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-lg max-w-lg w-full mx-4 space-y-4 shadow-xl border border-slate-200 dark:border-slate-800" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 text-red-600">
+                <AlertTriangle size={20} /> Stock Insuficiente
+              </h3>
+              <button 
+                onClick={() => { setMissingIngredientsTarget(null); setConfirmTarget(null); }}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1"
+                aria-label="Cerrar"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <p className="text-sm text-slate-500">
+              No se puede iniciar la orden <strong>Nro {missingIngredientsTarget.row.row_number}</strong> ({missingIngredientsTarget.row.item_name}). 
+              Faltan los siguientes insumos:
+            </p>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-700">
+                    <th className="text-left p-2 font-medium text-slate-500">Insumo</th>
+                    <th className="text-right p-2 font-medium text-slate-500">Requerido</th>
+                    <th className="text-right p-2 font-medium text-slate-500">Disponible</th>
+                    <th className="text-right p-2 font-medium text-slate-500 text-red-600">Faltante</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {missingIngredientsTarget.missing.map((insumo, index) => (
+                    <tr key={index} className="border-b border-slate-100 dark:border-slate-800 last:border-0">
+                      <td className="p-2 flex items-center gap-2">
+                        <Package size={14} className="text-slate-400" />
+                        <span className="font-medium">{insumo.name}</span>
+                      </td>
+                      <td className="p-2 text-right text-slate-600 dark:text-slate-400">
+                        {insumo.required} {insumo.uom_symbol}
+                      </td>
+                      <td className="p-2 text-right text-slate-600 dark:text-slate-400">
+                        {insumo.available} {insumo.uom_symbol}
+                      </td>
+                      <td className="p-2 text-right font-semibold text-red-600">
+                        {insumo.required - insumo.available} {insumo.uom_symbol}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => { setMissingIngredientsTarget(null); setConfirmTarget(null); }}
+              >
+                Entendido
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </>

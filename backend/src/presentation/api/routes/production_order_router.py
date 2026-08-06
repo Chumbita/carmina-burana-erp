@@ -141,10 +141,10 @@ async def start_production_order(
     except InsufficientStockForProductionException as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail={
+            detail=jsonable_encoder({
                 "message": "Stock insuficiente para iniciar la producción",
                 "missing": exc.missing,
-            },
+            }),
         ) from exc
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc

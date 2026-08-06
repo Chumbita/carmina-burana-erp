@@ -53,24 +53,25 @@ class StartProductionOrderUseCase:
 
     async def execute(self, order_id: int) -> ProductionOrder:
 
-        # 1. Obtener la orden y la BOM
+        # 1. Obtener la orden y la BOM detallada
         order = await self._production_order_repository.get_by_id(order_id)
         if order is None:
             raise ProductionOrderNotFoundException(order_id)
 
-        bom = await self._bom_repository.get_by_id(order.bom_id)
+        bom = await self._bom_repository.get_detailed_bom_by_id(order.bom_id)
         if bom is None:
             raise BomNotFoundException(order.bom_id)
 
         # 2. Calcular escala
-        scale = order.planned_quantity / bom.quantity
+        scale = order.planned_quantity / bom["quantity"]
 
-        # 3. Por cada línea de la BOM, seleccionar lotes FEFO y consumir
+        # 3. Por cada línea de la BOM, seleccionar lotes FEFO y consumir de lo reservado
         consumptions = []
-        for line in bom.lines:
-            remaining = line.quantity * scale
+        missing = []
+        for line in bom["lines"]:
+            remaining = line["quantity"] * scale
             lots = await self._lot_repository.get_available_by_item_fefo(
-                line.component_item_id
+                line["component_item_id"]
             )
 
             for lot in lots:
@@ -78,7 +79,7 @@ class StartProductionOrderUseCase:
                     break
 
                 balance = await self._balance_repository.get_by_lot(
-                    line.component_item_id, lot.id
+                    line["component_item_id"], lot.id
                 )
                 if balance is None:
                     continue
@@ -96,7 +97,7 @@ class StartProductionOrderUseCase:
                 # 4b. Descontar inventario real y registrar transacción
                 await self._inventory_movement.execute(
                     InventoryMovementCommand(
-                        item_id=line.component_item_id,
+                        item_id=line["component_item_id"],
                         transaction_type=TransactionType.PRODUCTION_CONSUMITION,
                         quantity=to_consume,
                         reference_type="production_order",
@@ -108,7 +109,7 @@ class StartProductionOrderUseCase:
                 # 5. Registrar consumption
                 consumptions.append(
                     ProductionConsumption(
-                        item_id=line.component_item_id,
+                        item_id=line["component_item_id"],
                         lot_id=lot.id,
                         quantity=to_consume,
                         created_at=datetime.now(timezone.utc).replace(tzinfo=None),
@@ -118,13 +119,20 @@ class StartProductionOrderUseCase:
 
                 remaining -= to_consume
 
+            # Si después de recorrer todos los lotes queda remaining > 0, faltó stock reservado
             if remaining > Decimal("0"):
-                raise InsufficientStockForProductionException(
-                    order_id,
-                    [{"item_id": line.component_item_id, "missing": remaining}],
-                )
+                missing.append({
+                    "name": line["component_item_name"],
+                    "required": line["quantity"] * scale,
+                    "available": line["quantity"] * scale - remaining,
+                    "uom_symbol": line["uom_symbol"],
+                })
 
-        # 6. Persistir consumptions y cambiar estado
+        # 6. Si faltó stock en alguna línea → lanzar excepción con estructura correcta
+        if missing:
+            raise InsufficientStockForProductionException(order_id, missing)
+
+        # 7. Persistir consumptions y cambiar estado
         order.consumptions = consumptions
         await self._production_order_repository.add_consumptions(order)
         order.start()
