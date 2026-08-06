@@ -84,9 +84,9 @@ export const createPackagingSupplySchema = (existingSupplies = [], excludeId = n
       .positive("Seleccione una marca"),
 
     base_uom_id: z
-      .number({ invalid_type_error: "Seleccione una unidad de medida" })
+      .number({ invalid_type_error: "Seleccione una unidad" })
       .int()
-      .positive("Seleccione una unidad de medida"),
+      .positive("Seleccione una unidad"),
 
     min_stock_level: z
       .number({ invalid_type_error: "Debe ser un número" })
@@ -99,7 +99,7 @@ export const createPackagingSupplySchema = (existingSupplies = [], excludeId = n
     material: z
       .string()
       .trim()
-      .min(1, "El material es obligatorio"),
+      .min(1, "El material del envase es obligatorio"),
 
     capacity_ml: z
       .number({ invalid_type_error: "Debe ser un número" })
