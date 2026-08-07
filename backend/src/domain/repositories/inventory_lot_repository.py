@@ -47,7 +47,9 @@ class IInventoryLotRepository(Protocol):
         self,
         item_id: int,
         status: set[LotStatus] | None = None,
-    ) -> list["ItemLots"]:
+        offset: int | None = None,
+        limit: int | None = None,
+    ) -> tuple[list["ItemLots"], int]:
         """
         Busca lotes de un item con su información de balance.
         
@@ -55,6 +57,9 @@ class IInventoryLotRepository(Protocol):
           None → todos los lotes (sin filtro)
           set con uno o más LotStatus → combina condiciones con OR
           EXPIRING_SOON se ignora (solo es etiqueta informativa)
+
+        offset/limit: paginación opcional. Retorna (lotes, total).
+        El total se calcula sobre el dataset ya filtrado por status.
         """
         ...
 
