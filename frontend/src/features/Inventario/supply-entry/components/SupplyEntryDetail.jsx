@@ -191,7 +191,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
       {(entry.invoiceNumber || entry.description || entry.status === 'cancelled') && (
         <Card className="gap-0 rounded-lg py-0 shadow-none">
           <div className="grid grid-cols-1 divide-y text-sm md:grid-cols-3 md:divide-x md:divide-y-0">
-            {entry.invoiceNumber && <InfoBlock label="Documento" value={entry.invoiceNumber} />}
+            {entry.invoiceNumber && <InfoBlock label="N° de factura" value={entry.invoiceNumber} />}
             {entry.description && <InfoBlock label="Descripción" value={entry.description} />}
             {entry.status === 'cancelled' && (
               <InfoBlock
