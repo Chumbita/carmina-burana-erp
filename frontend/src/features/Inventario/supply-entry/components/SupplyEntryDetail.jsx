@@ -12,6 +12,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from '@/components/ui/AlertDialog'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 
 import {
   ArrowLeft,
@@ -120,6 +121,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
   }
 
   const totalItems = entry.items.reduce((total, item) => total + Number(item.amount || 0), 0)
+  const annulmentBlockedReason = getAnnulmentTooltip(canAnnul)
 
   return (
     <div className="space-y-4">
@@ -147,17 +149,23 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
 
         <div className="flex flex-wrap items-center gap-2">
           {entry.status === 'active' && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAnnulDialog(true)}
-              disabled={!canAnnul}
-              title={getAnnulmentTooltip(canAnnul)}
-              className="cursor-pointer"
-            >
-              <Trash2 className="h-4 w-4" />
-              Anular
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className={!canAnnul ? 'inline-flex cursor-not-allowed' : 'inline-flex'}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAnnulDialog(true)}
+                    disabled={!canAnnul}
+                    className={canAnnul ? 'cursor-pointer' : 'cursor-not-allowed'}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Anular
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {!canAnnul && <TooltipContent>{annulmentBlockedReason}</TooltipContent>}
+            </Tooltip>
           )}
           <Button variant="outline" size="sm" onClick={handleExport} className="cursor-pointer">
             <Download className="h-4 w-4" />
@@ -168,18 +176,6 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
           </Button>
         </div>
       </header>
-
-      {entry.status === 'active' && !canAnnul && (
-        <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
-          <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-600" />
-          <div>
-            <h2 className="font-medium text-amber-900">Restricciones de anulación</h2>
-            <p className="mt-1 text-sm text-amber-700">
-              Esta recepción no puede ser anulada porque pasaron más de 48 horas o algunos lotes ya fueron consumidos.
-            </p>
-          </div>
-        </div>
-      )}
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
         <SummaryItem icon={Calendar} label="Recepción" value={formatDateTime(entry.created_at || entry.entry_date)} />
