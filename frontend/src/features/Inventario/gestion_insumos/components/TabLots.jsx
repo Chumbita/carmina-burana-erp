@@ -2,18 +2,9 @@ import { useState, useMemo } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { DataTable } from "@/components/shared/DataTable"
 import { FilterBar } from "@/components/shared/FilterBar"
-import { Badge } from "@/components/ui/Badge"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationPrevious,
-  PaginationNext,
-  PaginationEllipsis,
-} from "@/components/ui/pagination"
-import { formatDate, formatCurrency } from "@/lib/utils/formatters"
 import { useLots } from "../hooks/useLots"
+import { LotsPagination } from "./LotsPagination"
+import { buildLotsColumns } from "./lotsColumns"
 
 const STATUS_OPTIONS = [
   { label: "Activo", value: "active" },
@@ -21,20 +12,6 @@ const STATUS_OPTIONS = [
   { label: "Vencido", value: "expired" },
   { label: "Todos", value: "all" },
 ]
-
-const lotStatusStyles = {
-  active: "bg-green-100 text-green-800",
-  depleted: "bg-gray-100 text-gray-800",
-  expired: "bg-red-100 text-red-600",
-  expiring_soon: "bg-yellow-100 text-yellow-800",
-}
-
-const lotStatusLabels = {
-  active: "Activo",
-  depleted: "Agotado",
-  expired: "Vencido",
-  expiring_soon: "Por vencer",
-}
 
 export function TabLots({ itemId, base_uom_symbol }) {
   const navigate = useNavigate()
@@ -46,56 +23,8 @@ export function TabLots({ itemId, base_uom_symbol }) {
   const { lots, loading, error, page, pageSize, totalItems, totalPages, changePage } =
     useLots(itemId, statusParam)
 
-  const columns = [
-    {
-      accessor: "index",
-      header: "Nro",
-      render: (_, row) => row._index,
-    },
-    {
-      accessor: "lot_code",
-      header: "Código de lote",
-    },
-    {
-      accessor: "quantity",
-      header: "Cantidad",
-      render: (value) => (
-        <span className="font-medium tabular-nums">
-          {Number(value).toLocaleString("es-AR")} {base_uom_symbol}
-        </span>
-      ),
-    },
-    {
-      accessor: "unit_cost",
-      header: "Costo unitario",
-      render: (value) => formatCurrency(value),
-    },
-    {
-      accessor: "expiration_date",
-      header: "Vencimiento",
-      render: (value) => formatDate(value),
-    },
-    {
-      accessor: "status",
-      header: "Estado",
-      render: (value) => (
-        <Badge className={lotStatusStyles[value]}>
-          {lotStatusLabels[value] ?? value}
-        </Badge>
-      ),
-    },
-  ]
-
+  const columns = buildLotsColumns(base_uom_symbol)
   const rows = lots.map((lot, i) => ({ ...lot, _index: i + 1 }))
-
-  const startItem = totalItems ? (page - 1) * pageSize + 1 : 0
-  const endItem = Math.min(page * pageSize, totalItems)
-
-  const pageNumbers = Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-    if (totalPages <= 5 || page <= 3) return i + 1
-    if (page >= totalPages - 2) return totalPages - 4 + i
-    return page - 2 + i
-  })
 
   function handleStatusChange(value) {
     setStatusFilter(value)
@@ -152,55 +81,13 @@ export function TabLots({ itemId, base_uom_symbol }) {
             onRowClick={handleRowClick}
           />
 
-          <div className="flex items-center gap-4">
-            {totalPages > 1 && (
-              <Pagination className="w-auto mx-0">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => changePage(page - 1)}
-                      className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
-                  </PaginationItem>
-
-                  {totalPages > 5 && page > 3 && (
-                    <PaginationItem>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  )}
-
-                  {pageNumbers.map((pageNum) => (
-                    <PaginationItem key={pageNum}>
-                      <PaginationLink
-                        isActive={page === pageNum}
-                        onClick={() => changePage(pageNum)}
-                        className="cursor-pointer"
-                      >
-                        {pageNum}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-
-                  {totalPages > 5 && page < totalPages - 2 && (
-                    <PaginationItem>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  )}
-
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => changePage(page + 1)}
-                      className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            )}
-
-            <p className="text-sm text-gray-600">
-              Resultados {startItem}~{endItem} de {totalItems}
-            </p>
-          </div>
+          <LotsPagination
+            page={page}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            onChangePage={changePage}
+          />
         </>
       )}
     </div>
