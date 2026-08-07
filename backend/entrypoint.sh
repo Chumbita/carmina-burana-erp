@@ -79,7 +79,7 @@ if [ "$CURRENT_REVISION" = "$HEAD_REVISION" ] && [ "$CURRENT_REVISION" != "none"
     echo "✅ Database is up to date - no migrations needed"
 else
     echo "📝 Applying pending migrations..."
-    if env DATABASE_URL="$SYNC_DATABASE_URL" alembic upgrade heads; then
+    if env DATABASE_URL="$SYNC_DATABASE_URL" alembic upgrade head; then
         echo "✅ Migrations applied successfully!"
     else
         echo "❌ ERROR: Failed to apply migrations"
