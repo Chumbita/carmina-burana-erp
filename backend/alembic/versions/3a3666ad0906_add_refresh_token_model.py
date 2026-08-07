@@ -139,6 +139,7 @@ def upgrade() -> None:
     sa.Column('document_number', sa.String(length=50), nullable=False),
     sa.Column('entry_date', sa.TIMESTAMP(), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('cancellation_reason', sa.Text(), nullable=True),
     sa.Column('status', sa.String(length=20), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(), nullable=False),
     sa.Column('canceled_at', sa.TIMESTAMP(), nullable=True),
