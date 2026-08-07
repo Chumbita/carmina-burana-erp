@@ -3,6 +3,15 @@ import { useNavigate, Link } from "react-router-dom"
 import { DataTable } from "@/components/shared/DataTable"
 import { FilterBar } from "@/components/shared/FilterBar"
 import { Badge } from "@/components/ui/Badge"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+} from "@/components/ui/pagination"
 import { formatDate, formatCurrency } from "@/lib/utils/formatters"
 import { useLots } from "../hooks/useLots"
 
@@ -34,7 +43,8 @@ export function TabLots({ itemId, base_uom_symbol }) {
     () => statusFilter === "all" ? undefined : statusFilter,
     [statusFilter]
   )
-  const { lots, loading, error } = useLots(itemId, statusParam)
+  const { lots, loading, error, page, pageSize, totalItems, totalPages, changePage } =
+    useLots(itemId, statusParam)
 
   const columns = [
     {
@@ -78,6 +88,20 @@ export function TabLots({ itemId, base_uom_symbol }) {
 
   const rows = lots.map((lot, i) => ({ ...lot, _index: i + 1 }))
 
+  const startItem = totalItems ? (page - 1) * pageSize + 1 : 0
+  const endItem = Math.min(page * pageSize, totalItems)
+
+  const pageNumbers = Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+    if (totalPages <= 5 || page <= 3) return i + 1
+    if (page >= totalPages - 2) return totalPages - 4 + i
+    return page - 2 + i
+  })
+
+  function handleStatusChange(value) {
+    setStatusFilter(value)
+    changePage(1)
+  }
+
   function handleRowClick(row) {
     if (row.supply_entry_id) {
       navigate(`/inventario/ingreso-insumos/${row.supply_entry_id}`)
@@ -93,11 +117,14 @@ export function TabLots({ itemId, base_uom_symbol }) {
             placeholder: "Estado",
             value: statusFilter,
             options: STATUS_OPTIONS,
-            onChange: setStatusFilter,
+            onChange: handleStatusChange,
           },
         ]}
         hasActiveFilters={statusFilter !== "active"}
-        onClearFilters={() => setStatusFilter("active")}
+        onClearFilters={() => {
+          setStatusFilter("active")
+          changePage(1)
+        }}
       />
 
       {loading && <p className="text-gray-500 py-4">Cargando lotes...</p>}
@@ -118,11 +145,63 @@ export function TabLots({ itemId, base_uom_symbol }) {
       )}
 
       {!loading && !error && lots.length > 0 && (
-        <DataTable
-          columns={columns}
-          data={rows}
-          onRowClick={handleRowClick}
-        />
+        <>
+          <DataTable
+            columns={columns}
+            data={rows}
+            onRowClick={handleRowClick}
+          />
+
+          <div className="flex items-center gap-4">
+            {totalPages > 1 && (
+              <Pagination className="w-auto mx-0">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => changePage(page - 1)}
+                      className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+
+                  {totalPages > 5 && page > 3 && (
+                    <PaginationItem>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  )}
+
+                  {pageNumbers.map((pageNum) => (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink
+                        isActive={page === pageNum}
+                        onClick={() => changePage(pageNum)}
+                        className="cursor-pointer"
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+
+                  {totalPages > 5 && page < totalPages - 2 && (
+                    <PaginationItem>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  )}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => changePage(page + 1)}
+                      className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+
+            <p className="text-sm text-gray-600">
+              Resultados {startItem}~{endItem} de {totalItems}
+            </p>
+          </div>
+        </>
       )}
     </div>
   )
