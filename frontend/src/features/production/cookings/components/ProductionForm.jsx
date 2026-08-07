@@ -7,6 +7,11 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/TextArea";
 import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/InputGroup";
+import {
   Select,
   SelectTrigger,
   SelectValue,
@@ -126,12 +131,12 @@ export function ProductionForm({
               Datos principales
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
               <Controller
                 name="item_id"
                 control={control}
                 render={({ field }) => (
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1 h-full justify-end">
                     <label className="text-xs font-medium text-neutral-600">
                       ¿Qué se produce?
                     </label>
@@ -146,7 +151,7 @@ export function ProductionForm({
                       }
                       disabled={optionsLoading}
                     >
-                      <SelectTrigger className="h-9 text-xs px-3">
+                      <SelectTrigger className="h-9 text-xs px-3 w-full">
                         <SelectValue placeholder="Seleccionar producto..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -178,31 +183,46 @@ export function ProductionForm({
                 )}
               />
 
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 h-full justify-end">
                 <label className="text-xs font-medium text-neutral-600">
                   Receta
                 </label>
 
                 {bomLoading ? (
-                  <div className="h-9 flex items-center px-3 text-xs bg-neutral-50 border border-neutral-200 rounded-md text-neutral-400 italic animate-pulse">
-                    Cargando receta...
-                  </div>
+                  <InputGroup className="bg-neutral-50 border-neutral-200">
+                    <InputGroupInput
+                      disabled
+                      placeholder="Cargando receta..."
+                      className="text-xs italic text-neutral-400"
+                    />
+                  </InputGroup>
                 ) : selectedBom ? (
-                  <div className="h-9 flex items-center justify-between px-3 text-xs bg-emerald-50/60 border border-emerald-200 rounded-md text-emerald-800 font-medium">
-                    <span>Versión {selectedBom.version || 1}</span>
-                    <span className="text-neutral-500 font-normal bg-white px-2 py-0.5 rounded border border-neutral-200/60 shadow-sm text-[11px]">
-                      Base: {formatDecimal(selectedBom.quantity)}{" "}
-                      {selectedBom.uom || ""}
-                    </span>
-                  </div>
+                  <InputGroup className="bg-emerald-50/60 border-emerald-200">
+                    <InputGroupInput
+                      disabled
+                      value={`Versión ${selectedBom.version || 1}`}
+                      className="text-xs text-emerald-800 font-medium"
+                    />
+                    <InputGroupAddon align="inline-end" className="pr-3 text-[11px] text-neutral-500 font-normal">
+                      Base: {formatDecimal(selectedBom.quantity)} {selectedBom.uom || ""}
+                    </InputGroupAddon>
+                  </InputGroup>
                 ) : isItemSelected ? (
-                  <div className="h-9 flex items-center px-3 text-xs bg-red-50 border border-red-200 rounded-md text-red-600 font-medium">
-                    ⚠️ Este producto no tiene receta activa
-                  </div>
+                  <InputGroup className="bg-red-50 border-red-200">
+                    <InputGroupInput
+                      disabled
+                      value="⚠️ Este producto no tiene receta activa"
+                      className="text-xs text-red-600 font-medium"
+                    />
+                  </InputGroup>
                 ) : (
-                  <div className="h-9 flex items-center px-3 text-xs bg-neutral-50 border border-neutral-200/80 rounded-md text-neutral-400 italic">
-                    Automática por producto
-                  </div>
+                  <InputGroup className="bg-neutral-50 border-neutral-200/80">
+                    <InputGroupInput
+                      disabled
+                      value="Automática por producto"
+                      className="text-xs italic text-neutral-400"
+                    />
+                  </InputGroup>
                 )}
               </div>
             </div>
@@ -223,17 +243,38 @@ export function ProductionForm({
                       <label className="text-xs font-medium text-neutral-600">
                         Cant. a producir
                       </label>
-                      <Input
-                        {...field}
-                        type="number"
-                        className="h-9 text-xs px-3"
-                        disabled={!hasValidRecipe}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value === "" ? 0 : Number(e.target.value),
-                          )
-                        }
-                      />
+                      <InputGroup
+                        className={`${
+                          hasValidRecipe
+                            ? "border-neutral-300 hover:border-neutral-400"
+                            : "border-neutral-200 bg-neutral-50 cursor-not-allowed"
+                        }`}
+                      >
+                        <InputGroupInput
+                          {...field}
+                          type="number"
+                          min="0"
+                          step="any"
+                          className="text-xs"
+                          disabled={!hasValidRecipe}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === "") {
+                              field.onChange("");
+                            } else {
+                              const num = Number(value);
+                              if (!isNaN(num) && num >= 0) {
+                                field.onChange(num);
+                              }
+                            }
+                          }}
+                        />
+                        {selectedBom?.uom && hasValidRecipe && (
+                          <InputGroupAddon align="inline-end" className="pl-3 pr-3 text-xs text-neutral-400 font-medium border-l border-neutral-200">
+                            {selectedBom.uom}
+                          </InputGroupAddon>
+                        )}
+                      </InputGroup>
                     </div>
                   )}
                 />
