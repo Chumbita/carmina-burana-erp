@@ -175,7 +175,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                 <div>
                   <p className="text-sm font-medium text-neutral-900">Fecha de Recepción</p>
                   <p className="text-sm text-neutral-600">
-                    {new Date(entry.created_at || entry.entry_date).toLocaleString('es-AR', {
+                    {new Date(entry.entry_date).toLocaleString('es-AR', {
                       day: '2-digit',
                       month: '2-digit',
                       year: 'numeric',
