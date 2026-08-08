@@ -1,3 +1,5 @@
+import { useCallback, useMemo } from 'react'
+
 import { useNotificationContext } from './NotificationContext'
 
 const DEFAULT_DURATION_MS = 6000
@@ -15,17 +17,17 @@ const DEFAULT_DURATION_MS = 6000
 export function useNotification() {
   const { addNotification } = useNotificationContext()
 
-  const show = (type, message, options = {}) => {
+  const show = useCallback((type, message, options = {}) => {
     addNotification({
       type,
       message,
       duration: options.duration || DEFAULT_DURATION_MS,
       onClick: options.onClick || null
     })
-  }
+  }, [addNotification])
 
-  return {
+  return useMemo(() => ({
     success: (message, options) => show('success', message, options),
     error: (message, options) => show('error', message, options)
-  }
+  }), [show])
 }
