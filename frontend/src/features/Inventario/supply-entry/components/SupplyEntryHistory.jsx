@@ -23,17 +23,12 @@ import { Search, Calendar, Filter, Eye, Download, ArrowLeft, Package } from 'luc
  * @param {Function} props.onNewEntry - Callback for new entry
  * @param {Function} props.onRowClick - Callback for row click
  */
-export function SupplyEntryHistory({ historyHook, onNewEntry, onRowClick }) {
+export function SupplyEntryHistory({ historyHook }) {
   const {
     loading,
     error,
-    currentPage,
     filters,
-    filteredEntries,
-    paginatedEntries,
-    totalPages,
     uniqueSuppliers,
-    setCurrentPage,
     updateFilter,
     clearFilters,
   } = historyHook
