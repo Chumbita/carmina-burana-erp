@@ -13,6 +13,18 @@ class ISupplierRepository(Protocol):
         """Busca un proveedor por nombre exacto. Retorna None si no existe."""
         ...
 
+    async def find_by_id(self, supplier_id: int) -> Supplier | None:
+        """Busca un proveedor por id. Retorna None si no existe."""
+        ...
+
+    async def find_all(self) -> list[Supplier]:
+        """Retorna proveedores ordenados por nombre."""
+        ...
+
     async def find_active(self) -> list[Supplier]:
         """Retorna proveedores activos ordenados por nombre."""
+        ...
+
+    async def save(self, supplier: Supplier) -> Supplier | None:
+        """Persiste cambios de un proveedor existente."""
         ...
