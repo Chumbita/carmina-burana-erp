@@ -41,7 +41,7 @@ export const completeProductionSchema = () => {
         .min(1, "Fecha inválida"),
       unit_cost: z.coerce
         .number({ required_error: "El costo unitario es requerido" })
-        .nonnegative("El costo no puede ser negativo"),
+        .positive("El costo debe ser mayor a 0"),
     })
     .refine(
       (data) => {

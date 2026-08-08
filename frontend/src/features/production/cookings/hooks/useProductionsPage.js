@@ -4,8 +4,7 @@ import { useNotification } from "@/components/shared/notifications/useNotificati
 import { useLocationNotification } from "@/features/Inventario/gestion_insumos/hooks/useLocationNotification";
 
 export function useProductionsPage() {
-  const { productions, loading, error, createProduction, releaseProduction,
-    startProduction, completeProduction } = useProductions();
+  const { productions, loading, error, planProduction, executeProduction } = useProductions();
   const notify = useNotification();
 
   useLocationNotification(notify);
@@ -13,26 +12,24 @@ export function useProductionsPage() {
   const [openModal, setOpenModal] = useState(false);
   const tableRef = useRef(null);
 
-  async function handleCreateProduction(formData) {
-    try {
-      const payload = {
-        item_id: formData.item_id,
-        bom_id: formData.bom_id,
-        planned_quantity: formData.planned_quantity,
-        schedule_date: formData.schedule_date || undefined,
-        description: formData.description || undefined,
-      };
+  async function handlePlanProduction(formData) {
+    const payload = {
+      item_id: formData.item_id,
+      bom_id: formData.bom_id,
+      planned_quantity: formData.planned_quantity,
+      schedule_date: formData.schedule_date || undefined,
+      description: formData.description || undefined,
+    };
 
-      const newProduction = await createProduction(payload);
-      setOpenModal(false);
-      notify.success(`Orden de producción creada (ID: ${newProduction.id})`, {
-        onClick: () => handleNotificationClick(newProduction.id),
-      });
-    } catch (error) {
-      notify.error(
-        `Error al crear la orden de producción: ${error.message ?? "Error al crear la orden"}`,
-      );
-    }
+    const newProduction = await planProduction(payload);
+    setOpenModal(false);
+    notify.success(`Orden de producción planificada (ID: ${newProduction.id})`, {
+      onClick: () => handleNotificationClick(newProduction.id),
+    });
+  }
+
+  async function handleExecuteProduction(order, producedData) {
+    return executeProduction(order.id, producedData);
   }
 
   function handleNotificationClick(id) {
@@ -57,10 +54,8 @@ export function useProductionsPage() {
     error,
     openModal,
     setOpenModal,
-    handleCreateProduction,
-    releaseProduction,
-    startProduction,
-    completeProduction,
+    handlePlanProduction,
+    handleExecuteProduction,
     tableRef,
   };
 }

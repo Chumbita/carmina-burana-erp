@@ -14,7 +14,7 @@ from src.domain.value_objects.production_order_status import ProductionOrderStat
 class ProductionConsumption:
     """
     Detalle de un ítem/lote consumido durante una producción.
-    Registra el descuento de inventario al pasar a IN_PROGRESS.
+    Registra el descuento de inventario al ejecutar la orden.
     No tiene vida propia fuera de su ProductionOrder.
     """
 
@@ -42,7 +42,7 @@ class ProductionConsumption:
 class ProductionOutput:
     """
     Detalle del ítem/lote generado como resultado de una producción.
-    Registra el alta de inventario al pasar a DONE.
+    Registra el alta de inventario al completar la orden.
     No tiene vida propia fuera de su ProductionOrder.
     """
 
@@ -75,9 +75,8 @@ class ProductionOrder:
     (embotellado, enlatado, barril).
 
     Flujo de estados:
-        PLANNED → RELEASED → IN_PROGRESS → DONE
-                           ↘ CANCELLED
-                ↘ CANCELLED
+        PLANNED → DONE
+           ↘ CANCELLED
         Cualquier estado → DISCARDED (producción descartada)
     """
 
@@ -116,32 +115,13 @@ class ProductionOrder:
 
     # ── State Transitions ──────────────────────────────────────────
 
-    def release(self) -> None:
-        """
-        PLANNED → RELEASED.
-        Se llama cuando se verifica que hay stock suficiente.
-        """
-        if self.status != ProductionOrderStatus.PLANNED:
-            raise ValueError(f"Cannot release order in status '{self.status}'")
-        self.status = ProductionOrderStatus.RELEASED
-
-    def start(self) -> None:
-        """
-        RELEASED → IN_PROGRESS.
-        Se llama al comenzar la ejecución: se seleccionan lotes (FEFO)
-        y se descuenta el inventario de insumos.
-        """
-        if self.status != ProductionOrderStatus.RELEASED:
-            raise ValueError(f"Cannot start order in status '{self.status}'")
-        self.status = ProductionOrderStatus.IN_PROGRESS
-
     def complete(self, produced_quantity: Decimal, completed_at: datetime) -> None:
         """
-        IN_PROGRESS → DONE.
+        PLANNED → DONE.
         Se llama al cerrar la orden: se crea el lote de output
         y se acredita el inventario del producto terminado.
         """
-        if self.status != ProductionOrderStatus.IN_PROGRESS:
+        if self.status != ProductionOrderStatus.PLANNED:
             raise ValueError(f"Cannot complete order in status '{self.status}'")
 
         if produced_quantity is None or produced_quantity <= Decimal("0"):
@@ -153,10 +133,9 @@ class ProductionOrder:
 
     def cancel(self) -> None:
         """
-        PLANNED | RELEASED → CANCELLED.
+        PLANNED → CANCELLED.
         """
-        allowed = {ProductionOrderStatus.PLANNED, ProductionOrderStatus.RELEASED}
-        if self.status not in allowed:
+        if self.status != ProductionOrderStatus.PLANNED:
             raise ValueError(f"Cannot cancel order in status '{self.status}'")
         self.status = ProductionOrderStatus.CANCELLED
 
