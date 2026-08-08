@@ -92,7 +92,7 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
       ),
     },
     {
-      accessor: "action",
+      accessor: "changes",
       header: "Cambios",
       render: (_, row) => {
         const keys = getChangedKeys(row.old_data, row.new_data, row.action)

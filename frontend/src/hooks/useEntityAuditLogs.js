@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { auditLogService } from "../services/auditLogService"
 
 const PAGE_SIZE = 10
@@ -33,10 +33,10 @@ export function useEntityAuditLogs(entityType, entityId) {
     load()
   }, [entityType, entityId, page, refreshKey])
 
-  function refetch() {
+  const refetch = useCallback(() => {
     setPage(1)
     setRefreshKey((key) => key + 1)
-  }
+  }, [])
 
   return { auditLogs, isLoading, error, page, pageSize: PAGE_SIZE, totalItems, totalPages, changePage: setPage, refetch }
 }
