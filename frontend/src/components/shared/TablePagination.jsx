@@ -64,7 +64,7 @@ export function TablePagination({ page, totalPages, totalItems, pageSize, onChan
         </Pagination>
       )}
 
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-gray-600 ml-auto">
         Resultados {startItem}~{endItem} de {totalItems}
       </p>
     </div>

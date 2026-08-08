@@ -62,7 +62,7 @@ export function SupplyEntryTable({ entries, loading }) {
     },
   ]
 
-  if (loading) {
+  if (loading && entries.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-neutral-500">Cargando...</div>
@@ -70,7 +70,7 @@ export function SupplyEntryTable({ entries, loading }) {
     )
   }
 
-  if (entries.length === 0) {
+  if (!loading && entries.length === 0) {
     return (
       <Card>
         <div className="text-center py-8">
@@ -81,7 +81,7 @@ export function SupplyEntryTable({ entries, loading }) {
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className={`overflow-x-auto transition-opacity ${loading ? 'opacity-60 pointer-events-none' : ''}`}>
       <DataTable
         columns={columns}
         data={tableData}
