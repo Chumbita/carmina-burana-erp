@@ -32,9 +32,11 @@ function SidebarRow({ label, value }) {
 function Sidebar({ icon, children }) {
   return (
     <aside className="bg-white rounded-lg p-4 flex flex-col gap-4">
-      <div className="aspect-square bg-gray-100 rounded-md flex items-center justify-center -mt-4">
-        {icon}
-      </div>
+      {icon && (
+        <div className="aspect-square bg-gray-100 rounded-md flex items-center justify-center -mt-4">
+          {icon}
+        </div>
+      )}
       <div className="space-y-2">
         {children}
       </div>
@@ -77,13 +79,17 @@ function Actions({ children }) {
   return <div className="flex items-center gap-2">{children}</div>;
 }
 
-export function EntityDetailPage({ loading, error, children }) {
+export function EntityDetailPage({ loading, error, children, layout = "detail" }) {
   if (loading) return <div className="flex items-center justify-center h-64"><Spinner /></div>;
   if (error) return <p>Ocurrió un error al cargar.</p>;
 
+  const layoutClassName = layout === "stack"
+    ? "space-y-6"
+    : "grid grid-cols-1 grid-rows-[auto_auto_1fr_auto] lg:grid-cols-[240px_1fr] lg:grid-rows-[auto_1fr_auto] gap-6 h-full";
+
   return (
     <EntityDetailProvider>
-      <div className="grid grid-cols-1 grid-rows-[auto_auto_1fr_auto] lg:grid-cols-[240px_1fr] lg:grid-rows-[auto_1fr_auto] gap-6 h-full">
+      <div className={layoutClassName}>
         {children}
       </div>
     </EntityDetailProvider>
