@@ -45,9 +45,13 @@ export const ENDPOINTS = {
     },
     // Suppliers
     SUPPLIERS: {
+        GET_ALL: '/suppliers',
+        GET_BY_ID: (id) => `/suppliers/${id}`,
         OPTIONS: '/suppliers/options',
         GET_BY_NAME: (name) => `/suppliers?name=${encodeURIComponent(name)}`,
         CREATE: '/suppliers',
+        UPDATE: (id) => `/suppliers/${id}`,
+        DELETE: (id) => `/suppliers/${id}`,
     },
     // UOM
     UOMS: {
