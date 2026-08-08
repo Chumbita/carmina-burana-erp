@@ -14,6 +14,7 @@ from src.domain.value_objects.lot_status import LotStatus
 from src.infrastructure.database.models.inventory_balance_model import InventoryBalanceModel
 from src.infrastructure.database.models.inventory_lot_model import InventoryLotModel
 from src.infrastructure.database.models.inventory_transaction_model import InventoryTransactionModel
+from src.infrastructure.database.pagination import paginate
 
 class InventoryLotRepository():
     def __init__(self, session: AsyncSession):
@@ -91,7 +92,9 @@ class InventoryLotRepository():
         self,
         item_id: int,
         status: set[LotStatus] | None = None,
-    ) -> list[ItemLots]:
+        offset: int | None = None,
+        limit: int | None = None,
+    ) -> tuple[list[ItemLots], int]:
         supply_entry_subq = (
             select(InventoryTransactionModel.reference_id)
             .where(
@@ -140,8 +143,12 @@ class InventoryLotRepository():
 
         stmt = stmt.order_by(InventoryLotModel.created_at.desc())
 
-        result = await self._session.execute(stmt)
-        rows = result.all()
+        if offset is not None and limit is not None:
+            rows, total = await paginate(self._session, stmt, offset=offset, limit=limit)
+        else:
+            result = await self._session.execute(stmt)
+            rows = result.all()
+            total = len(rows)
 
         return [
             ItemLots(
@@ -157,7 +164,7 @@ class InventoryLotRepository():
                 supply_entry_id=entry_id,
             )
             for model_lot, model_bal, entry_id in rows
-        ]
+        ], total
 
     async def list_by_ids(self, ids: list[int]) -> list[InventoryLot]:
         """

@@ -2,6 +2,7 @@ from datetime import datetime, timezone, timedelta
 
 from src.domain.repositories.inventory_lot_repository import IInventoryLotRepository, ItemLots
 from src.domain.value_objects.lot_status import LotStatus
+from src.shared.pagination import Page, PaginationParams
 
 
 class GetLotsByItemUseCase:
@@ -12,9 +13,15 @@ class GetLotsByItemUseCase:
     async def execute(
         self,
         item_id: int,
+        params: PaginationParams,
         status: set[LotStatus] | None = None,
-    ) -> list[ItemLots]:
-        lots = await self._lot_repo.find_by_item_id(item_id, status=status)
+    ) -> Page[ItemLots]:
+        lots, total = await self._lot_repo.find_by_item_id(
+            item_id,
+            status=status,
+            offset=params.offset,
+            limit=params.limit,
+        )
 
         now = datetime.now(timezone.utc).replace(tzinfo=None)
         threshold = now + timedelta(days=30)
@@ -22,7 +29,11 @@ class GetLotsByItemUseCase:
         for lot in lots:
             lot.status = self._compute_status(lot, now, threshold)
 
-        return lots
+        return Page(
+            items=lots,
+            total_items=total,
+            params=params,
+        )
 
     @staticmethod
     def _compute_status(lot: ItemLots, now: datetime, threshold: datetime) -> str:
