@@ -21,7 +21,7 @@ const FIELD_LABELS = {
   base_uom_id: "UOM",
   min_stock_level: "Stock mínimo",
   supply_category: "Categoría",
-  status: "Estado",
+  is_active: "Activo",
 }
 
 function label(key) {
@@ -30,6 +30,7 @@ function label(key) {
 
 function resolveValue(key, value, brandMap, uomMap) {
   if (value == null) return "-"
+  if (typeof value === "boolean") return value ? "Sí" : "No"
   if (key === "brand_id" && brandMap[value]) return brandMap[value]
   if (key === "base_uom_id" && uomMap[value]) return uomMap[value]
   return value
