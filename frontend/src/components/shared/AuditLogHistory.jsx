@@ -22,6 +22,9 @@ const FIELD_LABELS = {
   min_stock_level: "Stock mínimo",
   supply_category: "Categoría",
   status: "Estado",
+  email: "Email",
+  phone: "Teléfono",
+  address: "Dirección",
 }
 
 function label(key) {
@@ -47,7 +50,7 @@ function formatDate(dateStr) {
 
 function getChangedKeys(oldData, newData, action) {
   if (action === "CREATED" && !oldData) {
-    return ["name", "brand_id", "base_uom_id", "min_stock_level"].filter(k => k in (newData || {}))
+    return Object.keys(newData || {})
   }
   if (action === "UPDATED" && oldData && newData) {
     return Object.keys(newData).filter(k => oldData[k] !== newData[k])
