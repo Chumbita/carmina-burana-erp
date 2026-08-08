@@ -96,10 +96,3 @@ class SupplyEntryListItemResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-class SupplyEntryListResponse(BaseModel):
-    data: list[SupplyEntryListItemResponse]
-
-    class Config:
-        from_attributes = True
