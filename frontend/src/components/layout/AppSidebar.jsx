@@ -87,6 +87,10 @@ export function AppSidebar({ ...props }) {
             url: "/inventario/ingreso-insumos",
           },
           {
+            title: "Proveedores",
+            url: "/inventario/proveedores",
+          },
+          {
             title: "Productos",
             url: "/inventario/productos",
           },

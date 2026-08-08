@@ -57,6 +57,17 @@ class SupplierRepository(ISupplierRepository):
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model else None
 
+    async def find_by_id(self, supplier_id: int) -> Supplier | None:
+        stmt = select(SupplierModel).where(SupplierModel.id == supplier_id)
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+        return self._to_entity(model) if model else None
+
+    async def find_all(self) -> list[Supplier]:
+        stmt = select(SupplierModel).order_by(SupplierModel.name)
+        result = await self._session.execute(stmt)
+        return [self._to_entity(model) for model in result.scalars().all()]
+
     async def find_active(self) -> list[Supplier]:
         stmt = (
             select(SupplierModel)
@@ -65,3 +76,19 @@ class SupplierRepository(ISupplierRepository):
         )
         result = await self._session.execute(stmt)
         return [self._to_entity(model) for model in result.scalars().all()]
+
+    async def save(self, supplier: Supplier) -> Supplier:
+        stmt = select(SupplierModel).where(SupplierModel.id == supplier.id)
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+        if model is None:
+            return None
+
+        model.name = supplier.name
+        model.email = supplier.email
+        model.phone = supplier.phone
+        model.address = supplier.address
+        model.status = supplier.status.value
+        model.updated_at = supplier.updated_at or datetime.now(timezone.utc).replace(tzinfo=None)
+        await self._session.flush()
+        return self._to_entity(model)
