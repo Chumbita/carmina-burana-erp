@@ -8,7 +8,7 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination"
 
-export function LotsPagination({ page, totalPages, totalItems, pageSize, onChangePage }) {
+export function TablePagination({ page, totalPages, totalItems, pageSize, onChangePage }) {
   const startItem = totalItems ? (page - 1) * pageSize + 1 : 0
   const endItem = Math.min(page * pageSize, totalItems)
 
