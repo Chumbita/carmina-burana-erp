@@ -10,7 +10,7 @@ export function useBrands() {
     async function load() {
       try {
         const data = await brandService.getAll()
-        setBrands(data)
+        setBrands(data.filter((brand) => brand.is_active))
       } catch (err) {
         setError(err)
       } finally {
