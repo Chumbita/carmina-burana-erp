@@ -30,6 +30,14 @@ const SupplyEntryPage = lazy(() =>
   import('@/features/Inventario/supply-entry/pages/SupplyEntryPage')
 );
 
+const SuppliersPage = lazy(() =>
+  import('@/features/Inventario/suppliers/pages/SuppliersPage')
+);
+
+const SupplierDetailPage = lazy(() =>
+  import('@/features/Inventario/suppliers/pages/SupplierDetailPage')
+);
+
 // beer pages
 const BeerPage = lazy(
   () => import("@/features/Inventario/beer/pages/BeerPage"),
@@ -108,6 +116,14 @@ export const router = createBrowserRouter([
       {
         path: "/inventario/ingreso-insumos",
         element: <SupplyEntryPage />,
+      },
+      {
+        path: "/inventario/proveedores",
+        element: <SuppliersPage />,
+      },
+      {
+        path: "/inventario/proveedores/:supplierId",
+        element: <SupplierDetailPage />,
       },
       {
         path: "/inventario/ingreso-insumos/:entryId",
