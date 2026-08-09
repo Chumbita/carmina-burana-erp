@@ -2,6 +2,7 @@ import { DataTable } from "../../../../components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { estadoStyles } from "../utils/stockStyles";
 import { useNavigate } from "react-router-dom";
+import { formatDecimal } from "@/lib/utils/formatters";
 
 export function SuppliesTable({ insumos }) {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ export function SuppliesTable({ insumos }) {
     { header: "Stock", accessor: "stock_total" ,
       render: (value, insumo) => (
         <div className="w-8">
-          {value} {insumo.base_uom_symbol}
+          {formatDecimal(value)} {insumo.base_uom_symbol}
         </div>
       ),
     },
@@ -40,7 +41,7 @@ export function SuppliesTable({ insumos }) {
       header: "Estado",
       accessor: "estado_stock",
       render: (value) => (
-        <Badge variant="outline" className={estadoStyles[value]}>
+        <Badge variant="outline" className={`${estadoStyles[value]} capitalize`}>
           {value}
         </Badge>
       ),
@@ -48,9 +49,9 @@ export function SuppliesTable({ insumos }) {
   ];
 
   return (
-    <DataTable 
-      columns={tableHeaders} 
-      data={insumos} 
+    <DataTable
+      columns={tableHeaders}
+      data={insumos}
       onRowClick={handleRowClick}
     />
   );

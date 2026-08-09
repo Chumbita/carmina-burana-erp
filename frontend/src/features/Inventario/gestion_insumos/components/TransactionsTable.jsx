@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { DataTable } from "@/components/shared/DataTable"
 import { useTransactions } from "../hooks/useTransactions"
+import { formatDecimal } from "@/lib/utils/formatters"
 
 const REFERENCE_LABELS = {
   supply_entry: "Entrada",
@@ -31,7 +32,7 @@ const columns = [
       return (
         <span className={`${quantityClass} ${isPositive ? "text-green-600" : "text-red-600"}`}>
           {isPositive ? "+" : ""}
-          {Number(value).toFixed(2)} {row.uom_symbol}
+          {formatDecimal(value)} {row.uom_symbol}
         </span>
       )
     },

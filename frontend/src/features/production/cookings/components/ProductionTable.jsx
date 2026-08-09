@@ -6,6 +6,8 @@ import { DataTable } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { DecimalInput } from "@/components/shared/DecimalInput";
+import { formatDecimal } from "@/lib/utils/formatters";
 import { useNavigate } from "react-router-dom";
 import { Play, CheckCircle, ArrowUpCircle } from "lucide-react";
 import { useNotification } from "@/components/shared/notifications/useNotification";
@@ -27,15 +29,15 @@ export function ProductionTable({ productions, onRelease, onStart, onComplete })
     control: completeControl, 
     setValue: setCompleteValue,
     reset: resetCompleteForm,
-    formState: { errors: completeErrors, isSubmitting: isCompleting } 
+    formState: { errors: completeErrors, isValid: isCompleteValid, isSubmitting: isCompleting } 
   } = useForm({
     resolver: zodResolver(schemaComplete),
     defaultValues: {
-      produced_quantity: 0,
+      produced_quantity: 1,
       lot_code: "",
       production_date: "",
       expiration_date: "",
-      unit_cost: 0,
+      unit_cost: "",
     },
     mode: "onChange"
   });
@@ -43,7 +45,7 @@ export function ProductionTable({ productions, onRelease, onStart, onComplete })
   // Sincroniza los datos de la orden seleccionada con el formulario de Zod
   useEffect(() => {
     if (completeTarget) {
-      setCompleteValue("produced_quantity", Number(completeTarget.planned_quantity || 0));
+      setCompleteValue("produced_quantity", Number(completeTarget.planned_quantity || 1));
       
       const productionDate = completeTarget.schedule_date 
         ? completeTarget.schedule_date.split('T')[0] 
@@ -52,7 +54,7 @@ export function ProductionTable({ productions, onRelease, onStart, onComplete })
       setCompleteValue("production_date", productionDate);
       setCompleteValue("lot_code", "");
       setCompleteValue("expiration_date", "");
-      setCompleteValue("unit_cost", 0);
+      setCompleteValue("unit_cost", "");
     }
   }, [completeTarget, setCompleteValue]);
 
@@ -90,7 +92,7 @@ export function ProductionTable({ productions, onRelease, onStart, onComplete })
       const errorData = err.response?.data?.detail;
       if (errorData?.missing && errorData.missing.length > 0) {
         const detalleFaltantes = errorData.missing
-          .map(insumo => `• ID Insumo ${insumo.item_id}: Falta ${insumo.required - insumo.available}`)
+          .map(insumo => `• ID Insumo ${insumo.item_id}: Falta ${formatDecimal(insumo.required - insumo.available)}`)
           .join("\n");
         notify.error(`${errorData.message}:\n${detalleFaltantes}`);
       } else {
@@ -155,7 +157,7 @@ export function ProductionTable({ productions, onRelease, onStart, onComplete })
     { 
       header: "Cantidad", 
       accessor: "planned_quantity",
-      render: (value, row) => `${value} ${row.base_uom_symbol || ""}`
+      render: (value, row) => `${formatDecimal(value)} ${row.base_uom_symbol || ""}`
     },
     { header: "Fecha planeada", accessor: "schedule_date", render: (value) => value ? value : "Sin fecha" },
     {
@@ -242,7 +244,7 @@ export function ProductionTable({ productions, onRelease, onStart, onComplete })
                   name="produced_quantity"
                   control={completeControl}
                   render={({ field }) => (
-                    <Input {...field} type="number" step="any" className="h-9 text-xs px-3" />
+                    <DecimalInput {...field} className="h-9 text-xs px-3" />
                   )}
                 />
                 {completeErrors.produced_quantity && <span className="text-[10px] text-red-500">{completeErrors.produced_quantity.message}</span>}
@@ -287,13 +289,13 @@ export function ProductionTable({ productions, onRelease, onStart, onComplete })
 
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-slate-700 dark:text-slate-300">Costo Unitario ($)</label>
-              <Controller
-                name="unit_cost"
-                control={completeControl}
-                render={({ field }) => (
-                  <Input {...field} type="number" step="any" placeholder="Ej: 250" className="h-9 text-xs px-3" />
-                )}
-              />
+                <Controller
+                  name="unit_cost"
+                  control={completeControl}
+                  render={({ field }) => (
+                    <DecimalInput {...field} className="h-9 text-xs px-3" placeholder="Ej: 250" />
+                  )}
+                />
               {completeErrors.unit_cost && <span className="text-[10px] text-red-500">{completeErrors.unit_cost.message}</span>}
             </div>
 
@@ -301,7 +303,7 @@ export function ProductionTable({ productions, onRelease, onStart, onComplete })
               <Button type="button" variant="outline" size="sm" onClick={() => setCompleteTarget(null)} disabled={isCompleting}>
                 Cancelar
               </Button>
-              <Button type="submit" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={isCompleting}>
+              <Button type="submit" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={isCompleting || !isCompleteValid}>
                 {isCompleting ? "Finalizando..." : "Finalizar Orden"}
               </Button>
             </div>

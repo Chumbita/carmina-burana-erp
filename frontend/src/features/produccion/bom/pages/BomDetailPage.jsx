@@ -3,6 +3,7 @@ import { BoxesIcon } from "lucide-react"
 import { EntityDetailPage } from "@/components/shared/DetailPage/EntityDetailPage"
 import { DataTable } from "@/components/shared/DataTable"
 import { useBom } from "../hooks/useBom"
+import { formatDecimal } from "@/lib/utils/formatters"
 
 export default function BomDetailPage() {
   const { bomId } = useParams()
@@ -16,7 +17,7 @@ export default function BomDetailPage() {
       accessor: "quantity",
       render: (value, row) => (
         <span className="font-medium">
-          {parseFloat(value)} {row.uom_symbol}
+          {formatDecimal(value)} {row.uom_symbol}
         </span>
       ),
     },
@@ -39,7 +40,7 @@ export default function BomDetailPage() {
         />
         <EntityDetailPage.Sidebar.Row
           label="Cantidad"
-          value={`${parseFloat(bom?.quantity || 0)} ${bom?.bom_uom_symbol}`}
+          value={`${formatDecimal(bom?.quantity)} ${bom?.bom_uom_symbol}`}
         />
         <EntityDetailPage.Sidebar.Row
           label="Vigente desde"

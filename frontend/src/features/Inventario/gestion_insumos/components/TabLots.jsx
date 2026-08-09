@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import { DataTable } from "@/components/shared/DataTable"
 import { FilterBar } from "@/components/shared/FilterBar"
 import { Badge } from "@/components/ui/Badge"
-import { formatDate, formatCurrency } from "@/lib/utils/formatters"
+import { formatDate, formatCurrency, formatDecimal } from "@/lib/utils/formatters"
 import { useLots } from "../hooks/useLots"
 
 const STATUS_OPTIONS = [
@@ -51,7 +51,7 @@ export function TabLots({ itemId, base_uom_symbol }) {
       header: "Cantidad",
       render: (value) => (
         <span className="font-medium tabular-nums">
-          {Number(value).toLocaleString("es-AR")} {base_uom_symbol}
+          {formatDecimal(value)} {base_uom_symbol}
         </span>
       ),
     },

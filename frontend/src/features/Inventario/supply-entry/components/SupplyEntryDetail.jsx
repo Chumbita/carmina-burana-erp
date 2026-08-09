@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/AlertDialog'
 
 import { ArrowLeft, Package, Calendar, DollarSign, User, Download, Trash2, AlertTriangle, ExternalLink } from 'lucide-react'
+import { formatCurrency, formatDecimal } from '@/lib/utils/formatters'
 
 // Helper functions for better code organization
 const getStatusLabel = (status) => {
@@ -87,7 +88,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
           <div className="flex items-center gap-3">
             <button
               onClick={onBack}
-              className="p-2 hover:bg-neutral-100 rounded-md transition-colors"
+              className="p-2 hover:bg-neutral-100 rounded-md transition-colors cursor-pointer"
               aria-label="Volver"
             >
               <ArrowLeft className="w-5 h-5 text-neutral-600" />
@@ -211,7 +212,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                 <div>
                   <p className="text-sm font-medium text-neutral-900">Costo Total</p>
                   <p className="text-lg font-semibold text-neutral-900">
-                    ${entry.total_cost?.toFixed(2) || '0.00'}
+                    {formatCurrency(entry.total_cost)}
                   </p>
                 </div>
               </div>
@@ -294,13 +295,13 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                       </div>
                     </td>
                     <td className="px-4 py-4 text-sm text-neutral-600 text-center">
-                      {item.amount}
+                      {formatDecimal(item.amount)}
                     </td>
                     <td className="px-4 py-4 text-sm text-neutral-600 text-right">
-                      ${item.unit_cost?.toFixed(2) || '0.00'}
+                      {formatCurrency(item.unit_cost)}
                     </td>
                     <td className="px-4 py-4 text-sm font-medium text-neutral-900 text-right">
-                      ${(item.amount * item.unit_cost).toFixed(2)}
+                      {formatCurrency(item.amount * item.unit_cost)}
                     </td>
                     <td className="px-4 py-4 text-sm text-neutral-600 text-center">
                       {item.batch?.id ? `#${item.batch.id}` : 'Sin lote'}
