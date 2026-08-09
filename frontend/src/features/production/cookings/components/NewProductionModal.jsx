@@ -119,7 +119,7 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
             }}
             onSubmit={handleSubmit}
             onCancel={handleClose}
-            submitLabel="Crear"
+            submitLabel="Planificar"
             cancelLabel="Cancelar"
             isSubmitting={isSubmitting}
             layout="modal"

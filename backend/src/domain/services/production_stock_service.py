@@ -48,6 +48,44 @@ class ProductionStockService:
         if missing:
             raise InsufficientStockForProductionException(order_id, missing)
 
+    async def calculate_unit_cost(self, bom: dict, planned_quantity: int) -> Decimal:
+        """
+        Calcula el costo unitario estimado del producto terminado.
+
+        Replica la lógica de consumo de ExecuteProductionOrderUseCase
+        (FEFO sobre stock reservado) y divide el costo total de los
+        insumos por la cantidad planeada. Retorna 0 si no hay stock.
+        """
+        scale = planned_quantity / bom["quantity"]
+        total_cost = Decimal("0")
+
+        for line in bom["lines"]:
+            remaining = line["quantity"] * scale
+            lots = await self._lot_repository.get_available_by_item_fefo(
+                line["component_item_id"]
+            )
+
+            for lot in lots:
+                if remaining <= Decimal("0"):
+                    break
+
+                balance = await self._balance_repository.get_by_lot(
+                    line["component_item_id"], lot.id
+                )
+                if balance is None:
+                    continue
+
+                to_consume = min(balance.reserved_quantity, remaining)
+                if to_consume <= Decimal("0"):
+                    continue
+
+                total_cost += to_consume * lot.unit_cost
+                remaining -= to_consume
+
+        if total_cost <= Decimal("0"):
+            return Decimal("0")
+        return total_cost / planned_quantity
+
     async def reserve_stock(self, bom: dict, planned_quantity: int) -> None:
         """
         Reserva stock lote por lote por FEFO.

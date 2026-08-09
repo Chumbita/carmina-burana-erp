@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { DataTable } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/InputGroup";
 import { useNavigate } from "react-router-dom";
 import { Play, CheckCircle, AlertTriangle, Package, X } from "lucide-react";
 import { useNotification } from "@/components/shared/notifications/useNotification";
@@ -52,15 +57,32 @@ export function ProductionTable({ productions, onExecute }) {
       setCompleteValue("production_date", productionDate);
       setCompleteValue("lot_code", "");
       setCompleteValue("expiration_date", "");
-      setCompleteValue("unit_cost", 0);
+      setCompleteValue("unit_cost", Number(completeTarget.estimated_unit_cost || 0));
     }
   }, [completeTarget, setCompleteValue]);
+
+  // En latas el código de lote es la fecha de producción (autogenerado)
+  const isLata = (completeTarget?.item_name || "").toLowerCase().includes("lata");
+  const watchedProductionDate = useWatch({ control: completeControl, name: "production_date" });
+
+  useEffect(() => {
+    if (isLata && watchedProductionDate) {
+      setCompleteValue("lot_code", watchedProductionDate);
+    }
+  }, [isLata, watchedProductionDate, setCompleteValue]);
 
   // Manejador del envío del formulario de completar
   const onCompleteSubmit = async (data) => {
     const row = completeTarget;
+    const payload = {
+      produced_quantity: Number(row.planned_quantity || 0),
+      lot_code: data.lot_code,
+      production_date: data.production_date,
+      expiration_date: data.expiration_date,
+      unit_cost: data.unit_cost ?? Number(row.estimated_unit_cost || 0),
+    };
     try {
-      await onExecute(row, data); 
+      await onExecute(row, payload); 
       notify.success(`¡Orden Nro ${row.row_number} completada con éxito!`);
       setCompleteTarget(null);
       resetCompleteForm();
@@ -164,13 +186,24 @@ export function ProductionTable({ productions, onExecute }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                  Cant. Producida ({completeTarget.base_uom_symbol || "U"})
+                  Cant. Producida
                 </label>
                 <Controller
                   name="produced_quantity"
                   control={completeControl}
                   render={({ field }) => (
-                    <Input {...field} type="number" step="any" className="h-9 text-xs px-3" />
+                    <InputGroup className="bg-neutral-50 border-neutral-200">
+                      <InputGroupInput
+                        {...field}
+                        type="number"
+                        step="any"
+                        disabled
+                        className="text-xs"
+                      />
+                      <InputGroupAddon align="inline-end" className="pl-3 pr-3 text-[11px] text-neutral-500 font-normal border-l border-neutral-200">
+                        {completeTarget.base_uom_symbol || "U"}
+                      </InputGroupAddon>
+                    </InputGroup>
                   )}
                 />
                 {completeErrors.produced_quantity && <span className="text-[10px] text-red-500">{completeErrors.produced_quantity.message}</span>}
@@ -182,7 +215,7 @@ export function ProductionTable({ productions, onExecute }) {
                   name="lot_code"
                   control={completeControl}
                   render={({ field }) => (
-                    <Input {...field} type="text" placeholder="Ej: IPA-2026-001" className="h-9 text-xs px-3" />
+                    <Input {...field} type="text" placeholder={isLata ? "Autogenerado (fecha)" : "Ej: IPA-2026-001"} className="h-9 text-xs px-3" />
                   )}
                 />
                 {completeErrors.lot_code && <span className="text-[10px] text-red-500">{completeErrors.lot_code.message}</span>}
@@ -214,12 +247,28 @@ export function ProductionTable({ productions, onExecute }) {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-700 dark:text-slate-300">Costo Unitario ($)</label>
+              <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                Costo Unitario
+              </label>
               <Controller
                 name="unit_cost"
                 control={completeControl}
                 render={({ field }) => (
-                  <Input {...field} type="number" step="any" placeholder="Ej: 250" className="h-9 text-xs px-3" />
+                  <InputGroup className="bg-neutral-50 border-neutral-200">
+                    <InputGroupAddon align="inline-start" className="pl-2.5 pr-1 text-[11px] text-neutral-500 font-normal">
+                      $
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      {...field}
+                      type="number"
+                      step="any"
+                      disabled
+                      className="text-xs"
+                    />
+                    <InputGroupAddon align="inline-end" className="pl-3 pr-3 text-[11px] text-neutral-500 font-normal border-l border-neutral-200">
+                      $/{completeTarget.base_uom_symbol || "U"}
+                    </InputGroupAddon>
+                  </InputGroup>
                 )}
               />
               {completeErrors.unit_cost && <span className="text-[10px] text-red-500">{completeErrors.unit_cost.message}</span>}

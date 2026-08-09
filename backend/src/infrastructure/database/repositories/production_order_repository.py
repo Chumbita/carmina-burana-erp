@@ -183,6 +183,7 @@ class ProductionOrderRepository(IProductionOrderRepository):
                 UomModel.symbol.label("base_uom_symbol"),
                 ProductionOrderModel.schedule_date,
                 ProductionOrderModel.status,
+                ProductionOrderModel.bom_id,
             )
             .join(ItemModel, ProductionOrderModel.item_id == ItemModel.id)
             .join(BomModel, ProductionOrderModel.bom_id == BomModel.id)
@@ -204,6 +205,7 @@ class ProductionOrderRepository(IProductionOrderRepository):
                 "base_uom_symbol": row.base_uom_symbol,
                 "schedule_date": row.schedule_date,
                 "status": row.status,
+                "bom_id": row.bom_id,
             }
             for row in rows
         ]

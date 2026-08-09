@@ -51,4 +51,9 @@ def get_list_incomplete_productions_use_case(
     session: AsyncSession = Depends(get_db),
 ) -> ListIncompleteProductionsUseCase:
     production_order_repository = ProductionOrderRepository(session)
-    return ListIncompleteProductionsUseCase(production_order_repository)
+    return ListIncompleteProductionsUseCase(
+        production_order_repository=production_order_repository,
+        bom_repository=BomRepository(session),
+        balance_repository=InventoryBalanceRepository(session),
+        lot_repository=InventoryLotRepository(session),
+    )
