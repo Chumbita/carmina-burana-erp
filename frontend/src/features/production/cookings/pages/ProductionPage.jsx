@@ -12,6 +12,7 @@ export default function ProductionPage() {
     productions,
     handlePlanProduction,
     handleExecuteProduction,
+    cancelProduction,
     loading,
     openModal,
     setOpenModal,
@@ -84,6 +85,7 @@ export default function ProductionPage() {
           <ProductionTable
             productions={displayData}
             onExecute={handleExecuteProduction}
+            onCancel={cancelProduction}
           />
         )}
       </div>

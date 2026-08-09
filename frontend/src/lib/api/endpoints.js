@@ -74,6 +74,7 @@ export const ENDPOINTS = {
     PLAN: "/production-orders/plan",
     EXECUTE: (order_id) => `/production-orders/${order_id}/execute`,
     GET_INCOMPLETE: "/production-orders/incomplete",
+    CANCEL: (order_id) => `/production-orders/${order_id}/cancel`,
   },
   ITEMS: {
     GET_OPTIONS: '/items/options',

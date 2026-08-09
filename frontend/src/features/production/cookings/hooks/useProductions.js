@@ -52,6 +52,20 @@ export function useProductions() {
     }
   }
 
+  async function cancelProduction(id) {
+    setLoading(true);
+    try {
+      const updated = await productionService.cancel(id);
+      await fetchProductions();
+      return updated;
+    } catch (err) {
+      setError(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return {
     productions,
     loading,
@@ -60,5 +74,6 @@ export function useProductions() {
     planProduction,
     executeProduction,
     refetch: fetchProductions,
+    cancelProduction,
   };
 }

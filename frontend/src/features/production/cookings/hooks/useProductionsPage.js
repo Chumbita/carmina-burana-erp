@@ -4,7 +4,7 @@ import { useNotification } from "@/components/shared/notifications/useNotificati
 import { useLocationNotification } from "@/features/Inventario/gestion_insumos/hooks/useLocationNotification";
 
 export function useProductionsPage() {
-  const { productions, loading, error, planProduction, executeProduction } = useProductions();
+  const { productions, loading, error, planProduction, executeProduction, cancelProduction  } = useProductions();
   const notify = useNotification();
 
   useLocationNotification(notify);
@@ -56,6 +56,7 @@ export function useProductionsPage() {
     setOpenModal,
     handlePlanProduction,
     handleExecuteProduction,
+    cancelProduction,
     tableRef,
   };
 }
