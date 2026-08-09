@@ -7,6 +7,7 @@ import { useUoms } from "../hooks/useUoms"
 
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
+import { DecimalInput } from "@/components/shared/DecimalInput"
 import {
   Select,
   SelectContent,
@@ -46,7 +47,7 @@ export function PackagingSupplyForm({
     handleSubmit,
     control,
     reset,
-    formState: { isDirty },
+    formState: { isDirty, isValid },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -77,6 +78,7 @@ export function PackagingSupplyForm({
       className={isModal ? "space-y-4" : "grid grid-cols-1 md:grid-cols-4 gap-4"}
     >
       <FieldGroup className={isModal ? "-space-y-4" : "contents"}>
+        {/* Nombre */}
         <Controller
           name="name"
           control={control}
@@ -85,12 +87,12 @@ export function PackagingSupplyForm({
               <FieldLabel htmlFor={field.name}>
                 Nombre <span className="text-red-500 -ml-1">*</span>
               </FieldLabel>
-              <Input {...field} id={field.name} aria-invalid={fieldState.invalid} />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              <Input {...field} id={field.name} aria-invalid={fieldState.invalid} placeholder="Ej. Lata 375cc" />
             </Field>
           )}
         />
 
+        {/* Marca */}
         <Controller
           name="brand_id"
           control={control}
@@ -119,11 +121,11 @@ export function PackagingSupplyForm({
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
 
+        {/* Tipo de insumo */}
         <Controller
             name="packaging_type"
             control={control}
@@ -147,11 +149,11 @@ export function PackagingSupplyForm({
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
           />
 
+          {/* Material */}
           <Controller
             name="material"
             control={control}
@@ -161,33 +163,28 @@ export function PackagingSupplyForm({
                   Material <span className="text-red-500 -ml-1">*</span>
                 </FieldLabel>
                 <Input {...field} id={field.name} aria-invalid={fieldState.invalid} />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
           />
 
+        {/* Capacidad */}
           <Controller
             name="capacity_ml"
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Capacidad ml</FieldLabel>
-                <Input
+                <DecimalInput
                   {...field}
                   id={field.name}
-                  type="number"
-                  step="0.01"
+                  placeholder="Ej: 330"
                   aria-invalid={fieldState.invalid}
-                  onChange={(event) => {
-                    const value = event.target.value
-                    field.onChange(value === "" ? undefined : Math.round(parseFloat(value) * 100) / 100)
-                  }}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
           />
 
+          {/* Stock mínimo */}
           <Controller
             name="min_stock_level"
             control={control}
@@ -202,11 +199,11 @@ export function PackagingSupplyForm({
                   aria-invalid={fieldState.invalid}
                   onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
           />
 
+          {/* Unidade de medida */}
           <Controller
             name="base_uom_id"
             control={control}
@@ -235,7 +232,6 @@ export function PackagingSupplyForm({
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
           />
@@ -269,7 +265,7 @@ export function PackagingSupplyForm({
         <Button
           size="sm"
           type="submit"
-          disabled={isModal ? isSubmitting : !isDirty || isSubmitting}
+          disabled={isModal ? isSubmitting || !isValid : !isDirty || !isValid || isSubmitting}
           className="cursor-pointer"
         >
           {isSubmitting ? "Guardando..." : submitLabel}
