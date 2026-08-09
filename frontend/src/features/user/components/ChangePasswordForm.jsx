@@ -77,52 +77,58 @@ export default function ChangePasswordForm() {
           La contraseña debe tener al menos 6 caracteres e incluir una
           combinación de números, letras y caracteres especiales (!$@%).
         </FieldDescription>
-        <FieldLabel htmlFor="current-password">
-          Contraseña actual <span className="text-destructive">*</span>
-        </FieldLabel>
-        <InputGroup>
-          <InputGroupInput
-            id="current-password"
-            type={showCurrentPassword ? "text" : "password"}
-            {...register("currentPassword")}
-          />
-          <InputGroupAddon align="inline-end">
-            <button
-              type="button"
-              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-              className="focus:outline-none mr-2"
-            >
-              {showCurrentPassword ? (
-                <EyeIcon size={17} />
-              ) : (
-                <EyeOffIcon size={17} />
-              )}
-            </button>
-          </InputGroupAddon>
-        </InputGroup>
-        <FieldLabel htmlFor="new-password">
-          Nueva contraseña <span className="text-destructive">*</span>
-        </FieldLabel>
-        <InputGroup>
-          <InputGroupInput
-            id="new-password"
-            type={showNewPassword ? "text" : "password"}
-            {...register("newPassword")}
-          />
-          <InputGroupAddon align="inline-end">
-            <button
-              type="button"
-              onClick={() => setShowNewPassword(!showNewPassword)}
-              className="focus:outline-none mr-2"
-            >
-              {showNewPassword ? (
-                <EyeIcon size={17} />
-              ) : (
-                <EyeOffIcon size={17} />
-              )}
-            </button>
-          </InputGroupAddon>
-        </InputGroup>
+        <Field data-invalid={errors.currentPassword ? true : false}>
+          <FieldLabel htmlFor="current-password">
+            Contraseña actual <span className="text-destructive">*</span>
+          </FieldLabel>
+          <InputGroup>
+            <InputGroupInput
+              id="current-password"
+              type={showCurrentPassword ? "text" : "password"}
+              aria-invalid={errors.currentPassword ? true : false}
+              {...register("currentPassword")}
+            />
+            <InputGroupAddon align="inline-end">
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                className="focus:outline-none mr-2 cursor-pointer"
+              >
+                {showCurrentPassword ? (
+                  <EyeIcon size={17} />
+                ) : (
+                  <EyeOffIcon size={17} />
+                )}
+              </button>
+            </InputGroupAddon>
+          </InputGroup>
+        </Field>
+        <Field data-invalid={errors.newPassword ? true : false}>
+          <FieldLabel htmlFor="new-password">
+            Nueva contraseña <span className="text-destructive">*</span>
+          </FieldLabel>
+          <InputGroup>
+            <InputGroupInput
+              id="new-password"
+              type={showNewPassword ? "text" : "password"}
+              aria-invalid={errors.newPassword ? true : false}
+              {...register("newPassword")}
+            />
+            <InputGroupAddon align="inline-end">
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="focus:outline-none mr-2 cursor-pointer"
+              >
+                {showNewPassword ? (
+                  <EyeIcon size={17} />
+                ) : (
+                  <EyeOffIcon size={17} />
+                )}
+              </button>
+            </InputGroupAddon>
+          </InputGroup>
+        </Field>
         <FieldGroup className="gap-1">
           <Field orientation="horizontal">
             <div className="pointer-events-none flex gap-3">
@@ -194,33 +200,35 @@ export default function ChangePasswordForm() {
             </div>
           </Field>
         </FieldGroup>
-        <FieldLabel htmlFor="repeat-new-password">
-          Repetir contraseña <span className="text-destructive">*</span>
-        </FieldLabel>
-        <InputGroup>
-          <InputGroupInput
-            id="repeat-new-password"
-            type={showConfirmPassword ? "text" : "password"}
-            {...register("confirmPassword")}
-            aria-invalid={errors.confirmPassword ? true : false}
-          />
-          <InputGroupAddon align="inline-end">
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="focus:outline-none mr-2"
-            >
-              {showConfirmPassword ? (
-                <EyeIcon size={17} />
-              ) : (
-                <EyeOffIcon size={17} />
-              )}
-            </button>
-          </InputGroupAddon>
-        </InputGroup>
-        <FieldDescription className="text-red-600">
-          {errors.confirmPassword && errors.confirmPassword.message}
-        </FieldDescription>
+        <Field data-invalid={errors.confirmPassword ? true : false}>
+          <FieldLabel htmlFor="repeat-new-password">
+            Repetir contraseña <span className="text-destructive">*</span>
+          </FieldLabel>
+          <InputGroup>
+            <InputGroupInput
+              id="repeat-new-password"
+              type={showConfirmPassword ? "text" : "password"}
+              aria-invalid={errors.confirmPassword ? true : false}
+              {...register("confirmPassword")}
+            />
+            <InputGroupAddon align="inline-end">
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="focus:outline-none mr-2 cursor-pointer"
+              >
+                {showConfirmPassword ? (
+                  <EyeIcon size={17} />
+                ) : (
+                  <EyeOffIcon size={17} />
+                )}
+              </button>
+            </InputGroupAddon>
+          </InputGroup>
+          <FieldDescription className="text-red-600">
+            {errors.confirmPassword && errors.confirmPassword.message}
+          </FieldDescription>
+        </Field>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
