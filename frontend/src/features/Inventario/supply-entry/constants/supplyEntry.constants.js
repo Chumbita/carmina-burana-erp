@@ -26,7 +26,7 @@ export const FORM_DEFAULT_VALUES = {
     {
       supplyId: 0,
       quantity: 1,
-      unitCost: 0,
+      unitCost: "",
       expirationDate: '',
       batchNumber: '',
       comment: '',
