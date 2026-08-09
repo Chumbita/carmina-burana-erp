@@ -113,7 +113,7 @@ export function ProductionTable({ productions, onExecute }) {
       accessor: "planned_quantity",
       render: (value, row) => `${value} ${row.base_uom_symbol || ""}`
     },
-    { header: "Fecha planeada", accessor: "schedule_date", render: (value) => value ? value : "Sin fecha" },
+    { header: "Fecha programada", accessor: "schedule_date", render: (value) => value ? value : "Sin fecha" },
     {
       header: "Estado",
       accessor: "status",

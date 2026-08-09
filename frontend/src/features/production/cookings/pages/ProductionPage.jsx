@@ -48,7 +48,7 @@ export default function ProductionPage() {
               ],
             },
           ]}
-          sortFields={[{ key: "schedule_date", label: "Fecha Planeada" }]}
+          sortFields={[{ key: "schedule_date", label: "Fecha Programada" }]}
           sortBy={sortBy}
           sortOrder={sortOrder}
           onSortByChange={setSortBy}
