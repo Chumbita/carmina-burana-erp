@@ -9,6 +9,7 @@ from src.infrastructure.database.repositories.inventory_lot_repository import In
 from src.infrastructure.database.repositories.inventory_transaction_repository import InventoryTransactionRepository
 from src.application.use_cases.production_order.plan_production_order import PlanProductionOrderUseCase
 from src.application.use_cases.production_order.execute_production_order import ExecuteProductionOrderUseCase
+from src.application.use_cases.production_order.cancel_production_order import CancelProductionOrderUseCase
 from src.application.use_cases.inventory.inventory_movement_use_case import InventoryMovementUseCase
 from src.application.use_cases.production_order.get_production_order import ListIncompleteProductionsUseCase
 from src.domain.services.inventory_movement_service import InventoryDomainService
@@ -46,6 +47,17 @@ def get_execute_production_order_use_case(
         inventory_movement_use_case=_get_inventory_movement_use_case(session),
     )
 
+
+def get_cancel_production_order_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> CancelProductionOrderUseCase:
+    return CancelProductionOrderUseCase(
+        production_order_repository=ProductionOrderRepository(session),
+        bom_repository=BomRepository(session),
+        balance_repository=InventoryBalanceRepository(session),
+        lot_repository=InventoryLotRepository(session),
+        transaction_repository=InventoryTransactionRepository(session),
+    )
 
 def get_list_incomplete_productions_use_case(
     session: AsyncSession = Depends(get_db),

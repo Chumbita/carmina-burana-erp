@@ -9,6 +9,16 @@ class ProductionOrderNotFoundException(Exception):
         self.order_id = order_id
 
 
+class ProductionOrderCannotBeCancelledException(Exception):
+    def __init__(self, order_id: int, status: str):
+        super().__init__(
+            f"Production order with id={order_id} cannot be cancelled "
+            f"from status '{status}'"
+        )
+        self.order_id = order_id
+        self.status = status
+
+
 class BomNotFoundException(Exception):
     def __init__(self, bom_id: int):
         super().__init__(f"BOM with id={bom_id} not found")

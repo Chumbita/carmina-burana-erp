@@ -5,12 +5,15 @@ from src.domain.entities.user import User
 from src.domain.entities.production_order import ProductionOrder
 from src.domain.exceptions.production_exceptions import (
     ProductionOrderNotFoundException,
+    ProductionOrderCannotBeCancelledException,
     BomNotFoundException,
     InsufficientStockForProductionException,
 )
 
 from src.application.use_cases.production_order.plan_production_order import PlanProductionOrderUseCase
 from src.application.use_cases.production_order.execute_production_order import ExecuteProductionOrderUseCase
+from src.application.use_cases.production_order.create_production_order import CreateProductionOrderUseCase
+from src.application.use_cases.production_order.cancel_production_order import CancelProductionOrderUseCase
 from src.application.use_cases.production_order.get_production_order import ListIncompleteProductionsUseCase
 from src.presentation.schemas.production_order_schemas import (
     CreateProductionOrderSchema,
@@ -20,6 +23,7 @@ from src.presentation.schemas.production_order_schemas import (
 from src.presentation.dependencies.use_cases.production_order import (
     get_plan_production_order_use_case,
     get_execute_production_order_use_case,
+    get_cancel_production_order_use_case,
     get_list_incomplete_productions_use_case,
 )
 from src.presentation.dependencies.auth import get_current_user
@@ -131,3 +135,26 @@ async def execute_production_order(
         ) from exc
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@router.post(
+    "/{order_id}/cancel",
+    status_code=status.HTTP_200_OK,
+    response_model=ProductionOrderResponseSchema,
+    summary="Cancelar orden de producción",
+)
+async def cancel_production_order(
+    order_id: int,
+    use_case: CancelProductionOrderUseCase = Depends(get_cancel_production_order_use_case),
+    # current_user: User = Depends(get_current_user),
+) -> ProductionOrderResponseSchema:
+    try:
+        order = await use_case.execute(order_id)
+        return _build_response(order)
+    except ProductionOrderNotFoundException as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ProductionOrderCannotBeCancelledException as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+

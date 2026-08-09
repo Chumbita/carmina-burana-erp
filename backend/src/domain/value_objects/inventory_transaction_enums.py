@@ -8,6 +8,7 @@ class TransactionType(str, Enum):
     RETURN_PURCHASE = "RETURN_PURCHASE"
     PRODUCTION_CONSUMITION = "PRODUCTION_CONSUMITION"
     PRODUCTION_OUTPUT = "PRODUCTION_OUTPUT"
+    PRODUCTION_CANCEL = "PRODUCTION_CANCEL"
     PRODUCTION_DISCARD = "PRODUCTION_DISCARD"
     SALE = "SALE"
     RETURN_SALE = "RETURN_SALE"
@@ -26,12 +27,15 @@ class TransactionType(str, Enum):
 Tipos que SUMAN cantidad al balance existente.
 - PURCHASE: llega mercadería nueva.
 - PRODUCTION_OUTPUT: se produce un ítem terminado que entra al stock.
+- PRODUCTION_CANCEL: se libera el stock reservado de una producción
+  cancelada, devolviendo disponibilidad sin alterar la cantidad física.
 - RETURN_SALE: el cliente devuelve mercadería que vuelve al stock.
 """
 
 ADDITIVE_TYPES: frozenset[TransactionType] = frozenset({
     TransactionType.PURCHASE,
     TransactionType.PRODUCTION_OUTPUT,
+    TransactionType.PRODUCTION_CANCEL,
     TransactionType.RETURN_SALE,
 })
 
