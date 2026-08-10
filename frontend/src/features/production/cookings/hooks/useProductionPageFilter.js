@@ -1,9 +1,22 @@
 import { useState } from "react";
 
 export function useProductionFilters() {
+  // Opciones para el selector de estados
+  const statusOptions = [
+    { value: "ALL", label: "Todos los estados" },
+    { value: "DONE", label: "Completada" },
+    { value: "CANCELLED", label: "Cancelada" },
+    { value: "DISCARDED", label: "Descartada" },
+  ];
+
   // Estados iniciales de control de la FilterBar
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
+
+  const handleSetStatusFilter = (value) => {
+    setStatusFilter(value);
+  };
 
   const handleSetSortBy = (value) => {
     setSortBy(value);
@@ -17,9 +30,12 @@ export function useProductionFilters() {
   const filteredProductions = (productions) => {
     if (!productions) return [];
 
-    const filtered = [...productions];
+    // 1. Filtrar por estado
+    let filtered = productions.filter((order) => {
+      return statusFilter === "ALL" || order.status === statusFilter;
+    });
 
-    // Aplicar ordenamiento por fecha cronológica
+    // 2. Aplicar ordenamiento por fecha cronológica
     if (sortBy === "schedule_date") {
       filtered.sort((a, b) => {
         const dateA = a.schedule_date ? new Date(a.schedule_date).getTime() : 0;
@@ -33,8 +49,11 @@ export function useProductionFilters() {
   };
 
   return {
+    statusOptions,
+    statusFilter,
     sortBy,
     sortOrder,
+    setStatusFilter: handleSetStatusFilter,
     setSortBy: handleSetSortBy,
     setSortOrder: handleSetSortOrder,
     filteredProductions,
