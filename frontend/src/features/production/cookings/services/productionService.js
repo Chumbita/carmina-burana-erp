@@ -17,16 +17,6 @@ export const productionService = {
     return response.data
   },
 
-  start: async (orderId) => {
-    const response = await privateClient.post(ENDPOINTS.PRODUCTION_ORDERS.START(orderId))
-    return response.data
-  },
-
-  complete: async (orderId, data) => {
-    const response = await privateClient.post(ENDPOINTS.PRODUCTION_ORDERS.COMPLETE(orderId), data)
-    return response.data
-  },
-
   cancel: async (orderId) => {
     const response = await privateClient.post(ENDPOINTS.PRODUCTION_ORDERS.CANCEL(orderId))
     return response.data
