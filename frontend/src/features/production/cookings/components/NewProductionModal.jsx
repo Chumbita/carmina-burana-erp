@@ -30,11 +30,15 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
   // Estado para insumos faltantes
   const [missingIngredients, setMissingIngredients] = useState(null);
 
+  // Bloquea el botón Planificar tras un error de stock insuficiente
+  const [submitBlocked, setSubmitBlocked] = useState(false);
+
   // Cargamos los ítems manufacturables cuando el modal se abre
   useEffect(() => {
     if (!open) return;
 
     setMissingIngredients(null);
+    setSubmitBlocked(false);
 
     async function fetchOptions() {
       try {
@@ -81,6 +85,7 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
     setSelectedItemId(undefined);
     setSelectedBom(null);
     setMissingIngredients(null);
+    setSubmitBlocked(false);
     onClose();
   }
 
@@ -96,6 +101,7 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
           message: errorDetail.message || "Stock insuficiente para planificar la orden",
           missing: errorDetail.missing,
         });
+        setSubmitBlocked(true);
       }
     } finally {
       setIsSubmitting(false);
@@ -130,9 +136,11 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
             onItemChange={(id) => {
               setSelectedItemId(id);
               setMissingIngredients(null);
+              setSubmitBlocked(false);
             }}
             selectedBom={selectedBom}
             bomLoading={bomLoading}
+            submitBlocked={submitBlocked}
           />
 
           {/* MODAL DE INSUMOS FALTANTES DENTRO DEL FORMULARIO */}
@@ -143,7 +151,10 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
                   <AlertTriangle size={16} /> Stock Insuficiente
                 </h4>
                 <button
-                  onClick={() => setMissingIngredients(null)}
+                  onClick={() => {
+                    setMissingIngredients(null);
+                    setSubmitBlocked(false);
+                  }}
                   className="text-red-400 hover:text-red-600 text-xs"
                 >
                   Cerrar

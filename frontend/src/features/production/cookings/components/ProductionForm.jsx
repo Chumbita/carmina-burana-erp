@@ -43,6 +43,7 @@ export function ProductionForm({
   submitLabel = "Crear",
   cancelLabel = "Cancelar",
   isSubmitting = false,
+  submitBlocked = false,
   beerOptions = [],
   productOptions = [],
   optionsLoading = false,
@@ -408,7 +409,7 @@ export function ProductionForm({
         <Button
           size="sm"
           type="submit"
-          disabled={isSubmitting || !hasValidRecipe}
+          disabled={isSubmitting || !hasValidRecipe || submitBlocked}
           className="h-8 text-xs px-3.5"
         >
           {isSubmitting ? "Creando..." : submitLabel}
