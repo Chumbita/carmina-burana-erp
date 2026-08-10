@@ -161,12 +161,17 @@ export function ProductionTable({ productions, onExecute }) {
 
   return (
     <>
-      <DataTable
-        columns={columns}
-        data={formattedProductions}
-        onRowClick={handleRowClick}
-        emptyMessage="No hay órdenes de producción."
-      />
+      {formattedProductions.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-neutral-500">No hay producciones planeadas.</p>
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={formattedProductions}
+          onRowClick={handleRowClick}
+        />
+      )}
 
       {/* MODAL EJECUTAR (COMPLETAR PRODUCCIÓN) */}
       {completeTarget && (
