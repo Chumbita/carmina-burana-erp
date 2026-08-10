@@ -4,7 +4,7 @@ import { useProductionFilters } from "../hooks/useProductionPageFilter";
 import { ProductionHistoryTable } from "../components/ProductionHistoryTable";
 
 export default function ProductionHistoryPage() {
-  const { productions, loading } = useProductionHistory();
+  const { productions, loading, discardProduction } = useProductionHistory();
   const {
     statusOptions,
     statusFilter,
@@ -17,6 +17,12 @@ export default function ProductionHistoryPage() {
   } = useProductionFilters();
 
   const displayData = filteredProductions(productions);
+
+  async function handleDiscard(row, description) {
+    await discardProduction(row.id, {
+      description: description?.trim() || undefined,
+    });
+  }
 
   return (
     <div className="space-y-4">
@@ -52,7 +58,7 @@ export default function ProductionHistoryPage() {
         {loading ? (
           <div>Cargando...</div>
         ) : (
-          <ProductionHistoryTable productions={displayData} />
+          <ProductionHistoryTable productions={displayData} onDiscard={handleDiscard} />
         )}
       </div>
     </div>
