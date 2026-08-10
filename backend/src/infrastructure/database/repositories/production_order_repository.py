@@ -210,6 +210,48 @@ class ProductionOrderRepository(IProductionOrderRepository):
             for row in rows
         ]
 
+    async def get_all_not_planned(self) -> list[dict]:
+        """
+        Obtiene todas las órdenes de producción que no están en estado PLANNED
+        (historial de cocciones), incluyendo el nombre del producto y la
+        versión de la receta. La cantidad reportada es la producida.
+        """
+        stmt = (
+            select(
+                ProductionOrderModel.id,
+                ItemModel.name.label("item_name"),
+                BomModel.version.label("bom_version"),
+                ProductionOrderModel.produced_quantity,
+                UomModel.symbol.label("base_uom_symbol"),
+                ProductionOrderModel.schedule_date,
+                ProductionOrderModel.status,
+                ProductionOrderModel.bom_id,
+            )
+            .join(ItemModel, ProductionOrderModel.item_id == ItemModel.id)
+            .join(BomModel, ProductionOrderModel.bom_id == BomModel.id)
+            .join(UomModel, ItemModel.base_uom_id == UomModel.id)
+            .where(
+                ProductionOrderModel.status.notin_(["PLANNED"])
+            )
+        )
+
+        result = await self._session.execute(stmt)
+        rows = result.all()
+
+        return [
+            {
+                "id": row.id,
+                "item_name": row.item_name,
+                "bom_version": row.bom_version,
+                "produced_quantity": row.produced_quantity,
+                "base_uom_symbol": row.base_uom_symbol,
+                "schedule_date": row.schedule_date,
+                "status": row.status,
+                "bom_id": row.bom_id,
+            }
+            for row in rows
+        ]
+
     async def delete(self, order_id: int) -> None:
         """
         Elimina una orden de producción por su ID incluyendo

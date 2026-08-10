@@ -22,6 +22,13 @@ class IProductionOrderRepository(Protocol):
         """
         ...
 
+    async def get_all_not_planned(self) -> list[dict]:
+        """
+        Obtiene todas las órdenes de producción que no están en estado PLANNED
+        (historial de cocciones).
+        """
+        ...
+
     async def add(self, order: ProductionOrder) -> ProductionOrder:
         """
         Persiste una nueva orden de producción.
