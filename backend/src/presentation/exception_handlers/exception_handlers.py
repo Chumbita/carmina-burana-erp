@@ -29,6 +29,7 @@ from src.domain.exceptions.production_exceptions import (
     ProductionOrderNotFoundException,
     ProductionOrderCannotBeCancelledException,
     BomNotFoundException,
+    InsufficientStockForProductionException,
 )
 
 
