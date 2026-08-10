@@ -35,6 +35,12 @@ class CancelProductionOrderCommand:
     order_id: int
 
 @dataclass
+class DiscardProductionOrderCommand:
+    """Comando para descartar una orden de producción."""
+    order_id: int
+    description: Optional[str] = None
+
+@dataclass
 class ProductionOrderResponse:
     """DTO de respuesta para una orden de producción."""
     id: int

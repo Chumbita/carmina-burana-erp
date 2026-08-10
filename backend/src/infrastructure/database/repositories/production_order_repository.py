@@ -130,6 +130,7 @@ class ProductionOrderRepository(IProductionOrderRepository):
         model.status = order.status.value
         model.produced_quantity = order.produced_quantity
         model.completed_at = order.completed_at
+        model.description = order.description
         await self._session.flush()
         return order
 
