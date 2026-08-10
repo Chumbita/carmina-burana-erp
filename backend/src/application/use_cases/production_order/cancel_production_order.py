@@ -5,6 +5,7 @@
 from decimal import Decimal
 
 from src.domain.entities.production_order import ProductionOrder
+from src.domain.entities.bom import Bom
 from src.domain.entities.inventory_transaction import InventoryTransaction
 from src.domain.repositories.production_order_repository import IProductionOrderRepository
 from src.domain.repositories.bom_repository import IBomRepository
@@ -22,13 +23,13 @@ from src.domain.exceptions.production_exceptions import (
 
 class CancelProductionOrderUseCase:
     """
-    Cancela una orden de producción en estado PLANNED o RELEASED.
+    Cancela una orden de producción en estado PLANNED.
     Pasa a CANCELLED.
 
     FLUJO:
-        1. Obtener la orden y verificar que sea cancelable.
-        2. Obtener la BOM para calcular las cantidades reservadas.
-        3. Por cada bom_line, liberar la reserva lote por lote (FEFO)
+        1. Obtener la orden y verificar que esté en PLANNED.
+        2. Obtener la BOM detallada para calcular las cantidades reservadas.
+        3. Por cada línea de la BOM, liberar la reserva lote por lote (FEFO)
            y registrar un movimiento PRODUCTION_CANCEL por cada lote
            cuya reserva se libera.
         4. order.cancel() y persistir.
@@ -55,15 +56,12 @@ class CancelProductionOrderUseCase:
         if order is None:
             raise ProductionOrderNotFoundException(order_id)
 
-        if order.status not in (
-            ProductionOrderStatus.PLANNED,
-            ProductionOrderStatus.RELEASED,
-        ):
+        if order.status != ProductionOrderStatus.PLANNED:
             raise ProductionOrderCannotBeCancelledException(
                 order_id, order.status.value
             )
 
-        # 2. Obtener la BOM para calcular lo reservado
+        # 2. Obtener la BOM (cabecera y líneas, suficiente para liberar reservas)
         bom = await self._bom_repository.get_by_id(order.bom_id)
         if bom is None:
             raise BomNotFoundException(order.bom_id)
@@ -76,10 +74,10 @@ class CancelProductionOrderUseCase:
         await self._production_order_repository.save(order)
         return order
 
-    async def _release_reservations(self, order: ProductionOrder, bom) -> None:
+    async def _release_reservations(self, order: ProductionOrder, bom: Bom) -> None:
         """
         Libera la reserva de cada insumo de la BOM en el orden FEFO,
-        igual que lo hace el release. Registra una transacción
+        igual que lo hace la planificación. Registra una transacción
         PRODUCTION_CANCEL por cada lote cuya reserva se libera.
         """
         scale = order.planned_quantity / bom.quantity
