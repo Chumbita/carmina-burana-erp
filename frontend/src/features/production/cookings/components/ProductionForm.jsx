@@ -50,6 +50,7 @@ export function ProductionForm({
   selectedBom = null,
   bomLoading = false,
   onItemChange,
+  onQuantityChange,
 }) {
   const schema = createProductionSchema();
 
@@ -260,6 +261,7 @@ export function ProductionForm({
                           disabled={!hasValidRecipe}
                           onChange={(e) => {
                             const value = e.target.value;
+                            if (onQuantityChange) onQuantityChange();
                             if (value === "") {
                               field.onChange("");
                             } else {

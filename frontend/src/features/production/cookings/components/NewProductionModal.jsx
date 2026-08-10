@@ -141,6 +141,10 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
             selectedBom={selectedBom}
             bomLoading={bomLoading}
             submitBlocked={submitBlocked}
+            onQuantityChange={() => {
+              setMissingIngredients(null);
+              setSubmitBlocked(false);
+            }}
           />
 
           {/* MODAL DE INSUMOS FALTANTES DENTRO DEL FORMULARIO */}
