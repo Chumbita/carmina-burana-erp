@@ -12,7 +12,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/InputGroup";
 import { useNavigate } from "react-router-dom";
-import { Play, CheckCircle, AlertTriangle, Package, X } from "lucide-react";
+import { Play, AlertTriangle, Package, X } from "lucide-react";
 import { useNotification } from "@/components/shared/notifications/useNotification";
 import { completeProductionSchema } from "../schemas/production.schema";
 
@@ -22,6 +22,9 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
   
   // Estado para el modal de ejecutar (completar producción)
   const [completeTarget, setCompleteTarget] = useState(null);
+  
+  // Estado para la confirmación de cancelación de la orden
+  const [cancelTarget, setCancelTarget] = useState(null);
   
   // Estado para el modal de insumos faltantes
   const [missingIngredientsTarget, setMissingIngredientsTarget] = useState(null);
@@ -106,73 +109,51 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
     navigate(`/produccion/cocciones/${row.id}`);
   };
 
+  const executeCancel = async () => {
+    if (!cancelTarget) return;
+    const { row } = cancelTarget;
+    try {
+      await onCancel(row.id);
+      notify.success(`Orden Nro ${row.row_number} cancelada.`);
+      setCancelTarget(null);
+    } catch (err) {
+      const errorData = err.response?.data?.detail;
+      notify.error(
+        typeof errorData === "string"
+          ? errorData
+          : errorData?.message || "Ocurrió un error al cancelar la orden."
+      );
+      setCancelTarget(null);
+    }
+  };
+
   const renderContextualButton = (row) => {
     switch (row.status) {
       case "PLANNED":
         return (
           <div className="flex items-center gap-1">
-            <Button 
-              size="xs" 
-              variant="outline"
-              className="flex items-center gap-1 border-sky-500 text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-950/40"
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                setConfirmTarget({ type: "RELEASE", row }); 
+            <Button
+              size="sm"
+              className="gap-1.5 text-xs h-7"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCompleteTarget(row);
               }}
             >
-              <ArrowUpCircle size={14} /> Liberar
+              <Play className="h-3.5 w-3.5 fill-current" /> Ejecutar
             </Button>
-            <Button 
-              size="xs" 
+            <Button
+              size="sm"
               variant="outline"
-              className="flex items-center gap-1 border-red-400 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40"
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                setConfirmTarget({ type: "CANCEL", row }); 
+              className="gap-1.5 border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive text-xs h-7"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCancelTarget({ row });
               }}
             >
-              <XCircle size={14} /> Cancelar
+              <X className="h-3.5 w-3.5" /> Cancelar
             </Button>
           </div>
-        );
-      case "RELEASED":
-        return (
-          <div className="flex items-center gap-1">
-            <Button 
-              size="xs" 
-              className="flex items-center gap-1 bg-amber-600 hover:bg-amber-700 text-white font-medium shadow-sm"
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                setConfirmTarget({ type: "START", row }); 
-              }}
-            >
-              <Play size={14} fill="currentColor" /> Iniciar
-            </Button>
-            <Button 
-              size="xs" 
-              variant="outline"
-              className="flex items-center gap-1 border-red-400 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40"
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                setConfirmTarget({ type: "CANCEL", row }); 
-              }}
-            >
-              <XCircle size={14} /> Cancelar
-            </Button>
-          </div>
-        );
-      case "IN_PROGRESS":
-        return (
-          <Button 
-            size="xs" 
-            className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-sm"
-            onClick={(e) => { 
-              e.stopPropagation(); 
-              setCompleteTarget(row);
-            }}
-          >
-            <Play size={14} fill="currentColor" /> Ejecutar
-          </Button>
         );
       default:
         return null;
@@ -221,39 +202,18 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
         emptyMessage="No hay órdenes de producción."
       />
 
-      {/* CONFIRMACIÓN SIMPLE (LIBERAR/INICIAR/CANCELAR) */}
-      {confirmTarget && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in" onClick={() => setConfirmTarget(null)}>
+      {/* CONFIRMACIÓN CANCELACIÓN */}
+      {cancelTarget && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in" onClick={() => setCancelTarget(null)}>
           <div className="bg-white dark:bg-slate-900 p-6 rounded-lg max-w-sm w-full space-y-4 shadow-xl border border-slate-200 dark:border-slate-800" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-              {confirmTarget.type === "RELEASE"
-                ? "¿Liberar Orden?"
-                : confirmTarget.type === "CANCEL"
-                  ? "¿Cancelar Orden?"
-                  : "¿Iniciar Producción?"}
-            </h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">¿Cancelar Orden?</h3>
             <p className="text-sm text-slate-500">
-              {confirmTarget.type === "RELEASE"
-                ? `Se validará el stock de insumos para la orden Nro ${confirmTarget.row.row_number} (${confirmTarget.row.item_name}).`
-                : confirmTarget.type === "CANCEL"
-                  ? `Se liberarán las reservas de insumos y la orden Nro ${confirmTarget.row.row_number} (${confirmTarget.row.item_name}) pasará a estado CANCELLED.`
-                  : `Se registrarán los consumos de inventario e iniciará la cocción Nro ${confirmTarget.row.row_number} (${confirmTarget.row.item_name}).`
-              }
+              Se liberarán las reservas de insumos y la orden Nro {cancelTarget.row.row_number} ({cancelTarget.row.item_name}) pasará a estado CANCELLED.
             </p>
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={() => setConfirmTarget(null)}>Cancelar</Button>
-              <Button 
-                size="sm" 
-                className={
-                  confirmTarget.type === "RELEASE"
-                    ? "bg-sky-600 hover:bg-sky-700"
-                    : confirmTarget.type === "CANCEL"
-                      ? "bg-red-600 hover:bg-red-700"
-                      : "bg-amber-600 hover:bg-amber-700"
-                }
-                onClick={executeSimpleAction} 
-              >
-                Confirmar
+              <Button variant="outline" size="sm" onClick={() => setCancelTarget(null)}>Volver</Button>
+              <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white" onClick={executeCancel}>
+                Confirmar cancelación
               </Button>
             </div>
           </div>
