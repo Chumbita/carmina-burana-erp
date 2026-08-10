@@ -19,10 +19,8 @@ export default function ProductionPage() {
     tableRef,
   } = useProductionsPage();
   const {
-    statusFilter,
     sortBy,
     sortOrder,
-    setStatusFilter,
     setSortBy,
     setSortOrder,
     filteredProductions,
@@ -37,26 +35,13 @@ export default function ProductionPage() {
           search={""}
           searchPlaceholder="Buscar..."
           onSearchChange={() => {}}
-          filters={[
-            {
-              key: "status",
-              placeholder: "Filtrar por estado",
-              value: statusFilter,
-              onChange: (value) => setStatusFilter(value),
-              options: [
-                { label: "Todos los estados", value: "ALL" },
-                { label: "Planeada", value: "PLANNED" },
-              ],
-            },
-          ]}
           sortFields={[{ key: "schedule_date", label: "Fecha Programada" }]}
           sortBy={sortBy}
           sortOrder={sortOrder}
           onSortByChange={setSortBy}
           onSortOrderChange={setSortOrder}
-          hasActiveFilters={statusFilter !== "ALL" || sortBy !== ""}
+          hasActiveFilters={sortBy !== ""}
           onClearFilters={() => {
-            setStatusFilter("ALL");
             setSortBy("");
             setSortOrder("asc");
           }}
