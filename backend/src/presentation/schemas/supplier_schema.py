@@ -22,6 +22,10 @@ class CreateSupplierRequest(BaseModel):
             raise ValueError("Invalid email format")
         return value
 
+
+class UpdateSupplierRequest(CreateSupplierRequest):
+    pass
+
     @field_validator("phone")
     @classmethod
     def validate_phone(cls, value: Optional[str]) -> Optional[str]:
