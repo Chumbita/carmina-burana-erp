@@ -23,7 +23,7 @@ export function useProductionsPage() {
 
     const newProduction = await planProduction(payload);
     setOpenModal(false);
-    notify.success(`Orden de producción planificada (ID: ${newProduction.id})`, {
+    notify.success("Orden de producción planificada", {
       onClick: () => handleNotificationClick(newProduction.id),
     });
   }

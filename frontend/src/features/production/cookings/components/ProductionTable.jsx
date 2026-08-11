@@ -67,6 +67,7 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
   // En latas el código de lote es la fecha de producción (autogenerado)
   const isLata = (completeTarget?.item_name || "").toLowerCase().includes("lata");
   const watchedProductionDate = useWatch({ control: completeControl, name: "production_date" });
+  const watchedExpirationDate = useWatch({ control: completeControl, name: "expiration_date" });
 
   useEffect(() => {
     if (isLata && watchedProductionDate) {
@@ -290,7 +291,17 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
                   name="expiration_date"
                   control={completeControl}
                   render={({ field }) => (
-                    <Input {...field} type="date" className="h-9 text-xs px-3" />
+                    <Input
+                      {...field}
+                      type="date"
+                      min={watchedProductionDate || undefined}
+                      className={`h-9 text-xs px-3 ${
+                        watchedProductionDate &&
+                        watchedExpirationDate === watchedProductionDate
+                          ? "bg-red-50"
+                          : ""
+                      }`}
+                    />
                   )}
                 />
                 {completeErrors.expiration_date && <span className="text-[10px] text-red-500">{completeErrors.expiration_date.message}</span>}
