@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom"
+import { ExternalLink } from "lucide-react"
 import { DataTable } from "@/components/shared/DataTable"
 import { useTransactions } from "../hooks/useTransactions"
+import { TablePagination } from "@/components/shared/TablePagination"
 
 const REFERENCE_LABELS = {
   supply_entry: "Entrada",
@@ -45,8 +47,12 @@ const columns = [
       const text = `${label} #${row.reference_id}`
       if (toRoute) {
         return (
-          <Link to={toRoute(row.reference_id)} className="text-primary underline-offset-2 hover:underline font-medium">
+          <Link
+            to={toRoute(row.reference_id)}
+            className="inline-flex items-center gap-1 text-primary underline-offset-2 hover:underline font-medium"
+          >
             {text}
+            <ExternalLink className="h-3.5 w-3.5" />
           </Link>
         )
       }
@@ -61,9 +67,10 @@ const columns = [
 ]
 
 export function TransactionsTable({ itemId }) {
-  const { transactions, loading, error } = useTransactions(itemId)
+  const { transactions, loading, error, page, pageSize, totalItems, totalPages, changePage } =
+    useTransactions(itemId)
 
-  if (loading) {
+  if (loading && !transactions.length) {
     return <p className="text-sm text-muted-foreground">Cargando movimientos...</p>
   }
 
@@ -75,5 +82,17 @@ export function TransactionsTable({ itemId }) {
     return <p className="text-sm text-muted-foreground">Sin movimientos registrados.</p>
   }
 
-  return <DataTable columns={columns} data={transactions} />
+  return (
+    <div className={loading ? "space-y-4 opacity-60" : "space-y-4"}>
+      <DataTable columns={columns} data={transactions} />
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        pageSize={pageSize}
+        onChangePage={changePage}
+      />
+    </div>
+  )
 }

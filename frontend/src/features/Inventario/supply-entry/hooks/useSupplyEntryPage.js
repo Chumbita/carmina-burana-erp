@@ -14,88 +14,56 @@ export function useSupplyEntryPage() {
   const notify = useNotification()
 
   const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [supplierFilter, setSupplierFilter] = useState('all')
-  const [sortBy, setSortBy] = useState('entry_date')
-  const [sortOrder, setSortOrder] = useState('desc')
-  const [currentPage, setCurrentPage] = useState(1)
+  const [page, setPage] = useState(1)
+  const [totalItems, setTotalItems] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
 
-  const loadData = useCallback(async () => {
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 350)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  const fetchEntries = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
 
-      const response = await supplyEntryService.getAll()
+      const response = await supplyEntryService.getAll({
+        page,
+        pageSize: ITEMS_PER_PAGE,
+        supplierId: supplierFilter !== 'all' ? Number(supplierFilter) : undefined,
+        dateFrom,
+        dateTo,
+        q: debouncedSearch,
+      })
       setData(response.data || [])
+      setTotalItems(response.pagination?.total_items ?? 0)
+      setTotalPages(response.pagination?.total_pages ?? 0)
     } catch (err) {
       setError(err.message || 'Error al cargar los datos')
       setData([])
     } finally {
       setLoading(false)
     }
+  }, [page, debouncedSearch, dateFrom, dateTo, supplierFilter])
+
+  useEffect(() => {
+    fetchEntries()
+  }, [fetchEntries, refreshKey])
+
+  const refresh = useCallback(() => {
+    setPage(1)
+    setRefreshKey(key => key + 1)
   }, [])
 
-  const suppliers = useMemo(() => {
-    return [...new Set(data.map(entry => entry.supplier?.name).filter(Boolean))].sort()
-  }, [data])
-
-  const filteredData = useMemo(() => {
-    let filtered = data.filter(entry => {
-      if (search) {
-        const searchLower = search.toLowerCase()
-        const documentNumber = entry.document_number?.toLowerCase() || ''
-        const supplierName = entry.supplier?.name?.toLowerCase() || ''
-
-        if (!documentNumber.includes(searchLower) && !supplierName.includes(searchLower)) {
-          return false
-        }
-      }
-
-      if (dateFrom && new Date(entry.entry_date) < new Date(dateFrom)) {
-        return false
-      }
-
-      if (dateTo && new Date(entry.entry_date) > new Date(`${dateTo}T23:59:59`)) {
-        return false
-      }
-
-      if (supplierFilter !== 'all' && entry.supplier?.name !== supplierFilter) {
-        return false
-      }
-
-      return true
-    })
-
-    filtered.sort((a, b) => {
-      let aValue = a[sortBy]
-      let bValue = b[sortBy]
-
-      if (sortBy === 'entry_date' || sortBy === 'created_at') {
-        aValue = new Date(aValue).getTime()
-        bValue = new Date(bValue).getTime()
-      } else if (sortBy === 'total_cost') {
-        aValue = Number(aValue)
-        bValue = Number(bValue)
-      }
-
-      return sortOrder === 'asc'
-        ? aValue > bValue ? 1 : -1
-        : aValue < bValue ? 1 : -1
-    })
-
-    const totalCount = filtered.length
-    const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE)
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    const items = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE)
-
-    return {
-      items,
-      totalCount,
-      totalPages,
-      currentPage
-    }
-  }, [data, search, dateFrom, dateTo, supplierFilter, sortBy, sortOrder, currentPage])
+  const changePage = useCallback(newPage => {
+    setPage(newPage)
+  }, [])
 
   const handleCreateSupplyEntry = useCallback(async (formData) => {
     try {
@@ -118,11 +86,11 @@ export function useSupplyEntryPage() {
 
       notify.success(`Abastecimiento ${createdEntry.document_number} registrado correctamente`)
       setOpenModal(false)
-      await loadData()
+      refresh()
     } catch (err) {
       notify.error(err.response?.data?.detail || 'Error al registrar el abastecimiento')
     }
-  }, [loadData, notify])
+  }, [notify, refresh])
 
   const handleViewDetail = useCallback((entryId) => {
     setSelectedEntryId(entryId)
@@ -134,23 +102,17 @@ export function useSupplyEntryPage() {
     setSelectedEntryId(null)
   }, [])
 
-  useEffect(() => {
-    loadData()
-  }, [loadData])
-
   return {
-    filteredData,
+    data,
     loading,
     error,
     search,
     dateFrom,
     dateTo,
     supplierFilter,
-    sortBy,
-    sortOrder,
-    suppliers,
-    currentPage,
-    itemsPerPage: ITEMS_PER_PAGE,
+    page,
+    totalItems,
+    totalPages,
     openModal,
     selectedEntryId,
     showDetail,
@@ -158,13 +120,11 @@ export function useSupplyEntryPage() {
     setDateFrom,
     setDateTo,
     setSupplierFilter,
-    setSortBy,
-    setSortOrder,
-    setCurrentPage,
     setOpenModal,
+    changePage,
+    refresh,
     handleCreateSupplyEntry,
     handleViewDetail,
     handleCloseDetail,
-    loadData,
   }
 }

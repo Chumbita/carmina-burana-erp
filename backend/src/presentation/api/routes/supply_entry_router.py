@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, status
+from datetime import date
+
+from fastapi import APIRouter, Depends, Query, status
 
 from src.domain.entities.user import User
 from src.presentation.dependencies.auth import get_current_user
@@ -6,8 +8,10 @@ from src.presentation.schemas.supply_entry_schema import (
     CreateSupplyEntryRequest,
     CancelSupplyEntryRequest,
     SupplyEntryDetailResponse,
-    SupplyEntryListResponse,
+    SupplyEntryListItemResponse,
 )
+from src.presentation.schemas.pagination_schema import PaginatedResponse
+from src.shared.pagination import parse_pagination
 from src.presentation.dependencies.use_cases.supply_entry import (
     get_create_supply_entry_use_case,
     build_get_supply_entry_detail,
@@ -70,14 +74,28 @@ async def create_supply_entry(
 
 @router.get(
     "",
-    response_model=SupplyEntryListResponse,
+    response_model=PaginatedResponse[SupplyEntryListItemResponse],
     summary="Listar todas las entradas de insumos",
 )
 async def list_supply_entries(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(5, ge=1),
+    supplier_id: int | None = Query(None),
+    date_from: date | None = Query(None),
+    date_to: date | None = Query(None),
+    q: str | None = Query(None),
     use_case: ListSupplyEntries = Depends(build_list_supply_entries),
     current_user: User = Depends(get_current_user),
-) -> SupplyEntryListResponse:
-    return await use_case.execute()
+) -> PaginatedResponse[SupplyEntryListItemResponse]:
+    params = parse_pagination(page, page_size)
+    result = await use_case.execute(
+        params,
+        supplier_id=supplier_id,
+        date_from=date_from,
+        date_to=date_to,
+        search=q,
+    )
+    return PaginatedResponse.from_page(result)
 
 
 # ──────────────────────────────────────────────────────────────────────────────

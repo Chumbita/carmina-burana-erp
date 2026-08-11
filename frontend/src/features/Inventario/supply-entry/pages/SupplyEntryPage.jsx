@@ -1,8 +1,7 @@
-import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog"
 import { Button } from '@/components/ui/Button'
-import { Spinner } from '@/components/ui/Spinner'
 import { Plus } from "lucide-react"
+import { TablePagination } from '@/components/shared/TablePagination'
 
 // Componentes existentes
 import { SupplyEntryForm } from '../components/SupplyEntryForm'
@@ -15,6 +14,9 @@ import { useSupplyEntryPage } from '../hooks/useSupplyEntryPage'
 import { useSuppliers as useSupplyEntrySuppliers } from '../hooks/useSuppliers'
 import { useSupplies } from '../../gestion_insumos/hooks/useSupplies'
 
+// Constants
+import { ITEMS_PER_PAGE } from '../constants/supplyEntry.constants'
+
 /**
  * SupplyEntryPage - Main page for supply entry management
  * Following the same pattern as SuppliesPage
@@ -22,27 +24,22 @@ import { useSupplies } from '../../gestion_insumos/hooks/useSupplies'
 export default function SupplyEntryPage() {
   // Main page hook
   const {
-    filteredData,
+    data,
     loading,
-    error,
     search,
     dateFrom,
     dateTo,
     supplierFilter,
-    sortBy,
-    sortOrder,
-    suppliers,
-    currentPage,
-    itemsPerPage,
+    page,
+    totalItems,
+    totalPages,
     openModal,
     setSearch,
     setDateFrom,
     setDateTo,
     setSupplierFilter,
-    setSortBy,
-    setSortOrder,
-    setCurrentPage,
     setOpenModal,
+    changePage,
     handleCreateSupplyEntry,
   } = useSupplyEntryPage()
 
@@ -55,7 +52,7 @@ export default function SupplyEntryPage() {
   } = useSupplyEntrySuppliers()
   const formHook = useSupplyEntryForm(supplies, handleCreateSupplyEntry)
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Spinner /></div>
+  const resetPage = () => changePage(1)
 
   return (
     <div className="space-y-4">
@@ -73,14 +70,16 @@ export default function SupplyEntryPage() {
             else if (key === 'dateFrom') setDateFrom(value)
             else if (key === 'dateTo') setDateTo(value)
             else if (key === 'selectedSupplier') setSupplierFilter(value)
+            resetPage()
           }}
           clearFilters={() => {
             setSearch('')
             setDateFrom('')
             setDateTo('')
             setSupplierFilter('all')
+            resetPage()
           }}
-          uniqueSuppliers={suppliers}
+          supplierOptions={supplierOptions}
         />
 
         <Button
@@ -97,22 +96,25 @@ export default function SupplyEntryPage() {
 
       {/* Table */}
       <SupplyEntryTable
-        entries={filteredData.items}
+        entries={data}
         loading={loading}
       />
 
-      {/* Results summary */}
-      {filteredData.totalCount > 0 && (
+      {/* Pagination */}
+      {totalItems > 0 && (
         <div className="flex justify-center">
-          <span className="text-sm text-gray-600">
-            Página {filteredData.currentPage} de {filteredData.totalPages} •
-            {filteredData.totalCount} registros totales
-          </span>
+          <TablePagination
+            page={page}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={ITEMS_PER_PAGE}
+            onChangePage={changePage}
+          />
         </div>
       )}
 
       {/* Empty state */}
-      {filteredData.totalCount === 0 && (
+      {totalItems === 0 && !loading && (
         <p className="text-center py-8 text-gray-500">
           {search || dateFrom || dateTo || supplierFilter !== 'all'
             ? "No se encontraron abastecimientos"
