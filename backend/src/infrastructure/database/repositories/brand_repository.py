@@ -27,7 +27,10 @@ class BrandRepository(IBrandRepository):
         return Brand(
             id=model.id,
             name=model.name,
-            created_at=model.created_at
+            is_active=model.is_active,
+            created_at=model.created_at,
+            updated_at=model.updated_at,
+            deleted_at=model.deleted_at,
         )
 
     @staticmethod
@@ -38,7 +41,10 @@ class BrandRepository(IBrandRepository):
         return BrandModel(
             id=entity.id,
             name=entity.name,
-            created_at=entity.created_at
+            is_active=entity.is_active,
+            created_at=entity.created_at,
+            updated_at=entity.updated_at,
+            deleted_at=entity.deleted_at,
         )
 
 
@@ -50,12 +56,22 @@ class BrandRepository(IBrandRepository):
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model else None
 
+    async def find_by_name(self, name: str) -> Optional[Brand]:
+        stmt = select(BrandModel).where(BrandModel.name == name)
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+        return self._to_entity(model) if model else None
+
     async def get_all(self) -> List[Brand]:
         """
         Obtiene un listado de todas las marcas registradas.
         """
 
-        stmt = select(BrandModel)
+        stmt = (
+            select(BrandModel)
+            .where(BrandModel.is_active.is_(True))
+            .order_by(BrandModel.id)
+        )
         result = await self._session.execute(stmt)
         rows = result.scalars().all()
 
@@ -64,5 +80,19 @@ class BrandRepository(IBrandRepository):
     async def add(self, brand: Brand) -> Brand:
         model = self._to_model(brand)
         self._session.add(model)
+        await self._session.flush()
+        return self._to_entity(model)
+
+    async def save(self, brand: Brand) -> Optional[Brand]:
+        stmt = select(BrandModel).where(BrandModel.id == brand.id)
+        result = await self._session.execute(stmt)
+        model = result.scalar_one_or_none()
+        if model is None:
+            return None
+
+        model.name = brand.name
+        model.is_active = brand.is_active
+        model.updated_at = brand.updated_at
+        model.deleted_at = brand.deleted_at
         await self._session.flush()
         return self._to_entity(model)
