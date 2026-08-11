@@ -22,7 +22,7 @@ function normalizeEntry(entry) {
     invoiceNumber: entry.document_number,
     total_cost: Number(entry.total_cost ?? 0),
     annulledAt: entry.canceled_at,
-    annulmentReason: entry.description,
+    annulmentReason: entry.cancellation_reason,
     items: (entry.lines ?? []).map((line) => ({
       id: line.lot_id ?? line.item?.id,
       supply_id: line.item?.id,
