@@ -83,7 +83,14 @@ export default function SupplyEntryPage() {
           uniqueSuppliers={suppliers}
         />
 
-        <Button size="sm" className="cursor-pointer" onClick={() => setOpenModal(true)}>
+        <Button
+          size="sm"
+          className="cursor-pointer"
+          onClick={() => {
+            formHook.handleReset()
+            setOpenModal(true)
+          }}
+        >
           <Plus />Nuevo Abastecimiento
         </Button>
       </header>
