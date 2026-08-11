@@ -1,6 +1,6 @@
 from typing import Optional, Protocol
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 from src.domain.entities.supply_entry import SupplyEntryOrder, SupplyEntryLine
@@ -17,7 +17,15 @@ class ISupplyEntryRepository(Protocol):
     async def find_by_id(self, entry_id: int) -> Optional["SupplyEntryDetailData"]:
         ...
 
-    async def find_all(self) -> list["SupplyEntryListItemData"]:
+    async def find_all(
+        self,
+        supplier_id: Optional[int] = None,
+        date_from: Optional[date] = None,
+        date_to: Optional[date] = None,
+        search: Optional[str] = None,
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
+    ) -> tuple[list["SupplyEntryListItemData"], int]:
         ...
 
     async def set_cancelled(

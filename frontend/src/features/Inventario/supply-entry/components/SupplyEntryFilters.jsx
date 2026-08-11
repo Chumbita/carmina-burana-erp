@@ -9,9 +9,9 @@ import { Search, Calendar } from 'lucide-react'
  * @param {Object} props.filters - Current filter values
  * @param {Function} props.updateFilter - Function to update filters
  * @param {Function} props.clearFilters - Function to clear all filters
- * @param {Array} props.uniqueSuppliers - List of unique suppliers
+ * @param {Array} props.supplierOptions - List of suppliers with id and name
  */
-export function SupplyEntryFilters({ filters, updateFilter, clearFilters, uniqueSuppliers }) {
+export function SupplyEntryFilters({ filters, updateFilter, clearFilters, supplierOptions = [] }) {
   return (
     <div className="flex gap-3 flex-1 flex-wrap">
       <div className="relative">
@@ -52,9 +52,9 @@ export function SupplyEntryFilters({ filters, updateFilter, clearFilters, unique
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos los proveedores</SelectItem>
-          {uniqueSuppliers.map((supplier) => (
-            <SelectItem key={supplier} value={supplier}>
-              {supplier}
+          {supplierOptions.map((supplier) => (
+            <SelectItem key={supplier.id} value={String(supplier.id)}>
+              {supplier.name}
             </SelectItem>
           ))}
         </SelectContent>

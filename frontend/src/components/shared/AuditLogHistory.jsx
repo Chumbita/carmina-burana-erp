@@ -1,5 +1,6 @@
 import React from "react"
 import { DataTable } from "@/components/shared/DataTable"
+import { TablePagination } from "@/components/shared/TablePagination"
 import { Badge } from "@/components/ui/Badge"
 import { useEntityAuditLogs } from "../../hooks/useEntityAuditLogs"
 import privateClient from "@/lib/api/privateClient"
@@ -57,7 +58,8 @@ function getChangedKeys(oldData, newData, action) {
 }
 
 export function AuditLogHistory({ entityType, entityId, refreshKey }) {
-  const { auditLogs, isLoading, error, refetch } = useEntityAuditLogs(entityType, entityId)
+  const { auditLogs, isLoading, error, page, pageSize, totalItems, totalPages, changePage, refetch } =
+    useEntityAuditLogs(entityType, entityId)
   const [brandMap, setBrandMap] = React.useState({})
   const [uomMap, setUomMap] = React.useState({})
 
@@ -91,7 +93,7 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
       ),
     },
     {
-      accessor: "action",
+      accessor: "changes",
       header: "Cambios",
       render: (_, row) => {
         const keys = getChangedKeys(row.old_data, row.new_data, row.action)
@@ -138,7 +140,7 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
     },
   ], [brandMap, uomMap])
 
-  if (isLoading) {
+  if (isLoading && !auditLogs.length) {
     return <p className="text-sm text-muted-foreground">Cargando historial...</p>
   }
 
@@ -146,9 +148,21 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
     return <p className="text-sm text-destructive">Error al cargar el historial.</p>
   }
 
-  if (!auditLogs || auditLogs.length === 0) {
+  if (!auditLogs.length && !totalItems) {
     return <p className="text-sm text-muted-foreground">Sin registros de auditoría.</p>
   }
 
-  return <DataTable columns={columns} data={auditLogs} />
+  return (
+    <div className={isLoading ? "space-y-4 opacity-60" : "space-y-4"}>
+      <DataTable columns={columns} data={auditLogs} />
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        pageSize={pageSize}
+        onChangePage={changePage}
+      />
+    </div>
+  )
 }

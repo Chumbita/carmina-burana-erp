@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import { DataTable } from "@/components/shared/DataTable"
 import { FilterBar } from "@/components/shared/FilterBar"
 import { useLots } from "../hooks/useLots"
-import { LotsPagination } from "./LotsPagination"
+import { TablePagination } from "@/components/shared/TablePagination"
 import { buildLotsColumns } from "./lotsColumns"
 
 const STATUS_OPTIONS = [
@@ -56,7 +56,7 @@ export function TabLots({ itemId, base_uom_symbol }) {
         }}
       />
 
-      {loading && <p className="text-gray-500 py-4">Cargando lotes...</p>}
+      {loading && !lots.length && <p className="text-gray-500 py-4">Cargando lotes...</p>}
       {error && <p className="text-red-500 py-4">Error al cargar lotes</p>}
       {!loading && !error && !lots.length && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -73,22 +73,22 @@ export function TabLots({ itemId, base_uom_symbol }) {
         </div>
       )}
 
-      {!loading && !error && lots.length > 0 && (
-        <>
+      {!error && lots.length > 0 && (
+        <div className={loading ? "space-y-4 opacity-60" : "space-y-4"}>
           <DataTable
             columns={columns}
             data={rows}
             onRowClick={handleRowClick}
           />
 
-          <LotsPagination
+          <TablePagination
             page={page}
             totalPages={totalPages}
             totalItems={totalItems}
             pageSize={pageSize}
             onChangePage={changePage}
           />
-        </>
+        </div>
       )}
     </div>
   )

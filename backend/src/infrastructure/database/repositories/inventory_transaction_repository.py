@@ -8,6 +8,7 @@ from sqlalchemy import select
 
 from src.domain.entities.inventory_transaction import InventoryTransaction
 from src.infrastructure.database.models.inventory_transaction_model import InventoryTransactionModel
+from src.infrastructure.database.pagination import paginate
 
 class InventoryTransactionRepository():
     def __init__(self, session: AsyncSession):
@@ -51,16 +52,31 @@ class InventoryTransactionRepository():
         self._session.add(transaction_model)
         await self._session.flush()
     
-    async def list_by_item(self, item_id: int) -> list[InventoryTransaction]:
+    async def list_by_item(
+        self,
+        item_id: int,
+        offset: int | None = None,
+        limit: int | None = None,
+    ) -> tuple[list[InventoryTransaction], int]:
         """
-        Retorna todas las transacciones de inventario para un ítem,
-        ordenadas por fecha descendente.
+        Retorna las transacciones de inventario para un ítem,
+        ordenadas por fecha descendente, junto con el total.
+
+        offset/limit: paginación opcional. El total se calcula sobre el
+        mismo dataset filtrado por item_id.
         """
         stmt = (
             select(InventoryTransactionModel)
             .where(InventoryTransactionModel.item_id == item_id)
             .order_by(InventoryTransactionModel.created_at.desc())
         )
-        result = await self._session.execute(stmt)
-        models = result.scalars().all()
-        return [self._to_entity(m) for m in models]
+
+        if offset is not None and limit is not None:
+            rows, total = await paginate(self._session, stmt, offset=offset, limit=limit)
+        else:
+            result = await self._session.execute(stmt)
+            rows = result.all()
+            total = len(rows)
+
+        models = [row[0] for row in rows]
+        return [self._to_entity(m) for m in models], total
