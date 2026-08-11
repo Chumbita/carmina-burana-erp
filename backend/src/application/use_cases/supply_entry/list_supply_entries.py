@@ -58,8 +58,10 @@ class ListSupplyEntries:
             supplier=supplier,
             entry_date=data.entry_date,
             description=data.description,
+            cancellation_reason=data.cancellation_reason,
             status=SupplyEntryStatus(data.status),
             created_at=data.created_at,
+            canceled_at=data.canceled_at,
             items_count=data.items_count,
             total_cost=data.total_cost,
         )

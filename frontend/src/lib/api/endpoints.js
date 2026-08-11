@@ -23,6 +23,13 @@ export const ENDPOINTS = {
         GET_BY_ENTITY: (entity_type, entity_id) => `/audit-logs/${entity_type}/${entity_id}`,
         GET_BY_USER: (user_id) => `/audit-logs/user/${user_id}`,
     },
+    // Notifications
+    NOTIFICATIONS: {
+        GET_ALL: '/notifications',
+        MARK_READ: (key) => `/notifications/${encodeURIComponent(key)}/read`,
+        MARK_ALL_READ: '/notifications/read-all',
+        DISMISS: (key) => `/notifications/${encodeURIComponent(key)}/dismiss`,
+    },
 
     // Supplies
     SUPPLIES: {
@@ -42,6 +49,10 @@ export const ENDPOINTS = {
     // Brands
     BRANDS: {
         GET_ALL: '/brands/',
+        GET_BY_ID: (id) => `/brands/${id}`,
+        CREATE: '/brands/',
+        UPDATE: (id) => `/brands/${id}`,
+        DELETE: (id) => `/brands/${id}`,
     },
     // Suppliers
     SUPPLIERS: {

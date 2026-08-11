@@ -34,6 +34,7 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             document_number=model.document_number,
             entry_date=model.entry_date,
             description=model.description,
+            cancellation_reason=model.cancellation_reason,
             status=SupplyEntryStatus(model.status),
             created_at=model.created_at,
             canceled_at=model.canceled_at,
@@ -46,6 +47,7 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             document_number=entity.document_number,
             entry_date=entity.entry_date,
             description=entity.description,
+            cancellation_reason=entity.cancellation_reason,
             status=entity.status.value,
             created_at=entity.created_at,
             canceled_at=entity.canceled_at,
@@ -98,7 +100,7 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             .values(
                 status=SupplyEntryStatus.CANCELED.value,
                 canceled_at=canceled_at,
-                description=reason,
+                cancellation_reason=reason,
             )
         )
         await self._session.execute(stmt)
@@ -164,6 +166,7 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             supplier_phone=supplier_phone,
             entry_date=order_model.entry_date,
             description=order_model.description,
+            cancellation_reason=order_model.cancellation_reason,
             status=order_model.status,
             created_at=order_model.created_at,
             canceled_at=order_model.canceled_at,
@@ -233,6 +236,7 @@ class SupplyEntryRepository(ISupplyEntryRepository):
                 supplier_name=supplier_name,
                 entry_date=order_model.entry_date,
                 description=order_model.description,
+                cancellation_reason=order_model.cancellation_reason,
                 status=order_model.status,
                 created_at=order_model.created_at,
                 canceled_at=order_model.canceled_at,
