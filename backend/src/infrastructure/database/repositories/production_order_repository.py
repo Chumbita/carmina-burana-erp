@@ -225,6 +225,7 @@ class ProductionOrderRepository(IProductionOrderRepository):
                 ProductionOrderModel.produced_quantity,
                 UomModel.symbol.label("base_uom_symbol"),
                 ProductionOrderModel.schedule_date,
+                ProductionOrderModel.completed_at,
                 ProductionOrderModel.status,
                 ProductionOrderModel.bom_id,
             )
@@ -233,6 +234,10 @@ class ProductionOrderRepository(IProductionOrderRepository):
             .join(UomModel, ItemModel.base_uom_id == UomModel.id)
             .where(
                 ProductionOrderModel.status.notin_(["PLANNED"])
+            )
+            .order_by(
+                ProductionOrderModel.completed_at.desc().nulls_last(),
+                ProductionOrderModel.schedule_date.desc(),
             )
         )
 
@@ -247,6 +252,7 @@ class ProductionOrderRepository(IProductionOrderRepository):
                 "produced_quantity": row.produced_quantity,
                 "base_uom_symbol": row.base_uom_symbol,
                 "schedule_date": row.schedule_date,
+                "completed_at": row.completed_at,
                 "status": row.status,
                 "bom_id": row.bom_id,
             }

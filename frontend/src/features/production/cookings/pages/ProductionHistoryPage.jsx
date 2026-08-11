@@ -10,9 +10,11 @@ export default function ProductionHistoryPage() {
     statusFilter,
     sortBy,
     sortOrder,
+    search,
     setStatusFilter,
     setSortBy,
     setSortOrder,
+    setSearch,
     filteredProductions,
   } = useProductionFilters();
 
@@ -28,9 +30,9 @@ export default function ProductionHistoryPage() {
     <div className="space-y-4">
       <header className="flex items-center justify-between gap-4">
         <FilterBar
-          search={""}
-          searchPlaceholder="Buscar..."
-          onSearchChange={() => {}}
+          search={search}
+          searchPlaceholder="Buscar producto..."
+          onSearchChange={setSearch}
           filters={[
             {
               key: "status",
@@ -40,16 +42,17 @@ export default function ProductionHistoryPage() {
               options: statusOptions,
             },
           ]}
-          sortFields={[{ key: "schedule_date", label: "Fecha Programada" }]}
+          sortFields={[{ key: "completed_at", label: "Fecha completada" }]}
           sortBy={sortBy}
           sortOrder={sortOrder}
           onSortByChange={setSortBy}
           onSortOrderChange={setSortOrder}
-          hasActiveFilters={statusFilter !== "ALL" || sortBy !== ""}
+          hasActiveFilters={statusFilter !== "ALL" || sortBy !== "" || search !== ""}
           onClearFilters={() => {
             setStatusFilter("ALL");
             setSortBy("");
             setSortOrder("asc");
+            setSearch("");
           }}
         />
       </header>

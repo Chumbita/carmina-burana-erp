@@ -62,7 +62,24 @@ export function ProductionHistoryTable({ productions, onDiscard }) {
       accessor: "produced_quantity",
       render: (value, row) => `${value} ${row.base_uom_symbol || ""}`,
     },
-    { header: "Fecha programada", accessor: "schedule_date", render: (value) => (value ? value : "Sin fecha") },
+    { header: "Fecha programada", accessor: "schedule_date", render: (value) => {
+      if (!value) return "Sin fecha";
+      const [datePart] = String(value).split("T");
+      const [y, m, d] = datePart.split("-");
+      return y && m && d ? `${d}/${m}/${y}` : datePart;
+    } },
+    { header: "Fecha completada", accessor: "completed_at", render: (value) => {
+      if (!value) return "Sin fecha";
+      const date = new Date(value);
+      return date.toLocaleString("es-AR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+      });
+    } },
     {
       header: "Estado",
       accessor: "status",
