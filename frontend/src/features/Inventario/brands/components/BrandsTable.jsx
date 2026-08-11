@@ -7,7 +7,7 @@ export function BrandsTable({ brands, loading }) {
   const navigate = useNavigate()
 
   const columns = [
-    { header: 'N°', accessor: 'row_number', render: (_value, _brand, rowIndex) => rowIndex + 1 },
+    { header: 'Nro', accessor: 'row_number', render: (_value, _brand, rowIndex) => rowIndex + 1 },
     {
       header: 'Nombre',
       accessor: 'name',
