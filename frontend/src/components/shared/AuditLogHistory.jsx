@@ -25,6 +25,7 @@ const FIELD_LABELS = {
   email: "Email",
   phone: "Teléfono",
   address: "Dirección",
+  is_active: "Activo",
 }
 
 function label(key) {
@@ -33,6 +34,7 @@ function label(key) {
 
 function resolveValue(key, value, brandMap, uomMap) {
   if (value == null) return "-"
+  if (typeof value === "boolean") return value ? "Sí" : "No"
   if (key === "brand_id" && brandMap[value]) return brandMap[value]
   if (key === "base_uom_id" && uomMap[value]) return uomMap[value]
   return value
