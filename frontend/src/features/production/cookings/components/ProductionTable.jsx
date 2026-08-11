@@ -60,12 +60,11 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
   useEffect(() => {
     if (completeTarget) {
       setCompleteValue("produced_quantity", Number(completeTarget.planned_quantity || 0));
-      
-      const productionDate = completeTarget.schedule_date 
-        ? completeTarget.schedule_date.split('T')[0] 
-        : "";
-        
-      setCompleteValue("production_date", productionDate ? `${productionDate}T00:00` : "");
+
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      const nowLocal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      setCompleteValue("production_date", nowLocal);
       setCompleteValue("lot_code", "");
       setCompleteValue("expiration_date", "");
       setCompleteValue("unit_cost", Number(completeTarget.estimated_unit_cost || 0));
