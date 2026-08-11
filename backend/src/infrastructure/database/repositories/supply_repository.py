@@ -217,6 +217,45 @@ class SupplyRepository(ISupplyRepository):
             "supply_updated_at": row.supply_updated_at,
         }
 
+    async def list_expiring_lots_for_active_supplies(self, expires_before: datetime) -> list[dict[str, Any]]:
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+
+        stmt = (
+            select(
+                InventoryLotModel.id.label("lot_id"),
+                InventoryLotModel.item_id.label("item_id"),
+                InventoryLotModel.lot_code.label("lot_code"),
+                InventoryLotModel.expiration_date.label("expiration_date"),
+                ItemModel.name.label("item_name"),
+                InventoryBalanceModel.quantity.label("quantity"),
+            )
+            .join(ItemModel, ItemModel.id == InventoryLotModel.item_id)
+            .join(ItemTypeModel, ItemTypeModel.id == ItemModel.item_type_id)
+            .join(InventoryBalanceModel, InventoryBalanceModel.lot_id == InventoryLotModel.id)
+            .where(
+                ItemModel.status == "ACTIVE",
+                ItemTypeModel.code.in_(["supply", "packaging_supply"]),
+                InventoryBalanceModel.quantity > 0,
+                InventoryLotModel.expiration_date.isnot(None),
+                InventoryLotModel.expiration_date >= now,
+                InventoryLotModel.expiration_date <= expires_before,
+            )
+            .order_by(InventoryLotModel.expiration_date.asc())
+        )
+
+        result = await self._session.execute(stmt)
+        return [
+            {
+                "lot_id": row.lot_id,
+                "item_id": row.item_id,
+                "lot_code": row.lot_code,
+                "expiration_date": row.expiration_date,
+                "item_name": row.item_name,
+                "quantity": row.quantity,
+            }
+            for row in result.all()
+        ]
+
     async def has_stock(self, item_id: int) -> bool:
         """Retorna True si el insumo tiene stock disponible (quantity > 0, excluyendo lotes vencidos)."""
         from sqlalchemy import exists as sa_exists

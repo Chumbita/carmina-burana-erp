@@ -10,6 +10,9 @@ class IBrandRepository(Protocol):
     async def get_by_id(self, brand_id: int) -> Optional[Brand]:
         ...
 
+    async def find_by_name(self, name: str) -> Optional[Brand]:
+        ...
+
     async def get_all(self) -> List[Brand]:
         """
         Obtiene un listado de todas las marcas registradas.
@@ -21,4 +24,7 @@ class IBrandRepository(Protocol):
         Agrega una nueva marca al repositorio.
         Retorna la entidad con el id generado.
         """
+        ...
+
+    async def save(self, brand: Brand) -> Optional[Brand]:
         ...

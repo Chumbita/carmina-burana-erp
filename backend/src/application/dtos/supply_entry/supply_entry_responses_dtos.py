@@ -46,6 +46,7 @@ class SupplyEntryDetailResponse:
     supplier: Optional[SupplierRef] = None
     entry_date: Optional[datetime] = None
     description: Optional[str] = None
+    cancellation_reason: Optional[str] = None
     status: Optional[SupplyEntryStatus] = None
     created_at: Optional[datetime] = None
     canceled_at: Optional[datetime] = None
@@ -73,6 +74,7 @@ class SupplyEntryListItemResponse:
     supplier: Optional[SupplierListRef] = None
     entry_date: Optional[datetime] = None
     description: Optional[str] = None
+    cancellation_reason: Optional[str] = None
     status: Optional[SupplyEntryStatus] = None
     created_at: Optional[datetime] = None
     canceled_at: Optional[datetime] = None

@@ -83,6 +83,10 @@ export function AppSidebar({ ...props }) {
             url: "/inventario/insumos",
           },
           {
+            title: "Marcas",
+            url: "/inventario/marcas",
+          },
+          {
             title: "Ingreso de Insumos",
             url: "/inventario/ingreso-insumos",
           },
