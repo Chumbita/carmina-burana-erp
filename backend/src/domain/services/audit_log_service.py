@@ -73,3 +73,34 @@ class AuditLogService:
             old_data=old_data,
             user_id=user_id,
         )
+
+    async def log_brand_create(
+        self,
+        entity_id: int,
+        new_data: dict,
+        user_id: int | None = None,
+    ) -> None:
+        await self._record.execute(
+            entity_type="brand",
+            entity_id=entity_id,
+            action="CREATED",
+            new_data=new_data,
+            old_data=None,
+            user_id=user_id,
+        )
+
+    async def log_brand_update(
+        self,
+        entity_id: int,
+        old_data: dict,
+        new_data: dict,
+        user_id: int | None = None,
+    ) -> None:
+        await self._record.execute(
+            entity_type="brand",
+            entity_id=entity_id,
+            action="UPDATED",
+            new_data=new_data,
+            old_data=old_data,
+            user_id=user_id,
+        )
