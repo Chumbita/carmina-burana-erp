@@ -7,7 +7,7 @@ export function SuppliersTable({ suppliers, loading }) {
   const navigate = useNavigate()
 
   const columns = [
-    { header: 'N°', accessor: 'id' },
+    { header: 'Nro', accessor: 'id' },
     {
       header: 'Nombre',
       accessor: 'name',
