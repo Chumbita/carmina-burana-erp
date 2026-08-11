@@ -44,6 +44,7 @@ const formatDateTime = (date) =>
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    hourCycle: 'h23',
   })
 
 const formatDate = (date) =>
@@ -178,7 +179,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
       </header>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <SummaryItem icon={Calendar} label="Recepción" value={formatDateTime(entry.created_at || entry.entry_date)} />
+        <SummaryItem icon={Calendar} label="Recepción" value={formatDateTime(entry.entry_date)} />
         <SummaryItem icon={User} label="Proveedor" value={entry.supplier} />
         <SummaryItem icon={Package} label="Cantidad recibida" value={`${totalItems} unidades`} />
         <SummaryItem icon={DollarSign} label="Costo total" value={formatMoney(entry.total_cost)} />
@@ -221,7 +222,8 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                       month: '2-digit',
                       year: 'numeric',
                       hour: '2-digit',
-                      minute: '2-digit'
+                      minute: '2-digit',
+                      hourCycle: 'h23',
                     })}
                   </p>
                 </div>
@@ -276,7 +278,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                       Motivo: {entry.annulmentReason}
                     </p>
                     <p className="text-xs text-red-600">
-                      Fecha de anulación: {new Date(entry.annulledAt).toLocaleString('es-AR')}
+                      Fecha de anulación: {formatDateTime(entry.annulledAt)}
                     </p>
                   </div>
                 </div>
