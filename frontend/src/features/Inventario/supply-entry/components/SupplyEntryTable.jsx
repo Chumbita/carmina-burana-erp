@@ -34,7 +34,14 @@ export function SupplyEntryTable({ entries, loading }) {
     {
       header: 'Fecha',
       accessor: 'entry_date',
-      render: (value) => new Date(value).toLocaleDateString('es-AR'),
+      render: (value) => value ? new Date(value).toLocaleString('es-AR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+      }) : '—',
     },
     {
       header: 'Proveedor',

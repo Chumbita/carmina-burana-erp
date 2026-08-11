@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from 'react'
-import { ITEMS_PER_PAGE } from '../constants/supplyEntry.constants'
+import { useState, useCallback, useMemo, useEffect } from 'react'
+import { ITEMS_PER_PAGE, parseSupplyEntryDateTime } from '../constants/supplyEntry.constants'
 import { supplyEntryService } from '../services/supplyEntryService'
 import { useNotification } from '@/components/shared/notifications/useNotification'
 
@@ -70,7 +70,7 @@ export function useSupplyEntryPage() {
       const submissionData = {
         supplier_id: formData.supplierId,
         document_number: formData.invoiceNumber || undefined,
-        entry_date: new Date(formData.entryDate).toISOString(),
+        entry_date: parseSupplyEntryDateTime(formData.entryDate),
         description: formData.description || undefined,
         lines: formData.items.map(item => ({
           item_id: item.supplyId,

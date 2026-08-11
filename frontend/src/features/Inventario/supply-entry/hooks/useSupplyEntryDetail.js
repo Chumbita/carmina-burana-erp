@@ -89,7 +89,7 @@ export function useSupplyEntryDetail(entryId) {
   const canAnnul = useMemo(() => {
     if (!entry) return false
     
-    const entryDate = new Date(entry.created_at || entry.entry_date)
+    const entryDate = new Date(entry.entry_date)
     const now = new Date()
     const hoursDiff = (now - entryDate) / (1000 * 60 * 60)
     
