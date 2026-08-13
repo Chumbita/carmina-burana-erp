@@ -2,14 +2,14 @@ import { Badge } from "@/components/ui/Badge"
 import { formatDate, formatCurrency } from "@/lib/utils/formatters"
 
 const lotStatusStyles = {
-  active: "bg-green-100 text-green-800",
-  depleted: "bg-gray-100 text-gray-800",
-  expired: "bg-red-100 text-red-600",
-  expiring_soon: "bg-yellow-100 text-yellow-800",
+  active: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30",
+  depleted: "bg-slate-500/10 text-slate-600 border-slate-500/30",
+  expired: "bg-red-500/10 text-red-600 border-red-500/30",
+  expiring_soon: "bg-amber-500/10 text-amber-700 border-amber-500/30",
 }
 
 const lotStatusLabels = {
-  active: "Activo",
+  active: "Óptimo",
   depleted: "Agotado",
   expired: "Vencido",
   expiring_soon: "Por vencer",

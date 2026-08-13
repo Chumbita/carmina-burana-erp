@@ -27,7 +27,7 @@ export default function SupplyDetailPage() {
         />
         <EntityDetailPage.Sidebar.Row
           label="Estado"
-          value={<Badge className={estadoStyles[supply?.estado_stock]}>{supply?.estado_stock}</Badge>}
+          value={<Badge className={`${estadoStyles[supply?.estado_stock]} capitalize`}>{supply?.estado_stock}</Badge>}
         />
       </EntityDetailPage.Sidebar>
 
