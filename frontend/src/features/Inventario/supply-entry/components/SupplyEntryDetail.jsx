@@ -202,89 +202,10 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
         </Card>
       )}
 
-      {/* General Information */}
-      <Card>
-        <div className="p-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center">
-            <Package className="w-5 h-5 mr-2" />
-            Información General
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-neutral-400 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-neutral-900">Fecha de Recepción</p>
-                  <p className="text-sm text-neutral-600">
-                    {new Date(entry.entry_date).toLocaleString('es-AR', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hourCycle: 'h23',
-                    })}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <User className="w-5 h-5 text-neutral-400 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-neutral-900">Proveedor</p>
-                  <p className="text-sm text-neutral-600">{entry.supplier}</p>
-                </div>
-              </div>
-              
-              {entry.invoiceNumber && (
-                <div className="flex items-center gap-3">
-                  <Download className="w-5 h-5 text-neutral-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-neutral-900">Número de Factura</p>
-                    <p className="text-sm text-neutral-600">{entry.invoiceNumber}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <DollarSign className="w-5 h-5 text-neutral-400 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-neutral-900">Costo Total</p>
-                  <p className="text-lg font-semibold text-neutral-900">
-                    ${entry.total_cost?.toFixed(2) || '0.00'}
-                  </p>
-                </div>
-              </div>
-              
-              {entry.description && (
-                <div className="flex items-center gap-3">
-                  <Package className="w-5 h-5 text-neutral-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-neutral-900">Descripción</p>
-                    <p className="text-sm text-neutral-600 capitalize">{entry.description}</p>
-                  </div>
-                </div>
-              )}
-              
-              {entry.status === 'annulled' && (
-                <div className="flex items-center gap-3">
-                  <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-red-900">Estado: Anulada</p>
-                    <p className="text-sm text-red-700">
-                      Motivo: {entry.annulmentReason}
-                    </p>
-                    <p className="text-xs text-red-600">
-                      Fecha de anulación: {formatDateTime(entry.annulledAt)}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+      <Card className="gap-0 rounded-lg py-0 shadow-none">
+        <div className="flex items-center justify-between border-b px-4 py-3">
+          <h2 className="text-base font-semibold text-neutral-900">Insumos recibidos</h2>
+          <span className="text-sm text-neutral-500">{entry.items.length} líneas</span>
         </div>
 
         <div className="overflow-x-auto">
