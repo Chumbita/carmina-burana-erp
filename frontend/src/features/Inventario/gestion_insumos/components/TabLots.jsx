@@ -7,7 +7,7 @@ import { TablePagination } from "@/components/shared/TablePagination"
 import { buildLotsColumns } from "./lotsColumns"
 
 const STATUS_OPTIONS = [
-  { label: "Activo", value: "active" },
+  { label: "Óptimo", value: "active" },
   { label: "Agotado", value: "depleted" },
   { label: "Vencido", value: "expired" },
   { label: "Todos", value: "all" },
