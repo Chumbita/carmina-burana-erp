@@ -25,6 +25,7 @@ import {
   AlertTriangle,
   ExternalLink,
 } from 'lucide-react'
+import { formatCurrency, formatDecimal } from '@/lib/utils/formatters'
 
 const getStatusLabel = (status) => {
   const statusMap = {
@@ -246,7 +247,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
                       <p className="truncate text-xs text-neutral-500">{item.comment}</p>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-right text-sm tabular-nums text-neutral-700">{item.amount}</td>
+                  <td className="px-4 py-3 text-right text-sm tabular-nums text-neutral-700">{formatDecimal(item.amount)}</td>
                   <td className="px-4 py-3 text-right text-sm tabular-nums text-neutral-700">
                     {formatMoney(item.unit_cost)}
                   </td>

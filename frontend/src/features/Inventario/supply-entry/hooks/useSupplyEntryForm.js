@@ -64,7 +64,11 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
 
   // Calculate total cost
   const totalCost = watchedItems.reduce((sum, item) => {
-    return sum + (item.quantity * item.unitCost)
+    const qty = Number(item.quantity)
+    const cost = Number(item.unitCost)
+    const subtotal =
+      Number.isFinite(qty) && Number.isFinite(cost) ? qty * cost : 0
+    return sum + subtotal
   }, 0)
 
   // Add new item
@@ -72,7 +76,7 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
     append({
       supplyId: 0,
       quantity: 1,
-      unitCost: 0,
+      unitCost: "",
       expirationDate: '',
       batchNumber: '',
       comment: '',

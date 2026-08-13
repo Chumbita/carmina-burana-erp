@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge"
 import { useEntityAuditLogs } from "../../hooks/useEntityAuditLogs"
 import privateClient from "@/lib/api/privateClient"
 import { ENDPOINTS } from "@/lib/api/endpoints"
+import { formatDecimal } from "@/lib/utils/formatters"
 
 const actionLabels = {
   CREATED: "Creado",
@@ -38,6 +39,7 @@ function resolveValue(key, value, brandMap, uomMap) {
   if (typeof value === "boolean") return value ? "Sí" : "No"
   if (key === "brand_id" && brandMap[value]) return brandMap[value]
   if (key === "base_uom_id" && uomMap[value]) return uomMap[value]
+  if (typeof value === "number") return formatDecimal(value)
   return value
 }
 

@@ -1,5 +1,6 @@
 import { PackageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { formatDecimal } from "@/lib/utils/formatters";
 
 import { useParams } from "react-router-dom";
 import { useSupply } from "../hooks/useSupply";
@@ -22,7 +23,7 @@ export default function SupplyDetailPage() {
         <EntityDetailPage.Sidebar.Row label="Tipo" value="Producción" />
         <EntityDetailPage.Sidebar.Row
           label="Stock actual"
-          value={`${supply?.stock_total ?? 0} ${supply?.base_uom_symbol ?? ""}`}
+          value={`${formatDecimal(supply?.stock_total)} ${supply?.base_uom_symbol ?? ""}`}
         />
         <EntityDetailPage.Sidebar.Row
           label="Estado"

@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { DataTable } from '@/components/shared/DataTable'
+import { formatCurrency } from '@/lib/utils/formatters'
 
 /**
  * SupplyEntryTable - Component for displaying supply entries table
@@ -23,7 +24,7 @@ export function SupplyEntryTable({ entries, loading }) {
 
   const columns = [
     {
-      header: 'Nº',
+      header: 'Nro',
       accessor: 'row_number',
     },
     {
@@ -56,13 +57,18 @@ export function SupplyEntryTable({ entries, loading }) {
     {
       header: 'Costo Total',
       accessor: 'total_cost',
-      render: (value) => `$${Number(value || 0).toFixed(2)}`,
+      render: (value) => formatCurrency(value),
     },
     {
       header: 'Estado',
       accessor: 'status',
       render: (value) => (
-        <Badge variant={value === 'CANCELED' ? 'destructive' : 'default'}>
+        <Badge
+          variant="outline"
+          className={value === 'CANCELED'
+            ? 'bg-red-500/10 text-red-600 border-red-500/30'
+            : 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30'}
+        >
           {value === 'CANCELED' ? 'Anulada' : 'Activa'}
         </Badge>
       ),
