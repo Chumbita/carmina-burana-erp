@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -7,6 +6,7 @@ from sqlalchemy import select
 from src.domain.entities.audit_log import AuditLog
 from src.domain.repositories.i_audit_log_repository import IAuditLogRepository
 from src.infrastructure.database.models.audit_log_model import AuditLogModel
+from src.infrastructure.database.pagination import paginate
 
 
 class AuditLogRepository:
@@ -36,7 +36,13 @@ class AuditLogRepository:
             created_at=audit_log.created_at,
         )
 
-    async def get_by_entity(self, entity_type: str, entity_id: int) -> Sequence[AuditLog]:
+    async def get_by_entity(
+        self,
+        entity_type: str,
+        entity_id: int,
+        offset: int | None = None,
+        limit: int | None = None,
+    ) -> tuple[list[AuditLog], int]:
         stmt = (
             select(AuditLogModel)
             .where(
@@ -45,19 +51,38 @@ class AuditLogRepository:
             )
             .order_by(AuditLogModel.created_at.desc())
         )
-        result = await self._session.execute(stmt)
-        rows = result.scalars().all()
-        return [self._to_domain(row) for row in rows]
 
-    async def get_by_user(self, user_id: int) -> Sequence[AuditLog]:
+        if offset is not None and limit is not None:
+            rows, total = await paginate(self._session, stmt, offset=offset, limit=limit)
+        else:
+            result = await self._session.execute(stmt)
+            rows = result.all()
+            total = len(rows)
+
+        models = [row[0] for row in rows]
+        return [self._to_domain(model) for model in models], total
+
+    async def get_by_user(
+        self,
+        user_id: int,
+        offset: int | None = None,
+        limit: int | None = None,
+    ) -> tuple[list[AuditLog], int]:
         stmt = (
             select(AuditLogModel)
             .where(AuditLogModel.user_id == user_id)
             .order_by(AuditLogModel.created_at.desc())
         )
-        result = await self._session.execute(stmt)
-        rows = result.scalars().all()
-        return [self._to_domain(row) for row in rows]
+
+        if offset is not None and limit is not None:
+            rows, total = await paginate(self._session, stmt, offset=offset, limit=limit)
+        else:
+            result = await self._session.execute(stmt)
+            rows = result.all()
+            total = len(rows)
+
+        models = [row[0] for row in rows]
+        return [self._to_domain(model) for model in models], total
 
     def _to_domain(self, model: AuditLogModel) -> AuditLog:
         return AuditLog(

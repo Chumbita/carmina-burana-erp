@@ -160,9 +160,43 @@ export function PackagingSupplyForm({
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>
-                  Material <span className="text-red-500 -ml-1">*</span>
+                  Material del envase <span className="text-red-500 -ml-1">*</span>
                 </FieldLabel>
-                <Input {...field} id={field.name} aria-invalid={fieldState.invalid} />
+                <Input {...field} id={field.name} aria-invalid={fieldState.invalid} placeholder="Vidrio, aluminio..." />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+
+          <Controller
+            name="base_uom_id"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>
+                  Unidad <span className="text-red-500 -ml-1">*</span>
+                </FieldLabel>
+                <Select
+                  name={field.name}
+                  value={field.value !== undefined ? String(field.value) : ""}
+                  onValueChange={(val) => field.onChange(Number(val))}
+                  disabled={uomsLoading}
+                >
+                  <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                    <SelectValue placeholder={uomsLoading ? "Cargando..." : "Seleccione unidad..."} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Unidades</SelectLabel>
+                      {uoms.map((uom) => (
+                        <SelectItem key={uom.id} value={String(uom.id)}>
+                          {uom.symbol}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
           />
@@ -173,7 +207,7 @@ export function PackagingSupplyForm({
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>Capacidad ml</FieldLabel>
+                <FieldLabel htmlFor={field.name}>Capacidad del envase (ml)</FieldLabel>
                 <DecimalInput
                   {...field}
                   id={field.name}
@@ -199,39 +233,6 @@ export function PackagingSupplyForm({
                   aria-invalid={fieldState.invalid}
                   onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
                 />
-              </Field>
-            )}
-          />
-
-          {/* Unidade de medida */}
-          <Controller
-            name="base_uom_id"
-            control={control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>
-                  Unidad <span className="text-red-500 -ml-1">*</span>
-                </FieldLabel>
-                <Select
-                  name={field.name}
-                  value={field.value !== undefined ? String(field.value) : ""}
-                  onValueChange={(val) => field.onChange(Number(val))}
-                  disabled={uomsLoading}
-                >
-                  <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
-                    <SelectValue placeholder={uomsLoading ? "Cargando..." : "Unidad..."} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Unidades</SelectLabel>
-                      {uoms.map((uom) => (
-                        <SelectItem key={uom.id} value={String(uom.id)}>
-                          {uom.symbol}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
               </Field>
             )}
           />

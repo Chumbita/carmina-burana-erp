@@ -28,8 +28,10 @@ class GetSupplyEntryDetail:
             supplier=self._build_supplier(raw),
             entry_date=raw.entry_date,
             description=raw.description,
+            cancellation_reason=raw.cancellation_reason,
             status=SupplyEntryStatus(raw.status),
             created_at=raw.created_at,
+            canceled_at=raw.canceled_at,
             lines=self._build_lines(raw.lines),
         )
 

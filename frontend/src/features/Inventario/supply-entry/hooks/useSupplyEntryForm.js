@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
-import { FORM_DEFAULT_VALUES } from '../constants/supplyEntry.constants'
+import { FORM_DEFAULT_VALUES, getDefaultEntryDateTime } from '../constants/supplyEntry.constants'
 
 // Schema validation
 const supplyItemSchema = z.object({
@@ -21,6 +21,11 @@ const supplyEntrySchema = z.object({
   invoiceNumber: z.string().optional(),
   description: z.string().optional(),
   items: z.array(supplyItemSchema).min(1, 'Debe agregar al menos un artículo'),
+})
+
+const getDefaultValues = () => ({
+  ...FORM_DEFAULT_VALUES,
+  entryDate: getDefaultEntryDateTime(),
 })
 
 /**
@@ -44,7 +49,7 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
     formState: { isDirty, isValid, errors },
   } = useForm({
     resolver: zodResolver(supplyEntrySchema),
-    defaultValues: FORM_DEFAULT_VALUES,
+    defaultValues: getDefaultValues(),
     mode: 'onChange',
   })
 
@@ -55,6 +60,7 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
 
   const watchedItems = watch('items')
   const watchedSupplierId = watch('supplierId')
+  const watchedEntryDate = watch('entryDate')
 
   // Calculate total cost
   const totalCost = watchedItems.reduce((sum, item) => {
@@ -107,7 +113,7 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
       
       // Reset after success
       setTimeout(() => {
-        reset()
+        reset(getDefaultValues())
         setSuccess(false)
         setReceptionId(null)
       }, 3000)
@@ -133,7 +139,7 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
 
   // Reset form
   const handleReset = useCallback(() => {
-    reset()
+    reset(getDefaultValues())
     setError(null)
     setSuccess(false)
     setReceptionId(null)
@@ -146,6 +152,7 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
     fields,
     watchedItems,
     watchedSupplierId,
+    watchedEntryDate,
     totalCost,
     isDirty,
     isValid,

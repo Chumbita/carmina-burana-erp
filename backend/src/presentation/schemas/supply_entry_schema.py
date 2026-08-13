@@ -65,6 +65,7 @@ class SupplyEntryDetailResponse(BaseModel):
     supplier: Optional[SupplierRef] = None
     entry_date: datetime
     description: Optional[str] = None
+    cancellation_reason: Optional[str] = None
     status: SupplyEntryStatus
     created_at: datetime
     canceled_at: Optional[datetime] = None
@@ -88,18 +89,12 @@ class SupplyEntryListItemResponse(BaseModel):
     supplier: Optional[SupplierListRef] = None
     entry_date: datetime
     description: Optional[str] = None
+    cancellation_reason: Optional[str] = None
     status: SupplyEntryStatus
     created_at: datetime
     canceled_at: Optional[datetime] = None
     items_count: int
     total_cost: Decimal
-
-    class Config:
-        from_attributes = True
-
-
-class SupplyEntryListResponse(BaseModel):
-    data: list[SupplyEntryListItemResponse]
 
     class Config:
         from_attributes = True

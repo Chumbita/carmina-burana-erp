@@ -1,5 +1,6 @@
 import React from "react"
 import { DataTable } from "@/components/shared/DataTable"
+import { TablePagination } from "@/components/shared/TablePagination"
 import { Badge } from "@/components/ui/Badge"
 import { useEntityAuditLogs } from "../../hooks/useEntityAuditLogs"
 import privateClient from "@/lib/api/privateClient"
@@ -23,6 +24,10 @@ const FIELD_LABELS = {
   min_stock_level: "Stock mínimo",
   supply_category: "Categoría",
   status: "Estado",
+  email: "Email",
+  phone: "Teléfono",
+  address: "Dirección",
+  is_active: "Activo",
 }
 
 function label(key) {
@@ -31,6 +36,7 @@ function label(key) {
 
 function resolveValue(key, value, brandMap, uomMap) {
   if (value == null) return "-"
+  if (typeof value === "boolean") return value ? "Sí" : "No"
   if (key === "brand_id" && brandMap[value]) return brandMap[value]
   if (key === "base_uom_id" && uomMap[value]) return uomMap[value]
   if (typeof value === "number") return formatDecimal(value)
@@ -49,7 +55,7 @@ function formatDate(dateStr) {
 
 function getChangedKeys(oldData, newData, action) {
   if (action === "CREATED" && !oldData) {
-    return ["name", "brand_id", "base_uom_id", "min_stock_level"].filter(k => k in (newData || {}))
+    return Object.keys(newData || {})
   }
   if (action === "UPDATED" && oldData && newData) {
     return Object.keys(newData).filter(k => oldData[k] !== newData[k])
@@ -58,7 +64,8 @@ function getChangedKeys(oldData, newData, action) {
 }
 
 export function AuditLogHistory({ entityType, entityId, refreshKey }) {
-  const { auditLogs, isLoading, error, refetch } = useEntityAuditLogs(entityType, entityId)
+  const { auditLogs, isLoading, error, page, pageSize, totalItems, totalPages, changePage, refetch } =
+    useEntityAuditLogs(entityType, entityId)
   const [brandMap, setBrandMap] = React.useState({})
   const [uomMap, setUomMap] = React.useState({})
 
@@ -92,7 +99,7 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
       ),
     },
     {
-      accessor: "action",
+      accessor: "changes",
       header: "Cambios",
       render: (_, row) => {
         const keys = getChangedKeys(row.old_data, row.new_data, row.action)
@@ -139,7 +146,7 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
     },
   ], [brandMap, uomMap])
 
-  if (isLoading) {
+  if (isLoading && !auditLogs.length) {
     return <p className="text-sm text-muted-foreground">Cargando historial...</p>
   }
 
@@ -147,9 +154,21 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
     return <p className="text-sm text-destructive">Error al cargar el historial.</p>
   }
 
-  if (!auditLogs || auditLogs.length === 0) {
+  if (!auditLogs.length && !totalItems) {
     return <p className="text-sm text-muted-foreground">Sin registros de auditoría.</p>
   }
 
-  return <DataTable columns={columns} data={auditLogs} />
+  return (
+    <div className={isLoading ? "space-y-4 opacity-60" : "space-y-4"}>
+      <DataTable columns={columns} data={auditLogs} />
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        pageSize={pageSize}
+        onChangePage={changePage}
+      />
+    </div>
+  )
 }

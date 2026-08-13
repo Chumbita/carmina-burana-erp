@@ -18,6 +18,8 @@ from src.application.use_cases.inventory.get_lots_by_item import GetLotsByItemUs
 from src.domain.value_objects.lot_status import LotStatus
 from src.presentation.dependencies.use_cases.inventory import build_get_lots_by_item
 from src.presentation.schemas.lot_schema import LotResponse
+from src.presentation.schemas.pagination_schema import PaginatedResponse
+from src.shared.pagination import parse_pagination
 
 from src.presentation.schemas.supply_schemas import (
     CreateSupplyRequestSchema,
@@ -152,19 +154,24 @@ async def delete_supply(
 
 @router.get(
     "/{item_id}/lots",
-    response_model=List[LotResponse],
-    summary="Listar lotes de un insumo",
+    response_model=PaginatedResponse[LotResponse],
+    summary="Listar lotes de un insumo (paginado)",
 )
 async def get_supply_lots(
     item_id: int,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(5, ge=1),
     status: list[LotStatus] | None = Query(default=None),
     use_case: GetLotsByItemUseCase = Depends(build_get_lots_by_item),
     #current_user: User = Depends(get_current_user),
-) -> list[LotResponse]:
-    return await use_case.execute(
+) -> PaginatedResponse[LotResponse]:
+    params = parse_pagination(page, page_size)
+    result = await use_case.execute(
         item_id,
+        params=params,
         status=set(status) if status else None,
     )
+    return PaginatedResponse.from_page(result)
 
 
 @router.patch(

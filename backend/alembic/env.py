@@ -9,6 +9,8 @@ from src.infrastructure.database.base import Base
 # Importar todos los modelos aquí debajo
 from src.infrastructure.database.models import UserModel
 from src.infrastructure.database.models.item_model import ItemModel
+from src.infrastructure.database.models.product_model import ProductModel
+from src.infrastructure.database.models.product_type_model import ProductTypeModel
 from src.infrastructure.database.models.item_type_model import ItemTypeModel
 from src.infrastructure.database.models.brand_model import BrandModel
 from src.infrastructure.database.models.uom_model import UomModel

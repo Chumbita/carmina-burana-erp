@@ -8,3 +8,9 @@ from dataclasses import dataclass
 @dataclass
 class CreateBrandCommand:
     name: str
+
+
+@dataclass
+class UpdateBrandCommand:
+    brand_id: int
+    name: str

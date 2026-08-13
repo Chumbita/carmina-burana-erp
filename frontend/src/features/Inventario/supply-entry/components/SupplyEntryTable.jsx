@@ -35,7 +35,14 @@ export function SupplyEntryTable({ entries, loading }) {
     {
       header: 'Fecha',
       accessor: 'entry_date',
-      render: (value) => new Date(value).toLocaleDateString('es-AR'),
+      render: (value) => value ? new Date(value).toLocaleString('es-AR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+      }) : '—',
     },
     {
       header: 'Proveedor',
@@ -68,7 +75,7 @@ export function SupplyEntryTable({ entries, loading }) {
     },
   ]
 
-  if (loading) {
+  if (loading && entries.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-neutral-500">Cargando...</div>
@@ -76,7 +83,7 @@ export function SupplyEntryTable({ entries, loading }) {
     )
   }
 
-  if (entries.length === 0) {
+  if (!loading && entries.length === 0) {
     return (
       <Card>
         <div className="text-center py-8">
@@ -87,7 +94,7 @@ export function SupplyEntryTable({ entries, loading }) {
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className={`overflow-x-auto transition-opacity ${loading ? 'opacity-60 pointer-events-none' : ''}`}>
       <DataTable
         columns={columns}
         data={tableData}

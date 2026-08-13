@@ -30,6 +30,7 @@ import {
 
 import { Plus, Trash2, Package, Check, ChevronsUpDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { formatSupplyEntryDateTime } from '../constants/supplyEntry.constants'
 
 function SupplierCombobox({ value, onChange, suppliers = [], loading = false, onCreateClick, invalid = false }) {
   const [open, setOpen] = useState(false)
@@ -362,11 +363,18 @@ export function SupplyEntryForm({
                 <FieldLabel htmlFor="entryDate" className="text-xs">
                   Fecha de ingreso <span className="text-destructive">*</span>
                 </FieldLabel>
+                <input type="hidden" {...register('entryDate')} />
                 <Input
                   id="entryDate"
-                  type="date"
-                  aria-invalid={errors.entryDate ? true : false}
-                  {...register('entryDate')}
+                  type="text"
+                  className="h-9 text-sm"
+                  value={formatSupplyEntryDateTime(formHook.watchedEntryDate)}
+                  onChange={(event) =>
+                    setValue('entryDate', event.target.value, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    })
+                  }
                 />
               </Field>
 
