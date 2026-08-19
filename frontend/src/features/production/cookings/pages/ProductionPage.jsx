@@ -10,13 +10,11 @@ import { ProductionTable } from "../components/ProductionTable";
 export default function ProductionPage() {
   const {
     productions,
-    releaseProduction,
-    startProduction,
-    completeProduction,
+    handlePlanProduction,
+    handleExecuteProduction,
     loading,
     openModal,
     setOpenModal,
-    handleCreateProduction,
     tableRef,
   } = useProductionsPage();
   const {
@@ -47,12 +45,10 @@ export default function ProductionPage() {
               options: [
                 { label: "Todos los estados", value: "ALL" },
                 { label: "Planeada", value: "PLANNED" },
-                { label: "Liberada", value: "RELEASED" },
-                { label: "En Proceso", value: "IN_PROGRESS" },
               ],
             },
           ]}
-          sortFields={[{ key: "schedule_date", label: "Fecha Planeada" }]}
+          sortFields={[{ key: "schedule_date", label: "Fecha Programada" }]}
           sortBy={sortBy}
           sortOrder={sortOrder}
           onSortByChange={setSortBy}
@@ -78,7 +74,7 @@ export default function ProductionPage() {
       <NewProductionModal
         open={openModal}
         onClose={() => setOpenModal(false)}
-        onSubmit={handleCreateProduction}
+        onSubmit={handlePlanProduction}
       />
 
       <div ref={tableRef}>
@@ -87,9 +83,7 @@ export default function ProductionPage() {
         ) : (
           <ProductionTable
             productions={displayData}
-            onRelease={releaseProduction}
-            onStart={startProduction}
-            onComplete={completeProduction}
+            onExecute={handleExecuteProduction}
           />
         )}
       </div>

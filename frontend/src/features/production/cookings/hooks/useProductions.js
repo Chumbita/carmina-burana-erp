@@ -4,6 +4,7 @@ import { productionService } from "../services/productionService";
 export function useProductions() {
   const [productions, setProductions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchProductions = useCallback(async () => {
@@ -23,70 +24,41 @@ export function useProductions() {
     fetchProductions();
   }, [fetchProductions]);
 
-  async function createProduction(data) {
-    setLoading(true);
+  async function planProduction(data) {
+    setActionLoading(true);
     try {
-      const created = await productionService.create(data);
+      const created = await productionService.plan(data);
       await fetchProductions();
       return created;
     } catch (err) {
       setError(err);
       throw err;
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   }
 
-  async function releaseProduction(id) {
-    setLoading(true);
+  async function executeProduction(orderId, data) {
+    setActionLoading(true);
     try {
-      const updated = await productionService.release(id);
+      const updated = await productionService.execute(orderId, data);
       await fetchProductions();
       return updated;
     } catch (err) {
       setError(err);
       throw err;
     } finally {
-      setLoading(false);
-    }
-  }
-
-  async function startProduction(id) {
-    setLoading(true);
-    try {
-      const updated = await productionService.start(id);
-      await fetchProductions();
-      return updated;
-    } catch (err) {
-      setError(err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function completeProduction(id, data) {
-    setLoading(true);
-    try {
-      const updated = await productionService.complete(id, data);
-      await fetchProductions();
-      return updated;
-    } catch (err) {
-      setError(err);
-      throw err;
-    } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   }
 
   return {
     productions,
     loading,
+    actionLoading,
     error,
-    createProduction,
-    releaseProduction,
-    startProduction,
-    completeProduction,
+    planProduction,
+    executeProduction,
     refetch: fetchProductions,
   };
 }

@@ -121,24 +121,22 @@ class ProductionOrderRepository(IProductionOrderRepository):
     async def save(self, order: ProductionOrder) -> ProductionOrder:
         """
         Persiste cambios de estado en una orden existente.
+        Usa ORM-level update para que el identity map se mantenga sincronizado.
         """
-        stmt = (
-            update(ProductionOrderModel)
-            .where(ProductionOrderModel.id == order.id)
-            .values(
-                status=order.status.value,
-                produced_quantity=order.produced_quantity,
-                completed_at=order.completed_at,
-            )
-        )
-        await self._session.execute(stmt)
+        model = await self._session.get(ProductionOrderModel, order.id)
+        if model is None:
+            raise ValueError(f"ProductionOrderModel with id={order.id} not found in session")
+
+        model.status = order.status.value
+        model.produced_quantity = order.produced_quantity
+        model.completed_at = order.completed_at
         await self._session.flush()
         return order
 
     async def add_consumptions(self, order: ProductionOrder) -> None:
         """
         Persiste los registros de consumption de la orden.
-        Se llama al pasar a IN_PROGRESS.
+        Se llama al ejecutar la orden.
         """
         now = datetime.now(timezone.utc).replace(tzinfo=None)
         for consumption in order.consumptions:
@@ -156,7 +154,7 @@ class ProductionOrderRepository(IProductionOrderRepository):
     async def add_outputs(self, order: ProductionOrder) -> None:
         """
         Persiste los registros de output de la orden.
-        Se llama al pasar a DONE.
+        Se llama al completar la orden.
         """
         now = datetime.now(timezone.utc).replace(tzinfo=None)
         for output in order.outputs:
@@ -185,12 +183,13 @@ class ProductionOrderRepository(IProductionOrderRepository):
                 UomModel.symbol.label("base_uom_symbol"),
                 ProductionOrderModel.schedule_date,
                 ProductionOrderModel.status,
+                ProductionOrderModel.bom_id,
             )
             .join(ItemModel, ProductionOrderModel.item_id == ItemModel.id)
             .join(BomModel, ProductionOrderModel.bom_id == BomModel.id)
             .join(UomModel, ItemModel.base_uom_id == UomModel.id)
             .where(
-                ProductionOrderModel.status.in_(["PLANNED", "RELEASED", "IN_PROGRESS"])
+                ProductionOrderModel.status.in_(["PLANNED"])
             )
         )
 
@@ -206,6 +205,20 @@ class ProductionOrderRepository(IProductionOrderRepository):
                 "base_uom_symbol": row.base_uom_symbol,
                 "schedule_date": row.schedule_date,
                 "status": row.status,
+                "bom_id": row.bom_id,
             }
             for row in rows
         ]
+
+    async def delete(self, order_id: int) -> None:
+        """
+        Elimina una orden de producción por su ID incluyendo
+        consumptions y outputs (cascade).
+        """
+        from sqlalchemy import delete as sql_delete
+
+        stmt = sql_delete(ProductionOrderModel).where(
+            ProductionOrderModel.id == order_id
+        )
+        await self._session.execute(stmt)
+        await self._session.flush()

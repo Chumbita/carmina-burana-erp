@@ -32,7 +32,6 @@ from src.domain.exceptions.brand_exceptions import (
 from src.domain.exceptions.production_exceptions import (
     ProductionOrderNotFoundException,
     BomNotFoundException,
-    InsufficientStockForProductionException,
 )
 
 
@@ -145,15 +144,3 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(ProductionOrderNotFoundException)
     async def production_order_not_found_handler(request: Request, exc: ProductionOrderNotFoundException):
         return JSONResponse(status_code=404, content={"detail": str(exc)})
-
-    @app.exception_handler(InsufficientStockForProductionException)
-    async def insufficient_stock_production_handler(request: Request, exc: InsufficientStockForProductionException):
-        return JSONResponse(
-            status_code=422,
-            content={
-                "detail": {
-                    "message": "Stock insuficiente para la orden de producción",
-                    "missing": exc.missing, 
-                }
-            }
-        )

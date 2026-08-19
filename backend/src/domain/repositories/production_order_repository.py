@@ -39,13 +39,20 @@ class IProductionOrderRepository(Protocol):
     async def add_consumptions(self, order: ProductionOrder) -> None:
         """
         Persiste los registros de consumption de una orden.
-        Se llama al pasar a IN_PROGRESS.
+        Se llama al ejecutar la orden.
         """
         ...
 
     async def add_outputs(self, order: ProductionOrder) -> None:
         """
         Persiste los registros de output de una orden.
-        Se llama al pasar a DONE.
+        Se llama al completar la orden.
+        """
+        ...
+
+    async def delete(self, order_id: int) -> None:
+        """
+        Elimina una orden de producción por su ID.
+        Utilizado para rollback en caso de error durante la planificación.
         """
         ...

@@ -5,8 +5,6 @@ export function useProductionFilters() {
   const statusOptions = [
     { value: "ALL", label: "Todos los estados" },
     { value: "PLANNED", label: "Planeada" },
-    { value: "RELEASED", label: "Liberada" },
-    { value: "IN_PROGRESS", label: "En Proceso" },
   ];
 
   // Estados iniciales de control de la FilterBar

@@ -5,9 +5,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/Dialog";
+import { Button } from "@/components/ui/Button";
 import { ProductionForm } from "./ProductionForm";
 import { itemService } from "../services/itemService";
 import { bomService } from "../services/bomService";
+import { AlertTriangle, Package } from "lucide-react";
 
 export function NewProductionModal({ open, onClose, onSubmit }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,9 +27,14 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
   const [selectedBom, setSelectedBom] = useState(null);
   const [bomLoading, setBomLoading] = useState(false);
 
+  // Estado para insumos faltantes
+  const [missingIngredients, setMissingIngredients] = useState(null);
+
   // Cargamos los ítems manufacturables cuando el modal se abre
   useEffect(() => {
     if (!open) return;
+
+    setMissingIngredients(null);
 
     async function fetchOptions() {
       try {
@@ -61,7 +68,7 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
         setSelectedBom(bomData);
       } catch (error) {
         console.error(`Error al traer la BOM para el item ${selectedItemId}:`, error);
-        setSelectedBom(null); // Al fallar o dar 404, ProductionForm mostrará la alerta correspondiente
+        setSelectedBom(null);
       } finally {
         setBomLoading(false);
       }
@@ -71,18 +78,25 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
   }, [selectedItemId]);
 
   function handleClose() {
-    // Limpiamos los estados de selección al cerrar el modal
     setSelectedItemId(undefined);
     setSelectedBom(null);
+    setMissingIngredients(null);
     onClose();
   }
 
   async function handleSubmit(data) {
     setIsSubmitting(true);
+    setMissingIngredients(null);
     try {
       if (onSubmit) await onSubmit(data);
     } catch (error) {
-      // El padre se encarga de notificar errores
+      const errorDetail = error.response?.data?.detail;
+      if (errorDetail?.missing && Array.isArray(errorDetail.missing)) {
+        setMissingIngredients({
+          message: errorDetail.message || "Stock insuficiente para planificar la orden",
+          missing: errorDetail.missing,
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -105,7 +119,7 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
             }}
             onSubmit={handleSubmit}
             onCancel={handleClose}
-            submitLabel="Crear"
+            submitLabel="Planificar"
             cancelLabel="Cancelar"
             isSubmitting={isSubmitting}
             layout="modal"
@@ -113,12 +127,64 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
             productOptions={options.productOptions}
             optionsLoading={optionsLoading}
             optionsError={optionsError}
-            onItemChange={(id) => setSelectedItemId(id)}
-            
-            // --- PASAMOS LOS ESTADOS Y EL INTERCEPTOR AL FORMULARIO ---
+            onItemChange={(id) => {
+              setSelectedItemId(id);
+              setMissingIngredients(null);
+            }}
             selectedBom={selectedBom}
             bomLoading={bomLoading}
           />
+
+          {/* MODAL DE INSUMOS FALTANTES DENTRO DEL FORMULARIO */}
+          {missingIngredients && (
+            <div className="mt-4 border border-red-200 rounded-lg bg-red-50 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-bold text-red-700 flex items-center gap-2">
+                  <AlertTriangle size={16} /> Stock Insuficiente
+                </h4>
+                <button
+                  onClick={() => setMissingIngredients(null)}
+                  className="text-red-400 hover:text-red-600 text-xs"
+                >
+                  Cerrar
+                </button>
+              </div>
+              <p className="text-xs text-red-600">
+                {missingIngredients.message}
+              </p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-red-200">
+                      <th className="text-left p-1.5 font-medium text-red-600">Insumo</th>
+                      <th className="text-right p-1.5 font-medium text-red-600">Requerido</th>
+                      <th className="text-right p-1.5 font-medium text-red-600">Disponible</th>
+                      <th className="text-right p-1.5 font-medium text-red-600">Faltante</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {missingIngredients.missing.map((insumo, index) => (
+                      <tr key={index} className="border-b border-red-100 last:border-0">
+                        <td className="p-1.5 flex items-center gap-1.5">
+                          <Package size={12} className="text-red-400" />
+                          <span className="font-medium text-red-800">{insumo.name}</span>
+                        </td>
+                        <td className="p-1.5 text-right text-red-700">
+                          {insumo.required} {insumo.uom_symbol}
+                        </td>
+                        <td className="p-1.5 text-right text-red-700">
+                          {insumo.available} {insumo.uom_symbol}
+                        </td>
+                        <td className="p-1.5 text-right font-semibold text-red-800">
+                          {insumo.required - insumo.available} {insumo.uom_symbol}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
