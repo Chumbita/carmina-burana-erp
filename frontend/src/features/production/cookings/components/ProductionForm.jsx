@@ -38,12 +38,15 @@ export function ProductionForm({
   submitLabel = "Crear",
   cancelLabel = "Cancelar",
   isSubmitting = false,
+  submitBlocked = false,
   beerOptions = [],
   productOptions = [],
   optionsLoading = false,
   selectedBom = null,
   bomLoading = false,
   onItemChange,
+  beforeFooter = null,
+  onQuantityChange,
 }) {
   const schema = createProductionSchema();
 
@@ -263,6 +266,7 @@ export function ProductionForm({
                           disabled={!hasValidRecipe}
                           onChange={(e) => {
                             const value = e.target.value;
+                            if (onQuantityChange) onQuantityChange();
                             if (value === "") {
                               field.onChange("");
                             } else {
@@ -405,6 +409,8 @@ export function ProductionForm({
         </div>
       </div>
 
+      {beforeFooter}
+
       {/* Footer del Formulario */}
       <div className="flex justify-end gap-2 pt-3 border-t border-neutral-100">
         {onCancel && (
@@ -422,7 +428,7 @@ export function ProductionForm({
         <Button
           size="sm"
           type="submit"
-          disabled={isSubmitting || !hasValidRecipe || !isValid}
+          disabled={isSubmitting || !hasValidRecipe || submitBlocked}
           className="h-8 text-xs px-3.5"
         >
           {isSubmitting ? "Creando..." : submitLabel}

@@ -12,10 +12,25 @@ export const productionService = {
     return response.data 
   },
 
+  getHistory: async () => {
+    const response = await privateClient.get(ENDPOINTS.PRODUCTION_ORDERS.GET_HISTORY)
+    return response.data
+  },
+
   execute: async (orderId, data) => {
     const response = await privateClient.post(ENDPOINTS.PRODUCTION_ORDERS.EXECUTE(orderId), data)
     return response.data
   },
+
+  cancel: async (orderId) => {
+    const response = await privateClient.post(ENDPOINTS.PRODUCTION_ORDERS.CANCEL(orderId))
+    return response.data
+  },
+
+  discard: async (orderId, data) => {
+    const response = await privateClient.post(ENDPOINTS.PRODUCTION_ORDERS.DISCARD(orderId), data)
+    return response.data
+  }
 }
 
 export default productionService
