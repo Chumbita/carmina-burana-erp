@@ -141,61 +141,61 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
             selectedBom={selectedBom}
             bomLoading={bomLoading}
             submitBlocked={submitBlocked}
+            beforeFooter={
+              missingIngredients && (
+                <div className="border border-red-200 rounded-lg bg-red-50 p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-bold text-red-700 flex items-center gap-2">
+                      <AlertTriangle size={16} /> Stock Insuficiente
+                    </h4>
+                    <button
+                      onClick={() => {
+                        setMissingIngredients(null);
+                        setSubmitBlocked(false);
+                      }}
+                      className="text-red-400 hover:text-red-600 text-xs"
+                    >
+                      Cerrar
+                    </button>
+                  </div>
+                  <p className="text-xs text-red-600">
+                    {missingIngredients.message}
+                  </p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-red-200">
+                          <th className="text-left p-1.5 font-medium text-red-600">Insumo</th>
+                          <th className="text-right p-1.5 font-medium text-red-600">Requerido</th>
+                          <th className="text-right p-1.5 font-medium text-red-600">Disponible</th>
+                          <th className="text-right p-1.5 font-medium text-red-600">Faltante</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {missingIngredients.missing.map((insumo, index) => (
+                          <tr key={index} className="border-b border-red-100 last:border-0">
+                            <td className="p-1.5 flex items-center gap-1.5">
+                              <Package size={12} className="text-red-400" />
+                              <span className="font-medium text-red-800">{insumo.name}</span>
+                            </td>
+                            <td className="p-1.5 text-right text-red-700">
+                              {insumo.required} {insumo.uom_symbol}
+                            </td>
+                            <td className="p-1.5 text-right text-red-700">
+                              {insumo.available} {insumo.uom_symbol}
+                            </td>
+                            <td className="p-1.5 text-right font-semibold text-red-800">
+                              {insumo.required - insumo.available} {insumo.uom_symbol}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )
+            }
           />
-
-          {/* MODAL DE INSUMOS FALTANTES DENTRO DEL FORMULARIO */}
-          {missingIngredients && (
-            <div className="mt-4 border border-red-200 rounded-lg bg-red-50 p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-bold text-red-700 flex items-center gap-2">
-                  <AlertTriangle size={16} /> Stock Insuficiente
-                </h4>
-                <button
-                  onClick={() => {
-                    setMissingIngredients(null);
-                    setSubmitBlocked(false);
-                  }}
-                  className="text-red-400 hover:text-red-600 text-xs"
-                >
-                  Cerrar
-                </button>
-              </div>
-              <p className="text-xs text-red-600">
-                {missingIngredients.message}
-              </p>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="border-b border-red-200">
-                      <th className="text-left p-1.5 font-medium text-red-600">Insumo</th>
-                      <th className="text-right p-1.5 font-medium text-red-600">Requerido</th>
-                      <th className="text-right p-1.5 font-medium text-red-600">Disponible</th>
-                      <th className="text-right p-1.5 font-medium text-red-600">Faltante</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {missingIngredients.missing.map((insumo, index) => (
-                      <tr key={index} className="border-b border-red-100 last:border-0">
-                        <td className="p-1.5 flex items-center gap-1.5">
-                          <Package size={12} className="text-red-400" />
-                          <span className="font-medium text-red-800">{insumo.name}</span>
-                        </td>
-                        <td className="p-1.5 text-right text-red-700">
-                          {insumo.required} {insumo.uom_symbol}
-                        </td>
-                        <td className="p-1.5 text-right text-red-700">
-                          {insumo.available} {insumo.uom_symbol}
-                        </td>
-                        <td className="p-1.5 text-right font-semibold text-red-800">
-                          {insumo.required - insumo.available} {insumo.uom_symbol}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -4,27 +4,35 @@ import { useProductionFilters } from "../hooks/useProductionPageFilter";
 import { ProductionHistoryTable } from "../components/ProductionHistoryTable";
 
 export default function ProductionHistoryPage() {
-  const { productions, loading } = useProductionHistory();
+  const { productions, loading, discardProduction } = useProductionHistory();
   const {
     statusOptions,
     statusFilter,
     sortBy,
     sortOrder,
+    search,
     setStatusFilter,
     setSortBy,
     setSortOrder,
+    setSearch,
     filteredProductions,
   } = useProductionFilters();
 
   const displayData = filteredProductions(productions);
 
+  async function handleDiscard(row, description) {
+    await discardProduction(row.id, {
+      description: description?.trim() || undefined,
+    });
+  }
+
   return (
     <div className="space-y-4">
       <header className="flex items-center justify-between gap-4">
         <FilterBar
-          search={""}
-          searchPlaceholder="Buscar..."
-          onSearchChange={() => {}}
+          search={search}
+          searchPlaceholder="Buscar producto..."
+          onSearchChange={setSearch}
           filters={[
             {
               key: "status",
@@ -34,16 +42,17 @@ export default function ProductionHistoryPage() {
               options: statusOptions,
             },
           ]}
-          sortFields={[{ key: "schedule_date", label: "Fecha Programada" }]}
+          sortFields={[{ key: "completed_at", label: "Fecha completada" }]}
           sortBy={sortBy}
           sortOrder={sortOrder}
           onSortByChange={setSortBy}
           onSortOrderChange={setSortOrder}
-          hasActiveFilters={statusFilter !== "ALL" || sortBy !== ""}
+          hasActiveFilters={statusFilter !== "ALL" || sortBy !== "" || search !== ""}
           onClearFilters={() => {
             setStatusFilter("ALL");
             setSortBy("");
             setSortOrder("asc");
+            setSearch("");
           }}
         />
       </header>
@@ -52,7 +61,7 @@ export default function ProductionHistoryPage() {
         {loading ? (
           <div>Cargando...</div>
         ) : (
-          <ProductionHistoryTable productions={displayData} />
+          <ProductionHistoryTable productions={displayData} onDiscard={handleDiscard} />
         )}
       </div>
     </div>

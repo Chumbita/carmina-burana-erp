@@ -25,6 +25,11 @@ export const productionService = {
   cancel: async (orderId) => {
     const response = await privateClient.post(ENDPOINTS.PRODUCTION_ORDERS.CANCEL(orderId))
     return response.data
+  },
+
+  discard: async (orderId, data) => {
+    const response = await privateClient.post(ENDPOINTS.PRODUCTION_ORDERS.DISCARD(orderId), data)
+    return response.data
   }
 }
 

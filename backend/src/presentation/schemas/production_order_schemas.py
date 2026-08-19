@@ -14,6 +14,10 @@ class CreateProductionOrderSchema(BaseModel):
     description: Optional[str] = Field(None, max_length=255)
 
 
+class DiscardProductionOrderRequestSchema(BaseModel):
+    description: Optional[str] = Field(None, max_length=255, description="Motivo breve del descarte")
+
+
 # ── RESPONSES ────────────────────────────────────────────────
 
 class ProductionOrderResponseSchema(BaseModel):

@@ -74,6 +74,7 @@ class ListFinishedProductionsUseCase:
                 "produced_quantity": float(row["produced_quantity"]),
                 "base_uom_symbol": row["base_uom_symbol"],
                 "schedule_date": row["schedule_date"],
+                "completed_at": row["completed_at"],
                 "status": row["status"],
             }
             for row in rows

@@ -21,8 +21,10 @@ export default function ProductionRegisterPage() {
   const {
     sortBy,
     sortOrder,
+    search,
     setSortBy,
     setSortOrder,
+    setSearch,
     filteredProductions,
   } = useProductionFilters();
 
@@ -32,18 +34,19 @@ export default function ProductionRegisterPage() {
     <div className="space-y-4">
       <header className="flex items-center justify-between gap-4">
         <FilterBar
-          search={""}
-          searchPlaceholder="Buscar..."
-          onSearchChange={() => {}}
+          search={search}
+          searchPlaceholder="Buscar producto..."
+          onSearchChange={setSearch}
           sortFields={[{ key: "schedule_date", label: "Fecha Programada" }]}
           sortBy={sortBy}
           sortOrder={sortOrder}
           onSortByChange={setSortBy}
           onSortOrderChange={setSortOrder}
-          hasActiveFilters={sortBy !== ""}
+          hasActiveFilters={sortBy !== "" || search !== ""}
           onClearFilters={() => {
             setSortBy("");
             setSortOrder("asc");
+            setSearch("");
           }}
         />
 

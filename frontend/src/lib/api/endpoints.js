@@ -76,6 +76,7 @@ export const ENDPOINTS = {
     GET_INCOMPLETE: "/production-orders/incomplete",
     GET_HISTORY: "/production-orders/history",
     CANCEL: (order_id) => `/production-orders/${order_id}/cancel`,
+    DISCARD: (order_id) => `/production-orders/${order_id}/discard`,
   },
   ITEMS: {
     GET_OPTIONS: '/items/options',

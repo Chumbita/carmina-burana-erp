@@ -6,6 +6,7 @@ import { DataTable } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Field, FieldLabel } from "@/components/ui/Field";
 import {
   InputGroup,
   InputGroupAddon,
@@ -15,6 +16,13 @@ import { useNavigate } from "react-router-dom";
 import { Play, AlertTriangle, Package, X } from "lucide-react";
 import { useNotification } from "@/components/shared/notifications/useNotification";
 import { completeProductionSchema } from "../schemas/production.schema";
+
+function formatDateDMY(value) {
+  if (!value) return "";
+  const [datePart] = String(value).split("T");
+  const [y, m, d] = datePart.split("-");
+  return y && m && d ? `${d}/${m}/${y}` : datePart;
+}
 
 export function ProductionTable({ productions, onExecute, onCancel }) {
   const navigate = useNavigate();
@@ -52,12 +60,11 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
   useEffect(() => {
     if (completeTarget) {
       setCompleteValue("produced_quantity", Number(completeTarget.planned_quantity || 0));
-      
-      const productionDate = completeTarget.schedule_date 
-        ? completeTarget.schedule_date.split('T')[0] 
-        : "";
-        
-      setCompleteValue("production_date", productionDate);
+
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      const nowLocal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      setCompleteValue("production_date", nowLocal);
       setCompleteValue("lot_code", "");
       setCompleteValue("expiration_date", "");
       setCompleteValue("unit_cost", Number(completeTarget.estimated_unit_cost || 0));
@@ -67,10 +74,12 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
   // En latas el código de lote es la fecha de producción (autogenerado)
   const isLata = (completeTarget?.item_name || "").toLowerCase().includes("lata");
   const watchedProductionDate = useWatch({ control: completeControl, name: "production_date" });
+  const watchedExpirationDate = useWatch({ control: completeControl, name: "expiration_date" });
+  const completedDateOnly = watchedProductionDate?.split("T")[0] || "";
 
   useEffect(() => {
     if (isLata && watchedProductionDate) {
-      setCompleteValue("lot_code", watchedProductionDate);
+      setCompleteValue("lot_code", formatDateDMY(watchedProductionDate));
     }
   }, [isLata, watchedProductionDate, setCompleteValue]);
 
@@ -78,9 +87,9 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
   const onCompleteSubmit = async (data) => {
     const row = completeTarget;
     const payload = {
-      produced_quantity: Number(row.planned_quantity || 0),
+      produced_quantity: Number(data.produced_quantity || 0),
       lot_code: data.lot_code,
-      production_date: data.production_date,
+      production_date: data.production_date ? data.production_date.split("T")[0] : undefined,
       expiration_date: data.expiration_date,
       unit_cost: data.unit_cost ?? Number(row.estimated_unit_cost || 0),
     };
@@ -169,7 +178,7 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
       accessor: "planned_quantity",
       render: (value, row) => `${value} ${row.base_uom_symbol || ""}`
     },
-    { header: "Fecha programada", accessor: "schedule_date", render: (value) => value ? value : "Sin fecha" },
+    { header: "Fecha programada", accessor: "schedule_date", render: (value) => (value ? formatDateDMY(value) : "Sin fecha") },
     {
       header: "Estado",
       accessor: "status",
@@ -236,93 +245,140 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                  Cant. Producida
-                </label>
                 <Controller
                   name="produced_quantity"
                   control={completeControl}
-                  render={({ field }) => (
-                    <InputGroup className="bg-neutral-50 border-neutral-200">
-                      <InputGroupInput
-                        {...field}
-                        type="number"
-                        step="any"
-                        disabled
-                        className="text-xs"
-                      />
-                      <InputGroupAddon align="inline-end" className="pl-3 pr-3 text-[11px] text-neutral-500 font-normal border-l border-neutral-200">
-                        {completeTarget.base_uom_symbol || "U"}
-                      </InputGroupAddon>
-                    </InputGroup>
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name} className="text-sm">
+                        Cant. Producida
+                      </FieldLabel>
+                      <InputGroup>
+                        <InputGroupInput
+                          {...field}
+                          id={field.name}
+                          type="number"
+                          step="any"
+                          className="text-sm"
+                        />
+                        <InputGroupAddon align="inline-end" className="pl-3 pr-3 text-sm text-neutral-500 font-normal border-l border-neutral-200">
+                          {completeTarget.base_uom_symbol || "U"}
+                        </InputGroupAddon>
+                      </InputGroup>
+                    </Field>
                   )}
                 />
                 {completeErrors.produced_quantity && <span className="text-[10px] text-red-500">{completeErrors.produced_quantity.message}</span>}
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-slate-700 dark:text-slate-300">Código de Lote</label>
                 <Controller
                   name="lot_code"
                   control={completeControl}
-                  render={({ field }) => (
-                    <Input {...field} type="text" placeholder={isLata ? "Autogenerado (fecha)" : "Ej: IPA-2026-001"} className="h-9 text-xs px-3" />
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name} className="text-sm">
+                        Código de Lote
+                      </FieldLabel>
+                      <Input {...field} id={field.name} type="text" placeholder={isLata ? "Autogenerado (fecha)" : "Ej: IPA-2026-001"} className="h-9 text-sm" />
+                    </Field>
                   )}
                 />
                 {completeErrors.lot_code && <span className="text-[10px] text-red-500">{completeErrors.lot_code.message}</span>}
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-slate-700 dark:text-slate-300">Fecha de Producción</label>
+                <Field>
+                  <FieldLabel className="text-sm">
+                    Fecha programada
+                  </FieldLabel>
+                  <Input
+                    type="date"
+                    value={completeTarget.schedule_date ? completeTarget.schedule_date.split("T")[0] : ""}
+                    disabled
+                    className="h-9 text-sm bg-muted cursor-not-allowed"
+                  />
+                </Field>
+              </div>
+
+              <div className="flex flex-col gap-1">
                 <Controller
                   name="production_date"
                   control={completeControl}
-                  render={({ field }) => (
-                    <Input {...field} type="date" className="h-9 text-xs px-3" />
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name} className="text-sm">
+                        Fecha completada
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        id={field.name}
+                        type="datetime-local"
+                        className="h-9 text-sm"
+                      />
+                    </Field>
                   )}
                 />
                 {completeErrors.production_date && <span className="text-[10px] text-red-500">{completeErrors.production_date.message}</span>}
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-slate-700 dark:text-slate-300">Fecha de Vencimiento</label>
                 <Controller
                   name="expiration_date"
                   control={completeControl}
-                  render={({ field }) => (
-                    <Input {...field} type="date" className="h-9 text-xs px-3" />
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name} className="text-sm">
+                        Fecha de Vencimiento
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        id={field.name}
+                        type="date"
+                        min={completedDateOnly || undefined}
+                        className={`h-9 text-sm ${
+                          completedDateOnly &&
+                          watchedExpirationDate === completedDateOnly
+                            ? "bg-red-50"
+                            : ""
+                        }`}
+                      />
+                    </Field>
                   )}
                 />
                 {completeErrors.expiration_date && <span className="text-[10px] text-red-500">{completeErrors.expiration_date.message}</span>}
               </div>
-            </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                Costo Unitario
-              </label>
-              <Controller
-                name="unit_cost"
-                control={completeControl}
-                render={({ field }) => (
-                  <InputGroup className="bg-neutral-50 border-neutral-200">
-                    <InputGroupAddon align="inline-start" className="pl-2.5 pr-1 text-[11px] text-neutral-500 font-normal">
-                      $
-                    </InputGroupAddon>
-                    <InputGroupInput
-                      {...field}
-                      type="number"
-                      step="any"
-                      disabled
-                      className="text-xs"
-                    />
-                    <InputGroupAddon align="inline-end" className="pl-3 pr-3 text-[11px] text-neutral-500 font-normal border-l border-neutral-200">
-                      $/{completeTarget.base_uom_symbol || "U"}
-                    </InputGroupAddon>
-                  </InputGroup>
-                )}
-              />
-              {completeErrors.unit_cost && <span className="text-[10px] text-red-500">{completeErrors.unit_cost.message}</span>}
+              <div className="flex flex-col gap-1">
+                <Controller
+                  name="unit_cost"
+                  control={completeControl}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name} className="text-sm">
+                        Costo Unitario
+                      </FieldLabel>
+                      <InputGroup>
+                        <InputGroupAddon align="inline-start" className="pl-2.5 pr-1 text-sm text-neutral-500 font-normal">
+                          $
+                        </InputGroupAddon>
+                        <InputGroupInput
+                          {...field}
+                          id={field.name}
+                          type="number"
+                          step="any"
+                          disabled
+                          className="text-sm"
+                        />
+                        <InputGroupAddon align="inline-end" className="pl-3 pr-3 text-sm text-neutral-500 font-normal border-l border-neutral-200">
+                          $/{completeTarget.base_uom_symbol || "U"}
+                        </InputGroupAddon>
+                      </InputGroup>
+                    </Field>
+                  )}
+                />
+                {completeErrors.unit_cost && <span className="text-[10px] text-red-500">{completeErrors.unit_cost.message}</span>}
+              </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">

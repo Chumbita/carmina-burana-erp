@@ -10,6 +10,7 @@ from src.infrastructure.database.repositories.inventory_transaction_repository i
 from src.application.use_cases.production_order.plan_production_order import PlanProductionOrderUseCase
 from src.application.use_cases.production_order.execute_production_order import ExecuteProductionOrderUseCase
 from src.application.use_cases.production_order.cancel_production_order import CancelProductionOrderUseCase
+from src.application.use_cases.production_order.discard_production_order import DiscardProductionOrderUseCase
 from src.application.use_cases.inventory.inventory_movement_use_case import InventoryMovementUseCase
 from src.application.use_cases.production_order.get_production_order import (
     ListIncompleteProductionsUseCase,
@@ -80,4 +81,14 @@ def get_list_finished_productions_use_case(
     production_order_repository = ProductionOrderRepository(session)
     return ListFinishedProductionsUseCase(
         production_order_repository=production_order_repository,
+    )
+
+
+def get_discard_production_order_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> DiscardProductionOrderUseCase:
+    return DiscardProductionOrderUseCase(
+        production_order_repository=ProductionOrderRepository(session),
+        balance_repository=InventoryBalanceRepository(session),
+        inventory_movement_use_case=_get_inventory_movement_use_case(session),
     )
