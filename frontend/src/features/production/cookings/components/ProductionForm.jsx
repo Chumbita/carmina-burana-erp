@@ -5,6 +5,8 @@ import { createProductionSchema } from "../schemas/production.schema";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { DecimalInput } from "@/components/shared/DecimalInput";
+import { formatDecimal } from "@/lib/utils/formatters";
 import { Textarea } from "@/components/ui/TextArea";
 import {
   InputGroup,
@@ -29,13 +31,6 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 
-function formatDecimal(value) {
-  if (value === null || value === undefined || value === "") return "-";
-  return Number(value).toLocaleString("es-AR", {
-    maximumFractionDigits: 6,
-  });
-}
-
 export function ProductionForm({
   defaultValues,
   onSubmit,
@@ -56,13 +51,13 @@ export function ProductionForm({
     handleSubmit,
     control,
     setValue,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       item_id: defaultValues?.item_id ?? undefined,
       bom_id: defaultValues?.bom_id ?? undefined,
-      planned_quantity: defaultValues?.planned_quantity ?? 0,
+      planned_quantity: defaultValues?.planned_quantity ?? 1,
       schedule_date: defaultValues?.schedule_date ?? "",
       description: defaultValues?.description ?? "",
     },
@@ -114,7 +109,7 @@ export function ProductionForm({
       });
     } else {
       setValue("bom_id", undefined, { shouldValidate: true });
-      setValue("planned_quantity", 0, { shouldValidate: true });
+      setValue("planned_quantity", 1, { shouldValidate: true });
     }
   }, [selectedBom, setValue]);
   return (
@@ -238,9 +233,18 @@ export function ProductionForm({
                 <Controller
                   name="planned_quantity"
                   control={control}
-                  render={({ field }) => (
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-medium text-neutral-600">
+                  render={({ field, fieldState }) => (
+                    <div
+                      data-invalid={fieldState.invalid}
+                      className="flex flex-col gap-1"
+                    >
+                      <label
+                        className={`text-xs font-medium ${
+                          fieldState.invalid
+                            ? "text-red-500"
+                            : "text-neutral-600"
+                        }`}
+                      >
                         Cant. a producir
                       </label>
                       <InputGroup
@@ -281,9 +285,18 @@ export function ProductionForm({
                 <Controller
                   name="schedule_date"
                   control={control}
-                  render={({ field }) => (
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-medium text-neutral-600">
+                  render={({ field, fieldState }) => (
+                    <div
+                      data-invalid={fieldState.invalid}
+                      className="flex flex-col gap-1"
+                    >
+                      <label
+                        className={`text-xs font-medium ${
+                          fieldState.invalid
+                            ? "text-red-500"
+                            : "text-neutral-600"
+                        }`}
+                      >
                         Fecha programada
                       </label>
                       <Input
@@ -291,9 +304,10 @@ export function ProductionForm({
                         type="date"
                         className={`h-9 text-xs px-3 ${
                           errors.schedule_date
-                            ? "border-red-500 focus-visible:ring-red-500"
+                            ? "focus-visible:ring-red-500"
                             : ""
                         }`}
+                        aria-invalid={fieldState.invalid}
                         disabled={!hasValidRecipe}
                       />
 
@@ -377,7 +391,7 @@ export function ProductionForm({
                         {line.name || `#${line.component_item_id}`}
                       </TableCell>
                       <TableCell className="p-1 py-1.5 text-xs text-right font-medium">
-                        {formatDecimal(line.quantity)}
+                        {formatDecimal(line.quantity, 6)}
                       </TableCell>
                       <TableCell className="p-1 py-1.5 text-xs text-right text-neutral-400">
                         {line.uom ?? "-"}
@@ -408,7 +422,7 @@ export function ProductionForm({
         <Button
           size="sm"
           type="submit"
-          disabled={isSubmitting || !hasValidRecipe}
+          disabled={isSubmitting || !hasValidRecipe || !isValid}
           className="h-8 text-xs px-3.5"
         >
           {isSubmitting ? "Creando..." : submitLabel}

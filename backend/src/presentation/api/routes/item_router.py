@@ -2,7 +2,7 @@
 # ROUTER - ITEM
 # ══════════════════════════════════════════════════════════════════════════════
 
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, Query, status, HTTPException
 from typing import List
 
 from src.domain.entities.user import User
@@ -23,6 +23,8 @@ from src.presentation.dependencies.use_cases.bom import get_item_bom_use_case
 
 from src.presentation.schemas.inventory_transaction_schemas import TransactionResponseSchema
 from src.presentation.dependencies.use_cases.inventory import get_list_item_transactions_use_case
+from src.presentation.schemas.pagination_schema import PaginatedResponse
+from src.shared.pagination import parse_pagination
 
 
 item_router = APIRouter(prefix="/items", tags=["Items"])
@@ -83,15 +85,16 @@ async def get_item_bom(
 
 @item_router.get(
     "/{item_id}/transactions",
-    response_model=List[TransactionResponseSchema],
+    response_model=PaginatedResponse[TransactionResponseSchema],
     summary="Historial de movimientos de inventario de un ítem",
 )
 async def list_item_transactions(
     item_id: int,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(5, ge=1),
     use_case: "ListItemTransactionsUseCase" = Depends(get_list_item_transactions_use_case),
     current_user: User = Depends(get_current_user),
-) -> list[dict]:
-    try:
-        return await use_case.execute(item_id)
-    except ItemNotFoundException as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+) -> PaginatedResponse[TransactionResponseSchema]:
+    params = parse_pagination(page, page_size)
+    result = await use_case.execute(item_id, params=params)
+    return PaginatedResponse.from_page(result)

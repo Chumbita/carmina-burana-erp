@@ -68,7 +68,7 @@ export function AlertIndicator({ variant, message, onClose, duration = 6000, onC
         </div>
         <button
           onClick={handleClose}
-          className={`absolute top-2 right-2 p-1 rounded-full transition-colors ${styles.closeButton}`}
+          className={`absolute top-2 right-2 p-1 rounded-full transition-colors cursor-pointer ${styles.closeButton}`}
         >
           <X className="h-4 w-4" />
         </button>

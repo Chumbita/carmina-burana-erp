@@ -32,15 +32,15 @@ export function ProductionTable({ productions, onExecute }) {
     control: completeControl, 
     setValue: setCompleteValue,
     reset: resetCompleteForm,
-    formState: { errors: completeErrors, isSubmitting: isCompleting } 
+    formState: { errors: completeErrors, isValid: isCompleteValid, isSubmitting: isCompleting } 
   } = useForm({
     resolver: zodResolver(schemaComplete),
     defaultValues: {
-      produced_quantity: 0,
+      produced_quantity: 1,
       lot_code: "",
       production_date: "",
       expiration_date: "",
-      unit_cost: 0,
+      unit_cost: "",
     },
     mode: "onChange"
   });
@@ -48,7 +48,7 @@ export function ProductionTable({ productions, onExecute }) {
   // Sincroniza los datos de la orden seleccionada con el formulario de Zod
   useEffect(() => {
     if (completeTarget) {
-      setCompleteValue("produced_quantity", Number(completeTarget.planned_quantity || 0));
+      setCompleteValue("produced_quantity", Number(completeTarget.planned_quantity || 1));
       
       const productionDate = completeTarget.schedule_date 
         ? completeTarget.schedule_date.split('T')[0] 
@@ -133,7 +133,7 @@ export function ProductionTable({ productions, onExecute }) {
     { 
       header: "Cantidad", 
       accessor: "planned_quantity",
-      render: (value, row) => `${value} ${row.base_uom_symbol || ""}`
+      render: (value, row) => `${formatDecimal(value)} ${row.base_uom_symbol || ""}`
     },
     { header: "Fecha programada", accessor: "schedule_date", render: (value) => value ? value : "Sin fecha" },
     {

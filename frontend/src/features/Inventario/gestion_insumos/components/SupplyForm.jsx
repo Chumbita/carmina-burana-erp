@@ -8,6 +8,7 @@ import { useUoms } from "../hooks/useUoms"
 
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
+import { DecimalInput } from "@/components/shared/DecimalInput"
 import {
   Select,
   SelectContent,
@@ -47,7 +48,7 @@ export function SupplyForm({
     handleSubmit,
     control,
     reset,
-    formState: { isDirty },
+    formState: { isDirty, isValid },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -55,7 +56,7 @@ export function SupplyForm({
       brand_id:         defaultValues?.brand_id         ?? undefined,
       supply_category:  defaultValues?.supply_category  ?? "",
       base_uom_id:      defaultValues?.base_uom_id      ?? undefined,
-      min_stock_level:  defaultValues?.min_stock_level != null ? Number(defaultValues.min_stock_level) : 0,
+      min_stock_level:  defaultValues?.min_stock_level != null ? Number(defaultValues.min_stock_level) : 1,
     },
     mode: "onChange",
   })
@@ -92,8 +93,8 @@ export function SupplyForm({
                 {...field}
                 id={field.name}
                 aria-invalid={fieldState.invalid}
+                placeholder
               />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
@@ -129,7 +130,6 @@ export function SupplyForm({
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
@@ -162,7 +162,6 @@ export function SupplyForm({
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
@@ -177,15 +176,14 @@ export function SupplyForm({
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Stock mínimo</FieldLabel>
-                    <Input
+                    <FieldLabel htmlFor={field.name}>
+                      Stock mínimo <span className="text-red-500 -ml-1">*</span>
+                    </FieldLabel>
+                    <DecimalInput
                       {...field}
                       id={field.name}
-                      type="number"
                       aria-invalid={fieldState.invalid}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     />
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -221,7 +219,6 @@ export function SupplyForm({
                         </SelectGroup>
                       </SelectContent>
                     </Select>
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -264,7 +261,6 @@ export function SupplyForm({
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -275,15 +271,14 @@ export function SupplyForm({
               control={control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Stock mínimo</FieldLabel>
-                  <Input
+                  <FieldLabel htmlFor={field.name}>
+                    Stock mínimo <span className="text-red-500 -ml-1">*</span>
+                  </FieldLabel>
+                  <DecimalInput
                     {...field}
                     id={field.name}
-                    type="number"
                     aria-invalid={fieldState.invalid}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -327,7 +322,7 @@ export function SupplyForm({
         <Button
           size="sm"
           type="submit"
-          disabled={isModal ? isSubmitting : !isDirty || isSubmitting}
+          disabled={isModal ? isSubmitting || !isValid : !isDirty || !isValid || isSubmitting}
           className="cursor-pointer"
         >
           {isSubmitting ? "Guardando..." : submitLabel}
