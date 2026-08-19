@@ -6,16 +6,30 @@ from src.presentation.schemas.supplier_schema import (
     CreateSupplierRequest,
     SupplierOptionResponse,
     SupplierResponse,
+    UpdateSupplierRequest,
 )
 from src.presentation.dependencies.use_cases.supplier import (
+    build_deactivate_supplier_use_case,
     build_create_supplier_use_case,
+    build_get_supplier_by_id_use_case,
     build_get_supplier_by_name_use_case,
+    build_list_suppliers_use_case,
     build_list_supplier_options_use_case,
+    build_update_supplier_use_case,
 )
 from src.application.use_cases.supplier.create_supplier import CreateSupplierUseCase
 from src.application.use_cases.supplier.get_supplier_by_name import GetSupplierByNameUseCase
 from src.application.use_cases.supplier.list_supplier_options import ListSupplierOptionsUseCase
-from src.application.dtos.supplier.supplier_commands_dtos import CreateSupplierCommand
+from src.application.use_cases.supplier.manage_supplier import (
+    DeactivateSupplierUseCase,
+    GetSupplierByIdUseCase,
+    ListSuppliersUseCase,
+    UpdateSupplierUseCase,
+)
+from src.application.dtos.supplier.supplier_commands_dtos import (
+    CreateSupplierCommand,
+    UpdateSupplierCommand,
+)
 
 
 router = APIRouter(prefix="/suppliers", tags=["Suppliers"])
@@ -35,15 +49,31 @@ async def list_supplier_options(
 
 @router.get(
     "",
-    summary="Buscar proveedor por nombre",
+    summary="Listar proveedores o buscar por nombre",
+    response_model=list[SupplierResponse] | SupplierResponse,
+)
+async def list_suppliers(
+    name: str | None = Query(None, min_length=1),
+    list_use_case: ListSuppliersUseCase = Depends(build_list_suppliers_use_case),
+    by_name_use_case: GetSupplierByNameUseCase = Depends(build_get_supplier_by_name_use_case),
+    #current_user: User = Depends(get_current_user),  # auth
+) -> list[SupplierResponse] | SupplierResponse:
+    if name is not None:
+        return await by_name_use_case.execute(name)
+    return await list_use_case.execute()
+
+
+@router.get(
+    "/{supplier_id}",
+    summary="Obtener proveedor por id",
     response_model=SupplierResponse,
 )
-async def get_supplier_by_name(
-    name: str = Query(..., min_length=1),
-    use_case: GetSupplierByNameUseCase = Depends(build_get_supplier_by_name_use_case),
+async def get_supplier_by_id(
+    supplier_id: int,
+    use_case: GetSupplierByIdUseCase = Depends(build_get_supplier_by_id_use_case),
     #current_user: User = Depends(get_current_user),  # auth
 ) -> SupplierResponse:
-    return await use_case.execute(name)
+    return await use_case.execute(supplier_id)
 
 
 @router.post(
@@ -65,3 +95,37 @@ async def create_supplier(
     )
 
     return await use_case.execute(command)
+
+
+@router.put(
+    "/{supplier_id}",
+    summary="Editar proveedor",
+    response_model=SupplierResponse,
+)
+async def update_supplier(
+    supplier_id: int,
+    body: UpdateSupplierRequest,
+    use_case: UpdateSupplierUseCase = Depends(build_update_supplier_use_case),
+    #current_user: User = Depends(get_current_user),  # auth
+) -> SupplierResponse:
+    command = UpdateSupplierCommand(
+        supplier_id=supplier_id,
+        name=body.name,
+        email=body.email,
+        phone=body.phone,
+        address=body.address,
+    )
+    return await use_case.execute(command)
+
+
+@router.delete(
+    "/{supplier_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Inactivar proveedor",
+)
+async def deactivate_supplier(
+    supplier_id: int,
+    use_case: DeactivateSupplierUseCase = Depends(build_deactivate_supplier_use_case),
+    #current_user: User = Depends(get_current_user),  # auth
+) -> None:
+    await use_case.execute(supplier_id)

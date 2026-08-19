@@ -119,7 +119,7 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
             defaultValues={{
               item_id: undefined,
               bom_id: undefined,
-              planned_quantity: 0,
+              planned_quantity: 1,
               schedule_date: "",
               description: "",
             }}

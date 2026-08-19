@@ -47,13 +47,5 @@ export default function SupplyEntryDetailPage() {
     )
   }
 
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Detail component - it already includes its own header */}
-      <SupplyEntryDetail
-        detailHook={detailHook}
-        onBack={handleBack}
-      />
-    </div>
-  )
+  return <SupplyEntryDetail detailHook={detailHook} onBack={handleBack} />
 }

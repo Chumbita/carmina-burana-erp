@@ -1,7 +1,7 @@
 from typing import Optional
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, update
+from sqlalchemy import select, func, update, or_
 
 from src.domain.entities.supply_entry import SupplyEntryOrder, SupplyEntryLine
 from src.domain.value_objects.supply_entry_status import SupplyEntryStatus
@@ -16,6 +16,7 @@ from src.infrastructure.database.models.item_model import ItemModel
 from src.infrastructure.database.models.brand_model import BrandModel
 from src.infrastructure.database.models.supply_entry_order_model import SupplyEntryOrderModel
 from src.infrastructure.database.models.supply_entry_line_model import SupplyEntryLineModel
+from src.infrastructure.database.pagination import paginate
 
 
 class SupplyEntryRepository(ISupplyEntryRepository):
@@ -33,6 +34,7 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             document_number=model.document_number,
             entry_date=model.entry_date,
             description=model.description,
+            cancellation_reason=model.cancellation_reason,
             status=SupplyEntryStatus(model.status),
             created_at=model.created_at,
             canceled_at=model.canceled_at,
@@ -45,6 +47,7 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             document_number=entity.document_number,
             entry_date=entity.entry_date,
             description=entity.description,
+            cancellation_reason=entity.cancellation_reason,
             status=entity.status.value,
             created_at=entity.created_at,
             canceled_at=entity.canceled_at,
@@ -97,7 +100,7 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             .values(
                 status=SupplyEntryStatus.CANCELED.value,
                 canceled_at=canceled_at,
-                description=reason,
+                cancellation_reason=reason,
             )
         )
         await self._session.execute(stmt)
@@ -163,13 +166,22 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             supplier_phone=supplier_phone,
             entry_date=order_model.entry_date,
             description=order_model.description,
+            cancellation_reason=order_model.cancellation_reason,
             status=order_model.status,
             created_at=order_model.created_at,
             canceled_at=order_model.canceled_at,
             lines=lines,
         )
 
-    async def find_all(self) -> list[SupplyEntryListItemData]:
+    async def find_all(
+        self,
+        supplier_id: Optional[int] = None,
+        date_from: Optional[date] = None,
+        date_to: Optional[date] = None,
+        search: Optional[str] = None,
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
+    ) -> tuple[list[SupplyEntryListItemData], int]:
         line_stats = select(
             SupplyEntryLineModel.supply_entry_id,
             func.count(SupplyEntryLineModel.id).label("items_count"),
@@ -191,8 +203,30 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             SupplyEntryOrderModel.id == line_stats.c.supply_entry_id,
         ).order_by(SupplyEntryOrderModel.created_at.desc())
 
-        result = await self._session.execute(stmt)
-        rows = result.all()
+        if supplier_id is not None:
+            stmt = stmt.where(SupplyEntryOrderModel.supplier_id == supplier_id)
+
+        if date_from is not None:
+            stmt = stmt.where(SupplyEntryOrderModel.entry_date >= date_from)
+
+        if date_to is not None:
+            stmt = stmt.where(SupplyEntryOrderModel.entry_date < date_to + timedelta(days=1))
+
+        if search:
+            search_like = f"%{search}%"
+            stmt = stmt.where(
+                or_(
+                    SupplyEntryOrderModel.document_number.ilike(search_like),
+                    SupplierModel.name.ilike(search_like),
+                )
+            )
+
+        if offset is not None and limit is not None:
+            rows, total = await paginate(self._session, stmt, offset=offset, limit=limit)
+        else:
+            result = await self._session.execute(stmt)
+            rows = result.all()
+            total = len(rows)
 
         return [
             SupplyEntryListItemData(
@@ -202,6 +236,7 @@ class SupplyEntryRepository(ISupplyEntryRepository):
                 supplier_name=supplier_name,
                 entry_date=order_model.entry_date,
                 description=order_model.description,
+                cancellation_reason=order_model.cancellation_reason,
                 status=order_model.status,
                 created_at=order_model.created_at,
                 canceled_at=order_model.canceled_at,
@@ -209,4 +244,4 @@ class SupplyEntryRepository(ISupplyEntryRepository):
                 total_cost=total_cost or Decimal("0"),
             )
             for order_model, supplier_name, items_count, total_cost in rows
-        ]
+        ], total

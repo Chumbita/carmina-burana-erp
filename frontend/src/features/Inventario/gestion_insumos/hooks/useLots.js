@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react"
 import { supplyService } from "../services/supplyService"
 
+const PAGE_SIZE = 5
+
 export function useLots(itemId, statusFilter) {
   const [lots, setLots] = useState([])
+  const [page, setPage] = useState(1)
+  const [totalItems, setTotalItems] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -10,9 +15,12 @@ export function useLots(itemId, statusFilter) {
     if (!itemId) return
 
     async function load() {
+      setLoading(true)
       try {
-        const data = await supplyService.getLots(itemId, statusFilter)
-        setLots(data)
+        const data = await supplyService.getLots(itemId, statusFilter, page)
+        setLots(data.data)
+        setTotalItems(data.pagination.total_items)
+        setTotalPages(data.pagination.total_pages)
       } catch (err) {
         setError(err)
       } finally {
@@ -21,7 +29,7 @@ export function useLots(itemId, statusFilter) {
     }
 
     load()
-  }, [itemId, statusFilter])
+  }, [itemId, statusFilter, page])
 
-  return { lots, loading, error }
+  return { lots, loading, error, page, pageSize: PAGE_SIZE, totalItems, totalPages, changePage: setPage }
 }

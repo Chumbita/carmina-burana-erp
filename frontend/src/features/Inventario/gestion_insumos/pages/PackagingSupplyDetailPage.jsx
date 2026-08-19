@@ -1,5 +1,6 @@
 import { PackageIcon } from "lucide-react"
 import { Badge } from "@/components/ui/Badge"
+import { formatDecimal } from "@/lib/utils/formatters"
 
 import { useParams } from "react-router-dom"
 import { usePackagingSupply } from "../hooks/usePackagingSupply"
@@ -22,7 +23,7 @@ export default function PackagingSupplyDetailPage() {
         <EntityDetailPage.Sidebar.Row label="Tipo" value="Envase" />
         <EntityDetailPage.Sidebar.Row
           label="Stock actual"
-          value={`${packagingSupply?.stock_total ?? 0} ${packagingSupply?.base_uom_symbol ?? ""}`}
+          value={`${formatDecimal(packagingSupply?.stock_total)} ${packagingSupply?.base_uom_symbol ?? ""}`}
         />
         <EntityDetailPage.Sidebar.Row
           label="Unidad"

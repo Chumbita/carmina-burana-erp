@@ -64,29 +64,31 @@ export function LoginForm() {
     <form className="w-full max-w-md" onSubmit={handleSubmit(onSubmit)}>
       <FieldSet>
         <FieldGroup>
-          <Field>
+          <Field data-invalid={errors.username ? true : false}>
             <FieldLabel htmlFor="username">Nombre de usuario</FieldLabel>
             <Input
               id="username"
               type="text"
               placeholder="carlosolari"
+              aria-invalid={errors.username ? true : false}
               {...register("username")}
             />
           </Field>
-          <Field>
+          <Field data-invalid={errors.password ? true : false}>
             <FieldLabel htmlFor="password">Contraseña</FieldLabel>
             <InputGroup>
               <InputGroupInput
                 id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
+                aria-invalid={errors.password ? true : false}
                 {...register("password")}
               />
               <InputGroupAddon align="inline-end">
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="focus:outline-none mr-2"
+                  className="focus:outline-none mr-2 cursor-pointer"
                 >
                   {showPassword ? (
                     <EyeIcon size={17} />

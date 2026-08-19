@@ -59,3 +59,18 @@ class Supplier:
             raise ValueError("Supplier is already inactive")
         self.status = SupplierStatus.INACTIVE
         self.updated_at = datetime.now()
+
+    def update(
+        self,
+        name: Optional[str] = None,
+        email: Optional[str] = None,
+        phone: Optional[str] = None,
+        address: Optional[str] = None,
+    ) -> None:
+        if name is not None:
+            self.name = name
+        self.email = email
+        self.phone = phone
+        self.address = address
+        self.updated_at = datetime.now()
+        self._validate()

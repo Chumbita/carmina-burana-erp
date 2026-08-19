@@ -55,9 +55,8 @@ export const createSupplySchema = (existingSupplies = [], excludeId = null) =>
       .positive("Seleccione una unidad de medida"),
 
     min_stock_level: z
-      .number({ invalid_type_error: "Debe ser un número" })
-      .min(0, "El stock mínimo no puede ser negativo")
-      .default(0),
+      .coerce.number({ invalid_type_error: "El stock mínimo es requerido" })
+      .min(0, "El stock mínimo no puede ser negativo"),
   })
 
 // Schema por defecto para compatibilidad
@@ -89,7 +88,7 @@ export const createPackagingSupplySchema = (existingSupplies = [], excludeId = n
       .positive("Seleccione una unidad"),
 
     min_stock_level: z
-      .number({ invalid_type_error: "Debe ser un número" })
+      .coerce.number({ invalid_type_error: "Debe ser un número" })
       .gt(0, "El stock mínimo debe ser mayor a cero"),
 
     packaging_type: z.enum(PACKAGING_TYPES, {
@@ -102,7 +101,7 @@ export const createPackagingSupplySchema = (existingSupplies = [], excludeId = n
       .min(1, "El material del envase es obligatorio"),
 
     capacity_ml: z
-      .number({ invalid_type_error: "Debe ser un número" })
+      .coerce.number({ invalid_type_error: "Debe ser un número" })
       .min(0, "La capacidad no puede ser negativa")
       .optional(),
   })

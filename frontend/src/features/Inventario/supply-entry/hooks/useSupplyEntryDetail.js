@@ -22,7 +22,7 @@ function normalizeEntry(entry) {
     invoiceNumber: entry.document_number,
     total_cost: Number(entry.total_cost ?? 0),
     annulledAt: entry.canceled_at,
-    annulmentReason: entry.description,
+    annulmentReason: entry.cancellation_reason,
     items: (entry.lines ?? []).map((line) => ({
       id: line.lot_id ?? line.item?.id,
       supply_id: line.item?.id,
@@ -89,7 +89,7 @@ export function useSupplyEntryDetail(entryId) {
   const canAnnul = useMemo(() => {
     if (!entry) return false
     
-    const entryDate = new Date(entry.created_at || entry.entry_date)
+    const entryDate = new Date(entry.entry_date)
     const now = new Date()
     const hoursDiff = (now - entryDate) / (1000 * 60 * 60)
     

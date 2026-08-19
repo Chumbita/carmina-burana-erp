@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Controller, useWatch } from 'react-hook-form'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { DecimalInput } from '@/components/shared/DecimalInput'
 import { Field, FieldLabel } from '@/components/ui/Field'
 import { Card } from '@/components/ui/Card'
 import { Spinner } from '@/components/ui/Spinner'
@@ -22,7 +23,7 @@ import {
 import { Plus, Trash2, Package, Check, ChevronsUpDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-function ItemCombobox({ value, onChange, onSelect, items = [], placeholder = 'Seleccionar…' }) {
+function ItemCombobox({ value, onChange, onSelect, items = [], placeholder = 'Seleccionar…', invalid = false }) {
   const [open, setOpen] = useState(false)
   const selected = items.find((i) => i.item_id === value)
 
@@ -39,10 +40,12 @@ function ItemCombobox({ value, onChange, onSelect, items = [], placeholder = 'Se
           type="button"
           role="combobox"
           aria-expanded={open}
+          aria-invalid={invalid}
           className={cn(
             'flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs',
             'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-            !selected && 'text-muted-foreground'
+            !selected && 'text-muted-foreground',
+            invalid && 'border-destructive focus:ring-destructive/30'
           )}
         >
           <span className="truncate text-left">
@@ -142,6 +145,7 @@ export function BomForm({
                       onSelect={(item) => setValue('uom_id', item.uom_id, { shouldValidate: true })}
                       items={items}
                       placeholder={itemsLoading ? 'Cargando productos…' : 'Seleccionar producto…'}
+                      invalid={fieldState.invalid}
                     />
                     {fieldState.invalid && (
                       <p className="text-destructive text-sm mt-1">{fieldState.error?.message}</p>
@@ -158,16 +162,11 @@ export function BomForm({
                     <FieldLabel htmlFor={field.name} className="text-sm">
                       Cantidad a producir <span className="text-destructive">*</span>
                     </FieldLabel>
-                    <Input
+                    <DecimalInput
                       {...field}
                       id={field.name}
-                      type="number"
-                      step="0.01"
-                      min="0.01"
-                      placeholder=""
                       className="h-9 text-sm"
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      aria-invalid={fieldState.invalid}
                     />
                   </Field>
                 )}
@@ -197,6 +196,7 @@ export function BomForm({
                       id={field.name}
                       type="datetime-local"
                       className="h-9 text-sm"
+                      aria-invalid={fieldState.invalid}
                     />
                   </Field>
                 )}
@@ -234,8 +234,8 @@ export function BomForm({
                 <thead>
                   <tr className="border-b border-border">
                     <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-10">Nro</th>
-                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground">Componente</th>
-                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-32">Cantidad</th>
+                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground">Componente <span className="text-destructive"> *</span></th>
+                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-32">Cantidad <span className="text-destructive"> *</span></th>
                     <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-28">Unidad</th>
                     <th className="pb-2 pt-1 text-left text-xs font-medium text-muted-foreground  w-10">Acción</th>
                   </tr>
@@ -343,6 +343,7 @@ function BomLineRow({ index, control, items, onRemove, setValue }) {
                 }}
                 items={items}
                 placeholder="Seleccionar…"
+                invalid={fieldState.invalid}
               />
               {fieldState.invalid && (
                 <p className="text-destructive text-xs mt-1">{fieldState.error?.message}</p>
@@ -360,18 +361,13 @@ function BomLineRow({ index, control, items, onRemove, setValue }) {
           control={control}
           render={({ field: qtyField, fieldState }) => (
             <>
-              <Input
-                type="number"
-                step="0.01"
-                min="0.01"
+              <DecimalInput
+                {...qtyField}
                 aria-invalid={fieldState.invalid || isQtyInvalid ? 'true' : undefined}
-                placeholder=""
                 className={cn(
                   'h-9 text-sm',
                   (fieldState.invalid || isQtyInvalid) && 'text-destructive ring-destructive/20 ring-1 border-destructive'
                 )}
-                value={qtyField.value ?? ''}
-                onChange={(e) => qtyField.onChange(e.target.valueAsNumber)}
               />
             </>
           )}

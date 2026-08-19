@@ -24,6 +24,10 @@ from src.domain.exceptions.supplier_exceptions import (
     DuplicateSupplierNameError,
     SupplierNotFoundError,
 )
+from src.domain.exceptions.brand_exceptions import (
+    BrandNotFoundError,
+    DuplicateBrandNameError,
+)
 
 from src.domain.exceptions.production_exceptions import (
     ProductionOrderNotFoundException,
@@ -103,6 +107,17 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(SupplierNotFoundError)
     async def supplier_not_found_handler(request: Request, exc: SupplierNotFoundError):
+        return JSONResponse(status_code=404, content={"detail": str(exc)})
+
+    # ======================
+    # BRAND EXCEPTIONS
+    # ======================
+    @app.exception_handler(DuplicateBrandNameError)
+    async def duplicate_brand_name_handler(request: Request, exc: DuplicateBrandNameError):
+        return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+    @app.exception_handler(BrandNotFoundError)
+    async def brand_not_found_handler(request: Request, exc: BrandNotFoundError):
         return JSONResponse(status_code=404, content={"detail": str(exc)})
 
     # ======================
