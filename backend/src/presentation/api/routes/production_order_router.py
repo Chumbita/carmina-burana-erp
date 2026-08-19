@@ -6,6 +6,7 @@ from src.domain.entities.production_order import ProductionOrder
 from src.domain.exceptions.production_exceptions import (
     ProductionOrderNotFoundException,
     ProductionOrderCannotBeCancelledException,
+    ProductionOrderCannotBeDiscardedException,
     BomNotFoundException,
     InsufficientStockForProductionException,
 )
@@ -14,10 +15,15 @@ from src.application.use_cases.production_order.plan_production_order import Pla
 from src.application.use_cases.production_order.execute_production_order import ExecuteProductionOrderUseCase
 from src.application.use_cases.production_order.create_production_order import CreateProductionOrderUseCase
 from src.application.use_cases.production_order.cancel_production_order import CancelProductionOrderUseCase
-from src.application.use_cases.production_order.get_production_order import ListIncompleteProductionsUseCase
+from src.application.use_cases.production_order.discard_production_order import DiscardProductionOrderUseCase
+from src.application.use_cases.production_order.get_production_order import (
+    ListIncompleteProductionsUseCase,
+    ListFinishedProductionsUseCase,
+)
 from src.presentation.schemas.production_order_schemas import (
     CreateProductionOrderSchema,
     CompleteProductionOrderRequestSchema,
+    DiscardProductionOrderRequestSchema,
     ProductionOrderResponseSchema,
 )
 from src.presentation.dependencies.use_cases.production_order import (
@@ -25,6 +31,8 @@ from src.presentation.dependencies.use_cases.production_order import (
     get_execute_production_order_use_case,
     get_cancel_production_order_use_case,
     get_list_incomplete_productions_use_case,
+    get_list_finished_productions_use_case,
+    get_discard_production_order_use_case,
 )
 from src.presentation.dependencies.auth import get_current_user
 
@@ -59,6 +67,22 @@ def _build_response(order: ProductionOrder) -> ProductionOrderResponseSchema:
 )
 async def get_incomplete_productions(
     use_case: ListIncompleteProductionsUseCase = Depends(get_list_incomplete_productions_use_case),
+    # current_user: User = Depends(get_current_user),
+) -> list[dict]:
+    try:
+        return await use_case.execute()
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@router.get(
+    "/history",
+    status_code=status.HTTP_200_OK,
+    response_model=list[dict],
+    summary="Obtener todas las órdenes de producción no planificadas (historial de cocciones)",
+)
+async def get_finished_productions(
+    use_case: ListFinishedProductionsUseCase = Depends(get_list_finished_productions_use_case),
     # current_user: User = Depends(get_current_user),
 ) -> list[dict]:
     try:
@@ -154,6 +178,29 @@ async def cancel_production_order(
     except ProductionOrderNotFoundException as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except ProductionOrderCannotBeCancelledException as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@router.post(
+    "/{order_id}/discard",
+    status_code=status.HTTP_200_OK,
+    response_model=ProductionOrderResponseSchema,
+    summary="Descartar orden de producción",
+)
+async def discard_production_order(
+    order_id: int,
+    body: DiscardProductionOrderRequestSchema,
+    use_case: DiscardProductionOrderUseCase = Depends(get_discard_production_order_use_case),
+    # current_user: User = Depends(get_current_user),
+) -> ProductionOrderResponseSchema:
+    try:
+        order = await use_case.execute(order_id, body.description)
+        return _build_response(order)
+    except ProductionOrderNotFoundException as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ProductionOrderCannotBeDiscardedException as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc

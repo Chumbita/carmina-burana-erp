@@ -32,6 +32,7 @@ from src.domain.exceptions.brand_exceptions import (
 from src.domain.exceptions.production_exceptions import (
     ProductionOrderNotFoundException,
     ProductionOrderCannotBeCancelledException,
+    ProductionOrderCannotBeDiscardedException,
     BomNotFoundException,
     InsufficientStockForProductionException,
 )
@@ -149,6 +150,10 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(ProductionOrderCannotBeCancelledException)
     async def production_order_cannot_be_cancelled_handler(request: Request, exc: ProductionOrderCannotBeCancelledException):
+        return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+    @app.exception_handler(ProductionOrderCannotBeDiscardedException)
+    async def production_order_cannot_be_discarded_handler(request: Request, exc: ProductionOrderCannotBeDiscardedException):
         return JSONResponse(status_code=409, content={"detail": str(exc)})
 
     @app.exception_handler(InsufficientStockForProductionException)

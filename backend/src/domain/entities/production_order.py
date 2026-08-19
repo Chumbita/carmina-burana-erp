@@ -141,9 +141,10 @@ class ProductionOrder:
 
     def discard(self) -> None:
         """
-        Cualquier estado → DISCARDED.
-        Operación de descarte administrativo.
+        DONE → DISCARDED.
+        Operación de descarte administrativo. Solo se permite descartar
+        una orden que ya fue completada (DONE).
         """
-        if self.status == ProductionOrderStatus.DISCARDED:
-            raise ValueError("Order is already discarded")
+        if self.status != ProductionOrderStatus.DONE:
+            raise ValueError(f"Cannot discard order in status '{self.status}'")
         self.status = ProductionOrderStatus.DISCARDED

@@ -45,6 +45,7 @@ export function ProductionForm({
   selectedBom = null,
   bomLoading = false,
   onItemChange,
+  beforeFooter = null,
   onQuantityChange,
 }) {
   const schema = createProductionSchema();
@@ -407,6 +408,8 @@ export function ProductionForm({
           </div>
         </div>
       </div>
+
+      {beforeFooter}
 
       {/* Footer del Formulario */}
       <div className="flex justify-end gap-2 pt-3 border-t border-neutral-100">

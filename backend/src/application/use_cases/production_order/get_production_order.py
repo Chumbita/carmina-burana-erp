@@ -49,3 +49,33 @@ class ListIncompleteProductionsUseCase:
             )
 
         return response
+
+
+class ListFinishedProductionsUseCase:
+    """
+    Lista las órdenes de producción que no están en estado PLANNED
+    (historial de cocciones).
+    """
+
+    def __init__(
+        self,
+        production_order_repository: IProductionOrderRepository,
+    ) -> None:
+        self._production_order_repository = production_order_repository
+
+    async def execute(self) -> list[dict]:
+        rows = await self._production_order_repository.get_all_not_planned()
+
+        return [
+            {
+                "id": row["id"],
+                "item_name": row["item_name"],
+                "bom_version": row["bom_version"],
+                "produced_quantity": float(row["produced_quantity"]),
+                "base_uom_symbol": row["base_uom_symbol"],
+                "schedule_date": row["schedule_date"],
+                "completed_at": row["completed_at"],
+                "status": row["status"],
+            }
+            for row in rows
+        ]
