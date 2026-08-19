@@ -43,15 +43,15 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
     control: completeControl, 
     setValue: setCompleteValue,
     reset: resetCompleteForm,
-    formState: { errors: completeErrors, isSubmitting: isCompleting } 
+    formState: { errors: completeErrors, isValid: isCompleteValid, isSubmitting: isCompleting } 
   } = useForm({
     resolver: zodResolver(schemaComplete),
     defaultValues: {
-      produced_quantity: 0,
+      produced_quantity: 1,
       lot_code: "",
       production_date: "",
       expiration_date: "",
-      unit_cost: 0,
+      unit_cost: "",
     },
     mode: "onChange"
   });
@@ -59,12 +59,13 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
   // Sincroniza los datos de la orden seleccionada con el formulario de Zod
   useEffect(() => {
     if (completeTarget) {
-      setCompleteValue("produced_quantity", Number(completeTarget.planned_quantity || 0));
-
-      const now = new Date();
-      const pad = (n) => String(n).padStart(2, "0");
-      const nowLocal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      setCompleteValue("production_date", nowLocal);
+      setCompleteValue("produced_quantity", Number(completeTarget.planned_quantity || 1));
+      
+      const productionDate = completeTarget.schedule_date 
+        ? completeTarget.schedule_date.split('T')[0] 
+        : "";
+        
+      setCompleteValue("production_date", productionDate);
       setCompleteValue("lot_code", "");
       setCompleteValue("expiration_date", "");
       setCompleteValue("unit_cost", Number(completeTarget.estimated_unit_cost || 0));
@@ -176,7 +177,7 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
     { 
       header: "Cantidad", 
       accessor: "planned_quantity",
-      render: (value, row) => `${value} ${row.base_uom_symbol || ""}`
+      render: (value, row) => `${formatDecimal(value)} ${row.base_uom_symbol || ""}`
     },
     { header: "Fecha programada", accessor: "schedule_date", render: (value) => (value ? formatDateDMY(value) : "Sin fecha") },
     {
@@ -204,12 +205,17 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
 
   return (
     <>
-      <DataTable
-        columns={columns}
-        data={formattedProductions}
-        onRowClick={handleRowClick}
-        emptyMessage="No hay órdenes de producción."
-      />
+      {formattedProductions.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-neutral-500">No hay producciones planeadas.</p>
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={formattedProductions}
+          onRowClick={handleRowClick}
+        />
+      )}
 
       {/* CONFIRMACIÓN CANCELACIÓN */}
       {cancelTarget && (

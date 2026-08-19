@@ -5,12 +5,18 @@ from src.domain.repositories.supplier_repository import ISupplierRepository
 from src.domain.exceptions.supplier_exceptions import DuplicateSupplierNameError
 from src.application.dtos.supplier.supplier_commands_dtos import CreateSupplierCommand
 from src.application.dtos.supplier.supplier_responses_dtos import SupplierResponse
+from src.domain.services.audit_log_service import AuditLogService
 
 
 class CreateSupplierUseCase:
 
-    def __init__(self, supplier_repo: ISupplierRepository) -> None:
+    def __init__(
+        self,
+        supplier_repo: ISupplierRepository,
+        audit_log_service: AuditLogService | None = None,
+    ) -> None:
         self._supplier_repo = supplier_repo
+        self._audit_log_service = audit_log_service
 
     async def execute(self, command: CreateSupplierCommand) -> SupplierResponse:
         existing = await self._supplier_repo.find_by_name(command.name)
@@ -28,6 +34,17 @@ class CreateSupplierUseCase:
         )
 
         supplier = await self._supplier_repo.add(supplier)
+        if self._audit_log_service is not None:
+            await self._audit_log_service.log_supplier_create(
+                supplier.id,
+                {
+                    "name": supplier.name,
+                    "email": supplier.email,
+                    "phone": supplier.phone,
+                    "address": supplier.address,
+                    "status": supplier.status.value,
+                },
+            )
 
         return SupplierResponse(
             id=supplier.id,

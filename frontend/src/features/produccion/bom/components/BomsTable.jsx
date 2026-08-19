@@ -1,23 +1,20 @@
 import { useNavigate } from "react-router-dom"
 import { DataTable } from "../../../../components/shared/DataTable";
-import { ArrowUpRight } from "lucide-react";
 
 export function BomsTable({ boms }) {
   const navigate = useNavigate()
+
+  const handleRowClick = (row) => {
+    navigate(`/produccion/bom/${row.id}`)
+  }
 
   const tableHeaders = [
     { header: "Nro", accessor: "id", render: (_value, _row, index) => index + 1 },
     {
       header: "Producto",
       accessor: "parent_item_name",
-      render: (value, row) => (
-        <span
-          onClick={() => navigate(`/produccion/bom/${row.id}`)}
-          className="inline-flex items-center gap-1 text-primary hover:underline cursor-pointer font-medium"
-        >
-          {value}
-          <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2} />
-        </span>
+      render: (value) => (
+        <span className="font-medium text-primary">{value}</span>
       ),
     },
     { header: "Version", accessor: "version"},
@@ -39,6 +36,7 @@ export function BomsTable({ boms }) {
     <DataTable
       columns={tableHeaders}
       data={boms}
+      onRowClick={handleRowClick}
     />
   )
 }

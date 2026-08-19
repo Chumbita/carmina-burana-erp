@@ -2,6 +2,7 @@
 # INTERFAZ DE INSUMOS
 # ══════════════════════════════════════════════════════════════════════════════
 
+from datetime import datetime
 from typing import Any, Optional, Protocol
 from src.domain.entities.supply import Supply
 
@@ -36,6 +37,12 @@ class ISupplyRepository(Protocol):
     async def get_active_supply_detail(self, item_id: int) -> Optional[dict[str, Any]]:
         """
         Retorna el detalle de un insumo activo o None si no existe.
+        """
+        ...
+
+    async def list_expiring_lots_for_active_supplies(self, expires_before: datetime) -> list[dict[str, Any]]:
+        """
+        Retorna lotes con stock disponible que vencen antes de la fecha indicada.
         """
         ...
 

@@ -64,6 +64,7 @@ class SupplyEntryOrder:
     canceled_at: Optional[datetime] = None
     supplier_id: Optional[int] = None
     description: Optional[str] = None
+    cancellation_reason: Optional[str] = None
     lines: list[SupplyEntryLine] = field(default_factory=list)
     status: SupplyEntryStatus = SupplyEntryStatus.DRAFT
     id: Optional[int] = None
@@ -91,8 +92,7 @@ class SupplyEntryOrder:
     def cancel(self, reason: Optional[str] = None) -> None:
         """CONFIRMED → CANCELED. Anula la recepción y revierte el inventario."""
         self._guard_not_cancelled("cancel")
-        if reason:
-            self.description = reason
+        self.cancellation_reason = reason
         self.status = SupplyEntryStatus.CANCELED
         self.canceled_at = datetime.now(timezone.utc).replace(tzinfo=None)
 

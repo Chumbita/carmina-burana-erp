@@ -17,6 +17,7 @@ from .audit_log_model import AuditLogModel
 from .beer_model import BeerModel
 from .production_order_model import ProductionOrderModel, ProductionConsumptionModel, ProductionOutputModel
 from .refresh_token_model import RefreshTokenModel
+from .user_notification_state_model import UserNotificationStateModel
 
 __all__ = [
     "UserModel", "ItemModel", "ItemTypeModel", "BrandModel", "UomModel", "SupplyModel",
@@ -25,5 +26,5 @@ __all__ = [
     "BomModel", "BomLineModel", "AuditLogModel",
     "PackagingSupplyModel", "BomModel", "BomLineModel",
     "BeerModel","ProductionOrderModel", "ProductionConsumptionModel", "ProductionOutputModel",
-    "RefreshTokenModel",
+    "RefreshTokenModel", "UserNotificationStateModel",
 ]

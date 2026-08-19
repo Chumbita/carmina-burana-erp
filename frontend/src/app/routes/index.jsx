@@ -30,6 +30,22 @@ const SupplyEntryPage = lazy(() =>
   import('@/features/Inventario/supply-entry/pages/SupplyEntryPage')
 );
 
+const SuppliersPage = lazy(() =>
+  import('@/features/Inventario/suppliers/pages/SuppliersPage')
+);
+
+const SupplierDetailPage = lazy(() =>
+  import('@/features/Inventario/suppliers/pages/SupplierDetailPage')
+);
+
+const BrandsPage = lazy(() =>
+  import('@/features/Inventario/brands/pages/BrandsPage')
+);
+
+const BrandDetailPage = lazy(() =>
+  import('@/features/Inventario/brands/pages/BrandDetailPage')
+);
+
 // beer pages
 const BeerPage = lazy(
   () => import("@/features/Inventario/beer/pages/BeerPage"),
@@ -108,6 +124,22 @@ export const router = createBrowserRouter([
       {
         path: "/inventario/ingreso-insumos",
         element: <SupplyEntryPage />,
+      },
+      {
+        path: "/inventario/proveedores",
+        element: <SuppliersPage />,
+      },
+      {
+        path: "/inventario/proveedores/:supplierId",
+        element: <SupplierDetailPage />,
+      },
+      {
+        path: "/inventario/marcas",
+        element: <BrandsPage />,
+      },
+      {
+        path: "/inventario/marcas/:brandId",
+        element: <BrandDetailPage />,
       },
       {
         path: "/inventario/ingreso-insumos/:entryId",

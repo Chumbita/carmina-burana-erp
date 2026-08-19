@@ -10,6 +10,7 @@ class SupplyEntryOrderModel(Base):
     document_number = Column(String(50), nullable=False)
     entry_date = Column(TIMESTAMP, nullable=False)
     description = Column(Text, nullable=True)
+    cancellation_reason = Column(Text, nullable=True)
     status = Column(String(20), nullable=False)
     created_at = Column(TIMESTAMP, nullable=False)
     canceled_at = Column(TIMESTAMP, nullable=True)
