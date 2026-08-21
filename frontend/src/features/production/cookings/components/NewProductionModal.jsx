@@ -112,7 +112,7 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="!w-[60vw] !max-w-[700px] sm:!max-w-[95vw] max-h-[80vh] p-0 overflow-hidden flex flex-col">
         <DialogHeader className="p-6 pb-2">
-          <DialogTitle>Registrar producción</DialogTitle>
+          <DialogTitle className="text-xl font-bold">Registrar producción</DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto p-6 pt-2">
           <ProductionForm

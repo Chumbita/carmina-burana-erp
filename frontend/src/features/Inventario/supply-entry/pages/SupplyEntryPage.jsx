@@ -90,7 +90,7 @@ export default function SupplyEntryPage() {
             setOpenModal(true)
           }}
         >
-          <Plus />Nuevo Abastecimiento
+          <Plus />Registrar ingreso
         </Button>
       </header>
 
@@ -127,7 +127,7 @@ export default function SupplyEntryPage() {
       <Dialog open={openModal} onOpenChange={setOpenModal}>
         <DialogContent className="!w-[75vw] !max-w-[75vw] !sm:max-w-[75vw] max-h-[90vh] overflow-y-auto p-8">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Nuevo Abastecimiento</DialogTitle>
+            <DialogTitle className="text-xl font-bold">Ingreso de insumos</DialogTitle>
           </DialogHeader>
 
           <SupplyEntryForm

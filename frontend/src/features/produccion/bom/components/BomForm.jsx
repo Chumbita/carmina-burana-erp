@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { DecimalInput } from '@/components/shared/DecimalInput'
 import { Field, FieldLabel } from '@/components/ui/Field'
+import { InputGroup, InputGroupAddon, InputGroupText } from '@/components/ui/InputGroup'
 import { Card } from '@/components/ui/Card'
 import { Spinner } from '@/components/ui/Spinner'
 import {
@@ -20,7 +21,7 @@ import {
   CommandList,
 } from '@/components/ui/Command'
 
-import { Plus, Trash2, Package, Check, ChevronsUpDown } from 'lucide-react'
+import { Plus, Trash2, Check, ChevronsUpDown, Save } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 function ItemCombobox({ value, onChange, onSelect, items = [], placeholder = 'Seleccionar…', invalid = false }) {
@@ -124,20 +125,20 @@ export function BomForm({
           <div className="p-6 flex flex-col gap-4">
             <div>
               <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Datos de la fórmula
+                Datos generales de la fórmula
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Seleccioná el producto final e indicá la cantidad base de referencia para esta fórmula.
+                Complete las especificaciones básicas del producto final que se va a fabricar y determine la fecha de inicio de validez de esta versión.
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-[3fr_2fr_2fr] gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-[3fr_2fr] gap-3">
               <Controller
                 name="parent_item_id"
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name} className="text-sm">
-                      Producto<span className="text-destructive">*</span>
+                      Producto final<span className="text-destructive">*</span>
                     </FieldLabel>
                     <ItemCombobox
                       value={field.value}
@@ -160,28 +161,25 @@ export function BomForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name} className="text-sm">
-                      Cantidad a producir <span className="text-destructive">*</span>
+                      Cantidad base <span className="text-destructive">*</span>
                     </FieldLabel>
-                    <DecimalInput
-                      {...field}
-                      id={field.name}
-                      className="h-9 text-sm"
-                      aria-invalid={fieldState.invalid}
-                    />
+                    <InputGroup>
+                      <DecimalInput
+                        {...field}
+                        id={field.name}
+                        data-slot="input-group-control"
+                        className="flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent h-9 text-sm"
+                        aria-invalid={fieldState.invalid}
+                      />
+                      <InputGroupAddon align="inline-end">
+                        <InputGroupText>
+                          {parentItemSelected?.uom_symbol ?? ''}
+                        </InputGroupText>
+                      </InputGroupAddon>
+                    </InputGroup>
                   </Field>
                 )}
               />
-
-              <Field>
-                <FieldLabel className="text-sm">
-                  Unidad de medida <span className="text-destructive">*</span>
-                </FieldLabel>
-                <Input
-                  readOnly
-                  className="h-9 text-sm bg-muted cursor-not-allowed"
-                  value={parentItemSelected ? `${parentItemSelected.uom_symbol}` : ''}
-                />
-              </Field>
 
               <Controller
                 name="valid_from"
@@ -189,7 +187,7 @@ export function BomForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name} className="text-sm">
-                      Vigente desde
+                      Fórmula vigente desde
                     </FieldLabel>
                     <Input
                       {...field}
@@ -211,10 +209,10 @@ export function BomForm({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Componentes
+                  Componentes y cantidades
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Cada componente define qué insumo se necesita y en qué proporción respecto a la cantidad base.
+                  Añada la lista completa de materias primas o insumos requeridos con sus respectivas proporciones para fabricar la cantidad base definida en la sección anterior.
                 </p>
               </div>
               <Button
@@ -234,10 +232,9 @@ export function BomForm({
                 <thead>
                   <tr className="border-b border-border">
                     <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-10">Nro</th>
-                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground">Componente <span className="text-destructive"> *</span></th>
-                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-32">Cantidad <span className="text-destructive"> *</span></th>
-                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-28">Unidad</th>
-                    <th className="pb-2 pt-1 text-left text-xs font-medium text-muted-foreground  w-10">Acción</th>
+                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground">Insumo <span className="text-destructive"> *</span></th>
+                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-44">Cantidad requerida <span className="text-destructive"> *</span></th>
+                    <th className="pb-2 pt-1 text-left text-xs font-medium text-muted-foreground w-10">Acción</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -296,7 +293,7 @@ export function BomForm({
                 </>
               ) : (
                 <>
-                  <Package data-icon="inline-start" />
+                  <Save data-icon="inline-start" />
                   Guardar fórmula
                 </>
               )}
@@ -353,42 +350,31 @@ function BomLineRow({ index, control, items, onRemove, setValue }) {
         />
       </td>
 
-      {/* Cantidad */}
+      {/* Cantidad + Unidad */}
       <td className="py-2.5 pr-3 align-top">
         <span className={cn('text-xs sm:hidden block mb-1', isQtyInvalid ? 'text-destructive' : 'text-muted-foreground')}>Cantidad *</span>
         <Controller
           name={`lines.${index}.quantity`}
           control={control}
           render={({ field: qtyField, fieldState }) => (
-            <>
+            <InputGroup>
               <DecimalInput
                 {...qtyField}
+                data-slot="input-group-control"
                 aria-invalid={fieldState.invalid || isQtyInvalid ? 'true' : undefined}
                 className={cn(
-                  'h-9 text-sm',
+                  'flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent h-9 text-sm',
                   (fieldState.invalid || isQtyInvalid) && 'text-destructive ring-destructive/20 ring-1 border-destructive'
                 )}
               />
-            </>
+              <InputGroupAddon align="inline-end">
+                <InputGroupText>
+                  {selectedItem?.uom_symbol ?? ''}
+                </InputGroupText>
+              </InputGroupAddon>
+            </InputGroup>
           )}
         />
-      </td>
-
-      {/* Unidad — auto-asignada y bloqueada */}
-      <td className="py-2.5 pr-3 align-top">
-        <span className="text-xs text-muted-foreground sm:hidden block mb-1">Unidad</span>
-        {selectedItem ? (
-          <Input
-            readOnly
-            className="h-9 text-sm bg-muted cursor-not-allowed select-none"
-            value={`${selectedItem.uom_symbol}`}
-          />
-        ) : (
-          <Input
-            readOnly
-            className="h-9 text-sm bg-muted"
-          />
-        )}
       </td>
 
       {/* Eliminar */}
