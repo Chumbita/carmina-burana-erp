@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/Button'
+import { Spinner } from '@/components/ui/Spinner'
+import { Save } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -110,18 +112,29 @@ export function SupplierForm({
       <div className={isModal ? undefined : 'md:col-span-4 flex justify-end'}>
         {isModal ? (
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" size="sm" className="cursor-pointer" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={saving}>
-              {saving ? 'Guardando...' : submitLabel}
+            <Button type="submit" size="sm" className="cursor-pointer" disabled={saving}>
+              {saving ? (
+                <>
+                  <Spinner data-icon="inline-start" />
+                  Guardando…
+                </>
+              ) : (
+                <>
+                  <Save data-icon="inline-start" />
+                  {submitLabel}
+                </>
+              )}
             </Button>
           </DialogFooter>
         ) : (
-          <div className="flex gap-2">
+          <div className="flex gap-2 justify-end">
             {showDeleteButton && (
               <Button
                 type="button"
+                size="sm"
                 className="bg-red-100 text-red-600 hover:bg-red-200 cursor-pointer"
                 onClick={onDelete}
                 disabled={saving}
@@ -129,8 +142,21 @@ export function SupplierForm({
                 Eliminar proveedor
               </Button>
             )}
-            <Button type="submit" disabled={saving}>
-              {saving ? 'Guardando...' : submitLabel}
+            <Button type="button" variant="outline" size="sm" className="cursor-pointer" onClick={() => onOpenChange(false)} disabled={saving}>
+              Cancelar
+            </Button>
+            <Button type="submit" size="sm" className="cursor-pointer" disabled={saving}>
+              {saving ? (
+                <>
+                  <Spinner data-icon="inline-start" />
+                  Guardando…
+                </>
+              ) : (
+                <>
+                  <Save data-icon="inline-start" />
+                  {submitLabel}
+                </>
+              )}
             </Button>
           </div>
         )}

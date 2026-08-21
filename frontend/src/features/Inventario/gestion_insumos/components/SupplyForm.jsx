@@ -9,6 +9,7 @@ import { useUoms } from "../hooks/useUoms"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { DecimalInput } from "@/components/shared/DecimalInput"
+import { Save } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -169,64 +170,25 @@ export function SupplyForm({
         {/* Layout condicional para modal o page */}
         {isModal ? (
           <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-1 space-y-4">
-              {/* Stock Mínimo */}
-              <Controller
-                name="min_stock_level"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Stock mínimo <span className="text-red-500 -ml-1">*</span>
-                    </FieldLabel>
-                    <DecimalInput
-                      {...field}
-                      id={field.name}
-                      aria-invalid={fieldState.invalid}
-                    />
-                  </Field>
-                )}
-              />
+            {/* Stock Mínimo */}
+            <Controller
+              name="min_stock_level"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>
+                    Stock mínimo <span className="text-red-500 -ml-1">*</span>
+                  </FieldLabel>
+                  <DecimalInput
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                  />
+                </Field>
+              )}
+            />
 
-              {/* Unidad de Medida */}
-              <Controller
-                name="base_uom_id"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Unidad de medida <span className="text-red-500 -ml-1">*</span>
-                    </FieldLabel>
-                    <Select
-                      name={field.name}
-                      value={field.value !== undefined ? String(field.value) : ""}
-                      onValueChange={(val) => field.onChange(Number(val))}
-                      disabled={uomsLoading}
-                    >
-                      <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
-                        <SelectValue
-                          placeholder={uomsLoading ? "Cargando unidades..." : "Seleccione unidad..."}
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Unidades</SelectLabel>
-                          {uoms.map((uom) => (
-                            <SelectItem key={uom.id} value={String(uom.id)}>
-                              {uom.symbol}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                )}
-              />
-            </div>
-          </div>
-        ) : (
-          <>
-            {/* Unidad de Medida (layout page) */}
+            {/* Unidad de Medida */}
             <Controller
               name="base_uom_id"
               control={control}
@@ -241,11 +203,7 @@ export function SupplyForm({
                     onValueChange={(val) => field.onChange(Number(val))}
                     disabled={uomsLoading}
                   >
-                    <SelectTrigger
-                      id={field.name}
-                      className="bg-neutral-100 border-none"
-                      aria-invalid={fieldState.invalid}
-                    >
+                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
                       <SelectValue
                         placeholder={uomsLoading ? "Cargando unidades..." : "Seleccione unidad..."}
                       />
@@ -264,24 +222,67 @@ export function SupplyForm({
                 </Field>
               )}
             />
+          </div>
+        ) : (
+          <>
+            <div className="md:col-span-2 grid grid-cols-2 gap-4">
+              {/* Unidad de Medida (layout page) */}
+              <Controller
+                name="base_uom_id"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>
+                      Unidad de medida <span className="text-red-500 -ml-1">*</span>
+                    </FieldLabel>
+                    <Select
+                      name={field.name}
+                      value={field.value !== undefined ? String(field.value) : ""}
+                      onValueChange={(val) => field.onChange(Number(val))}
+                      disabled={uomsLoading}
+                    >
+                      <SelectTrigger
+                        id={field.name}
+                        className="bg-neutral-100 border-none"
+                        aria-invalid={fieldState.invalid}
+                      >
+                        <SelectValue
+                          placeholder={uomsLoading ? "Cargando unidades..." : "Seleccione unidad..."}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Unidades</SelectLabel>
+                          {uoms.map((uom) => (
+                            <SelectItem key={uom.id} value={String(uom.id)}>
+                              {uom.symbol}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                )}
+              />
 
-            {/* Stock Mínimo (layout page) */}
-            <Controller
-              name="min_stock_level"
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    Stock mínimo <span className="text-red-500 -ml-1">*</span>
-                  </FieldLabel>
-                  <DecimalInput
-                    {...field}
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                  />
-                </Field>
-              )}
-            />
+              {/* Stock Mínimo (layout page) */}
+              <Controller
+                name="min_stock_level"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>
+                      Stock mínimo <span className="text-red-500 -ml-1">*</span>
+                    </FieldLabel>
+                    <DecimalInput
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                    />
+                  </Field>
+                )}
+              />
+            </div>
           </>
         )}
       </FieldGroup>
@@ -290,7 +291,7 @@ export function SupplyForm({
       <div
         className={
           isModal
-            ? "flex justify-between gap-2"
+            ? "flex justify-end gap-2"
             : "md:col-span-4 flex justify-end mt-4 gap-2"
         }
       >
@@ -325,7 +326,12 @@ export function SupplyForm({
           disabled={isModal ? isSubmitting || !isValid : !isDirty || !isValid || isSubmitting}
           className="cursor-pointer"
         >
-          {isSubmitting ? "Guardando..." : submitLabel}
+          {isSubmitting ? "Guardando..." : (
+            <>
+              <Save data-icon="inline-start" />
+              {submitLabel}
+            </>
+          )}
         </Button>
       </div>
     </form>

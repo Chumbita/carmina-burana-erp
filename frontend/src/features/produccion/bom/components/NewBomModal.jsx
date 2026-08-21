@@ -27,7 +27,7 @@ export function NewBomModal({ open, onClose, onSubmit }) {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="!w-[50vw] !max-w-[50vw] !sm:max-w-[50vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl">Nueva Fórmula</DialogTitle>
+          <DialogTitle className="text-xl font-bold">Nueva fórmula</DialogTitle>
         </DialogHeader>
 
         <BomForm
