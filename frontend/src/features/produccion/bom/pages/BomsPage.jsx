@@ -70,7 +70,7 @@ export default function BomsPage() {
           onClick={() => setOpenModal(true)}
         >
           <Plus />
-          Nueva Fórmula
+          Nueva fórmula
         </Button>
       </header>
       <div>
