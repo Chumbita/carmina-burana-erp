@@ -34,7 +34,7 @@ export function AppSidebar({ ...props }) {
       <Skeleton />
     )
   }
-  
+
   // Datos de navegación
   const data = {
     user: {
@@ -51,29 +51,6 @@ export function AppSidebar({ ...props }) {
         isActive: true,
       },
       {
-        title: "Producción",
-        url: "#",
-        icon: Beer,
-        items: [
-          {
-            title: "Registro de Cocciones",
-            url: "/produccion/cocciones/nuevo",
-          },
-          {
-            title: "Historial de Cocciones",
-            url: "/produccion/cocciones",
-          },
-          {
-            title: "Recetas",
-            url: "/produccion/recetas",
-          },
-          {
-            title: "Fórmulas",
-            url: "/produccion/bom",
-          },
-        ],
-      },
-      {
         title: "Inventario",
         url: "#",
         icon: Box,
@@ -83,28 +60,43 @@ export function AppSidebar({ ...props }) {
             url: "/inventario/insumos",
           },
           {
-            title: "Marcas",
-            url: "/inventario/marcas",
-          },
-          {
-            title: "Ingreso de Insumos",
-            url: "/inventario/ingreso-insumos",
-          },
-          {
-            title: "Proveedores",
-            url: "/inventario/proveedores",
+            title: "Cervezas",
+            url: "/inventario/cervezas",
           },
           {
             title: "Productos",
             url: "/inventario/productos",
           },
           {
-            title: "Alertas de Stock",
-            url: "/inventario/alertas",
+            title: "Marcas",
+            url: "/inventario/marcas",
           },
           {
-            title: "Cervezas",
-            url: "/inventario/cervezas",
+            title: "Proveedores",
+            url: "/inventario/proveedores",
+          },
+          {
+            title: "Ingreso de Insumos",
+            url: "/inventario/ingreso-insumos",
+          },
+        ],
+      },
+      {
+        title: "Producción",
+        url: "#",
+        icon: Beer,
+        items: [
+          {
+            title: "Fórmulas",
+            url: "/produccion/bom",
+          },
+          {
+            title: "Historial de Cocciones",
+            url: "/produccion/cocciones",
+          },
+          {
+            title: "Registro de Cocciones",
+            url: "/produccion/cocciones/nuevo",
           },
         ],
       },
