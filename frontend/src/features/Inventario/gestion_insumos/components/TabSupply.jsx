@@ -36,19 +36,15 @@ export function TabSupply({ insumo }) {
 
   const notify = useNotification()
 
-  // Resolver IDs a partir de los strings que devuelve el GET detallado
-  const resolvedBrandId = brands.find((b) => b.name === insumo?.brand)?.id
-  const resolvedUomId = uoms.find((u) => u.symbol === insumo?.base_uom_symbol)?.id
-
   // No montar el form hasta tener todos los datos (evita que useForm capture IDs undefined)
-  const isReady = insumo && !brandsLoading && !uomsLoading && resolvedBrandId && resolvedUomId
+  const isReady = insumo && !brandsLoading && !uomsLoading && insumo.brand_id && insumo.base_uom_id
 
   const defaultValues = isReady
     ? {
         name: insumo.name,
-        brand_id: resolvedBrandId,
+        brand_id: insumo.brand_id,
         supply_category: insumo.supply_category,
-        base_uom_id: resolvedUomId,
+        base_uom_id: insumo.base_uom_id,
         min_stock_level: Number(insumo.min_stock_level),
       }
     : null
@@ -132,9 +128,9 @@ export function TabSupply({ insumo }) {
           onDiscard={() => {
             formRef.current?.reset({
               name: insumo.name,
-              brand_id: resolvedBrandId,
+              brand_id: insumo.brand_id,
               supply_category: insumo.supply_category,
-              base_uom_id: resolvedUomId,
+              base_uom_id: insumo.base_uom_id,
               min_stock_level: Number(insumo.min_stock_level),
             })
             blocker.proceed()
