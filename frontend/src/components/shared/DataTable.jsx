@@ -7,7 +7,16 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 
-export function DataTable({ columns, data, onRowClick }) {
+export function DataTable({
+  columns,
+  data = [],
+  onRowClick,
+  emptyMessage = "No hay registros",
+  noResultsMessage = "No se encontraron registros",
+  hasRecords = data.length > 0,
+}) {
+  const message = hasRecords ? noResultsMessage : emptyMessage;
+
   return (
     <Table>
       <TableHeader>
@@ -24,7 +33,16 @@ export function DataTable({ columns, data, onRowClick }) {
       </TableHeader>
 
       <TableBody>
-        {data.map((row, rowIndex) => (
+        {data.length === 0 ? (
+          <TableRow>
+            <TableCell
+              colSpan={columns.length}
+              className="h-24 text-center text-neutral-500"
+            >
+              {message}
+            </TableCell>
+          </TableRow>
+        ) : data.map((row, rowIndex) => (
           <TableRow
             key={row.id}
             className={onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
