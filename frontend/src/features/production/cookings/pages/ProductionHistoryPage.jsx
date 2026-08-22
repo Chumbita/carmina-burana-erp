@@ -61,7 +61,11 @@ export default function ProductionHistoryPage() {
         {loading ? (
           <div>Cargando...</div>
         ) : (
-          <ProductionHistoryTable productions={displayData} onDiscard={handleDiscard} />
+          <ProductionHistoryTable
+            productions={displayData}
+            hasRecords={productions.length > 0}
+            onDiscard={handleDiscard}
+          />
         )}
       </div>
     </div>

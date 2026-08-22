@@ -86,6 +86,7 @@ export function useSuppliersPage() {
     emptySupplier,
     editingSupplier,
     filteredSuppliers,
+    hasSuppliers: suppliers.length > 0,
     loading,
     openForm,
     saving,

@@ -33,6 +33,7 @@ export default function SupplyEntryPage() {
     page,
     totalItems,
     totalPages,
+    hasEntries,
     openModal,
     setSearch,
     setDateFrom,
@@ -90,13 +91,14 @@ export default function SupplyEntryPage() {
             setOpenModal(true)
           }}
         >
-          <Plus />Nuevo Abastecimiento
+          <Plus />Registrar ingreso
         </Button>
       </header>
 
       {/* Table */}
       <SupplyEntryTable
         entries={data}
+        hasRecords={hasEntries}
         loading={loading}
       />
 
@@ -113,21 +115,11 @@ export default function SupplyEntryPage() {
         </div>
       )}
 
-      {/* Empty state */}
-      {totalItems === 0 && !loading && (
-        <p className="text-center py-8 text-gray-500">
-          {search || dateFrom || dateTo || supplierFilter !== 'all'
-            ? "No se encontraron abastecimientos"
-            : "No hay abastecimientos registrados"
-          }
-        </p>
-      )}
-
       {/* Modal for new supply entry */}
       <Dialog open={openModal} onOpenChange={setOpenModal}>
         <DialogContent className="!w-[75vw] !max-w-[75vw] !sm:max-w-[75vw] max-h-[90vh] overflow-y-auto p-8">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Nuevo Abastecimiento</DialogTitle>
+            <DialogTitle className="text-xl font-bold">Ingreso de insumos</DialogTitle>
           </DialogHeader>
 
           <SupplyEntryForm

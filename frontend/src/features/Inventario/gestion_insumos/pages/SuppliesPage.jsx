@@ -107,7 +107,10 @@ export default function SuppliesPage() {
       />
 
       <div ref={tableRef}>
-        <SuppliesTable insumos={filteredData?.items || []} />
+        <SuppliesTable
+          insumos={filteredData?.items || []}
+          hasRecords={supplies.length > 0}
+        />
       </div>
 
       {filteredData && filteredData.totalCount > 0 && (

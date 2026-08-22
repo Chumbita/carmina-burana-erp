@@ -10,6 +10,7 @@ export default function BrandsPage() {
   const {
     emptyBrand,
     filteredBrands,
+    hasBrands,
     loading,
     openForm,
     saving,
@@ -47,7 +48,7 @@ export default function BrandsPage() {
         onSubmit={saveBrand}
       />
 
-      <BrandsTable brands={filteredBrands} loading={loading} />
+      <BrandsTable brands={filteredBrands} hasRecords={hasBrands} loading={loading} />
     </div>
   )
 }

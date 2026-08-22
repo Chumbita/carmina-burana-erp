@@ -31,7 +31,7 @@ export function NewSupplyModal({ open, onClose, onSubmit, existingSupplies }) {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Nuevo insumo</DialogTitle>
+          <DialogTitle className='text-xl font-bold'>Nuevo insumo</DialogTitle>
           {!selectedType && (
             <DialogDescription>
               Seleccioná el tipo de insumo a crear.

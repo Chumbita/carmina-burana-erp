@@ -8,6 +8,7 @@ import { useUoms } from "../hooks/useUoms"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { DecimalInput } from "@/components/shared/DecimalInput"
+import { Save } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -238,7 +239,7 @@ export function PackagingSupplyForm({
           />
       </FieldGroup>
 
-      <div className={isModal ? "flex justify-between gap-2" : "md:col-span-4 flex justify-end mt-4 gap-2"}>
+      <div className={isModal ? "flex justify-end gap-2" : "md:col-span-4 flex justify-end mt-4 gap-2"}>
         {showDeleteButton && (
           <Button
             type="button"
@@ -269,7 +270,12 @@ export function PackagingSupplyForm({
           disabled={isModal ? isSubmitting || !isValid : !isDirty || !isValid || isSubmitting}
           className="cursor-pointer"
         >
-          {isSubmitting ? "Guardando..." : submitLabel}
+          {isSubmitting ? "Guardando..." : (
+            <>
+              <Save data-icon="inline-start" />
+              {submitLabel}
+            </>
+          )}
         </Button>
       </div>
     </form>

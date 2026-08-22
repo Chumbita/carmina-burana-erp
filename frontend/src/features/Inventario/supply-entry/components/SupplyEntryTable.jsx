@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { DataTable } from '@/components/shared/DataTable'
 import { formatCurrency } from '@/lib/utils/formatters'
@@ -10,7 +9,7 @@ import { formatCurrency } from '@/lib/utils/formatters'
  * @param {Array} props.entries - Array of supply entries
  * @param {boolean} props.loading - Loading state
  */
-export function SupplyEntryTable({ entries, loading }) {
+export function SupplyEntryTable({ entries, hasRecords, loading }) {
   const navigate = useNavigate()
 
   const handleRowClick = (entry) => {
@@ -83,21 +82,14 @@ export function SupplyEntryTable({ entries, loading }) {
     )
   }
 
-  if (!loading && entries.length === 0) {
-    return (
-      <Card>
-        <div className="text-center py-8">
-          <p className="text-neutral-500">No se encontraron registros</p>
-        </div>
-      </Card>
-    )
-  }
-
   return (
     <div className={`overflow-x-auto transition-opacity ${loading ? 'opacity-60 pointer-events-none' : ''}`}>
       <DataTable
         columns={columns}
         data={tableData}
+        emptyMessage="No hay abastecimientos registrados"
+        noResultsMessage="No se encontraron abastecimientos con los filtros aplicados"
+        hasRecords={hasRecords}
         onRowClick={handleRowClick}
       />
     </div>

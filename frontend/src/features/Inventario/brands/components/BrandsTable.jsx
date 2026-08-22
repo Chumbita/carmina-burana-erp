@@ -1,9 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
 
 import { DataTable } from '@/components/shared/DataTable'
-import { Card } from '@/components/ui/Card'
 
-export function BrandsTable({ brands, loading }) {
+export function BrandsTable({ brands, hasRecords, loading }) {
   const navigate = useNavigate()
 
   const columns = [
@@ -32,21 +31,14 @@ export function BrandsTable({ brands, loading }) {
     )
   }
 
-  if (!brands.length) {
-    return (
-      <Card>
-        <div className="py-8 text-center">
-          <p className="text-neutral-500">No se encontraron marcas</p>
-        </div>
-      </Card>
-    )
-  }
-
   return (
     <div className="overflow-x-auto">
       <DataTable
         columns={columns}
         data={brands}
+        emptyMessage="No hay marcas registradas"
+        noResultsMessage="No se encontraron marcas con los filtros aplicados"
+        hasRecords={hasRecords}
         onRowClick={(brand) => navigate(`/inventario/marcas/${brand.id}`)}
       />
     </div>
