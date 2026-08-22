@@ -33,6 +33,7 @@ export default function SupplyEntryPage() {
     page,
     totalItems,
     totalPages,
+    hasEntries,
     openModal,
     setSearch,
     setDateFrom,
@@ -97,6 +98,7 @@ export default function SupplyEntryPage() {
       {/* Table */}
       <SupplyEntryTable
         entries={data}
+        hasRecords={hasEntries}
         loading={loading}
       />
 
@@ -111,16 +113,6 @@ export default function SupplyEntryPage() {
             onChangePage={changePage}
           />
         </div>
-      )}
-
-      {/* Empty state */}
-      {totalItems === 0 && !loading && (
-        <p className="text-center py-8 text-gray-500">
-          {search || dateFrom || dateTo || supplierFilter !== 'all'
-            ? "No se encontraron abastecimientos"
-            : "No hay abastecimientos registrados"
-          }
-        </p>
       )}
 
       {/* Modal for new supply entry */}
