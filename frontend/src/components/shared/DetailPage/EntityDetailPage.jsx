@@ -58,11 +58,11 @@ function History({ itemId, entityType }) {
 
   return (
     <section className="lg:col-span-2">
-      <h2 className="text-xl font-semibold mb-4">Historial</h2>
+      <h2 className="text-lg font-bold mb-4">Historial</h2>
       <Tabs defaultValue="stock">
         <TabsList variant="line">
-          <TabsTrigger value="stock" className="cursor-pointer">Movimientos de stock</TabsTrigger>
-          <TabsTrigger value="audit" className="cursor-pointer">Auditoría</TabsTrigger>
+          <TabsTrigger value="stock" className="cursor-pointer">Movimientos</TabsTrigger>
+          <TabsTrigger value="audit" className="cursor-pointer">Registro de actividad</TabsTrigger>
         </TabsList>
         <TabsContent value="stock">
           <TransactionsTable itemId={itemId} />

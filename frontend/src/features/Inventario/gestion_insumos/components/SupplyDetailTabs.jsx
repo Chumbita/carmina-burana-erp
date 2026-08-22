@@ -14,7 +14,7 @@ export function SupplyDetailTabs({ insumo, base_uom_symbol, onSupplyUpdated, ava
     <div>
       <Tabs defaultValue="insumos" onValueChange={setContentOption}>
         <TabsList variant="line">
-          <TabsTrigger value="insumos" className="cursor-pointer">Insumos</TabsTrigger>
+          <TabsTrigger value="insumos" className="cursor-pointer">Detalle</TabsTrigger>
           <TabsTrigger value="lotes" className="cursor-pointer">Lotes</TabsTrigger>
         </TabsList>
 

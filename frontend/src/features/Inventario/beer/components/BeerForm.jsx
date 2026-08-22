@@ -2,6 +2,8 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createBeerSchema } from "../schemas/beer.schema";
 import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
+import { Save } from 'lucide-react';
 import { Input } from "@/components/ui/Input";
 import { DecimalInput } from "@/components/shared/DecimalInput";
 import {
@@ -193,30 +195,37 @@ export function BeerForm({ onSubmit, onCancel, isSubmitting = false }) {
         />
       </FieldGroup>
 
-      <div className="flex justify-between gap-2">
-        <div className="text-sm text-muted-foreground">
-          Los campos con * son obligatorios
-        </div>
-        <div className="flex gap-2">
-          {onCancel && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSubmitting}
-              className="cursor-pointer"
-            >
-              Cancelar
-            </Button>
-          )}
+      <div className="flex gap-2 justify-end">
+        {onCancel && (
           <Button
-            type="submit"
-            disabled={isSubmitting || !isValid}
+            type="button"
+            variant="outline"
+            size="sm"
             className="cursor-pointer"
+            onClick={onCancel}
+            disabled={isSubmitting}
           >
-            {isSubmitting ? "Guardando..." : "Guardar"}
+            Cancelar
           </Button>
-        </div>
+        )}
+        <Button
+          type="submit"
+          size="sm"
+          disabled={isSubmitting || !isValid}
+          className="cursor-pointer"
+        >
+          {isSubmitting ? (
+            <>
+              <Spinner data-icon="inline-start" />
+              Guardando…
+            </>
+          ) : (
+            <>
+              <Save data-icon="inline-start" />
+              Guardar
+            </>
+          )}
+        </Button>
       </div>
     </form>
   );

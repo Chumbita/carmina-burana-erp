@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/Input'
 import { DecimalInput } from '@/components/shared/DecimalInput'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { Field, FieldLabel } from '@/components/ui/Field'
+import { InputGroup, InputGroupAddon, InputGroupText } from '@/components/ui/InputGroup'
 import { Card } from '@/components/ui/Card'
 import { Spinner } from '@/components/ui/Spinner'
 import {
@@ -28,7 +29,7 @@ import {
   CommandList,
 } from '@/components/ui/Command'
 
-import { Plus, Trash2, Package, Check, ChevronsUpDown } from 'lucide-react'
+import { Plus, Trash2, Check, ChevronsUpDown, Save } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatSupplyEntryDateTime } from '../constants/supplyEntry.constants'
 
@@ -339,11 +340,16 @@ export function SupplyEntryForm({
       <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-5">
 
         {/* ── Cabecera ─────────────────────────────────────────── */}
-        <Card>
-          <div className="p-5 flex flex-col gap-4">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Datos del abastecimiento
-            </p>
+        <Card className='py-0'>
+          <div className="p-6 flex flex-col gap-4">
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                Información de la recepción
+              </p>
+              <p className='text-xs text-muted-foreground mt-0.5'>
+                Ingrese la información general del proveedor y del comprobante comercial para registrar la recepción del pedido en el sistema
+              </p>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field data-invalid={errors.supplierId ? true : false}>
                 <FieldLabel className="text-xs">
@@ -361,7 +367,7 @@ export function SupplyEntryForm({
 
               <Field data-invalid={errors.entryDate ? true : false}>
                 <FieldLabel htmlFor="entryDate" className="text-xs">
-                  Fecha de ingreso <span className="text-destructive">*</span>
+                  Fecha de recepción <span className="text-destructive">*</span>
                 </FieldLabel>
                 <input type="hidden" {...register('entryDate')} />
                 <Input
@@ -380,7 +386,7 @@ export function SupplyEntryForm({
 
               <Field>
                 <FieldLabel htmlFor="invoiceNumber" className="text-xs">
-                  N° de factura
+                  N° de factura / Remito
                 </FieldLabel>
                 <Input
                   id="invoiceNumber"
@@ -391,7 +397,7 @@ export function SupplyEntryForm({
 
               <Field>
                 <FieldLabel htmlFor="description" className="text-xs">
-                  Descripción
+                  Observaciones / Notas
                 </FieldLabel>
                 <Input
                   id="description"
@@ -409,10 +415,11 @@ export function SupplyEntryForm({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Artículos
+                  Detalle de insumos recibidos
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Cada artículo registra qué insumo ingresa, en qué cantidad y a qué costo unitario.
+                  Añada los insumos ingresados
+                  sus cantidades, costos y datos de trazabilidad (lote y vencimiento) para actualizar el inventario
                 </p>
               </div>
               <Button
@@ -434,8 +441,8 @@ export function SupplyEntryForm({
                     <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-10">Nro</th>
                     <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground">Insumo <span className="text-destructive"> *</span></th>
                     <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-32">Cantidad <span className="text-destructive"> *</span></th>
-                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-32">Costo unit. <span className="text-destructive"> *</span></th>
-                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-36">Vencimiento</th>
+                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-32">Costo unitario <span className="text-destructive"> *</span></th>
+                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-36">Fecha de vencimiento </th>
                     <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-32">N° lote</th>
                     <th className="pb-2 pt-1 text-left text-xs font-medium text-muted-foreground w-10">Acción</th>
                   </tr>
@@ -483,6 +490,7 @@ export function SupplyEntryForm({
                 type="button"
                 variant="outline"
                 size="sm"
+                className="cursor-pointer"
                 onClick={onCancel}
                 disabled={currentLoading}
               >
@@ -493,6 +501,7 @@ export function SupplyEntryForm({
                 type="button"
                 variant="outline"
                 size="sm"
+                className="cursor-pointer"
                 onClick={handleReset}
                 disabled={currentLoading}
               >
@@ -503,6 +512,7 @@ export function SupplyEntryForm({
             <Button
               type="submit"
               size="sm"
+              className="cursor-pointer"
               disabled={!isDirty || !isValid || currentLoading}
             >
               {currentLoading ? (
@@ -512,8 +522,8 @@ export function SupplyEntryForm({
                 </>
               ) : (
                 <>
-                  <Package data-icon="inline-start" />
-                  Registrar abastecimiento
+                  <Save data-icon="inline-start"/>
+                  Confirmar ingreso
                 </>
               )}
             </Button>
@@ -546,6 +556,8 @@ function SupplyEntryLineRow({
 }) {
   const quantity = useWatch({ control, name: `items.${index}.quantity` })
   const unitCost = useWatch({ control, name: `items.${index}.unitCost` })
+  const supplyId = useWatch({ control, name: `items.${index}.supplyId` })
+  const selectedSupply = availableSupplies.find((s) => s.id === supplyId)
   const isQtyInvalid = quantity == null || quantity === '' || quantity <= 0
   const isCostInvalid = unitCost == null || unitCost === '' || unitCost <= 0
 
@@ -581,15 +593,22 @@ function SupplyEntryLineRow({
           name={`items.${index}.quantity`}
           control={control}
           render={({ field: qtyField, fieldState }) => (
-            <DecimalInput
-              {...qtyField}
-              aria-invalid={fieldState.invalid || isQtyInvalid ? 'true' : undefined}
-              placeholder="0.00"
-              className={cn(
-                'h-9 text-sm',
-                (fieldState.invalid || isQtyInvalid) && 'text-destructive ring-destructive/20 ring-1 border-destructive'
-              )}
-            />
+            <InputGroup>
+              <DecimalInput
+                {...qtyField}
+                data-slot="input-group-control"
+                aria-invalid={fieldState.invalid || isQtyInvalid ? 'true' : undefined}
+                placeholder="0,00"
+                className={cn(
+                  'flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent h-9 text-sm'
+                )}
+              />
+              <InputGroupAddon align="inline-end">
+                <InputGroupText>
+                  {selectedSupply?.base_uom_symbol ?? ''}
+                </InputGroupText>
+              </InputGroupAddon>
+            </InputGroup>
           )}
         />
       </td>
@@ -601,15 +620,20 @@ function SupplyEntryLineRow({
           name={`items.${index}.unitCost`}
           control={control}
           render={({ field: costField, fieldState }) => (
-            <DecimalInput
-              {...costField}
-              aria-invalid={fieldState.invalid || isCostInvalid ? 'true' : undefined}
-              placeholder="0.00"
-              className={cn(
-                'h-9 text-sm',
-                (fieldState.invalid || isCostInvalid) && 'text-destructive ring-destructive/20 ring-1 border-destructive'
-              )}
-            />
+            <InputGroup>
+              <InputGroupAddon>
+                <InputGroupText>$</InputGroupText>
+              </InputGroupAddon>
+              <DecimalInput
+                {...costField}
+                data-slot="input-group-control"
+                aria-invalid={fieldState.invalid || isCostInvalid ? 'true' : undefined}
+                placeholder="0,00"
+                className={cn(
+                  'flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent h-9 text-sm'
+                )}
+              />
+            </InputGroup>
           )}
         />
       </td>
