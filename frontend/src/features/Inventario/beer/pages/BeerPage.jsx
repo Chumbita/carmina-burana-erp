@@ -127,7 +127,7 @@ export default function CookingsPage() {
         onSubmit={handleCreateBeer}
       />
 
-      <BeerTable beer={visibleBeers} />
+      <BeerTable beer={visibleBeers} hasRecords={beers.length > 0} />
 
       {totalCount > 0 && (
         <Pagination
