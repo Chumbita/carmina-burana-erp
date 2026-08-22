@@ -4,7 +4,7 @@ import { estadoStyles } from "../utils/stockStyles";
 import { useNavigate } from "react-router-dom";
 import { formatDecimal } from "@/lib/utils/formatters";
 
-export function SuppliesTable({ insumos }) {
+export function SuppliesTable({ insumos, hasRecords }) {
   const navigate = useNavigate();
 
   const handleRowClick = (insumo) => {
@@ -52,6 +52,9 @@ export function SuppliesTable({ insumos }) {
     <DataTable
       columns={tableHeaders}
       data={insumos}
+      emptyMessage="No hay insumos registrados"
+      noResultsMessage="No se encontraron insumos con los filtros aplicados"
+      hasRecords={hasRecords}
       onRowClick={handleRowClick}
     />
   );

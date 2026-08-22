@@ -11,6 +11,7 @@ export default function SuppliersPage() {
     emptySupplier,
     editingSupplier,
     filteredSuppliers,
+    hasSuppliers,
     loading,
     openForm,
     saving,
@@ -66,6 +67,7 @@ export default function SuppliersPage() {
 
       <SuppliersTable
         suppliers={filteredSuppliers}
+        hasRecords={hasSuppliers}
         loading={loading}
       />
     </div>
