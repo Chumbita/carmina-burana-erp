@@ -63,6 +63,7 @@ export function useBrandsPage() {
   return {
     emptyBrand,
     filteredBrands,
+    hasBrands: brands.length > 0,
     loading,
     openForm,
     saving,
