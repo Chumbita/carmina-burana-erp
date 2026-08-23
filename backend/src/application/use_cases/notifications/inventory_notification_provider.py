@@ -17,7 +17,7 @@ class InventoryNotificationProvider:
         return low_stock + expiring_lots
 
     async def _list_low_stock_notifications(self, now: datetime) -> list[GeneratedNotification]:
-        rows = await self._supply_repository.list_active_supplies_general()
+        rows, _ = await self._supply_repository.list_active_supplies_general()
         return [
             GeneratedNotification(
                 key=f"inventory.low-stock:{row['id']}",

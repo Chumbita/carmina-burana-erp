@@ -20,6 +20,7 @@ from src.infrastructure.database.models.supply_model import SupplyModel
 from src.infrastructure.database.models.uom_model import UomModel
 
 from src.domain.exceptions.supply_exceptions import SupplyNotFoundException
+from src.infrastructure.database.pagination import paginate
 
 class SupplyRepository(ISupplyRepository):
 
@@ -88,7 +89,18 @@ class SupplyRepository(ISupplyRepository):
         
         return self._to_entity(model) if model else None
 
-    async def list_active_supplies_general(self) -> list[dict[str, Any]]:
+    async def list_active_supplies_general(
+        self,
+        *,
+        offset: int | None = None,
+        limit: int | None = None,
+        q: str | None = None,
+        category: str | None = None,
+        item_type: str | None = None,
+        stock_status: str | None = None,
+        sort_by: str = "name",
+        sort_order: str = "asc",
+    ) -> tuple[list[dict[str, Any]], int]:
         now = datetime.now(timezone.utc).replace(tzinfo=None)
 
         balance_totals = (
@@ -111,6 +123,8 @@ class SupplyRepository(ISupplyRepository):
             .subquery()
         )
 
+        stock_total_expr = func.coalesce(balance_totals.c.stock_total, 0)
+
         stmt = (
             select(
                 ItemModel.id.label("id"),
@@ -122,7 +136,7 @@ class SupplyRepository(ISupplyRepository):
                 SupplyModel.supply_category.label("supply_category"),
                 PackagingSupplyModel.packaging_type.label("packaging_type"),
                 PackagingSupplyModel.capacity_ml.label("capacity_ml"),
-                func.coalesce(balance_totals.c.stock_total, 0).label("stock_total"),
+                stock_total_expr.label("stock_total"),
             )
             .join(ItemTypeModel, ItemTypeModel.id == ItemModel.item_type_id)
             .outerjoin(SupplyModel, SupplyModel.item_id == ItemModel.id)
@@ -132,13 +146,61 @@ class SupplyRepository(ISupplyRepository):
             .outerjoin(balance_totals, balance_totals.c.item_id == ItemModel.id)
             .where(ItemModel.status == "ACTIVE")
             .where(ItemTypeModel.code.in_(["supply", "packaging_supply"]))
-            .order_by(ItemModel.name.asc())
         )
 
-        result = await self._session.execute(stmt)
-        rows = result.all()
+        # ── Filtros ────────────────────────────────────────────
+        if q:
+            like = f"%{q.strip()}%"
+            stmt = stmt.where(
+                or_(
+                    ItemModel.name.ilike(like),
+                    BrandModel.name.ilike(like),
+                )
+            )
 
-        return [
+        if category:
+            cat = category.strip()
+            stmt = stmt.where(
+                or_(
+                    func.lower(SupplyModel.supply_category) == cat.lower(),
+                    func.lower(PackagingSupplyModel.packaging_type) == cat.lower(),
+                )
+            )
+
+        if item_type:
+            stmt = stmt.where(func.lower(ItemTypeModel.code) == item_type.strip().lower())
+
+        if stock_status:
+            status = stock_status.strip().lower()
+            if status == "critico":
+                stmt = stmt.where(stock_total_expr < ItemModel.min_stock_level)
+            elif status == "bajo":
+                stmt = stmt.where(stock_total_expr == ItemModel.min_stock_level)
+            elif status == "optimo":
+                stmt = stmt.where(stock_total_expr > ItemModel.min_stock_level)
+
+        # ── Orden ──────────────────────────────────────────────
+        sort_dir = sort_order.strip().lower() if sort_order else "asc"
+        is_desc = sort_dir == "desc"
+
+        if sort_by == "stock":
+            order_col = stock_total_expr
+        elif sort_by == "id":
+            order_col = ItemModel.id
+        else:
+            order_col = ItemModel.name
+
+        stmt = stmt.order_by(order_col.desc() if is_desc else order_col.asc())
+
+        # ── Paginación ─────────────────────────────────────────
+        if offset is not None and limit is not None:
+            rows, total = await paginate(self._session, stmt, offset=offset, limit=limit)
+        else:
+            result = await self._session.execute(stmt)
+            rows = result.all()
+            total = len(rows)
+
+        data = [
             {
                 "id": row.id,
                 "name": row.name,
@@ -153,6 +215,8 @@ class SupplyRepository(ISupplyRepository):
             }
             for row in rows
         ]
+
+        return data, total
 
     async def get_active_supply_detail(self, item_id: int) -> Optional[dict[str, Any]]:
         now = datetime.now(timezone.utc).replace(tzinfo=None)

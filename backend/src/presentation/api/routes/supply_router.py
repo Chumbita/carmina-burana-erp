@@ -43,16 +43,36 @@ from src.presentation.dependencies.auth import get_current_user
 router = APIRouter(prefix="/supplies", tags=["Supplies"])
 
 
-@router.get("", response_model=List[SupplyGeneralResponseSchema], summary="Listar insumos activos")
+@router.get("", response_model=PaginatedResponse[SupplyGeneralResponseSchema], summary="Listar insumos activos")
 async def list_active_supplies(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(25, ge=1),
+    q: str | None = Query(None),
+    category: str | None = Query(None),
+    item_type: str | None = Query(None),
+    stock_status: str | None = Query(None),
+    sort_by: str = Query("name"),
+    sort_order: str = Query("asc"),
     use_case: ListActiveSuppliesUseCase = Depends(get_list_active_supplies_use_case),
     current_user: User = Depends(get_current_user),
-) -> list[dict]:
+) -> PaginatedResponse[SupplyGeneralResponseSchema]:
     """
-    Lista todos los insumos activos (supply + packaging_supply).
-    Incluye stock total y estado del stock.
+    Lista insumos activos (supply + packaging_supply) paginados.
+    Incluye stock total y estado del stock. Filtros: q (nombre/marca),
+    category, item_type (SUPPLY / PACKAGING_SUPPLY), stock_status
+    (critico / bajo / optimo) y orden (sort_by: id | name | stock).
     """
-    return await use_case.execute()
+    params = parse_pagination(page, page_size, max_page_size=25)
+    result = await use_case.execute(
+        params,
+        q=q,
+        category=category,
+        item_type=item_type,
+        stock_status=stock_status,
+        sort_by=sort_by,
+        sort_order=sort_order,
+    )
+    return PaginatedResponse.from_page(result)
 
 
 @router.get("/{item_id}", response_model=SupplyDetailResponseSchema, summary="Detalle de insumo activo")
