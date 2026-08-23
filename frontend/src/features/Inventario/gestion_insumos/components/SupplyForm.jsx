@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createSupplySchema, SUPPLY_CATEGORIES } from "../schemas/supply.schema"
@@ -9,7 +9,9 @@ import { useUoms } from "../hooks/useUoms"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { DecimalInput } from "@/components/shared/DecimalInput"
-import { Save } from 'lucide-react'
+import { Save, Plus } from 'lucide-react'
+import { BrandForm } from "@/features/Inventario/brands/components/BrandForm"
+import { brandService } from "@/features/Inventario/brands/services/brandService"
 import {
   Select,
   SelectContent,
@@ -40,8 +42,10 @@ export function SupplyForm({
   existingSupplies = [],
   excludeId = null,
 }) {
-  const { brands, loading: brandsLoading } = useBrands()
+  const { brands, loading: brandsLoading, refresh: refreshBrands } = useBrands()
   const { uoms, loading: uomsLoading } = useUoms()
+  const [brandDialogOpen, setBrandDialogOpen] = useState(false)
+  const [brandFieldRef, setBrandFieldRef] = useState(null)
 
   const schema = createSupplySchema(existingSupplies, excludeId)
 
@@ -109,28 +113,42 @@ export function SupplyForm({
               <FieldLabel htmlFor={field.name}>
                 Marca <span className="text-red-500 -ml-1">*</span>
               </FieldLabel>
-              <Select
-                name={field.name}
-                value={field.value !== undefined ? String(field.value) : ""}
-                onValueChange={(val) => field.onChange(Number(val))}
-                disabled={brandsLoading}
-              >
-                <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
-                  <SelectValue
-                    placeholder={brandsLoading ? "Cargando marcas..." : "Seleccione marca..."}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Marcas</SelectLabel>
-                    {brands.map((brand) => (
-                      <SelectItem key={brand.id} value={String(brand.id)}>
-                        {brand.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-1">
+                <Select
+                  name={field.name}
+                  value={field.value !== undefined ? String(field.value) : ""}
+                  onValueChange={(val) => field.onChange(Number(val))}
+                  disabled={brandsLoading}
+                >
+                  <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                    <SelectValue
+                      placeholder={brandsLoading ? "Cargando marcas..." : "Seleccione marca..."}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Marcas</SelectLabel>
+                      {brands.map((brand) => (
+                        <SelectItem key={brand.id} value={String(brand.id)}>
+                          {brand.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0"
+                  onClick={() => {
+                    setBrandFieldRef(field)
+                    setBrandDialogOpen(true)
+                  }}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
             </Field>
           )}
         />
@@ -334,6 +352,23 @@ export function SupplyForm({
           )}
         </Button>
       </div>
+
+      <BrandForm
+        open={brandDialogOpen}
+        onOpenChange={setBrandDialogOpen}
+        brand={{ name: "" }}
+        emptyBrand={{ name: "" }}
+        saving={false}
+        submitLabel="Crear marca"
+        onSubmit={async (data) => {
+          const newBrand = await brandService.create({ name: data.name.trim() })
+          await refreshBrands()
+          if (brandFieldRef) {
+            brandFieldRef.onChange(newBrand.id)
+          }
+          setBrandDialogOpen(false)
+        }}
+      />
     </form>
   )
 }
