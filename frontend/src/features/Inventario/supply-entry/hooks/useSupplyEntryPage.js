@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { ITEMS_PER_PAGE, parseSupplyEntryDateTime } from '../constants/supplyEntry.constants'
 import { supplyEntryService } from '../services/supplyEntryService'
 import { useNotification } from '@/components/shared/notifications/useNotification'
@@ -21,6 +21,7 @@ export function useSupplyEntryPage() {
   const [page, setPage] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
+  const [hasEntries, setHasEntries] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
@@ -42,8 +43,14 @@ export function useSupplyEntryPage() {
         q: debouncedSearch,
       })
       setData(response.data || [])
-      setTotalItems(response.pagination?.total_items ?? 0)
+      const total = response.pagination?.total_items ?? 0
+      setTotalItems(total)
       setTotalPages(response.pagination?.total_pages ?? 0)
+      if (!debouncedSearch && !dateFrom && !dateTo && supplierFilter === 'all') {
+        setHasEntries(total > 0)
+      } else if (total > 0) {
+        setHasEntries(true)
+      }
     } catch (err) {
       setError(err.message || 'Error al cargar los datos')
       setData([])
@@ -113,6 +120,7 @@ export function useSupplyEntryPage() {
     page,
     totalItems,
     totalPages,
+    hasEntries,
     openModal,
     selectedEntryId,
     showDetail,

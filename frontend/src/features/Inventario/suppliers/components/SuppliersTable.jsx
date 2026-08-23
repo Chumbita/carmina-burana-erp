@@ -1,9 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
 
 import { DataTable } from '@/components/shared/DataTable'
-import { Card } from '@/components/ui/Card'
 
-export function SuppliersTable({ suppliers, loading }) {
+export function SuppliersTable({ suppliers, hasRecords, loading }) {
   const navigate = useNavigate()
 
   const columns = [
@@ -30,21 +29,14 @@ export function SuppliersTable({ suppliers, loading }) {
     )
   }
 
-  if (!suppliers.length) {
-    return (
-      <Card>
-        <div className="text-center py-8">
-          <p className="text-neutral-500">No se encontraron proveedores</p>
-        </div>
-      </Card>
-    )
-  }
-
   return (
     <div className="overflow-x-auto">
       <DataTable
         columns={columns}
         data={suppliers}
+        emptyMessage="No hay proveedores registrados"
+        noResultsMessage="No se encontraron proveedores con los filtros aplicados"
+        hasRecords={hasRecords}
         onRowClick={(supplier) => navigate(`/inventario/proveedores/${supplier.id}`)}
       />
     </div>

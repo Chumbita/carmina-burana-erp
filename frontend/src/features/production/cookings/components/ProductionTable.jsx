@@ -15,6 +15,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Play, AlertTriangle, Package, X } from "lucide-react";
 import { useNotification } from "@/components/shared/notifications/useNotification";
+import { formatDecimal } from "@/lib/utils/formatters";
 import { completeProductionSchema } from "../schemas/production.schema";
 
 function formatDateDMY(value) {
@@ -24,7 +25,7 @@ function formatDateDMY(value) {
   return y && m && d ? `${d}/${m}/${y}` : datePart;
 }
 
-export function ProductionTable({ productions, onExecute, onCancel }) {
+export function ProductionTable({ productions, hasRecords, onExecute, onCancel }) {
   const navigate = useNavigate();
   const notify = useNotification();
   
@@ -43,7 +44,7 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
     control: completeControl, 
     setValue: setCompleteValue,
     reset: resetCompleteForm,
-    formState: { errors: completeErrors, isValid: isCompleteValid, isSubmitting: isCompleting } 
+    formState: { errors: completeErrors, isSubmitting: isCompleting }
   } = useForm({
     resolver: zodResolver(schemaComplete),
     defaultValues: {
@@ -205,17 +206,14 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
 
   return (
     <>
-      {formattedProductions.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-neutral-500">No hay producciones planeadas.</p>
-        </div>
-      ) : (
-        <DataTable
-          columns={columns}
-          data={formattedProductions}
-          onRowClick={handleRowClick}
-        />
-      )}
+      <DataTable
+        columns={columns}
+        data={formattedProductions}
+        hasRecords={hasRecords}
+        emptyMessage="No hay producciones planeadas"
+        noResultsMessage="No se encontraron producciones con los filtros aplicados"
+        onRowClick={handleRowClick}
+      />
 
       {/* CONFIRMACIÓN CANCELACIÓN */}
       {cancelTarget && (
