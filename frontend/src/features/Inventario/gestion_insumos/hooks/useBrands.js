@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { brandService } from "../services/brandService"
+import { brandService } from "@/features/Inventario/brands/services/brandService"
 
 export function useBrands() {
   const [brands, setBrands] = useState([])
@@ -18,9 +18,17 @@ export function useBrands() {
     }
   }, [])
 
+  const addBrand = useCallback((newBrand) => {
+    if (!newBrand?.is_active && newBrand?.is_active !== undefined) return
+    setBrands((prev) => {
+      if (prev.some((b) => b.id === newBrand.id)) return prev
+      return [...prev, newBrand]
+    })
+  }, [])
+
   useEffect(() => {
     load()
   }, [load])
 
-  return { brands, loading, error, refresh: load }
+  return { brands, loading, error, refresh: load, addBrand, setBrands }
 }

@@ -12,6 +12,7 @@ import { DecimalInput } from "@/components/shared/DecimalInput"
 import { Save, Plus } from 'lucide-react'
 import { BrandForm } from "@/features/Inventario/brands/components/BrandForm"
 import { brandService } from "@/features/Inventario/brands/services/brandService"
+import { useNotification } from "@/components/shared/notifications/useNotification"
 import {
   Select,
   SelectContent,
@@ -42,10 +43,11 @@ export function SupplyForm({
   existingSupplies = [],
   excludeId = null,
 }) {
-  const { brands, loading: brandsLoading, refresh: refreshBrands } = useBrands()
+  const { brands, loading: brandsLoading, addBrand } = useBrands()
   const { uoms, loading: uomsLoading } = useUoms()
   const [brandDialogOpen, setBrandDialogOpen] = useState(false)
-  const [brandFieldRef, setBrandFieldRef] = useState(null)
+  const [brandSaving, setBrandSaving] = useState(false)
+  const notify = useNotification()
 
   const schema = createSupplySchema(existingSupplies, excludeId)
 
@@ -53,6 +55,7 @@ export function SupplyForm({
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { isDirty, isValid },
   } = useForm({
     resolver: zodResolver(schema),
@@ -108,8 +111,8 @@ export function SupplyForm({
         <Controller
           name="brand_id"
           control={control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid} className="md:col-span-2">
+          render={({ field }) => (
+            <Field className="md:col-span-2">
               <FieldLabel htmlFor={field.name}>
                 Marca <span className="text-red-500 -ml-1">*</span>
               </FieldLabel>
@@ -120,7 +123,7 @@ export function SupplyForm({
                   onValueChange={(val) => field.onChange(Number(val))}
                   disabled={brandsLoading}
                 >
-                  <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                  <SelectTrigger id={field.name} className="flex-1 min-w-0">
                     <SelectValue
                       placeholder={brandsLoading ? "Cargando marcas..." : "Seleccione marca..."}
                     />
@@ -141,10 +144,8 @@ export function SupplyForm({
                   variant="outline"
                   size="icon"
                   className="shrink-0"
-                  onClick={() => {
-                    setBrandFieldRef(field)
-                    setBrandDialogOpen(true)
-                  }}
+                  aria-label="Crear marca"
+                  onClick={() => setBrandDialogOpen(true)}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -221,7 +222,7 @@ export function SupplyForm({
                     onValueChange={(val) => field.onChange(Number(val))}
                     disabled={uomsLoading}
                   >
-                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                  <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
                       <SelectValue
                         placeholder={uomsLoading ? "Cargando unidades..." : "Seleccione unidad..."}
                       />
@@ -358,15 +359,21 @@ export function SupplyForm({
         onOpenChange={setBrandDialogOpen}
         brand={{ name: "" }}
         emptyBrand={{ name: "" }}
-        saving={false}
+        saving={brandSaving}
         submitLabel="Crear marca"
         onSubmit={async (data) => {
-          const newBrand = await brandService.create({ name: data.name.trim() })
-          await refreshBrands()
-          if (brandFieldRef) {
-            brandFieldRef.onChange(newBrand.id)
+          try {
+            setBrandSaving(true)
+            const newBrand = await brandService.create({ name: data.name.trim() })
+            addBrand(newBrand)
+            setValue("brand_id", newBrand.id, { shouldDirty: true, shouldValidate: true })
+            notify.success("Marca creada correctamente")
+            setBrandDialogOpen(false)
+          } catch (error) {
+            notify.error(error.response?.data?.detail || "Error al crear marca")
+          } finally {
+            setBrandSaving(false)
           }
-          setBrandDialogOpen(false)
         }}
       />
     </form>
