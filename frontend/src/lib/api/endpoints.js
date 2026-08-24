@@ -30,6 +30,9 @@ export const ENDPOINTS = {
         MARK_ALL_READ: '/notifications/read-all',
         DISMISS: (key) => `/notifications/${encodeURIComponent(key)}/dismiss`,
     },
+    INVENTORY: {
+        DASHBOARD: '/inventory/dashboard',
+    },
 
     // Supplies
     SUPPLIES: {

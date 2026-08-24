@@ -18,6 +18,10 @@ const SuppliesPage = lazy(
   () => import("@/features/Inventario/gestion_insumos/pages/SuppliesPage"),
 );
 
+const InventoryDashboardPage = lazy(
+  () => import("@/features/Inventario/dashboard/pages/InventoryDashboardPage"),
+);
+
 const SupplyDetailPage = lazy(
   () => import("@/features/Inventario/gestion_insumos/pages/SupplyDetailPage"),
 );
@@ -112,6 +116,10 @@ export const router = createBrowserRouter([
       {
         path: "/inventario/insumos",
         element: <SuppliesPage />,
+      },
+      {
+        path: "/inventario/dashboard",
+        element: <InventoryDashboardPage />,
       },
       {
         path: "/inventario/insumos/:supplyId",
