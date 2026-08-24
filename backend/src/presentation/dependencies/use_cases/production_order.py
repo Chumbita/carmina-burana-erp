@@ -16,6 +16,9 @@ from src.application.use_cases.production_order.get_production_order import (
     ListIncompleteProductionsUseCase,
     ListFinishedProductionsUseCase,
 )
+from src.application.use_cases.production_order.get_production_order_by_id_use_case import (
+    GetProductionOrderByIdUseCase,
+)
 from src.domain.services.inventory_movement_service import InventoryDomainService
 
 
@@ -91,4 +94,16 @@ def get_discard_production_order_use_case(
         production_order_repository=ProductionOrderRepository(session),
         balance_repository=InventoryBalanceRepository(session),
         inventory_movement_use_case=_get_inventory_movement_use_case(session),
+    )
+
+
+def get_production_order_by_id_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> GetProductionOrderByIdUseCase:
+    production_order_repository = ProductionOrderRepository(session)
+    return GetProductionOrderByIdUseCase(
+        production_order_repository=production_order_repository,
+        bom_repository=BomRepository(session),
+        balance_repository=InventoryBalanceRepository(session),
+        lot_repository=InventoryLotRepository(session),
     )

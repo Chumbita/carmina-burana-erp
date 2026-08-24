@@ -16,6 +16,15 @@ class IProductionOrderRepository(Protocol):
         """
         ...
 
+    async def get_detailed_production_order_by_id(self, order_id: int) -> Optional[dict]:
+        """
+        Obtiene una orden de producción por su ID con toda la información detallada
+        (header con nombre del producto, versión del BOM y símbolo de la UM base,
+        más sus consumptions y outputs con nombre de item y código de lote).
+        Retorna None si no existe.
+        """
+        ...
+
     async def get_all_incomplete(self) -> list[dict]:
         """
         Obtiene todas las órdenes de producción incompletas.
