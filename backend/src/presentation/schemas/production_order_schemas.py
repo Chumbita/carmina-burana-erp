@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Optional
+from typing import List, Optional
 
 
 # ── REQUESTS ────────────────────────────────────────────────
@@ -43,6 +43,77 @@ class ProductionOrderListResponseSchema(BaseModel):
     base_uom_symbol: str
     schedule_date: datetime
     status: str
+
+    class Config:
+        from_attributes = True
+
+
+class ProductionIngredientDetailSchema(BaseModel):
+    """
+    Insumo requerido por una orden de producción planificada.
+    La cantidad está escalada a la cantidad planificada de la orden.
+    """
+    component_item_id: int
+    component_item_name: str
+    required_quantity: Decimal
+    uom_id: Optional[int] = None
+    uom_symbol: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ProductionConsumptionDetailSchema(BaseModel):
+    id: int
+    item_id: int
+    item_name: str
+    lot_id: int
+    lot_code: str
+    quantity: Decimal
+    uom_symbol: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ProductionOutputDetailSchema(BaseModel):
+    id: int
+    item_id: int
+    item_name: str
+    lot_id: int
+    lot_code: str
+    quantity: Decimal
+    uom_symbol: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ProductionOrderDetailSchema(BaseModel):
+    """
+    Detalle completo de una orden de producción, incluyendo header,
+    consumptions y outputs con nombre de item, código de lote y unidad
+    de medida. Para órdenes PLANNED incluye los insumos que la producción
+    va a ocupar (cantidades escaladas) y el costo unitario estimado;
+    para DONE/DISCARDED el costo unitario real del lote producido.
+    """
+    id: int
+    item_id: int
+    item_name: str
+    bom_id: int
+    bom_version: int
+    planned_quantity: Decimal
+    produced_quantity: Decimal
+    status: str
+    base_uom_symbol: str
+    schedule_date: Optional[date]
+    completed_at: Optional[datetime]
+    description: Optional[str]
+    created_at: datetime
+    unit_cost: Decimal = Decimal("0")
+    ingredients: List[ProductionIngredientDetailSchema] = []
+    consumptions: List[ProductionConsumptionDetailSchema] = []
+    outputs: List[ProductionOutputDetailSchema] = []
 
     class Config:
         from_attributes = True
