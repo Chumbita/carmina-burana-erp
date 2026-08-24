@@ -33,25 +33,23 @@ class GetProductionOrderByIdUseCase:
         if data is None:
             raise ProductionOrderNotFoundException(order_id)
 
-        if data["status"] == ProductionOrderStatus.PLANNED.value:
-            # Para órdenes planificadas se incluyen los insumos que la
-            # producción va a ocupar (cantidades escaladas a la cantidad
-            # planificada de la orden) y el costo unitario estimado.
-            bom = await self._bom_repository.get_detailed_bom_by_id(data["bom_id"])
-            if bom is not None:
-                data["ingredients"] = await self._stock_service.calculate_required_ingredients(
-                    bom=bom,
-                    planned_quantity=data["planned_quantity"],
-                )
-                data["unit_cost"] = await self._stock_service.calculate_unit_cost(
-                    bom=bom,
-                    planned_quantity=data["planned_quantity"],
-                )
-        else:
-            # Para órdenes ejecutadas (DONE/DISCARDED) el costo unitario
-            # es el real, tomado del lote de output producido.
-            outputs = data.get("outputs") or []
-            if outputs and outputs[0].get("unit_cost") is not None:
-                data["unit_cost"] = outputs[0]["unit_cost"]
+        bom = await self._bom_repository.get_detailed_bom_by_id(data["bom_id"])
+
+        # Para órdenes planificadas se incluyen los insumos que la
+        # producción va a ocupar (cantidades escaladas a la cantidad
+        # planificada de la orden).
+        if data["status"] == ProductionOrderStatus.PLANNED.value and bom is not None:
+            data["ingredients"] = await self._stock_service.calculate_required_ingredients(
+                bom=bom,
+                planned_quantity=data["planned_quantity"],
+            )
+
+        # El costo unitario es siempre el estimado según los insumos
+        # actuales de la receta, independientemente del estado.
+        if bom is not None:
+            data["unit_cost"] = await self._stock_service.calculate_unit_cost(
+                bom=bom,
+                planned_quantity=data["planned_quantity"],
+            )
 
         return ProductionOrderDetailResponse.from_dict(data)
