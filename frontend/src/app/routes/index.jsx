@@ -55,6 +55,10 @@ const ProductionPage = lazy(
   () => import("@/features/production/cookings/pages/ProductionPage"),
 );
 
+const ProductionOrderDetailPage = lazy(
+  () => import("@/features/production/cookings/pages/ProductionOrderDetailPage"),
+);
+
 const SupplyEntryDetailPage = lazy(
   () =>
     import("@/features/Inventario/supply-entry/pages/SupplyEntryDetailPage"),
@@ -156,6 +160,10 @@ export const router = createBrowserRouter([
       {
         path: "/produccion/cocciones/nuevo",
         element: <ProductionPage />,
+      },
+      {
+        path: "/produccion/cocciones/:orderId",
+        element: <ProductionOrderDetailPage />,
       },
       {
         path: "/production/cookings",

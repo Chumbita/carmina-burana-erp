@@ -56,7 +56,7 @@ export function AppSidebar({ ...props }) {
         icon: Beer,
         items: [
           {
-            title: "Registro de Cocciones",
+            title: "Planificación de Cocciones",
             url: "/produccion/cocciones/nuevo",
           },
           {
