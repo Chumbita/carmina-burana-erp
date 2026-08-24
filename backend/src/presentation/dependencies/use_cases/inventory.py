@@ -6,6 +6,7 @@ from src.infrastructure.database.repositories.item_repository import ItemReposit
 from src.infrastructure.database.repositories.inventory_transaction_repository import InventoryTransactionRepository
 from src.infrastructure.database.repositories.inventory_lot_repository import InventoryLotRepository
 from src.infrastructure.database.repositories.uom_repository import UomRepository
+from src.infrastructure.database.repositories.inventory_dashboard_repository import InventoryDashboardRepository
 
 
 def get_list_item_transactions_use_case(
@@ -27,3 +28,11 @@ def build_get_lots_by_item(
 
     lot_repo = InventoryLotRepository(session)
     return GetLotsByItemUseCase(lot_repo=lot_repo)
+
+
+def get_inventory_dashboard_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> "GetInventoryDashboardUseCase":
+    from src.application.use_cases.inventory.get_inventory_dashboard import GetInventoryDashboardUseCase
+
+    return GetInventoryDashboardUseCase(InventoryDashboardRepository(session))
