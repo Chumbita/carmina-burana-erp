@@ -229,17 +229,24 @@ class ItemRepository:
             for row in rows
         ]
     
-    async def get_manufacturable(self) -> list[Item]:
+    async def get_manufacturable(self) -> list[dict]:
         """
         Obtiene todos los items marcados como manufacturables (no eliminados).
+        Retorna dicts con: id, item_type, name, brand, brand_id, uom_symbol, uom_id.
         """
         stmt = (
             select(
                 ItemModel.id,
+                ItemTypeModel.code.label("item_type"),
                 ItemModel.name,
-                ItemTypeModel.code.label("item_type_name")
+                BrandModel.name.label("brand"),
+                ItemModel.brand_id,
+                UomModel.symbol.label("uom_symbol"),
+                ItemModel.base_uom_id.label("uom_id"),
             )
             .join(ItemTypeModel, ItemModel.item_type_id == ItemTypeModel.id)
+            .join(BrandModel, ItemModel.brand_id == BrandModel.id)
+            .join(UomModel, ItemModel.base_uom_id == UomModel.id)
             .where(
                 ItemModel.is_manufacturable.is_(True),
                 ItemModel.deleted_at.is_(None),
@@ -248,6 +255,14 @@ class ItemRepository:
         result = await self._session.execute(stmt)
         rows = result.all()
         return [
-            {"id": r.id, "name": r.name, "item_type_name": r.item_type_name}
+            {
+                "id": r.id,
+                "item_type": r.item_type,
+                "name": r.name,
+                "brand": r.brand,
+                "brand_id": r.brand_id,
+                "uom_symbol": r.uom_symbol,
+                "uom_id": r.uom_id,
+            }
             for r in rows
         ]
