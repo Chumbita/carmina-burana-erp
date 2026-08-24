@@ -147,7 +147,21 @@ export default function InventoryDashboardPage() {
             <BarChart data={categoryData} layout="vertical" margin={{ left: 8, right: 24 }}>
               <XAxis type="number" hide />
               <YAxis dataKey="category" type="category" tickLine={false} axisLine={false} width={96} />
-              <ChartTooltip content={<ChartTooltipContent nameKey="category" />} />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    nameKey="category"
+                    formatter={(value) => (
+                      <div className="flex min-w-[8rem] items-center justify-between gap-4">
+                        <span className="text-muted-foreground">Stock</span>
+                        <span className="font-mono font-medium tabular-nums">
+                          {formatDecimal(value, 4)}
+                        </span>
+                      </div>
+                    )}
+                  />
+                }
+              />
               <Bar dataKey="stock_total" radius={4} barSize={14}>
                 {categoryData.map((item) => (
                   <Cell key={item.category} fill={item.fill} />
