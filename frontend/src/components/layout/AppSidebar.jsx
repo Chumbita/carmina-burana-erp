@@ -51,6 +51,29 @@ export function AppSidebar({ ...props }) {
         isActive: true,
       },
       {
+        title: "Producción",
+        url: "#",
+        icon: Beer,
+        items: [
+          {
+            title: "Planificación de Cocciones",
+            url: "/produccion/cocciones/nuevo",
+          },
+          {
+            title: "Historial de Cocciones",
+            url: "/produccion/cocciones",
+          },
+          {
+            title: "Recetas",
+            url: "/produccion/recetas",
+          },
+          {
+            title: "Fórmulas",
+            url: "/produccion/bom",
+          },
+        ],
+      },
+      {
         title: "Inventario",
         url: "#",
         icon: Box,
