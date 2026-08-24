@@ -2,12 +2,14 @@ from fastapi import APIRouter, Depends, Query, status
 
 from src.domain.entities.user import User
 from src.presentation.dependencies.auth import get_current_user
+from src.presentation.schemas.pagination_schema import PaginatedResponse
 from src.presentation.schemas.supplier_schema import (
     CreateSupplierRequest,
     SupplierOptionResponse,
     SupplierResponse,
     UpdateSupplierRequest,
 )
+from src.shared.pagination import parse_pagination
 from src.presentation.dependencies.use_cases.supplier import (
     build_deactivate_supplier_use_case,
     build_create_supplier_use_case,
@@ -49,18 +51,24 @@ async def list_supplier_options(
 
 @router.get(
     "",
-    summary="Listar proveedores o buscar por nombre",
-    response_model=list[SupplierResponse] | SupplierResponse,
+    summary="Listar proveedores paginados",
+    response_model=PaginatedResponse[SupplierResponse] | SupplierResponse,
 )
 async def list_suppliers(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(15, ge=1),
+    q: str | None = Query(None),
+    status: str | None = Query(None),
     name: str | None = Query(None, min_length=1),
     list_use_case: ListSuppliersUseCase = Depends(build_list_suppliers_use_case),
     by_name_use_case: GetSupplierByNameUseCase = Depends(build_get_supplier_by_name_use_case),
     #current_user: User = Depends(get_current_user),  # auth
-) -> list[SupplierResponse] | SupplierResponse:
+) -> PaginatedResponse[SupplierResponse] | SupplierResponse:
     if name is not None:
         return await by_name_use_case.execute(name)
-    return await list_use_case.execute()
+    params = parse_pagination(page, page_size)
+    result = await list_use_case.execute(params, q=q, status=status)
+    return PaginatedResponse.from_page(result)
 
 
 @router.get(

@@ -1,7 +1,9 @@
 from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import or_, select
+
+from src.infrastructure.database.pagination import paginate
 
 from src.domain.entities.supplier import Supplier
 from src.domain.value_objects.supplier_status import SupplierStatus
@@ -63,10 +65,36 @@ class SupplierRepository(ISupplierRepository):
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model else None
 
-    async def find_all(self) -> list[Supplier]:
-        stmt = select(SupplierModel).order_by(SupplierModel.name)
+    async def find_all(
+        self,
+        offset: int | None = None,
+        limit: int | None = None,
+        q: str | None = None,
+        status: str | None = None,
+    ) -> tuple[list[Supplier], int]:
+        stmt = select(SupplierModel).order_by(SupplierModel.id)
+
+        if q:
+            like = f"%{q.strip()}%"
+            stmt = stmt.where(
+                or_(
+                    SupplierModel.name.ilike(like),
+                    SupplierModel.email.ilike(like),
+                    SupplierModel.phone.ilike(like),
+                )
+            )
+
+        if status and status != "all":
+            stmt = stmt.where(SupplierModel.status == status)
+
+        if offset is not None and limit is not None:
+            rows, total = await paginate(self._session, stmt, offset=offset, limit=limit)
+            models = [row[0] for row in rows]
+            return [self._to_entity(m) for m in models], total
+
         result = await self._session.execute(stmt)
-        return [self._to_entity(model) for model in result.scalars().all()]
+        models = list(result.scalars().all())
+        return [self._to_entity(m) for m in models], len(models)
 
     async def find_active(self) -> list[Supplier]:
         stmt = (
