@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { createBomSchema } from '../schemas/bom.schema'
-import { useItems } from '@/features/Inventario/items/hooks/useItems'
+import { useItems, useManufacturableItems } from '@/hooks/useItems'
 
 function getDefaultValidFrom() {
   const now = new Date()
@@ -31,6 +31,12 @@ export function useBomForm(onSubmit) {
   const [error, setError] = useState(null)
 
   const { items, loading: itemsLoading } = useItems()
+  const {
+    beerOptions,
+    productOptions,
+    loading: manufacturableLoading,
+  } = useManufacturableItems()
+  const manufacturableItems = [...beerOptions, ...productOptions]
 
   const {
     handleSubmit,
@@ -88,6 +94,8 @@ export function useBomForm(onSubmit) {
     error,
     items,
     itemsLoading,
+    manufacturableItems,
+    manufacturableLoading,
     handleAddLine,
     handleRemoveLine,
     handleFormSubmit,

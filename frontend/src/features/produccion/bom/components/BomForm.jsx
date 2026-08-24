@@ -24,12 +24,12 @@ import {
 import { Plus, Trash2, Check, ChevronsUpDown, Save } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-function ItemCombobox({ value, onChange, onSelect, items = [], placeholder = 'Seleccionar…', invalid = false }) {
+function ItemCombobox({ value, onChange, onSelect, items = [], itemIdKey = 'item_id', placeholder = 'Seleccionar…', invalid = false }) {
   const [open, setOpen] = useState(false)
-  const selected = items.find((i) => i.item_id === value)
+  const selected = items.find((i) => i[itemIdKey] === value)
 
   function handleSelect(item) {
-    onChange(item.item_id)
+    onChange(item[itemIdKey])
     if (onSelect) onSelect(item)
     setOpen(false)
   }
@@ -63,14 +63,14 @@ function ItemCombobox({ value, onChange, onSelect, items = [], placeholder = 'Se
             <CommandGroup>
               {items.map((item) => (
                 <CommandItem
-                  key={item.item_id}
+                  key={item[itemIdKey]}
                   value={`${item.name} ${item.brand} ${item.item_type} ${item.uom_symbol}`}
                   onSelect={() => handleSelect(item)}
                 >
                   <Check
                     className={cn(
                       'mr-2 size-4 shrink-0',
-                      value === item.item_id ? 'opacity-100' : 'opacity-0'
+                      value === item[itemIdKey] ? 'opacity-100' : 'opacity-0'
                     )}
                   />
                   <span className="flex flex-col">
@@ -99,7 +99,9 @@ export function BomForm({
     isValid,
     error,
     items,
-    itemsLoading,
+    itemsLoading: _itemsLoading,
+    manufacturableItems,
+    manufacturableLoading,
     handleAddLine,
     handleRemoveLine,
     handleFormSubmit,
@@ -108,7 +110,7 @@ export function BomForm({
   } = formHook
 
   const watchedParentItemId = useWatch({ control, name: 'parent_item_id' })
-  const parentItemSelected = items.find((i) => i.item_id === watchedParentItemId)
+  const parentItemSelected = manufacturableItems.find((i) => i.id === watchedParentItemId)
 
   return (
     <div className="flex flex-col gap-5">
@@ -144,8 +146,9 @@ export function BomForm({
                       value={field.value}
                       onChange={(id) => field.onChange(id)}
                       onSelect={(item) => setValue('uom_id', item.uom_id, { shouldValidate: true })}
-                      items={items}
-                      placeholder={itemsLoading ? 'Cargando productos…' : 'Seleccionar producto…'}
+                      items={manufacturableItems}
+                      itemIdKey="id"
+                      placeholder={manufacturableLoading ? 'Cargando elementos…' : 'Seleccionar producto…'}
                       invalid={fieldState.invalid}
                     />
                     {fieldState.invalid && (
