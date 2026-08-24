@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
-import { Bar, BarChart, Cell, Pie, PieChart, XAxis, YAxis } from "recharts"
+import { Cell, Label, Pie, PieChart } from "recharts"
 import { RefreshCw } from "lucide-react"
 
 import { DataTable } from "@/components/shared/DataTable"
@@ -20,17 +20,20 @@ const STATUS_COLORS = {
   "Óptimo": "#16A34A",
 }
 
-const categoryColors = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-]
+const STATUS_ORDER = ["Óptimo", "Bajo", "Crítico", "Sin stock"]
+
+const CATEGORY_COLORS = {
+  maltas: "#2563EB",
+  lupulos: "#059669",
+  levaduras: "#7C3AED",
+  envases: "#EA580C",
+  otros: "#64748B",
+}
+
+const CATEGORY_ORDER = ["maltas", "lupulos", "levaduras", "envases", "otros"]
 
 const chartConfig = {
   count: { label: "Items" },
-  stock_total: { label: "Stock" },
 }
 
 const emptyDashboard = {
@@ -87,15 +90,34 @@ export default function InventoryDashboardPage() {
     () => dashboard.stock_by_status.filter((item) => item.count > 0),
     [dashboard.stock_by_status],
   )
+  const statusLegend = useMemo(
+    () =>
+      STATUS_ORDER.map((statusName) => (
+        dashboard.stock_by_status.find((item) => item.status === statusName) ?? { status: statusName, count: 0 }
+      )),
+    [dashboard.stock_by_status],
+  )
   const categoryData = useMemo(
     () =>
       dashboard.stock_by_category
         .filter((item) => Number(item.stock_total) > 0)
         .map((item, index) => ({
           ...item,
-          fill: categoryColors[index % categoryColors.length],
-        })),
+          categoryKey: normalizeCategory(item.category),
+          stockTotal: Number(item.stock_total),
+          fill: CATEGORY_COLORS[normalizeCategory(item.category)] ?? CATEGORY_COLORS.otros,
+          fallbackOrder: index,
+        }))
+        .sort((a, b) => {
+          const orderA = CATEGORY_ORDER.indexOf(a.categoryKey)
+          const orderB = CATEGORY_ORDER.indexOf(b.categoryKey)
+          return (orderA === -1 ? 99 + a.fallbackOrder : orderA) - (orderB === -1 ? 99 + b.fallbackOrder : orderB)
+        }),
     [dashboard.stock_by_category],
+  )
+  const maxCategoryStock = useMemo(
+    () => Math.max(...categoryData.map((item) => item.stockTotal), 0),
+    [categoryData],
   )
 
   if (status === "loading") {
@@ -130,45 +152,76 @@ export default function InventoryDashboardPage() {
 
       <section className="grid gap-4 xl:grid-cols-2">
         <ChartCard title="Estado de stock" empty={!hasStockData || statusData.length === 0}>
-          <ChartContainer config={chartConfig} className="mx-auto h-[260px] min-h-[260px] w-full">
-            <PieChart>
-              <ChartTooltip content={<ChartTooltipContent nameKey="status" hideLabel />} />
-              <Pie data={statusData} dataKey="count" nameKey="status" innerRadius={62} outerRadius={96} paddingAngle={2}>
-                {statusData.map((item) => (
-                  <Cell key={item.status} fill={STATUS_COLORS[item.status]} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ChartContainer>
+          <div className="flex min-h-[220px] flex-col items-center justify-center gap-5 sm:flex-row sm:gap-8">
+            <ChartContainer config={chartConfig} className="h-[148px] min-h-[148px] w-[148px]">
+              <PieChart>
+                <ChartTooltip content={<ChartTooltipContent nameKey="status" hideLabel />} />
+                <Pie
+                  data={statusData}
+                  dataKey="count"
+                  nameKey="status"
+                  innerRadius={44}
+                  outerRadius={74}
+                  paddingAngle={1}
+                >
+                  <Label
+                    content={({ viewBox }) => {
+                      if (!viewBox || !("cx" in viewBox) || !("cy" in viewBox)) return null
+
+                      return (
+                        <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
+                          <tspan x={viewBox.cx} y={viewBox.cy - 7} className="fill-foreground text-3xl font-semibold">
+                            {dashboard.summary.active}
+                          </tspan>
+                          <tspan x={viewBox.cx} y={viewBox.cy + 18} className="fill-muted-foreground text-xs">
+                            items
+                          </tspan>
+                        </text>
+                      )
+                    }}
+                  />
+                  {statusData.map((item) => (
+                    <Cell key={item.status} fill={STATUS_COLORS[item.status]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+
+            <div className="grid w-full max-w-[170px] gap-2 text-xs">
+              {statusLegend.map((item) => (
+                <div key={item.status} className="flex items-center justify-between gap-4">
+                  <span className="flex items-center gap-2 text-muted-foreground">
+                    <span className="size-2 rounded-full" style={{ backgroundColor: STATUS_COLORS[item.status] }} />
+                    {item.status.replace("Óptimo", "Optimo").replace("Crítico", "Critico")}
+                  </span>
+                  <span className="font-semibold text-foreground">{item.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </ChartCard>
 
         <ChartCard title="Items por categoria" empty={!hasStockData || categoryData.length === 0}>
-          <ChartContainer config={chartConfig} className="h-[260px] min-h-[260px] w-full">
-            <BarChart data={categoryData} layout="vertical" margin={{ left: 8, right: 24 }}>
-              <XAxis type="number" hide />
-              <YAxis dataKey="category" type="category" tickLine={false} axisLine={false} width={96} />
-              <ChartTooltip
-                content={
-                  <ChartTooltipContent
-                    nameKey="category"
-                    formatter={(value) => (
-                      <div className="flex min-w-[8rem] items-center justify-between gap-4">
-                        <span className="text-muted-foreground">Stock</span>
-                        <span className="font-mono font-medium tabular-nums">
-                          {formatDecimal(value, 4)}
-                        </span>
-                      </div>
-                    )}
+          <div className="grid min-h-[220px] content-center gap-[14px]">
+            {categoryData.map((item) => (
+              <div
+                key={item.category}
+                className="grid grid-cols-[72px_minmax(0,1fr)_42px] items-center gap-3 text-[13px] sm:grid-cols-[92px_minmax(0,1fr)_48px]"
+              >
+                <span className="truncate text-muted-foreground">{item.category}</span>
+                <div className="h-4 overflow-hidden rounded-sm bg-[#EEF2F7]">
+                  <div
+                    className="h-full rounded-sm"
+                    style={{
+                      width: `${maxCategoryStock > 0 ? (item.stockTotal / maxCategoryStock) * 100 : 0}%`,
+                      backgroundColor: item.fill,
+                    }}
                   />
-                }
-              />
-              <Bar dataKey="stock_total" radius={4} barSize={14}>
-                {categoryData.map((item) => (
-                  <Cell key={item.category} fill={item.fill} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ChartContainer>
+                </div>
+                <span className="text-right font-semibold text-foreground">{formatDecimal(item.stockTotal)}</span>
+              </div>
+            ))}
+          </div>
         </ChartCard>
       </section>
 
@@ -193,6 +246,13 @@ export default function InventoryDashboardPage() {
       </section>
     </DashboardShell>
   )
+}
+
+function normalizeCategory(value) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
 }
 
 function DashboardShell({ title, children }) {
