@@ -43,11 +43,11 @@ frontend/
 
 ## 🚀 Cómo correr el proyecto
 
-1. Instalar dependencias: `npm install`
+1. Instalar dependencias: `pnpm install`
 
 2. Crear archivo `.env` basado en `.env.example`
 
-3. Desplegar Frontend: `npm run dev`
+3. Desplegar Frontend: `pnpm dev`
 
 
 ## 🔗 Conexión con backend
