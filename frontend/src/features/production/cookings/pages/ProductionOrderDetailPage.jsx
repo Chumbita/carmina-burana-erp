@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { BeerIcon, Play, Trash2, X } from "lucide-react";
-import { EntityDetailPage } from "@/components/shared/DetailPage/EntityDetailPage";
+import { ArrowLeft, BeerIcon, Play, Trash2, X } from "lucide-react";
+import { Spinner } from "@/components/ui/Spinner";
 import { DataTable } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Field, FieldLabel } from "@/components/ui/Field";
 import {
   InputGroup,
   InputGroupInput,
@@ -28,27 +27,38 @@ const statusConfig = {
 
 const DESCRIPTION_CLAMP_LENGTH = 35;
 
+function Divider() {
+  return <div className="border-t border-neutral-200 dark:border-gray-800" />;
+}
+
+/** Fila de información del sidebar: título a la izquierda, dato a la derecha. */
+function InfoRow({ label, value }) {
+  return (
+    <div className="flex justify-between gap-3 text-sm">
+      <span className="shrink-0 text-gray-500">{label}</span>
+      <span className="font-medium text-right break-words">{value}</span>
+    </div>
+  );
+}
+
 /**
- * Descripción del sidebar en la misma línea que el resto de la información,
- * con un espacio entre el título y el texto. Cuando es larga se recorta a
- * 2 líneas y permite expandir/colapsar con "Ver más / Ver menos".
+ * Descripción del sidebar, debajo del título. Cuando el texto es muy largo
+ * se recorta a 2 líneas y permite expandir/colapsar con "Ver más / Ver menos".
  */
 function DescriptionSection({ description }) {
   const [expanded, setExpanded] = useState(false);
   const isLong = description.length > DESCRIPTION_CLAMP_LENGTH;
 
   return (
-    <div className="space-y-0.5">
-      <div className="flex justify-between gap-3 text-sm">
-        <span className="shrink-0 text-gray-500">Descripción</span>
-        <span
-          className={`font-medium text-right break-words ${
-            isLong && !expanded ? "line-clamp-2" : ""
-          }`}
-        >
-          {description}
-        </span>
-      </div>
+    <div className="space-y-1">
+      <span className="block text-sm text-gray-500">Descripción</span>
+      <p
+        className={`text-sm font-medium break-words ${
+          isLong && !expanded ? "line-clamp-2" : ""
+        }`}
+      >
+        {description}
+      </p>
       {isLong && (
         <button
           type="button"
@@ -146,14 +156,70 @@ export default function ProductionOrderDetailPage() {
     },
   ]
 
-  return (
-    <EntityDetailPage loading={loading} error={error}>
-      <EntityDetailPage.Header name={order?.item_name} />
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Spinner />
+      </div>
+    )
+  }
 
-      <EntityDetailPage.Sidebar
-        icon={<BeerIcon className="h-10 w-10 text-gray-400" />}
-      >
-        <EntityDetailPage.Sidebar.Row
+  if (error) {
+    return <p>Ocurrió un error al cargar.</p>
+  }
+
+  return (
+    <div className="grid grid-cols-1 grid-rows-[auto_minmax(0,1fr)] lg:grid-cols-[300px_1fr] gap-6 h-full">
+      {/* Encabezado: nombre + acciones a la misma altura */}
+      <header className="lg:col-span-2 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="cursor-pointer"
+            onClick={() => window.history.back()}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-2xl font-semibold tracking-tight">{order?.item_name}</h1>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {isPlanned && (
+            <>
+              <Button size="sm" className="gap-1.5 cursor-pointer" onClick={() => setExecuteOpen(true)}>
+                <Play className="h-3.5 w-3.5 fill-current" /> Ejecutar
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 cursor-pointer border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                onClick={() => setCancelOpen(true)}
+              >
+                <X className="h-3.5 w-3.5" /> Cancelar
+              </Button>
+            </>
+          )}
+          {isDone && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 cursor-pointer border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => setDiscardOpen(true)}
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Descartar
+            </Button>
+          )}
+        </div>
+      </header>
+
+      {/* Sidebar en card */}
+      <aside className="bg-white rounded-lg border shadow-sm p-4 self-start flex flex-col gap-3">
+        <div className="aspect-square bg-gray-100 rounded-md flex items-center justify-center">
+          <BeerIcon className="h-10 w-10 text-gray-400" />
+        </div>
+
+        <InfoRow
           label="Estado"
           value={
             <Badge className={`font-medium shadow-none ${status.className}`}>
@@ -161,57 +227,55 @@ export default function ProductionOrderDetailPage() {
             </Badge>
           }
         />
-        <EntityDetailPage.Sidebar.Row label="Receta" value={`v${order?.bom_version ?? "-"}`} />
-        <EntityDetailPage.Sidebar.Row
-          label="Cantidad planificada"
-          value={`${formatDecimal(order?.planned_quantity)} ${order?.base_uom_symbol ?? ""}`}
-        />
-        {!isPlanned && (
-          <EntityDetailPage.Sidebar.Row
-            label="Cantidad producida"
-            value={`${formatDecimal(order?.produced_quantity)} ${order?.base_uom_symbol ?? ""}`}
+
+        <Divider />
+
+        <div className="space-y-2">
+          <InfoRow label="Receta" value={`v${order?.bom_version ?? "-"}`} />
+          <InfoRow
+            label="Cantidad planificada"
+            value={`${formatDecimal(order?.planned_quantity)} ${order?.base_uom_symbol ?? ""}`}
           />
-        )}
-        {isPlanned && order?.ingredients?.length > 0 && (
-          <EntityDetailPage.Sidebar.Row label="Insumos comprometidos" value={order.ingredients.length} />
-        )}
-        <EntityDetailPage.Sidebar.Row label="Programada" value={formatDate(order?.schedule_date)} />
-        {order?.completed_at && (
-          <EntityDetailPage.Sidebar.Row label="Finalización" value={formatDateTime(order.completed_at)} />
-        )}
-        <EntityDetailPage.Sidebar.Row label="Costo estimado" value={costValue} />
-        {order?.description && <DescriptionSection description={order.description} />}
-      </EntityDetailPage.Sidebar>
+          {!isPlanned && (
+            <InfoRow
+              label="Cantidad producida"
+              value={`${formatDecimal(order?.produced_quantity)} ${order?.base_uom_symbol ?? ""}`}
+            />
+          )}
+          {isPlanned && order?.ingredients?.length > 0 && (
+            <InfoRow label="Insumos comprometidos" value={order.ingredients.length} />
+          )}
+          <InfoRow label="Programada" value={formatDate(order?.schedule_date)} />
+          {order?.completed_at && (
+            <InfoRow label="Finalización" value={formatDateTime(order.completed_at)} />
+          )}
+          <InfoRow label="Costo estimado" value={costValue} />
+        </div>
 
-      <EntityDetailPage.Content>
+        {order?.description && (
+          <>
+            <Divider />
+            <DescriptionSection description={order.description} />
+          </>
+        )}
+      </aside>
+
+      {/* Contenido en cards separadas */}
+      <main className="min-h-0 overflow-y-auto">
         {isPlanned ? (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between gap-4">
+          <div className="space-y-6">
+            <section className="bg-white rounded-lg border shadow-sm p-4 space-y-4">
               <h2 className="text-lg font-semibold">Insumos comprometidos</h2>
-              <div className="flex items-center gap-2">
-                <Button size="sm" className="gap-1.5" onClick={() => setExecuteOpen(true)}>
-                  <Play className="h-3.5 w-3.5 fill-current" /> Ejecutar
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1.5 border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  onClick={() => setCancelOpen(true)}
-                >
-                  <X className="h-3.5 w-3.5" /> Cancelar
-                </Button>
-              </div>
-            </div>
+              {order?.ingredients?.length ? (
+                <DataTable columns={ingredientColumns} data={order.ingredients} />
+              ) : (
+                <p className="text-sm text-gray-500">
+                  No se encontró una receta activa para calcular los insumos de esta producción.
+                </p>
+              )}
+            </section>
 
-            {order?.ingredients?.length ? (
-              <DataTable columns={ingredientColumns} data={order.ingredients} />
-            ) : (
-              <p className="text-sm text-gray-500">
-                No se encontró una receta activa para calcular los insumos de esta producción.
-              </p>
-            )}
-
-            <div className="space-y-4 pt-2">
+            <section className="bg-white rounded-lg border shadow-sm p-4 space-y-4">
               <h2 className="text-lg font-semibold">Editar planificación</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
@@ -256,24 +320,12 @@ export default function ProductionOrderDetailPage() {
                   Guardar cambios
                 </Button>
               </div>
-            </div>
+            </section>
           </div>
         ) : (
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between gap-4">
-                <h2 className="text-lg font-semibold">Insumos consumidos</h2>
-                {isDone && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-1.5 border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() => setDiscardOpen(true)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" /> Descartar
-                  </Button>
-                )}
-              </div>
+          <div className="space-y-6">
+            <section className="bg-white rounded-lg border shadow-sm p-4 space-y-4">
+              <h2 className="text-lg font-semibold">Insumos consumidos</h2>
               {order?.consumptions?.length ? (
                 <DataTable columns={movementColumns} data={order.consumptions} />
               ) : (
@@ -281,8 +333,9 @@ export default function ProductionOrderDetailPage() {
                   La orden no registra consumo de insumos.
                 </p>
               )}
-            </div>
-            <div className="space-y-4">
+            </section>
+
+            <section className="bg-white rounded-lg border shadow-sm p-4 space-y-4">
               <h2 className="text-lg font-semibold">Producto obtenido</h2>
               {order?.outputs?.length ? (
                 <DataTable columns={movementColumns} data={order.outputs} />
@@ -291,10 +344,10 @@ export default function ProductionOrderDetailPage() {
                   La orden no registra producción obtenida.
                 </p>
               )}
-            </div>
+            </section>
           </div>
         )}
-      </EntityDetailPage.Content>
+      </main>
 
       <ExecuteProductionModal
         open={executeOpen}
@@ -316,6 +369,6 @@ export default function ProductionOrderDetailPage() {
         onDiscard={handleDiscard}
         onClose={() => setDiscardOpen(false)}
       />
-    </EntityDetailPage>
+    </div>
   )
 }
