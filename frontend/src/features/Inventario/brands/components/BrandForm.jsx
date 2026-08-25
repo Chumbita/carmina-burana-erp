@@ -37,6 +37,7 @@ export function BrandForm({
 
   function submit(event) {
     event.preventDefault()
+    event.stopPropagation()
     if (!form.name.trim()) {
       setError('El nombre es obligatorio')
       return

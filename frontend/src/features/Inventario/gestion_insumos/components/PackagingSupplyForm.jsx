@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createPackagingSupplySchema, PACKAGING_TYPES } from "../schemas/supply.schema"
@@ -8,7 +9,10 @@ import { useUoms } from "../hooks/useUoms"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { DecimalInput } from "@/components/shared/DecimalInput"
-import { Save } from 'lucide-react'
+import { Save, Plus } from 'lucide-react'
+import { BrandForm } from "@/features/Inventario/brands/components/BrandForm"
+import { brandService } from "@/features/Inventario/brands/services/brandService"
+import { useNotification } from "@/components/shared/notifications/useNotification"
 import {
   Select,
   SelectContent,
@@ -39,8 +43,11 @@ export function PackagingSupplyForm({
   existingSupplies = [],
   excludeId = null,
 }) {
-  const { brands, loading: brandsLoading } = useBrands()
+  const { brands, loading: brandsLoading, addBrand } = useBrands()
   const { uoms, loading: uomsLoading } = useUoms()
+  const [brandDialogOpen, setBrandDialogOpen] = useState(false)
+  const [brandSaving, setBrandSaving] = useState(false)
+  const notify = useNotification()
 
   const schema = createPackagingSupplySchema(existingSupplies, excludeId)
 
@@ -48,6 +55,7 @@ export function PackagingSupplyForm({
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { isDirty, isValid },
   } = useForm({
     resolver: zodResolver(schema),
@@ -97,31 +105,43 @@ export function PackagingSupplyForm({
         <Controller
           name="brand_id"
           control={control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
+          render={({ field }) => (
+            <Field>
               <FieldLabel htmlFor={field.name}>
                 Marca <span className="text-red-500 -ml-1">*</span>
               </FieldLabel>
-              <Select
-                name={field.name}
-                value={field.value !== undefined ? String(field.value) : ""}
-                onValueChange={(val) => field.onChange(Number(val))}
-                disabled={brandsLoading}
-              >
-                <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
-                  <SelectValue placeholder={brandsLoading ? "Cargando marcas..." : "Seleccione marca..."} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Marcas</SelectLabel>
-                    {brands.map((brand) => (
-                      <SelectItem key={brand.id} value={String(brand.id)}>
-                        {brand.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-1">
+                <Select
+                  name={field.name}
+                  value={field.value !== undefined ? String(field.value) : ""}
+                  onValueChange={(val) => field.onChange(Number(val))}
+                  disabled={brandsLoading}
+                >
+                  <SelectTrigger id={field.name} className="flex-1 min-w-0">
+                    <SelectValue placeholder={brandsLoading ? "Cargando marcas..." : "Seleccione marca..."} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Marcas</SelectLabel>
+                      {brands.map((brand) => (
+                        <SelectItem key={brand.id} value={String(brand.id)}>
+                          {brand.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0"
+                  aria-label="Crear marca"
+                  onClick={() => setBrandDialogOpen(true)}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
             </Field>
           )}
         />
@@ -278,6 +298,29 @@ export function PackagingSupplyForm({
           )}
         </Button>
       </div>
+
+      <BrandForm
+        open={brandDialogOpen}
+        onOpenChange={setBrandDialogOpen}
+        brand={{ name: "" }}
+        emptyBrand={{ name: "" }}
+        saving={brandSaving}
+        submitLabel="Crear marca"
+        onSubmit={async (data) => {
+          try {
+            setBrandSaving(true)
+            const newBrand = await brandService.create({ name: data.name.trim() })
+            addBrand(newBrand)
+            setValue("brand_id", newBrand.id, { shouldDirty: true, shouldValidate: true })
+            notify.success("Marca creada correctamente")
+            setBrandDialogOpen(false)
+          } catch (error) {
+            notify.error(error.response?.data?.detail || "Error al crear marca")
+          } finally {
+            setBrandSaving(false)
+          }
+        }}
+      />
     </form>
   )
 }
