@@ -17,8 +17,14 @@ class ISupplierRepository(Protocol):
         """Busca un proveedor por id. Retorna None si no existe."""
         ...
 
-    async def find_all(self) -> list[Supplier]:
-        """Retorna proveedores ordenados por nombre."""
+    async def find_all(
+        self,
+        offset: int | None = None,
+        limit: int | None = None,
+        q: str | None = None,
+        status: str | None = None,
+    ) -> tuple[list[Supplier], int]:
+        """Retorna proveedores paginados y filtrados (q, status) ordenados por id."""
         ...
 
     async def find_active(self) -> list[Supplier]:

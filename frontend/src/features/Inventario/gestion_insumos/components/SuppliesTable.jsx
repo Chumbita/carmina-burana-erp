@@ -4,7 +4,7 @@ import { estadoStyles } from "../utils/stockStyles";
 import { useNavigate } from "react-router-dom";
 import { formatDecimal } from "@/lib/utils/formatters";
 
-export function SuppliesTable({ insumos, hasRecords }) {
+export function SuppliesTable({ insumos, loading, page = 1, pageSize = 25, hasRecords }) {
   const navigate = useNavigate();
 
   const handleRowClick = (insumo) => {
@@ -16,8 +16,16 @@ export function SuppliesTable({ insumos, hasRecords }) {
     navigate(`/inventario/insumos/${insumo.id}`);
   };
 
+  if (loading && !insumos?.length) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-neutral-500">Cargando...</div>
+      </div>
+    )
+  }
+
   const tableHeaders = [
-    { header: "Nro", accessor: "id" },
+    { header: "Nro", accessor: "id", render: (_value, _row, index) => (page - 1) * pageSize + index + 1 },
     { header: "Nombre", accessor: "name" },
     { header: "Marca", accessor: "brand_name" },
     {

@@ -4,28 +4,52 @@ from decimal import Decimal
 from src.domain.exceptions.item_exceptions import ItemNotFoundException
 from src.domain.repositories.supply_repository import ISupplyRepository
 from src.domain.value_objects.stock_status import StockStatus
+from src.shared.pagination import Page, PaginationParams
 
 
 class ListActiveSuppliesUseCase:
     def __init__(self, supply_repository: ISupplyRepository) -> None:
         self._supply_repository = supply_repository
 
-    async def execute(self) -> list[dict]:
-        rows = await self._supply_repository.list_active_supplies_general()
+    async def execute(
+        self,
+        params: PaginationParams,
+        *,
+        q: str | None = None,
+        category: str | None = None,
+        item_type: str | None = None,
+        stock_status: str | None = None,
+        sort_by: str = "name",
+        sort_order: str = "asc",
+    ) -> Page[dict]:
+        rows, total = await self._supply_repository.list_active_supplies_general(
+            offset=params.offset,
+            limit=params.limit,
+            q=q,
+            category=category,
+            item_type=item_type,
+            stock_status=stock_status,
+            sort_by=sort_by,
+            sort_order=sort_order,
+        )
+
+        if not rows and total == 0:
+            return Page(items=[], total_items=0, params=params)
+
         response: list[dict] = []
 
         for row in rows:
             stock_total = float(row["stock_total"])
             min_stock_level = float(row["min_stock_level"])
-            stock_status = StockStatus.from_levels(stock_total, min_stock_level)
+            stock_status_value = StockStatus.from_levels(stock_total, min_stock_level)
 
             if row["item_type_code"] == "supply":
                 name = row["name"]
-                category = row["supply_category"] or ""
+                category_value = row["supply_category"] or ""
             else:
                 suffix = f" {int(row['capacity_ml'])}ml" if row["capacity_ml"] else ""
                 name = f"{row['name']}{suffix}"
-                category = row["packaging_type"] or ""
+                category_value = row["packaging_type"] or ""
 
             response.append(
                 {
@@ -34,14 +58,14 @@ class ListActiveSuppliesUseCase:
                     "brand_name": row["brand_name"],
                     "base_uom_symbol": row["base_uom_symbol"],
                     "min_stock_level": Decimal(row["min_stock_level"]),
-                    "category": category,
+                    "category": category_value,
                     "item_type": row["item_type_code"].upper(),
                     "stock_total": stock_total,
-                    "estado_stock": stock_status.value,
+                    "estado_stock": stock_status_value.value,
                 }
             )
 
-        return response
+        return Page(items=response, total_items=total, params=params)
 
 
 class GetActiveSupplyDetailUseCase:

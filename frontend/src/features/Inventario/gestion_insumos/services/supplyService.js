@@ -3,8 +3,20 @@ import privateClient from "@/lib/api/privateClient"
 
 export const supplyService = {
   // READ
-  getAll: async () => {
-    const response = await privateClient.get(ENDPOINTS.SUPPLIES.GET_ALL)
+  getAll: async ({ page = 1, pageSize = 25, q, category, itemType, stockStatus, sortBy, sortOrder } = {}) => {
+    const params = { page, page_size: pageSize }
+    if (q) params.q = q
+    if (category) params.category = category
+    if (itemType) params.item_type = itemType
+    if (stockStatus) params.stock_status = stockStatus
+    if (sortBy) params.sort_by = sortBy
+    if (sortOrder) params.sort_order = sortOrder
+    const response = await privateClient.get(ENDPOINTS.SUPPLIES.GET_ALL, { params })
+    return response.data
+  },
+
+  getOptions: async () => {
+    const response = await privateClient.get(ENDPOINTS.ITEMS.GET_OPTIONS)
     return response.data
   },
 

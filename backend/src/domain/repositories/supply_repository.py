@@ -28,9 +28,21 @@ class ISupplyRepository(Protocol):
         """
         ...
 
-    async def list_active_supplies_general(self) -> list[dict[str, Any]]:
+    async def list_active_supplies_general(
+        self,
+        *,
+        offset: int | None = None,
+        limit: int | None = None,
+        q: str | None = None,
+        category: str | None = None,
+        item_type: str | None = None,
+        stock_status: str | None = None,
+        sort_by: str = "name",
+        sort_order: str = "asc",
+    ) -> tuple[list[dict[str, Any]], int]:
         """
-        Retorna la vista general de insumos activos.
+        Retorna la vista general de insumos activos (supply + packaging_supply)
+        paginada y filtrada. Devuelve (rows, total).
         """
         ...
 
