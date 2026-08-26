@@ -5,22 +5,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/Dialog";
-import { Button } from "@/components/ui/Button";
 import { ProductionForm } from "./ProductionForm";
-import { itemService } from "../services/itemService";
+import { useManufacturableItems } from "@/hooks/useItems";
 import { bomService } from "../services/bomService";
 import { AlertTriangle, Package } from "lucide-react";
 
 export function NewProductionModal({ open, onClose, onSubmit }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Opciones de manufactura cargadas del backend
-  const [options, setOptions] = useState({
-    beerOptions: [],
-    productOptions: [],
-  });
-  const [optionsLoading, setOptionsLoading] = useState(false);
-  const [optionsError, setOptionsError] = useState(false);
+  const { beerOptions, productOptions, loading: optionsLoading, error: optionsError } = useManufacturableItems();
 
   // --- NUEVOS ESTADOS PARA GESTIONAR LA BOM SELECCIONADA ---
   const [selectedItemId, setSelectedItemId] = useState(undefined);
@@ -32,30 +25,6 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
 
   // Bloquea el botón Planificar tras un error de stock insuficiente
   const [submitBlocked, setSubmitBlocked] = useState(false);
-
-  // Cargamos los ítems manufacturables cuando el modal se abre
-  useEffect(() => {
-    if (!open) return;
-
-    setMissingIngredients(null);
-    setSubmitBlocked(false);
-
-    async function fetchOptions() {
-      try {
-        setOptionsLoading(true);
-        setOptionsError(false);
-        const data = await itemService.getManufacturableItems();
-        setOptions(data);
-      } catch (error) {
-        console.error("Error al cargar ítems en el modal:", error);
-        setOptionsError(true);
-      } finally {
-        setOptionsLoading(false);
-      }
-    }
-
-    fetchOptions();
-  }, [open]);
 
   // --- EFECTO PARA BUSCAR LA BOM CUANDO SE SELECCIONA UN ÍTEM ---
   useEffect(() => {
@@ -129,8 +98,8 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
             cancelLabel="Cancelar"
             isSubmitting={isSubmitting}
             layout="modal"
-            beerOptions={options.beerOptions}
-            productOptions={options.productOptions}
+            beerOptions={beerOptions}
+            productOptions={productOptions}
             optionsLoading={optionsLoading}
             optionsError={optionsError}
             onItemChange={(id) => {

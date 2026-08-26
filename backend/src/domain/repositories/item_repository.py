@@ -78,8 +78,9 @@ class IItemRepostory(Protocol):
         """
         ...
     
-    async def get_manufacturable(self) -> list[Item]:
+    async def get_manufacturable(self) -> list[dict]:
         """
         Obtiene todos los items marcados como manufacturables (no eliminados).
+        Retorna dicts con: id, item_type, name, brand, brand_id, uom_symbol, uom_id.
         """
     ...
