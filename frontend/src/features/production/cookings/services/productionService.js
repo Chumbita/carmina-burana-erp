@@ -22,6 +22,11 @@ export const productionService = {
     return response.data
   },
 
+  update: async (orderId, data) => {
+    const response = await privateClient.patch(ENDPOINTS.PRODUCTION_ORDERS.UPDATE(orderId), data)
+    return response.data
+  },
+
   execute: async (orderId, data) => {
     const response = await privateClient.post(ENDPOINTS.PRODUCTION_ORDERS.EXECUTE(orderId), data)
     return response.data

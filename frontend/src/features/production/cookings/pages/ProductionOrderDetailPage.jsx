@@ -13,9 +13,11 @@ import {
 } from "@/components/ui/InputGroup";
 import { useProductionOrder } from "../hooks/useProductionOrder";
 import { productionService } from "../services/productionService";
+import { useNotification } from "@/components/shared/notifications/useNotification";
 import { ExecuteProductionModal } from "../components/ExecuteProductionModal";
 import { CancelProductionModal } from "../components/CancelProductionModal";
 import { DiscardProductionModal } from "../components/DiscardProductionModal";
+import { StockInsufficientBanner } from "../components/StockInsufficientBanner";
 import { formatDate, formatDateTime, formatDecimal, formatCurrency } from "@/lib/utils/formatters"
 
 const statusConfig = {
@@ -85,9 +87,13 @@ export default function ProductionOrderDetailPage() {
   const [syncedOrder, setSyncedOrder] = useState(null)
   const [qtyValue, setQtyValue] = useState("")
   const [dateValue, setDateValue] = useState("")
+  const [savingEdit, setSavingEdit] = useState(false)
+  const [missingIngredients, setMissingIngredients] = useState(null)
+  const notify = useNotification()
 
   if (order !== syncedOrder) {
     setSyncedOrder(order)
+    setMissingIngredients(null)
     if (order) {
       setQtyValue(order.planned_quantity != null ? String(Number(order.planned_quantity)) : "")
       setDateValue(order.schedule_date ? String(order.schedule_date).split("T")[0] : "")
@@ -110,7 +116,7 @@ export default function ProductionOrderDetailPage() {
   const hasChanges = qtyValue !== initialQuantity || dateValue !== initialDate
 
   const costValue =
-    order?.unit_cost > 0 ? `${formatCurrency(order.unit_cost)}/${order.base_uom_symbol ?? ""}` : "-"
+    order?.unit_cost > 0 ? `${formatCurrency(order.unit_cost)}/${order?.base_uom_symbol ?? ""}` : "-"
 
   async function handleExecute(target, payload) {
     await productionService.execute(target.id, payload)
@@ -125,6 +131,40 @@ export default function ProductionOrderDetailPage() {
   async function handleDiscard(id, description) {
     await productionService.discard(id, description)
     await refetch({ silent: true })
+  }
+
+  async function handleSave() {
+    const quantity = Number(qtyValue)
+    if (!qtyValue || Number.isNaN(quantity) || quantity <= 0) {
+      notify.error("La cantidad debe ser un número mayor a 0.")
+      return
+    }
+    if (!dateValue) {
+      notify.error("La fecha programada es requerida.")
+      return
+    }
+
+    setSavingEdit(true)
+    try {
+      await productionService.update(order.id, {
+        planned_quantity: quantity,
+        schedule_date: dateValue,
+      })
+      await refetch({ silent: true })
+      notify.success("Orden actualizada correctamente.")
+    } catch (err) {
+      const detail = err.response?.data?.detail
+      if (detail?.missing && Array.isArray(detail.missing)) {
+        setMissingIngredients({ message: detail.message, missing: detail.missing })
+      } else {
+        const msg = typeof detail === "string"
+          ? detail
+          : detail?.message || "Error al actualizar la orden."
+        notify.error(msg)
+      }
+    } finally {
+      setSavingEdit(false)
+    }
   }
 
   const ingredientColumns = [
@@ -290,7 +330,7 @@ export default function ProductionOrderDetailPage() {
                       step="any"
                       className="text-xs"
                       value={qtyValue}
-                      onChange={(e) => setQtyValue(e.target.value)}
+                      onChange={(e) => { setQtyValue(e.target.value); setMissingIngredients(null) }}
                     />
                     <InputGroupAddon
                       align="inline-end"
@@ -310,13 +350,24 @@ export default function ProductionOrderDetailPage() {
                     type="date"
                     className="h-9 text-xs px-3"
                     value={dateValue}
-                    onChange={(e) => setDateValue(e.target.value)}
+                    onChange={(e) => { setDateValue(e.target.value); setMissingIngredients(null) }}
                   />
                 </div>
               </div>
 
+              <StockInsufficientBanner
+                message={missingIngredients?.message}
+                missing={missingIngredients?.missing}
+                onDismiss={() => setMissingIngredients(null)}
+              />
+
               <div className="flex justify-end">
-                <Button size="sm" className="cursor-pointer" disabled={!hasChanges}>
+                <Button
+                  size="sm"
+                  className="cursor-pointer"
+                  disabled={!hasChanges || savingEdit || missingIngredients}
+                  onClick={handleSave}
+                >
                   Guardar cambios
                 </Button>
               </div>
