@@ -72,6 +72,7 @@ export default function ProductionRegisterPage() {
         ) : (
           <ProductionTable
             productions={displayData}
+            hasRecords={productions.length > 0}
             onExecute={handleExecuteProduction}
             onCancel={cancelProduction}
           />

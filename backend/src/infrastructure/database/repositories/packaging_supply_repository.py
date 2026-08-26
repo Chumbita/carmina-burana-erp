@@ -199,7 +199,6 @@ class PackagingSupplyRepository(IPackagingSupplyRepository):
             .join(ItemTypeModel, ItemTypeModel.id == ItemModel.item_type_id)
             .join(BrandModel, BrandModel.id == ItemModel.brand_id)
             .join(UomModel, UomModel.id == ItemModel.base_uom_id)
-            .outerjoin(InventoryBalanceModel, InventoryBalanceModel.item_id == ItemModel.id)
             .where(ItemModel.id == item_id, ItemModel.status == "ACTIVE")
         )
 

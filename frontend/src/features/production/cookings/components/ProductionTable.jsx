@@ -16,7 +16,7 @@ function formatDateDMY(value) {
   return y && m && d ? `${d}/${m}/${y}` : datePart;
 }
 
-export function ProductionTable({ productions, onExecute, onCancel }) {
+export function ProductionTable({ productions, hasRecords, onExecute, onCancel }) {
   const navigate = useNavigate();
 
   // Orden seleccionada para el modal de ejecutar (completar producción)
@@ -97,17 +97,14 @@ export function ProductionTable({ productions, onExecute, onCancel }) {
 
   return (
     <>
-      {formattedProductions.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-neutral-500">No hay producciones planeadas.</p>
-        </div>
-      ) : (
-        <DataTable
-          columns={columns}
-          data={formattedProductions}
-          onRowClick={handleRowClick}
-        />
-      )}
+      <DataTable
+        columns={columns}
+        data={formattedProductions}
+        hasRecords={hasRecords}
+        emptyMessage="No hay producciones planeadas"
+        noResultsMessage="No se encontraron producciones con los filtros aplicados"
+        onRowClick={handleRowClick}
+      />
 
       <ExecuteProductionModal
         open={!!completeRow}

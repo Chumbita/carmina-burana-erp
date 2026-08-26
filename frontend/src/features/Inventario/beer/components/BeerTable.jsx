@@ -2,7 +2,7 @@ import { DataTable } from "@/components/shared/DataTable";
 import { useNavigate } from "react-router-dom";
 import { formatDecimal } from "@/lib/utils/formatters";
 
-export function BeerTable({ beer }) {
+export function BeerTable({ beer, hasRecords }) {
   const navigate = useNavigate();
 
   const handleRowClick = (row) => {
@@ -20,5 +20,14 @@ export function BeerTable({ beer }) {
     { header: "Stock mínimo", accessor: "min_stock_level", render: (value) => formatDecimal(value) },
   ];
 
-  return <DataTable columns={tableHeaders} data={beer} onRowClick={handleRowClick} />;
+  return (
+    <DataTable
+      columns={tableHeaders}
+      data={beer}
+      emptyMessage="No hay cervezas registradas"
+      noResultsMessage="No se encontraron cervezas con los filtros aplicados"
+      hasRecords={hasRecords}
+      onRowClick={handleRowClick}
+    />
+  );
 }

@@ -20,7 +20,7 @@ const statusConfig = {
   DISCARDED: { className: "bg-slate-100 text-slate-500 border-slate-200", label: "Descartada" },
 };
 
-export function ProductionHistoryTable({ productions, onDiscard }) {
+export function ProductionHistoryTable({ productions, hasRecords, onDiscard }) {
   const navigate = useNavigate();
 
   // Orden seleccionada para la confirmación de descarte
@@ -98,8 +98,10 @@ export function ProductionHistoryTable({ productions, onDiscard }) {
       <DataTable
         columns={columns}
         data={formattedProductions}
+        hasRecords={hasRecords}
         onRowClick={handleRowClick}
-        emptyMessage="No hay cocciones en el historial."
+        emptyMessage="No hay cocciones en el historial"
+        noResultsMessage="No se encontraron cocciones con los filtros aplicados"
       />
 
       <DiscardProductionModal

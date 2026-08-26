@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createProductionSchema } from "../schemas/production.schema";
 
 import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
+import { Save } from 'lucide-react';
 import { Input } from "@/components/ui/Input";
 import { DecimalInput } from "@/components/shared/DecimalInput";
 import { formatDecimal } from "@/lib/utils/formatters";
@@ -418,9 +420,9 @@ export function ProductionForm({
             type="button"
             size="sm"
             variant="outline"
+            className="cursor-pointer"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="h-8 text-xs px-3.5"
           >
             {cancelLabel}
           </Button>
@@ -428,10 +430,20 @@ export function ProductionForm({
         <Button
           size="sm"
           type="submit"
+          className="cursor-pointer"
           disabled={isSubmitting || !hasValidRecipe || submitBlocked}
-          className="h-8 text-xs px-3.5"
         >
-          {isSubmitting ? "Creando..." : submitLabel}
+          {isSubmitting ? (
+            <>
+              <Spinner data-icon="inline-start" />
+              Creando…
+            </>
+          ) : (
+            <>
+              <Save data-icon="inline-start" />
+              {submitLabel}
+            </>
+          )}
         </Button>
       </div>
     </form>

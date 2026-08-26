@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useNotification } from '@/components/shared/notifications/useNotification'
 import { supplierService } from '../services/supplierService'
@@ -19,53 +19,71 @@ export function cleanSupplier(data) {
   }
 }
 
+const PAGE_SIZE = 15
+
 export function useSuppliersPage() {
   const notify = useNotification()
-  const [suppliers, setSuppliers] = useState([])
+  const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('ACTIVE')
+  const [page, setPage] = useState(1)
+  const [totalItems, setTotalItems] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
   const [openForm, setOpenForm] = useState(false)
   const [editingSupplier, setEditingSupplier] = useState(null)
 
-  async function loadSuppliers() {
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 350)
+    return () => clearTimeout(t)
+  }, [search])
+
+  const fetchSuppliers = useCallback(async () => {
     try {
       setLoading(true)
-      setSuppliers(await supplierService.getAll())
+      const res = await supplierService.getAll({
+        page,
+        pageSize: PAGE_SIZE,
+        q: debouncedSearch || undefined,
+        status: statusFilter,
+      })
+      setData(res.data || [])
+      setTotalItems(res.pagination?.total_items ?? 0)
+      setTotalPages(res.pagination?.total_pages ?? 0)
     } catch (error) {
       notify.error(error.response?.data?.detail || 'Error al cargar proveedores')
+      setData([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, debouncedSearch, statusFilter, notify])
 
   useEffect(() => {
-    loadSuppliers()
+    fetchSuppliers()
+  }, [fetchSuppliers, refreshKey])
+
+  const changePage = useCallback((next) => setPage(next), [])
+
+  const refresh = useCallback(() => {
+    setPage(1)
+    setRefreshKey((k) => k + 1)
   }, [])
 
-  const filteredSuppliers = useMemo(() => {
-    const term = search.trim().toLowerCase()
-    return suppliers
-      .filter((supplier) => {
-        const matchesStatus = statusFilter === 'all' || supplier.status === statusFilter
-        const matchesSearch = !term || [supplier.name, supplier.email, supplier.phone]
-          .filter(Boolean)
-          .some((value) => value.toLowerCase().includes(term))
-        return matchesStatus && matchesSearch
-      })
-      .sort((a, b) => a.id - b.id)
-  }, [search, statusFilter, suppliers])
+  const hasActiveFilters = Boolean(search.trim() || statusFilter !== 'ACTIVE')
+  const hasRecords = hasActiveFilters ? true : totalItems > 0 || data.length > 0
 
   function startCreate() {
     setEditingSupplier(null)
     setOpenForm(true)
   }
 
-  async function saveSupplier(data) {
+  async function saveSupplier(formData) {
     try {
       setSaving(true)
-      const payload = cleanSupplier(data)
+      const payload = cleanSupplier(formData)
       if (editingSupplier) {
         await supplierService.update(editingSupplier.id, payload)
         notify.success('Proveedor actualizado correctamente')
@@ -74,7 +92,7 @@ export function useSuppliersPage() {
         notify.success('Proveedor creado correctamente')
       }
       setOpenForm(false)
-      await loadSuppliers()
+      refresh()
     } catch (error) {
       notify.error(error.response?.data?.detail || 'Error al guardar proveedor')
     } finally {
@@ -85,16 +103,24 @@ export function useSuppliersPage() {
   return {
     emptySupplier,
     editingSupplier,
-    filteredSuppliers,
+    data,
+    hasRecords,
     loading,
-    openForm,
     saving,
     search,
+    debouncedSearch,
     statusFilter,
-    saveSupplier,
+    page,
+    totalItems,
+    totalPages,
+    pageSize: PAGE_SIZE,
+    openForm,
     setOpenForm,
     setSearch,
     setStatusFilter,
+    changePage,
+    refresh,
+    saveSupplier,
     startCreate,
   }
 }

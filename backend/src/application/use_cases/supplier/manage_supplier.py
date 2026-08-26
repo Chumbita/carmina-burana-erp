@@ -6,6 +6,7 @@ from src.domain.exceptions.supplier_exceptions import (
 )
 from src.domain.repositories.supplier_repository import ISupplierRepository
 from src.domain.services.audit_log_service import AuditLogService
+from src.shared.pagination import Page, PaginationParams
 
 
 def _audit_data(supplier) -> dict:
@@ -35,8 +36,25 @@ class ListSuppliersUseCase:
     def __init__(self, supplier_repo: ISupplierRepository) -> None:
         self._supplier_repo = supplier_repo
 
-    async def execute(self) -> list[SupplierResponse]:
-        return [_to_response(supplier) for supplier in await self._supplier_repo.find_all()]
+    async def execute(
+        self,
+        params: PaginationParams,
+        q: str | None = None,
+        status: str | None = None,
+    ) -> Page[dict]:
+        if status == "all":
+            status = None
+
+        suppliers, total = await self._supplier_repo.find_all(
+            offset=params.offset, limit=params.limit, q=q, status=status
+        )
+        if total == 0:
+            return Page(items=[], total_items=0, params=params)
+        return Page(
+            items=[_to_response(s).model_dump() for s in suppliers],
+            total_items=total,
+            params=params,
+        )
 
 
 class GetSupplierByIdUseCase:

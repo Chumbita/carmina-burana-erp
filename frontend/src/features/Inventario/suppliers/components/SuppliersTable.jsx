@@ -1,13 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom'
 
 import { DataTable } from '@/components/shared/DataTable'
-import { Card } from '@/components/ui/Card'
 
-export function SuppliersTable({ suppliers, loading }) {
+export function SuppliersTable({ suppliers, hasRecords, loading, page = 1, pageSize = 15 }) {
   const navigate = useNavigate()
 
   const columns = [
-    { header: 'Nro', accessor: 'id', render: (_value, _row, index) => index + 1 },
+    { header: 'Nro', accessor: 'id', render: (_value, _row, index) => (page - 1) * pageSize + index + 1 },
     {
       header: 'Nombre',
       accessor: 'name',
@@ -22,21 +21,11 @@ export function SuppliersTable({ suppliers, loading }) {
     { header: 'Dirección', accessor: 'address', render: (value) => <span className="block max-w-72 truncate">{value || '-'}</span> },
   ]
 
-  if (loading) {
+  if (loading && !suppliers?.length) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-neutral-500">Cargando...</div>
       </div>
-    )
-  }
-
-  if (!suppliers.length) {
-    return (
-      <Card>
-        <div className="text-center py-8">
-          <p className="text-neutral-500">No se encontraron proveedores</p>
-        </div>
-      </Card>
     )
   }
 
@@ -45,6 +34,9 @@ export function SuppliersTable({ suppliers, loading }) {
       <DataTable
         columns={columns}
         data={suppliers}
+        emptyMessage="No hay proveedores registrados"
+        noResultsMessage="No se encontraron proveedores con los filtros aplicados"
+        hasRecords={hasRecords}
         onRowClick={(supplier) => navigate(`/inventario/proveedores/${supplier.id}`)}
       />
     </div>
