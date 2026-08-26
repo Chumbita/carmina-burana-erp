@@ -19,6 +19,9 @@ from src.application.use_cases.production_order.get_production_order import (
 from src.application.use_cases.production_order.get_production_order_by_id_use_case import (
     GetProductionOrderByIdUseCase,
 )
+from src.application.use_cases.production_order.update_production_order import (
+    UpdateProductionOrderUseCase,
+)
 from src.domain.services.inventory_movement_service import InventoryDomainService
 
 
@@ -106,4 +109,16 @@ def get_production_order_by_id_use_case(
         bom_repository=BomRepository(session),
         balance_repository=InventoryBalanceRepository(session),
         lot_repository=InventoryLotRepository(session),
+    )
+
+
+def get_update_production_order_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> UpdateProductionOrderUseCase:
+    return UpdateProductionOrderUseCase(
+        production_order_repository=ProductionOrderRepository(session),
+        bom_repository=BomRepository(session),
+        balance_repository=InventoryBalanceRepository(session),
+        lot_repository=InventoryLotRepository(session),
+        transaction_repository=InventoryTransactionRepository(session),
     )

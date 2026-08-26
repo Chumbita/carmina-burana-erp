@@ -7,6 +7,7 @@ from src.domain.exceptions.production_exceptions import (
     ProductionOrderNotFoundException,
     ProductionOrderCannotBeCancelledException,
     ProductionOrderCannotBeDiscardedException,
+    ProductionOrderCannotBeUpdatedException,
     BomNotFoundException,
     InsufficientStockForProductionException,
 )
@@ -23,10 +24,14 @@ from src.application.use_cases.production_order.get_production_order import (
 from src.application.use_cases.production_order.get_production_order_by_id_use_case import (
     GetProductionOrderByIdUseCase,
 )
+from src.application.use_cases.production_order.update_production_order import (
+    UpdateProductionOrderUseCase,
+)
 from src.presentation.schemas.production_order_schemas import (
     CreateProductionOrderSchema,
     CompleteProductionOrderRequestSchema,
     DiscardProductionOrderRequestSchema,
+    UpdateProductionOrderRequestSchema,
     ProductionOrderResponseSchema,
     ProductionOrderDetailSchema,
 )
@@ -38,6 +43,7 @@ from src.presentation.dependencies.use_cases.production_order import (
     get_list_finished_productions_use_case,
     get_discard_production_order_use_case,
     get_production_order_by_id_use_case,
+    get_update_production_order_use_case,
 )
 from src.presentation.dependencies.auth import get_current_user
 
@@ -118,6 +124,46 @@ async def get_production_order_detail(
         return await use_case.execute(order_id)
     except ProductionOrderNotFoundException as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@router.patch(
+    "/{order_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=ProductionOrderResponseSchema,
+    summary="Actualizar orden de producción planificada (cantidad y/o fecha programada)",
+)
+async def update_production_order(
+    order_id: int,
+    body: UpdateProductionOrderRequestSchema,
+    use_case: UpdateProductionOrderUseCase = Depends(get_update_production_order_use_case),
+    # current_user: User = Depends(get_current_user),
+) -> ProductionOrderResponseSchema:
+    """
+    Actualiza los campos editables de una orden en estado PLANNED.
+    Si cambia la cantidad planificada se liberan las reservas anteriores
+    y se vuelve a reservar stock por la nueva cantidad (FEFO).
+    """
+    try:
+        order = await use_case.execute(
+            order_id=order_id,
+            planned_quantity=body.planned_quantity,
+            schedule_date=body.schedule_date,
+        )
+        return _build_response(order)
+    except ProductionOrderNotFoundException as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ProductionOrderCannotBeUpdatedException as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    except InsufficientStockForProductionException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=jsonable_encoder({
+                "message": "Stock insuficiente para la nueva cantidad planificada",
+                "missing": exc.missing,
+            }),
+        ) from exc
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 

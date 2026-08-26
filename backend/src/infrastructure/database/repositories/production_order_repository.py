@@ -235,7 +235,8 @@ class ProductionOrderRepository(IProductionOrderRepository):
 
     async def save(self, order: ProductionOrder) -> ProductionOrder:
         """
-        Persiste cambios de estado en una orden existente.
+        Persiste cambios en una orden existente
+        (status, cantidades, fechas y descripción).
         Usa ORM-level update para que el identity map se mantenga sincronizado.
         """
         model = await self._session.get(ProductionOrderModel, order.id)
@@ -243,7 +244,9 @@ class ProductionOrderRepository(IProductionOrderRepository):
             raise ValueError(f"ProductionOrderModel with id={order.id} not found in session")
 
         model.status = order.status.value
+        model.planned_quantity = order.planned_quantity
         model.produced_quantity = order.produced_quantity
+        model.schedule_date = order.schedule_date
         model.completed_at = order.completed_at
         model.description = order.description
         await self._session.flush()

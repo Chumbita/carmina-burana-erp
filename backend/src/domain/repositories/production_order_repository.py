@@ -47,8 +47,8 @@ class IProductionOrderRepository(Protocol):
 
     async def save(self, order: ProductionOrder) -> ProductionOrder:
         """
-        Persiste cambios de estado de una orden existente
-        (status, produced_quantity, completed_at).
+        Persiste cambios de una orden existente
+        (status, cantidades, fechas y descripción).
         """
         ...
 

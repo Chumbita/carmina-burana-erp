@@ -18,6 +18,12 @@ class DiscardProductionOrderRequestSchema(BaseModel):
     description: Optional[str] = Field(None, max_length=255, description="Motivo breve del descarte")
 
 
+class UpdateProductionOrderRequestSchema(BaseModel):
+    """Mismas validaciones de creación para los campos editables."""
+    planned_quantity: Optional[Decimal] = Field(None, gt=0, description="Cantidad a producir (debe ser > 0)")
+    schedule_date: Optional[date] = Field(None, description="Fecha programada (requerida)")
+
+
 # ── RESPONSES ────────────────────────────────────────────────
 
 class ProductionOrderResponseSchema(BaseModel):
