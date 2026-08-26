@@ -94,3 +94,9 @@ api_router.include_router(production_order_router)
 # ════════════════════════════════
 from src.presentation.api.routes.notification_router import router as notification_router
 api_router.include_router(notification_router)
+
+# ════════════════════════════════
+# INVENTORY DASHBOARD ROUTER
+# ════════════════════════════════
+from src.presentation.api.routes.inventory_dashboard_router import router as inventory_dashboard_router
+api_router.include_router(inventory_dashboard_router)

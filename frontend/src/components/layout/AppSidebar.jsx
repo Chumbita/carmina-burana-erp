@@ -56,6 +56,10 @@ export function AppSidebar({ ...props }) {
         icon: Box,
         items: [
           {
+            title: "Dashboard",
+            url: "/inventario/dashboard",
+          },
+          {
             title: "Insumos",
             url: "/inventario/insumos",
           },
