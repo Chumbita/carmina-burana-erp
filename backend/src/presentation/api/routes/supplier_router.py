@@ -44,7 +44,7 @@ router = APIRouter(prefix="/suppliers", tags=["Suppliers"])
 )
 async def list_supplier_options(
     use_case: ListSupplierOptionsUseCase = Depends(build_list_supplier_options_use_case),
-    #current_user: User = Depends(get_current_user),  # auth
+    current_user: User = Depends(get_current_user),
 ) -> list[SupplierOptionResponse]:
     return await use_case.execute()
 
@@ -62,7 +62,7 @@ async def list_suppliers(
     name: str | None = Query(None, min_length=1),
     list_use_case: ListSuppliersUseCase = Depends(build_list_suppliers_use_case),
     by_name_use_case: GetSupplierByNameUseCase = Depends(build_get_supplier_by_name_use_case),
-    #current_user: User = Depends(get_current_user),  # auth
+    current_user: User = Depends(get_current_user),
 ) -> PaginatedResponse[SupplierResponse] | SupplierResponse:
     if name is not None:
         return await by_name_use_case.execute(name)
@@ -79,7 +79,7 @@ async def list_suppliers(
 async def get_supplier_by_id(
     supplier_id: int,
     use_case: GetSupplierByIdUseCase = Depends(build_get_supplier_by_id_use_case),
-    #current_user: User = Depends(get_current_user),  # auth
+    current_user: User = Depends(get_current_user),
 ) -> SupplierResponse:
     return await use_case.execute(supplier_id)
 
@@ -93,7 +93,7 @@ async def get_supplier_by_id(
 async def create_supplier(
     body: CreateSupplierRequest,
     use_case: CreateSupplierUseCase = Depends(build_create_supplier_use_case),
-    #current_user: User = Depends(get_current_user),  # auth
+    current_user: User = Depends(get_current_user),
 ) -> SupplierResponse:
     command = CreateSupplierCommand(
         name=body.name,
@@ -114,7 +114,7 @@ async def update_supplier(
     supplier_id: int,
     body: UpdateSupplierRequest,
     use_case: UpdateSupplierUseCase = Depends(build_update_supplier_use_case),
-    #current_user: User = Depends(get_current_user),  # auth
+    current_user: User = Depends(get_current_user),
 ) -> SupplierResponse:
     command = UpdateSupplierCommand(
         supplier_id=supplier_id,
@@ -134,6 +134,6 @@ async def update_supplier(
 async def deactivate_supplier(
     supplier_id: int,
     use_case: DeactivateSupplierUseCase = Depends(build_deactivate_supplier_use_case),
-    #current_user: User = Depends(get_current_user),  # auth
+    current_user: User = Depends(get_current_user),
 ) -> None:
     await use_case.execute(supplier_id)
