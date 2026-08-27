@@ -8,6 +8,7 @@ class User:
     full_name: str = field(default="")
     hashed_password: str = field(default="")
     role: str = field(default="")
+    email: str = field(default="")
     is_active: bool = field(default=True)
     created_at: datetime = field(default_factory=datetime.now)
     
@@ -48,4 +49,12 @@ class User:
             raise ValueError("Usuario inactivo: no puede realizar esta acción.")
         
         self.hashed_password = new_hashed_password
+
+    def change_email(self, email: str):
+        if not email or "@" not in email or "." not in email.rsplit("@", 1)[-1]:
+            raise ValueError("El correo electrónico no es válido.")
+        if not self.is_active:
+            raise ValueError("Usuario inactivo: no puede realizar esta acción.")
+
+        self.email = email.strip().lower()
         

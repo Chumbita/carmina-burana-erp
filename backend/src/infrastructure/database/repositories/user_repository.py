@@ -13,6 +13,7 @@ class UserRepository:
         return UserModel(
             id=user.id,
             username=user.username,
+            email=user.email,
             full_name=user.full_name,
             password=user.hashed_password,
             role=user.role,
@@ -25,6 +26,7 @@ class UserRepository:
         return User(
             id=model.id,
             username=model.username,
+            email=model.email or "",
             full_name=model.full_name,
             hashed_password=model.password,
             role=model.role,
@@ -45,6 +47,7 @@ class UserRepository:
         user_model = result.scalar_one_or_none()
         
         user_model.username = user.username
+        user_model.email = user.email
         user_model.full_name = user.full_name
         user_model.password = user.hashed_password
         user_model.role = user.role

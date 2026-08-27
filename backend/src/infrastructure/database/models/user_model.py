@@ -7,6 +7,7 @@ class UserModel(Base):
     
     id = Column(Integer, primary_key=True)
     username = Column(String, unique=True, nullable=False)
+    email = Column(String, nullable=True)
     full_name = Column(String, nullable=False)
     password = Column(String, nullable=False)
     role = Column(Enum("admin", "host", name="user_roles"), nullable=False)
