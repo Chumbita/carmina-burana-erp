@@ -1,1 +1,2 @@
 from .change_password_use_case import ChangePasswordUseCase
+from .update_profile_use_case import UpdateProfileUseCase
