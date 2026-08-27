@@ -176,6 +176,7 @@ async def get_me(
         "user": {
             "id": current_user.id,
             "username": current_user.username,
+            "email": current_user.email,
             "full_name": current_user.full_name,
             "role": current_user.role,
         }

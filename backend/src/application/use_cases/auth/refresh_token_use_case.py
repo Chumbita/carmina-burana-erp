@@ -86,6 +86,7 @@ class RefreshTokenUseCase:
             "user": {
                 "id": user.id,
                 "username": user.username,
+                "email": user.email,
                 "full_name": user.full_name,
                 "role": user.role
             }
