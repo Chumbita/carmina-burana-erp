@@ -5,6 +5,7 @@ import { FilterBar } from "@/components/shared/FilterBar"
 import { useLots } from "../hooks/useLots"
 import { TablePagination } from "@/components/shared/TablePagination"
 import { buildLotsColumns } from "./lotsColumns"
+import { AdjustLotModal } from "./AdjustLotModal"
 
 const STATUS_OPTIONS = [
   { label: "Óptimo", value: "active" },
@@ -13,17 +14,22 @@ const STATUS_OPTIONS = [
   { label: "Todos", value: "all" },
 ]
 
-export function TabLots({ itemId, base_uom_symbol }) {
+export function TabLots({ itemId, base_uom_symbol, onStockAdjusted }) {
   const navigate = useNavigate()
   const [statusFilter, setStatusFilter] = useState("active")
+  const [selectedLot, setSelectedLot] = useState(null)
+  const [adjustOpen, setAdjustOpen] = useState(false)
   const statusParam = useMemo(
     () => statusFilter === "all" ? undefined : statusFilter,
     [statusFilter]
   )
-  const { lots, loading, error, page, pageSize, totalItems, totalPages, changePage } =
+  const { lots, loading, error, page, pageSize, totalItems, totalPages, changePage, refresh } =
     useLots(itemId, statusParam)
 
-  const columns = buildLotsColumns(base_uom_symbol)
+  const columns = buildLotsColumns(base_uom_symbol, (lot) => {
+    setSelectedLot(lot)
+    setAdjustOpen(true)
+  })
   const rows = lots.map((lot, i) => ({ ...lot, _index: i + 1 }))
 
   function handleStatusChange(value) {
@@ -90,6 +96,18 @@ export function TabLots({ itemId, base_uom_symbol }) {
           />
         </div>
       )}
+
+      <AdjustLotModal
+        open={adjustOpen}
+        onOpenChange={setAdjustOpen}
+        itemId={itemId}
+        lot={selectedLot}
+        baseUomSymbol={base_uom_symbol}
+        onSuccess={() => {
+          refresh()
+          if (onStockAdjusted) onStockAdjusted()
+        }}
+      />
     </div>
   )
 }

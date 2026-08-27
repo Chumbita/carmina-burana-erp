@@ -1,4 +1,6 @@
 import { Badge } from "@/components/ui/Badge"
+import { Button } from "@/components/ui/Button"
+import { Pencil } from "lucide-react"
 import { formatDate, formatCurrency } from "@/lib/utils/formatters"
 
 const lotStatusStyles = {
@@ -15,8 +17,8 @@ const lotStatusLabels = {
   expiring_soon: "Por vencer",
 }
 
-export function buildLotsColumns(baseUomSymbol) {
-  return [
+export function buildLotsColumns(baseUomSymbol, onAdjust) {
+  const cols = [
     {
       accessor: "index",
       header: "Nro",
@@ -29,9 +31,26 @@ export function buildLotsColumns(baseUomSymbol) {
     {
       accessor: "quantity",
       header: "Cantidad",
-      render: (value) => (
-        <span className="font-medium tabular-nums">
-          {Number(value).toLocaleString("es-AR")} {baseUomSymbol}
+      render: (value, row) => (
+        <span className="inline-flex items-center gap-2 font-medium tabular-nums">
+          <span>
+            {Number(value).toLocaleString("es-AR")} {baseUomSymbol}
+          </span>
+          {onAdjust && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 shrink-0"
+              aria-label="Ajustar stock"
+              onClick={(e) => {
+                e.stopPropagation()
+                onAdjust(row)
+              }}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+          )}
         </span>
       ),
     },
@@ -55,4 +74,6 @@ export function buildLotsColumns(baseUomSymbol) {
       ),
     },
   ]
+
+  return cols
 }
