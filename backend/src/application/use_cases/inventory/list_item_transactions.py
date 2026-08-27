@@ -23,7 +23,7 @@ class ListItemTransactionsUseCase:
         self._transaction_repository = transaction_repository
         self._lot_repository = lot_repository
         self._uom_repository = uom_repository
-        self._audit_log_repository = audit_log_repository
+        self._audit_log_repository = audit_log_repository  # deprecated: reason ahora vive en transaction.reason
 
     async def execute(
         self,
@@ -48,51 +48,6 @@ class ListItemTransactionsUseCase:
         lots_list = await self._lot_repository.list_by_ids(list(lot_ids))
         lots = {lot.id: lot.lot_code for lot in lots_list}
 
-        # Mapa txn_id -> reason para ajustes, desde audit_logs (entity_type supply)
-        # Necesario porque `inventory_transaction` no guarda `reason`; el motivo vive en audit new_data.reason
-        txn_reason: dict[int, str] = {}
-        if self._audit_log_repository:
-            try:
-                audits, _ = await self._audit_log_repository.get_by_entity("supply", item_id)
-                # Filtrar solo audits de ajuste (tienen reason y lot_id)
-                adjustment_audits = []
-                for a in audits:
-                    if a.action != "UPDATED":
-                        continue
-                    r = (a.new_data or {}).get("reason")
-                    lid = (a.old_data or {}).get("lot_id")
-                    if not r or lid is None:
-                        continue
-                    try:
-                        adjustment_audits.append((int(lid), str(r), a.created_at))
-                    except Exception:
-                        continue
-                # Para cada transacción de ajuste, buscar el audit más cercano en tiempo y lot
-                for txn in transactions:
-                    if txn.transaction_type != "INVENTORY_COUNT_ADJUSTMENT":
-                        continue
-                    best = None
-                    best_dt = None
-                    for lid, reason, created_at in adjustment_audits:
-                        if lid != txn.lot_id:
-                            continue
-                        # Diferencia absoluta en segundos (ambos naive UTC)
-                        try:
-                            dt = abs((created_at - txn.created_at).total_seconds())
-                        except Exception:
-                            dt = 999999
-                        if best is None or dt < best_dt:
-                            best = reason
-                            best_dt = dt
-                            if dt < 2:  # match casi exacto
-                                break
-                    if best is not None and (best_dt is None or best_dt < 60):
-                        txn_reason[txn.id] = best
-                    elif best is not None:
-                        txn_reason[txn.id] = best
-            except Exception:
-                txn_reason = {}
-
         return Page(
             items=[
                 TransactionResponseSchema(
@@ -108,7 +63,7 @@ class ListItemTransactionsUseCase:
                     reference_type=txn.reference_type,
                     reference_id=txn.reference_id,
                     created_at=txn.created_at,
-                    reason=txn_reason.get(txn.id) if txn.transaction_type == "INVENTORY_COUNT_ADJUSTMENT" else None,
+                    reason=txn.reason,
                 ).model_dump()
                 for txn in transactions
             ],

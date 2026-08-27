@@ -25,6 +25,7 @@ class InventoryTransactionRepository():
             transaction_type=entity.transaction_type,
             reference_type=entity.reference_type,
             reference_id=entity.reference_id,
+            reason=entity.reason,
             created_at=entity.created_at,
         )
     
@@ -38,6 +39,7 @@ class InventoryTransactionRepository():
             transaction_type=model.transaction_type,
             reference_type=model.reference_type,
             reference_id=model.reference_id,
+            reason=model.reason,
             created_at=model.created_at,
         )
     

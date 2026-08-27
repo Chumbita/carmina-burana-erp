@@ -69,6 +69,13 @@ class AdjustLotQuantityUseCase:
                 f"El lote {command.lot_id} no tiene balance asociado."
             )
 
+        # Bloquear edición de agotados y vencidos (expiring_soon sí editable)
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        if balance.quantity <= Decimal("0"):
+            raise InventoryDomainError("No se puede ajustar un lote agotado.")
+        if lot.expiration_date is not None and lot.expiration_date < now:
+            raise InventoryDomainError("No se puede ajustar un lote vencido.")
+
         current_qty = balance.quantity
         new_qty = command.new_quantity
 
@@ -103,7 +110,7 @@ class AdjustLotQuantityUseCase:
 
         await self._balance_repo.save(balance)
 
-        # 4. Registrar transacción inmutable
+        # 4. Registrar transacción inmutable con motivo per-record
         # reference_id debe ser >0: usamos lot_id
         transaction = InventoryTransaction.record(
             item_id=command.item_id,
@@ -112,6 +119,7 @@ class AdjustLotQuantityUseCase:
             transaction_type=TransactionType.INVENTORY_COUNT_ADJUSTMENT.value,
             reference_type="inventory_adjustment",
             reference_id=command.lot_id,
+            reason=reason,
         )
         await self._txn_repo.add(transaction)
 
