@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
-import { ANNULMENT_RESTRICTIONS } from '../constants/supplyEntry.constants'
 import { supplyEntryService } from '../services/supplyEntryService'
 
 // Schema for annulment confirmation
@@ -86,18 +85,11 @@ export function useSupplyEntryDetail(entryId) {
   }, [entryId])
 
   // Check if annulment is allowed
+  // Sin límite temporal: se puede anular mientras los lotes no hayan sido consumidos
+  // El backend valida el consumo real; el frontend solo bloquea si ya está anulada
   const canAnnul = useMemo(() => {
     if (!entry) return false
-    
-    const entryDate = new Date(entry.entry_date)
-    const now = new Date()
-    const hoursDiff = (now - entryDate) / (1000 * 60 * 60)
-    
-    const withinTimeLimit = hoursDiff <= ANNULMENT_RESTRICTIONS.HOURS_LIMIT
-    // Por ahora asumimos que no hay consumo hasta que implementemos esa lógica
-    const batchesConsumed = false 
-    
-    return withinTimeLimit && !batchesConsumed
+    return entry.status === 'active'
   }, [entry])
 
   // Handle annulment

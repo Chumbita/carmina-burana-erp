@@ -16,7 +16,6 @@ from src.domain.exceptions.inventory_exceptions import DuplicateLotCodeError
 from src.domain.exceptions.supply_entry_exceptions import (
     SupplyEntryNotFound,
     SupplyEntryAlreadyCancelled,
-    SupplyEntryTimeWindowExceeded,
     SupplyEntryItemsConsumed,
 )
 
@@ -90,10 +89,6 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(SupplyEntryAlreadyCancelled)
     async def supply_entry_already_cancelled_handler(request: Request, exc: SupplyEntryAlreadyCancelled):
         return JSONResponse(status_code=409, content={"detail": str(exc)})
-
-    @app.exception_handler(SupplyEntryTimeWindowExceeded)
-    async def supply_entry_time_window_handler(request: Request, exc: SupplyEntryTimeWindowExceeded):
-        return JSONResponse(status_code=422, content={"detail": str(exc)})
 
     @app.exception_handler(SupplyEntryItemsConsumed)
     async def supply_entry_items_consumed_handler(request: Request, exc: SupplyEntryItemsConsumed):

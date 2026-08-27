@@ -36,7 +36,7 @@ const getStatusLabel = (status) => {
 }
 
 const getAnnulmentTooltip = (canAnnul) =>
-  canAnnul ? '' : 'No se puede anular: pasaron más de 48hs o hay lotes consumidos'
+  canAnnul ? '' : 'No se puede anular: hay lotes consumidos'
 
 const formatDateTime = (date) =>
   new Date(date).toLocaleString('es-AR', {
