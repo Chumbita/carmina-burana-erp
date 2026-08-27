@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import { ExternalLink, Info } from "lucide-react"
+import { useEffect } from "react"
 import { DataTable } from "@/components/shared/DataTable"
 import { useTransactions } from "../hooks/useTransactions"
 import { formatDecimal } from "@/lib/utils/formatters"
@@ -90,9 +91,14 @@ const columns = [
   },
 ]
 
-export function TransactionsTable({ itemId }) {
-  const { transactions, loading, error, page, pageSize, totalItems, totalPages, changePage } =
+export function TransactionsTable({ itemId, refreshKey }) {
+  const { transactions, loading, error, page, pageSize, totalItems, totalPages, changePage, refetch } =
     useTransactions(itemId)
+
+  // Sigue patrón AuditLogHistory: refresca movimientos al editar stock sin reload
+  useEffect(() => {
+    if (refreshKey > 0) refetch()
+  }, [refreshKey, refetch])
 
   if (loading && !transactions.length) {
     return <p className="text-sm text-muted-foreground">Cargando movimientos...</p>

@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -40,7 +40,7 @@ function createSchema(currentQuantity, reservedQuantity) {
 export function AdjustLotModal({ open, onOpenChange, itemId, lot, baseUomSymbol, onSuccess }) {
   const currentQuantity = lot ? Number(lot.quantity) : 0
   const reservedQuantity = lot ? Number(lot.reserved_quantity ?? 0) : 0
-  const schema = createSchema(currentQuantity, reservedQuantity)
+  const schema = useMemo(() => createSchema(currentQuantity, reservedQuantity), [currentQuantity, reservedQuantity])
 
   const {
     control,
@@ -65,6 +65,7 @@ export function AdjustLotModal({ open, onOpenChange, itemId, lot, baseUomSymbol,
 
   const newQuantityWatch = watch("new_quantity")
   const delta = lot ? Number(newQuantityWatch ?? 0) - currentQuantity : 0
+  const isEditable = lot ? lot.status !== "depleted" && lot.status !== "expired" : true
 
   useEffect(() => {
     if (open && lot) {
@@ -98,6 +99,11 @@ export function AdjustLotModal({ open, onOpenChange, itemId, lot, baseUomSymbol,
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {!isEditable && (
+            <div className="rounded-md bg-amber-500/10 text-amber-700 border border-amber-500/30 px-3 py-2 text-sm">
+              Este lote no se puede editar porque está {lot.status === "depleted" ? "agotado" : "vencido"}.
+            </div>
+          )}
           <Field>
             <FieldLabel htmlFor="lotCode">Lote</FieldLabel>
             <Input id="lotCode" value={lot.lot_code} disabled readOnly />
@@ -124,7 +130,7 @@ export function AdjustLotModal({ open, onOpenChange, itemId, lot, baseUomSymbol,
                   <FieldLabel htmlFor={field.name}>
                     Nueva cantidad <span className="text-red-500 -ml-1">*</span>
                   </FieldLabel>
-                  <DecimalInput {...field} id={field.name} aria-invalid={fieldState.invalid} />
+                  <DecimalInput {...field} id={field.name} aria-invalid={fieldState.invalid} disabled={!isEditable} />
                 </Field>
               )}
             />
@@ -150,6 +156,7 @@ export function AdjustLotModal({ open, onOpenChange, itemId, lot, baseUomSymbol,
                   aria-invalid={fieldState.invalid}
                   placeholder="Ej. Diferencia detectada en auditoría 26/08 — conteo físico"
                   rows={3}
+                  disabled={!isEditable}
                 />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -160,7 +167,7 @@ export function AdjustLotModal({ open, onOpenChange, itemId, lot, baseUomSymbol,
             <Button type="button" variant="outline" size="sm" className="cursor-pointer" onClick={() => onOpenChange(false)} disabled={saving}>
               Cancelar
             </Button>
-            <Button type="submit" size="sm" className="cursor-pointer" disabled={!isDirty || !isValid || saving}>
+            <Button type="submit" size="sm" className="cursor-pointer" disabled={!isEditable || !isDirty || !isValid || saving}>
               {saving ? (
                 <>
                   <Spinner data-icon="inline-start" />

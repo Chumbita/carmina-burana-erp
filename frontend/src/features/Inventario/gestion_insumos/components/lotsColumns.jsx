@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { Pencil } from "lucide-react"
 import { formatDate, formatCurrency } from "@/lib/utils/formatters"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/Tooltip"
 
 const lotStatusStyles = {
   active: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30",
@@ -31,28 +32,46 @@ export function buildLotsColumns(baseUomSymbol, onAdjust) {
     {
       accessor: "quantity",
       header: "Cantidad",
-      render: (value, row) => (
-        <span className="inline-flex items-center gap-2 font-medium tabular-nums">
-          <span>
-            {Number(value).toLocaleString("es-AR")} {baseUomSymbol}
+      render: (value, row) => {
+        const isEditable = row.status !== "depleted" && row.status !== "expired"
+        const button = onAdjust ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className={`h-7 w-7 shrink-0 ${!isEditable ? "opacity-30 cursor-not-allowed" : ""}`}
+            aria-label={isEditable ? "Ajustar stock" : "No editable: lote agotado/vencido"}
+            disabled={!isEditable}
+            onClick={(e) => {
+              e.stopPropagation()
+              if (!isEditable) return
+              onAdjust(row)
+            }}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </Button>
+        ) : null
+
+        const content = (
+          <span className="inline-flex items-center gap-2 font-medium tabular-nums">
+            <span>
+              {Number(value).toLocaleString("es-AR")} {baseUomSymbol}
+            </span>
+            {button}
           </span>
-          {onAdjust && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 shrink-0"
-              aria-label="Ajustar stock"
-              onClick={(e) => {
-                e.stopPropagation()
-                onAdjust(row)
-              }}
-            >
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
-          )}
-        </span>
-      ),
+        )
+
+        if (!isEditable && onAdjust) {
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>{content}</TooltipTrigger>
+              <TooltipContent side="top">No editable: lote agotado/vencido</TooltipContent>
+            </Tooltip>
+          )
+        }
+
+        return content
+      },
     },
     {
       accessor: "unit_cost",
