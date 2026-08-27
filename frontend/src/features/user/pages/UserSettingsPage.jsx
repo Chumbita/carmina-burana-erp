@@ -7,7 +7,6 @@ import ChangePasswordForm from "../components/ChangePasswordForm";
 // Componentes de shadcn
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { useState } from "react";
-import { User } from "lucide-react";
 
 export default function UserSettingsPage() {
   const { authUser } = useAuth();
@@ -21,7 +20,7 @@ export default function UserSettingsPage() {
           <TabsTrigger value="change-password" className="cursor-pointer">Cambiar contraseña</TabsTrigger>
         </TabsList>
 
-        {contentOption === "my-account" && <UserProfileForm />}
+        {contentOption === "my-account" && <UserProfileForm user={authUser} />}
         {contentOption === "change-password" && <ChangePasswordForm />}
       </Tabs>
     </div>
