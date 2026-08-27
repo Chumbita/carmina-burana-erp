@@ -9,7 +9,8 @@ export const ENDPOINTS = {
     },
     // User
     USER: {
-        CHANGE_PASSWORD: '/user/change-password'
+        CHANGE_PASSWORD: '/user/change-password',
+        UPDATE_PROFILE: '/user/profile',
     },
     // Supply Entries
     SUPPLY_ENTRIES: {

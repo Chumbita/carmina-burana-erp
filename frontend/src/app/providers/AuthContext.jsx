@@ -52,6 +52,10 @@ export function AuthProvider({ children }) {
     setIsLoggedIn(true);
   }, []);
 
+  const updateAuthUser = useCallback((userData) => {
+    setAuthUser((currentUser) => ({ ...currentUser, ...userData }));
+  }, []);
+
   // Logout: llama al backend para limpiar cookies y resetea estado local
   const logout = useCallback(async () => {
     try {
@@ -70,6 +74,7 @@ export function AuthProvider({ children }) {
     isLoading,
     login,
     logout,
+    updateAuthUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -17,4 +17,18 @@ export const userService = {
       throw new Error(error.response?.data?.detail);
     }
   },
+  updateProfile: async (payload) => {
+    try {
+      const response = await privateClient.patch(
+        ENDPOINTS.USER.UPDATE_PROFILE,
+        payload,
+      );
+
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.detail || "No se pudo actualizar el perfil.",
+      );
+    }
+  },
 };
