@@ -183,7 +183,7 @@ async def get_supply_lots(
     page_size: int = Query(5, ge=1),
     status: list[LotStatus] | None = Query(default=None),
     use_case: GetLotsByItemUseCase = Depends(build_get_lots_by_item),
-    #current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> PaginatedResponse[LotResponse]:
     params = parse_pagination(page, page_size)
     result = await use_case.execute(
@@ -218,6 +218,5 @@ async def update_supply(
         specialized_data={"supply_category": body.supply_category.value} if body.supply_category else None,
     )
     return await use_case.execute(command, user_id=current_user.id)
-
 
 
