@@ -28,6 +28,13 @@ const FIELD_LABELS = {
   phone: "Teléfono",
   address: "Dirección",
   is_active: "Activo",
+  quantity: "Cantidad",
+  reason: "Motivo",
+  delta: "Diferencia",
+  lot_code: "Lote",
+  lot_id: "Lote",
+  previous_quantity: "Cantidad anterior",
+  new_quantity: "Cantidad nueva",
 }
 
 function label(key) {
@@ -66,6 +73,11 @@ function getChangedKeys(oldData, newData, action) {
 export function AuditLogHistory({ entityType, entityId, refreshKey }) {
   const { auditLogs, isLoading, error, page, pageSize, totalItems, totalPages, changePage, refetch } =
     useEntityAuditLogs(entityType, entityId)
+
+  const filteredLogs = React.useMemo(
+    () => auditLogs.filter((log) => !(log.new_data?.reason && log.old_data?.lot_id)),
+    [auditLogs]
+  )
   const [brandMap, setBrandMap] = React.useState({})
   const [uomMap, setUomMap] = React.useState({})
 
@@ -154,13 +166,13 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
     return <p className="text-sm text-destructive">Error al cargar el historial.</p>
   }
 
-  if (!auditLogs.length && !totalItems) {
+  if (!filteredLogs.length) {
     return <p className="text-sm text-muted-foreground">Sin registros de auditoría.</p>
   }
 
   return (
     <div className={isLoading ? "space-y-4 opacity-60" : "space-y-4"}>
-      <DataTable columns={columns} data={auditLogs} />
+      <DataTable columns={columns} data={filteredLogs} />
 
       <TablePagination
         page={page}

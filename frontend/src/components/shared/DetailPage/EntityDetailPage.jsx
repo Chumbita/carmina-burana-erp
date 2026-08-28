@@ -65,7 +65,7 @@ function History({ itemId, entityType }) {
           <TabsTrigger value="audit" className="cursor-pointer">Registro de actividad</TabsTrigger>
         </TabsList>
         <TabsContent value="stock">
-          <TransactionsTable itemId={itemId} />
+          <TransactionsTable itemId={itemId} refreshKey={refreshKey} />
         </TabsContent>
         <TabsContent value="audit">
           <AuditLogHistory entityType={entityType} entityId={itemId} refreshKey={refreshKey} />

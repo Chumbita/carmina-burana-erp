@@ -28,6 +28,7 @@ class TransactionResponseSchema(BaseModel):
     reference_type: str
     reference_id: int
     created_at: datetime
+    reason: str | None = None
 
     class Config:
         from_attributes = True

@@ -1,5 +1,14 @@
 import { Badge } from "@/components/ui/Badge"
+import { Button } from "@/components/ui/Button"
+import { MoreVertical } from "lucide-react"
 import { formatDate, formatCurrency } from "@/lib/utils/formatters"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/Tooltip"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/DropdownMenu"
 
 const lotStatusStyles = {
   active: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30",
@@ -15,8 +24,8 @@ const lotStatusLabels = {
   expiring_soon: "Por vencer",
 }
 
-export function buildLotsColumns(baseUomSymbol) {
-  return [
+export function buildLotsColumns(baseUomSymbol, onAdjust) {
+  const cols = [
     {
       accessor: "index",
       header: "Nro",
@@ -55,4 +64,56 @@ export function buildLotsColumns(baseUomSymbol) {
       ),
     },
   ]
+
+  if (onAdjust) {
+    cols.push({
+      accessor: "actions",
+      header: "",
+      render: (_, row) => {
+        const isEditable = row.status !== "depleted" && row.status !== "expired"
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                aria-label="Acciones"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+              {isEditable ? (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onAdjust(row)
+                  }}
+                >
+                  Ajuste de stock
+                </DropdownMenuItem>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-block w-full">
+                      <DropdownMenuItem disabled className="opacity-50">
+                        Ajuste de stock
+                      </DropdownMenuItem>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">No editable: lote agotado/vencido</TooltipContent>
+                </Tooltip>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+    })
+  }
+
+  return cols
 }

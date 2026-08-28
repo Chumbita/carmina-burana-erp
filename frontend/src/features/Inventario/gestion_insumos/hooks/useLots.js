@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { supplyService } from "../services/supplyService"
 
 const PAGE_SIZE = 5
@@ -10,6 +10,9 @@ export function useLots(itemId, statusFilter) {
   const [totalPages, setTotalPages] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const refresh = useCallback(() => setRefreshKey((k) => k + 1), [])
 
   useEffect(() => {
     if (!itemId) return
@@ -21,6 +24,7 @@ export function useLots(itemId, statusFilter) {
         setLots(data.data)
         setTotalItems(data.pagination.total_items)
         setTotalPages(data.pagination.total_pages)
+        setError(null)
       } catch (err) {
         setError(err)
       } finally {
@@ -29,7 +33,7 @@ export function useLots(itemId, statusFilter) {
     }
 
     load()
-  }, [itemId, statusFilter, page])
+  }, [itemId, statusFilter, page, refreshKey])
 
-  return { lots, loading, error, page, pageSize: PAGE_SIZE, totalItems, totalPages, changePage: setPage }
+  return { lots, loading, error, page, pageSize: PAGE_SIZE, totalItems, totalPages, changePage: setPage, refresh }
 }

@@ -32,6 +32,7 @@ class InventoryTransaction:
     reference_type: str
     reference_id: int
     created_at: datetime
+    reason: Optional[str] = None
     id: Optional[int] = None
 
     # Método que se ejecuta automáticamente luego de una instanciación.
@@ -52,6 +53,9 @@ class InventoryTransaction:
                 f"The reference ID must be valid. Received: {self.reference_id}"
             )
 
+        if self.reason is not None and len(self.reason) > 500:
+            raise ValueError("Reason cannot exceed 500 characters.")
+
     
     # --- Registro de transacción ----------------------------------------
 
@@ -64,6 +68,7 @@ class InventoryTransaction:
         transaction_type: str,
         reference_type: str,
         reference_id: int,
+        reason: str | None = None,
     ) -> "InventoryTransaction":
         """
         Crea un registro de transacción nuevo aún no persistido.
@@ -75,6 +80,7 @@ class InventoryTransaction:
             transaction_type=transaction_type,
             reference_type=reference_type,
             reference_id=reference_id,
+            reason=reason.strip() if reason and reason.strip() else None,
             created_at=datetime.now(timezone.utc).replace(tzinfo=None),
         )
 

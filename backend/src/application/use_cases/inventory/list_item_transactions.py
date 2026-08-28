@@ -17,11 +17,13 @@ class ListItemTransactionsUseCase:
         transaction_repository: InventoryTransactionRepository,
         lot_repository: InventoryLotRepository,
         uom_repository: UomRepository,
+        audit_log_repository=None,
     ) -> None:
         self._item_repository = item_repository
         self._transaction_repository = transaction_repository
         self._lot_repository = lot_repository
         self._uom_repository = uom_repository
+        self._audit_log_repository = audit_log_repository  # deprecated: reason ahora vive en transaction.reason
 
     async def execute(
         self,
@@ -61,6 +63,7 @@ class ListItemTransactionsUseCase:
                     reference_type=txn.reference_type,
                     reference_id=txn.reference_id,
                     created_at=txn.created_at,
+                    reason=txn.reason,
                 ).model_dump()
                 for txn in transactions
             ],
