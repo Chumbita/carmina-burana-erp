@@ -3,8 +3,8 @@ import { DataTable } from "@/components/shared/DataTable"
 import { TablePagination } from "@/components/shared/TablePagination"
 import { Badge } from "@/components/ui/Badge"
 import { useEntityAuditLogs } from "../../hooks/useEntityAuditLogs"
-import privateClient from "@/lib/api/privateClient"
-import { ENDPOINTS } from "@/lib/api/endpoints"
+import { brandService } from "@/features/Inventario/brands/services/brandService"
+import { uomService } from "@/features/Inventario/gestion_insumos/services/uomService"
 import { formatDecimal } from "@/lib/utils/formatters"
 
 const actionLabels = {
@@ -28,6 +28,13 @@ const FIELD_LABELS = {
   phone: "Teléfono",
   address: "Dirección",
   is_active: "Activo",
+  quantity: "Cantidad",
+  reason: "Motivo",
+  delta: "Diferencia",
+  lot_code: "Lote",
+  lot_id: "Lote",
+  previous_quantity: "Cantidad anterior",
+  new_quantity: "Cantidad nueva",
 }
 
 function label(key) {
@@ -66,6 +73,11 @@ function getChangedKeys(oldData, newData, action) {
 export function AuditLogHistory({ entityType, entityId, refreshKey }) {
   const { auditLogs, isLoading, error, page, pageSize, totalItems, totalPages, changePage, refetch } =
     useEntityAuditLogs(entityType, entityId)
+
+  const filteredLogs = React.useMemo(
+    () => auditLogs.filter((log) => !(log.new_data?.reason && log.old_data?.lot_id)),
+    [auditLogs]
+  )
   const [brandMap, setBrandMap] = React.useState({})
   const [uomMap, setUomMap] = React.useState({})
 
@@ -76,14 +88,14 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
   }, [refreshKey, refetch]);
 
   React.useEffect(() => {
-    privateClient.get(ENDPOINTS.BRANDS.GET_ALL).then(res => {
+    brandService.getAll().then((data) => {
       const map = {}
-      res.data.forEach(b => { map[b.id] = b.name })
+      data.forEach((b) => { map[b.id] = b.name })
       setBrandMap(map)
     }).catch(() => {})
-    privateClient.get(ENDPOINTS.UOMS.GET_OPTIONS).then(res => {
+    uomService.getOptions().then((data) => {
       const map = {}
-      res.data.forEach(u => { map[u.id] = u.symbol })
+      data.forEach((u) => { map[u.id] = u.symbol })
       setUomMap(map)
     }).catch(() => {})
   }, []);
@@ -154,13 +166,13 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
     return <p className="text-sm text-destructive">Error al cargar el historial.</p>
   }
 
-  if (!auditLogs.length && !totalItems) {
+  if (!filteredLogs.length) {
     return <p className="text-sm text-muted-foreground">Sin registros de auditoría.</p>
   }
 
   return (
     <div className={isLoading ? "space-y-4 opacity-60" : "space-y-4"}>
-      <DataTable columns={columns} data={auditLogs} />
+      <DataTable columns={columns} data={filteredLogs} />
 
       <TablePagination
         page={page}
