@@ -19,24 +19,6 @@ function formatDateDMY(value) {
 export function ProductionTable({ productions, hasRecords, onExecute, onCancel }) {
   const navigate = useNavigate();
 
-  const schemaComplete = completeProductionSchema();
-  const { 
-    handleSubmit: handleCompleteSubmitForm, 
-    control: completeControl, 
-    setValue: setCompleteValue,
-    reset: resetCompleteForm,
-    formState: { errors: completeErrors, isSubmitting: isCompleting }
-  } = useForm({
-    resolver: zodResolver(schemaComplete),
-    defaultValues: {
-      produced_quantity: 1,
-      lot_code: "",
-      production_date: "",
-      expiration_date: "",
-      unit_cost: "",
-    },
-    mode: "onChange"
-  });
   // Orden seleccionada para el modal de ejecutar (completar producción)
   const [completeRow, setCompleteRow] = useState(null);
 
