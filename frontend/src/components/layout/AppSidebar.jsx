@@ -51,29 +51,6 @@ export function AppSidebar({ ...props }) {
         isActive: true,
       },
       {
-        title: "Producción",
-        url: "#",
-        icon: Beer,
-        items: [
-          {
-            title: "Planificación de Cocciones",
-            url: "/produccion/cocciones/nuevo",
-          },
-          {
-            title: "Historial de Cocciones",
-            url: "/produccion/cocciones",
-          },
-          {
-            title: "Recetas",
-            url: "/produccion/recetas",
-          },
-          {
-            title: "Fórmulas",
-            url: "/produccion/bom",
-          },
-        ],
-      },
-      {
         title: "Inventario",
         url: "#",
         icon: Box,
@@ -114,19 +91,24 @@ export function AppSidebar({ ...props }) {
         icon: Beer,
         items: [
           {
-            title: "Fórmulas",
-            url: "/produccion/bom",
+            title: "Planificación de Cocciones",
+            url: "/produccion/cocciones/nuevo",
           },
           {
             title: "Historial de Cocciones",
             url: "/produccion/cocciones",
           },
           {
-            title: "Registro de Cocciones",
-            url: "/produccion/cocciones/nuevo",
+            title: "Recetas",
+            url: "/produccion/recetas",
+          },
+          {
+            title: "Fórmulas",
+            url: "/produccion/bom",
           },
         ],
       },
+
       {
         title: "Barriles",
         url: "#",

@@ -212,7 +212,19 @@ export default function ProductionOrderDetailPage() {
   }
 
   if (error) {
-    return <p>Ocurrió un error al cargar.</p>
+    const isNotFound = error.response?.status === 404
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 h-64 text-center">
+        <p className="text-lg font-medium text-gray-800">
+          {isNotFound ? "No se encontró la orden." : "Ocurrió un error al cargar."}
+        </p>
+        <p className="text-sm text-gray-500">
+          {isNotFound
+            ? "La orden que buscás no existe o no tenés acceso a ella."
+            : "Intentá de nuevo más tarde."}
+        </p>
+      </div>
+    )
   }
 
   return (
