@@ -118,6 +118,13 @@ export default function ProductionOrderDetailPage() {
   const costValue =
     order?.unit_cost > 0 ? `${formatCurrency(order.unit_cost)}/${order?.base_uom_symbol ?? ""}` : "-"
 
+  const totalCostValue = (() => {
+    if (!order?.unit_cost || order.unit_cost <= 0) return "-"
+    const qty = isPlanned ? Number(order.planned_quantity) : Number(order.produced_quantity)
+    if (!qty || qty <= 0) return "-"
+    return formatCurrency(Number(order.unit_cost) * qty)
+  })()
+
   async function handleExecute(target, payload) {
     await productionService.execute(target.id, payload)
     await refetch({ silent: true })
@@ -290,6 +297,7 @@ export default function ProductionOrderDetailPage() {
             <InfoRow label="Finalización" value={formatDateTime(order.completed_at)} />
           )}
           <InfoRow label="Costo estimado" value={costValue} />
+          <InfoRow label="Costo total estimado" value={totalCostValue} />
         </div>
 
         {order?.description && (
