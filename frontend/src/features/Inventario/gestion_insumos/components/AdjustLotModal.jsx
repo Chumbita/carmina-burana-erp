@@ -112,11 +112,17 @@ export function AdjustLotModal({ open, onOpenChange, itemId, lot, baseUomSymbol,
           <div className="grid grid-cols-2 gap-4">
             <Field>
               <FieldLabel>Cantidad actual</FieldLabel>
-              <Input
-                value={`${currentQuantity.toLocaleString("es-AR")} ${baseUomSymbol ?? ""}`}
-                disabled
-                readOnly
-              />
+              <div className="relative">
+                <Input
+                  value={currentQuantity.toLocaleString("es-AR")}
+                  disabled
+                  readOnly
+                  className="pr-12"
+                />
+                <span className="pointer-events-none absolute right-0 top-0 bottom-0 flex items-center justify-center bg-muted/50 px-3 text-xs font-medium text-muted-foreground rounded-r-md">
+                  {baseUomSymbol ?? ""}
+                </span>
+              </div>
               {reservedQuantity > 0 && (
                 <p className="text-xs text-muted-foreground">Reservado: {reservedQuantity} {baseUomSymbol}</p>
               )}
@@ -130,7 +136,18 @@ export function AdjustLotModal({ open, onOpenChange, itemId, lot, baseUomSymbol,
                   <FieldLabel htmlFor={field.name}>
                     Nueva cantidad <span className="text-red-500 -ml-1">*</span>
                   </FieldLabel>
-                  <DecimalInput {...field} id={field.name} aria-invalid={fieldState.invalid} disabled={!isEditable} />
+                  <div className="relative">
+                    <DecimalInput
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      disabled={!isEditable}
+                      className="pr-12 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <span className="pointer-events-none absolute right-0 top-0 bottom-0 flex items-center justify-center bg-muted/50 px-3 text-xs font-medium text-muted-foreground rounded-r-md">
+                      {baseUomSymbol ?? ""}
+                    </span>
+                  </div>
                 </Field>
               )}
             />
