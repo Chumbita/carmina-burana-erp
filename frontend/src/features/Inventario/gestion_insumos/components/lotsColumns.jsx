@@ -1,8 +1,14 @@
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
-import { Pencil } from "lucide-react"
+import { MoreVertical } from "lucide-react"
 import { formatDate, formatCurrency } from "@/lib/utils/formatters"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/Tooltip"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/DropdownMenu"
 
 const lotStatusStyles = {
   active: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30",
@@ -32,46 +38,11 @@ export function buildLotsColumns(baseUomSymbol, onAdjust) {
     {
       accessor: "quantity",
       header: "Cantidad",
-      render: (value, row) => {
-        const isEditable = row.status !== "depleted" && row.status !== "expired"
-        const button = onAdjust ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className={`h-7 w-7 shrink-0 ${!isEditable ? "opacity-30 cursor-not-allowed" : ""}`}
-            aria-label={isEditable ? "Ajustar stock" : "No editable: lote agotado/vencido"}
-            disabled={!isEditable}
-            onClick={(e) => {
-              e.stopPropagation()
-              if (!isEditable) return
-              onAdjust(row)
-            }}
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </Button>
-        ) : null
-
-        const content = (
-          <span className="inline-flex items-center gap-2 font-medium tabular-nums">
-            <span>
-              {Number(value).toLocaleString("es-AR")} {baseUomSymbol}
-            </span>
-            {button}
-          </span>
-        )
-
-        if (!isEditable && onAdjust) {
-          return (
-            <Tooltip>
-              <TooltipTrigger asChild>{content}</TooltipTrigger>
-              <TooltipContent side="top">No editable: lote agotado/vencido</TooltipContent>
-            </Tooltip>
-          )
-        }
-
-        return content
-      },
+      render: (value) => (
+        <span className="font-medium tabular-nums">
+          {Number(value).toLocaleString("es-AR")} {baseUomSymbol}
+        </span>
+      ),
     },
     {
       accessor: "unit_cost",
@@ -93,6 +64,56 @@ export function buildLotsColumns(baseUomSymbol, onAdjust) {
       ),
     },
   ]
+
+  if (onAdjust) {
+    cols.push({
+      accessor: "actions",
+      header: "",
+      render: (_, row) => {
+        const isEditable = row.status !== "depleted" && row.status !== "expired"
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                aria-label="Acciones"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+              {isEditable ? (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onAdjust(row)
+                  }}
+                >
+                  Ajuste de stock
+                </DropdownMenuItem>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-block w-full">
+                      <DropdownMenuItem disabled className="opacity-50">
+                        Ajuste de stock
+                      </DropdownMenuItem>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">No editable: lote agotado/vencido</TooltipContent>
+                </Tooltip>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+    })
+  }
 
   return cols
 }
