@@ -21,8 +21,7 @@ export const supplyService = {
   getOptions: async () => {
     return cachedRequest(
       ITEM_OPTIONS_KEY,
-      () => privateClient.get(ENDPOINTS.ITEMS.GET_OPTIONS).then((res) => res.data),
-      0
+      () => privateClient.get(ENDPOINTS.ITEMS.GET_OPTIONS).then((res) => res.data)
     )
   },
 
