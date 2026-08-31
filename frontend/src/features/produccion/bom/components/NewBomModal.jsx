@@ -8,7 +8,7 @@ import {
 import { BomForm } from './BomForm'
 import { useBomForm } from '../hooks/useBomForm'
 
-export function NewBomModal({ open, onClose, onSubmit }) {
+export function NewBomModal({ open, onClose, onSubmit, activeParentIds = [] }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   async function handleSubmit(data) {
@@ -21,7 +21,7 @@ export function NewBomModal({ open, onClose, onSubmit }) {
     }
   }
 
-  const formHook = useBomForm(handleSubmit)
+  const formHook = useBomForm(handleSubmit, activeParentIds)
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
