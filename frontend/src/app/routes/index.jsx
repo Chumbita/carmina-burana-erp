@@ -18,6 +18,10 @@ const SuppliesPage = lazy(
   () => import("@/features/Inventario/gestion_insumos/pages/SuppliesPage"),
 );
 
+const InventoryDashboardPage = lazy(
+  () => import("@/features/Inventario/dashboard/pages/InventoryDashboardPage"),
+);
+
 const SupplyDetailPage = lazy(
   () => import("@/features/Inventario/gestion_insumos/pages/SupplyDetailPage"),
 );
@@ -53,6 +57,10 @@ const BeerPage = lazy(
 
 const ProductionPage = lazy(
   () => import("@/features/production/cookings/pages/ProductionPage"),
+);
+
+const ProductionOrderDetailPage = lazy(
+  () => import("@/features/production/cookings/pages/ProductionOrderDetailPage"),
 );
 
 const SupplyEntryDetailPage = lazy(
@@ -114,6 +122,10 @@ export const router = createBrowserRouter([
         element: <SuppliesPage />,
       },
       {
+        path: "/inventario/dashboard",
+        element: <InventoryDashboardPage />,
+      },
+      {
         path: "/inventario/insumos/:supplyId",
         element: <SupplyDetailPage />,
       },
@@ -156,6 +168,10 @@ export const router = createBrowserRouter([
       {
         path: "/produccion/cocciones/nuevo",
         element: <ProductionPage />,
+      },
+      {
+        path: "/produccion/cocciones/:orderId",
+        element: <ProductionOrderDetailPage />,
       },
       {
         path: "/production/cookings",

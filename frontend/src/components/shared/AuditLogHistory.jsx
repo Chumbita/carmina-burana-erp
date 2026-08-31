@@ -31,6 +31,12 @@ const FIELD_LABELS = {
   quantity: "Cantidad",
   uom_id: "UOM",
   lines: "Componentes",
+  reason: "Motivo",
+  delta: "Diferencia",
+  lot_code: "Lote",
+  lot_id: "Lote",
+  previous_quantity: "Cantidad anterior",
+  new_quantity: "Cantidad nueva",
 };
 
 function label(key) {
@@ -78,6 +84,12 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
     changePage,
     refetch,
   } = useEntityAuditLogs(entityType, entityId);
+
+  const filteredLogs = React.useMemo(
+    () => auditLogs.filter((log) => !(log.new_data?.reason && log.old_data?.lot_id)),
+    [auditLogs]
+  );
+
   const [brandMap, setBrandMap] = React.useState({});
   const [uomMap, setUomMap] = React.useState({});
 
@@ -194,17 +206,13 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
     );
   }
 
-  if (!auditLogs.length && !totalItems) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Sin registros de auditoría.
-      </p>
-    );
+  if (!filteredLogs.length) {
+    return <p className="text-sm text-muted-foreground">Sin registros de auditoría.</p>;
   }
 
   return (
     <div className={isLoading ? "space-y-4 opacity-60" : "space-y-4"}>
-      <DataTable columns={columns} data={auditLogs} />
+      <DataTable columns={columns} data={filteredLogs} />
 
       <TablePagination
         page={page}

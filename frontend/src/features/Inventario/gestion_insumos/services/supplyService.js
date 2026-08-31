@@ -50,4 +50,12 @@ export const supplyService = {
     const response = await privateClient.get(ENDPOINTS.SUPPLIES.GET_LOTS(itemId), { params })
     return response.data
   },
+
+  adjustLot: async (itemId, lotId, { new_quantity, reason }) => {
+    const response = await privateClient.post(ENDPOINTS.SUPPLIES.ADJUST_LOT(itemId, lotId), {
+      new_quantity,
+      reason,
+    })
+    return response.data
+  },
 }

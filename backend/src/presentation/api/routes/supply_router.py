@@ -16,10 +16,14 @@ from src.application.use_cases.supply.update_supply import UpdateSupplyUseCase
 
 from src.application.use_cases.inventory.get_lots_by_item import GetLotsByItemUseCase
 from src.domain.value_objects.lot_status import LotStatus
-from src.presentation.dependencies.use_cases.inventory import build_get_lots_by_item
+from src.presentation.dependencies.use_cases.inventory import build_get_lots_by_item, get_adjust_lot_quantity_use_case
 from src.presentation.schemas.lot_schema import LotResponse
 from src.presentation.schemas.pagination_schema import PaginatedResponse
 from src.shared.pagination import parse_pagination
+from src.presentation.schemas.inventory_adjust_schema import AdjustLotRequest, AdjustLotResponse
+from src.application.dtos.inventory.adjust_lot_dtos import AdjustLotCommand
+from src.domain.exceptions.inventory_exceptions import InventoryDomainError, LotNotFoundError
+from src.domain.exceptions.item_exceptions import ItemNotFoundException
 
 from src.presentation.schemas.supply_schemas import (
     CreateSupplyRequestSchema,
@@ -183,7 +187,7 @@ async def get_supply_lots(
     page_size: int = Query(5, ge=1),
     status: list[LotStatus] | None = Query(default=None),
     use_case: GetLotsByItemUseCase = Depends(build_get_lots_by_item),
-    #current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> PaginatedResponse[LotResponse]:
     params = parse_pagination(page, page_size)
     result = await use_case.execute(
@@ -192,6 +196,49 @@ async def get_supply_lots(
         status=set(status) if status else None,
     )
     return PaginatedResponse.from_page(result)
+
+
+@router.post(
+    "/{item_id}/lots/{lot_id}/adjust",
+    status_code=status.HTTP_200_OK,
+    summary="Ajustar cantidad de lote por auditoría",
+    response_model=AdjustLotResponse,
+)
+async def adjust_lot_quantity(
+    item_id: int,
+    lot_id: int,
+    body: AdjustLotRequest,
+    use_case=Depends(get_adjust_lot_quantity_use_case),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Ajuste manual de stock de un lote. Calcula el delta entre la cantidad
+    actual y la nueva cantidad contada, actualiza el balance y registra
+    transacción INVENTORY_COUNT_ADJUSTMENT + audit log con motivo.
+    """
+    try:
+        command = AdjustLotCommand(
+            item_id=item_id,
+            lot_id=lot_id,
+            new_quantity=body.new_quantity,
+            reason=body.reason,
+            user_id=current_user.id,
+        )
+        result = await use_case.execute(command)
+        return AdjustLotResponse(
+            item_id=result.item_id,
+            lot_id=result.lot_id,
+            previous_quantity=result.previous_quantity,
+            new_quantity=result.new_quantity,
+            delta=result.delta,
+            reserved_quantity=result.reserved_quantity,
+        )
+    except LotNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ItemNotFoundException as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except InventoryDomainError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
 
 @router.patch(
@@ -218,6 +265,5 @@ async def update_supply(
         specialized_data={"supply_category": body.supply_category.value} if body.supply_category else None,
     )
     return await use_case.execute(command, user_id=current_user.id)
-
 
 

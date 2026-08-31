@@ -14,6 +14,7 @@ class InventoryTransactionModel(Base):
     transaction_type = Column(String, nullable=False)
     reference_type = Column(String, nullable=False)
     reference_id = Column(BigInteger, nullable=False)
+    reason = Column(String(500), nullable=True)
     created_at = Column(TIMESTAMP, nullable=False)
 
     lot = relationship("InventoryLotModel", back_populates="transactions")

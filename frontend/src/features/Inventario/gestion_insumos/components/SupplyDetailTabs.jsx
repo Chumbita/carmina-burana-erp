@@ -6,7 +6,7 @@ import { TabLots } from './TabLots'
 //componentes shadcn
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs'
 
-export function SupplyDetailTabs({ insumo, base_uom_symbol, onSupplyUpdated, availableSupplies = [] }) {
+export function SupplyDetailTabs({ insumo, base_uom_symbol, onSupplyUpdated, availableSupplies = [], onStockAdjusted }) {
 
   const [contentOption, setContentOption] = useState("insumos");
 
@@ -20,7 +20,7 @@ export function SupplyDetailTabs({ insumo, base_uom_symbol, onSupplyUpdated, ava
 
         <div className="overflow-y-auto min-h-0">
           {contentOption === "insumos" && <TabSupply insumo={insumo} onSupplyUpdated={onSupplyUpdated} availableSupplies={availableSupplies} />}
-          {contentOption === "lotes" && <TabLots itemId={insumo?.id} base_uom_symbol={base_uom_symbol} />}
+          {contentOption === "lotes" && <TabLots itemId={insumo?.id} base_uom_symbol={base_uom_symbol} onStockAdjusted={onStockAdjusted} />}
         </div>
       </Tabs>
     </div>

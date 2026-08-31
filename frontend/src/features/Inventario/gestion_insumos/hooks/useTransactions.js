@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { transactionService } from "@/services/transactionService"
 
 const PAGE_SIZE = 10
@@ -34,10 +34,10 @@ export function useTransactions(itemId) {
     load()
   }, [itemId, page, refreshKey])
 
-  function refetch() {
+  const refetch = useCallback(() => {
     setPage(1)
     setRefreshKey((key) => key + 1)
-  }
+  }, [])
 
   return { transactions, loading, error, page, pageSize: PAGE_SIZE, totalItems, totalPages, changePage: setPage, refetch }
 }

@@ -19,7 +19,7 @@ import { TabLots } from "./TabLots"
 import { useSupplies } from "../hooks/useSupplies"
 import { useEntityDetail } from "@/components/shared/DetailPage/EntityDetailContext"
 
-export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUpdated, onDeleteSupply, availableSupplies = [] }) {
+export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUpdated, onDeleteSupply, availableSupplies = [], onStockAdjusted }) {
   const [contentOption, setContentOption] = useState("detalle")
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -90,7 +90,7 @@ export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUp
           </div>
         )}
 
-        {contentOption === "lotes" && <TabLots itemId={packagingSupply?.id} base_uom_symbol={packagingSupply?.base_uom_symbol} />}
+        {contentOption === "lotes" && <TabLots itemId={packagingSupply?.id} base_uom_symbol={packagingSupply?.base_uom_symbol} onStockAdjusted={onStockAdjusted} />}
       </Tabs>
 
       {blocker.state === "blocked" && (

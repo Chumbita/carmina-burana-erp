@@ -50,7 +50,7 @@ async def list_active_packaging_supplies(
 async def get_active_packaging_supply_detail(
     item_id: int,
     use_case: GetActivePackagingSupplyDetailUseCase = Depends(get_active_packaging_supply_detail_use_case),
-  #  current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> dict:
     try:
         return await use_case.execute(item_id)
