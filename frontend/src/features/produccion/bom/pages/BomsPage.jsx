@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { BomsTable } from "../components/BomsTable"
 import { NewBomModal } from "../components/NewBomModal"
 import { useBoms } from "../hooks/useBoms"
@@ -24,6 +24,11 @@ export default function BomsPage() {
   } = useBomFilters()
 
   const filteredData = filteredBoms(boms)
+
+  const activeParentIds = useMemo(
+    () => [...new Set(boms.map((b) => b.parent_item_id))],
+    [boms]
+  )
 
   async function handleCreateBom(data) {
     try {
@@ -81,6 +86,7 @@ export default function BomsPage() {
         open={openModal}
         onClose={() => setOpenModal(false)}
         onSubmit={handleCreateBom}
+        activeParentIds={activeParentIds}
       />
     </div>
   )
