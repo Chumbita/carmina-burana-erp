@@ -1,5 +1,8 @@
 import { ENDPOINTS } from "@/lib/api/endpoints"
 import privateClient from "@/lib/api/privateClient"
+import { cachedRequest, invalidateCache } from "@/lib/api/cachedRequest"
+
+const ITEM_OPTIONS_KEY = "item-options"
 
 export const supplyService = {
   // READ
@@ -16,8 +19,11 @@ export const supplyService = {
   },
 
   getOptions: async () => {
-    const response = await privateClient.get(ENDPOINTS.ITEMS.GET_OPTIONS)
-    return response.data
+    return cachedRequest(
+      ITEM_OPTIONS_KEY,
+      () => privateClient.get(ENDPOINTS.ITEMS.GET_OPTIONS).then((res) => res.data),
+      0
+    )
   },
 
   getById: async (id) => {
@@ -28,18 +34,21 @@ export const supplyService = {
   // CREATE
   create: async (data) => {
     const response = await privateClient.post(ENDPOINTS.SUPPLIES.CREATE, data)
+    invalidateCache(ITEM_OPTIONS_KEY)
     return response.data
   },
 
   // UPDATE
   patch: async (id, data) => {
     const response = await privateClient.patch(ENDPOINTS.SUPPLIES.PATCH(id), data)
+    invalidateCache(ITEM_OPTIONS_KEY)
     return response.data
   },
 
   // DELETE
   delete: async (id) => {
     const response = await privateClient.delete(ENDPOINTS.SUPPLIES.DELETE(id))
+    invalidateCache(ITEM_OPTIONS_KEY)
     return response.data
   },
 

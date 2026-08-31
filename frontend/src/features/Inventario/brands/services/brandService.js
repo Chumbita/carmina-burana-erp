@@ -1,30 +1,14 @@
 import { ENDPOINTS } from '@/lib/api/endpoints'
 import privateClient from '@/lib/api/privateClient'
+import { cachedRequest, invalidateCache } from '@/lib/api/cachedRequest'
 
-const TTL_MS = 5 * 60 * 1000
-let cachedBrands = null
-let cachedAt = 0
-let inflightPromise = null
-
-function isCacheValid() {
-  return cachedBrands && Date.now() - cachedAt < TTL_MS
-}
+const BRANDS_KEY = 'brands'
 
 export const brandService = {
   getAll: async () => {
-    if (isCacheValid()) return cachedBrands
-    if (inflightPromise) return inflightPromise
-    inflightPromise = privateClient
-      .get(ENDPOINTS.BRANDS.GET_ALL)
-      .then((response) => {
-        cachedBrands = response.data
-        cachedAt = Date.now()
-        return cachedBrands
-      })
-      .finally(() => {
-        inflightPromise = null
-      })
-    return inflightPromise
+    return cachedRequest(BRANDS_KEY, () =>
+      privateClient.get(ENDPOINTS.BRANDS.GET_ALL).then((res) => res.data)
+    )
   },
 
   getById: async (id) => {
@@ -34,21 +18,18 @@ export const brandService = {
 
   create: async (data) => {
     const response = await privateClient.post(ENDPOINTS.BRANDS.CREATE, data)
-    cachedBrands = null
-    cachedAt = 0
+    invalidateCache(BRANDS_KEY)
     return response.data
   },
 
   update: async (id, data) => {
     const response = await privateClient.put(ENDPOINTS.BRANDS.UPDATE(id), data)
-    cachedBrands = null
-    cachedAt = 0
+    invalidateCache(BRANDS_KEY)
     return response.data
   },
 
   delete: async (id) => {
     await privateClient.delete(ENDPOINTS.BRANDS.DELETE(id))
-    cachedBrands = null
-    cachedAt = 0
+    invalidateCache(BRANDS_KEY)
   },
 }
