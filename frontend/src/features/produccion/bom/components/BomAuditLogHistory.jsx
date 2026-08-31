@@ -50,11 +50,91 @@ function SummaryBadge({ count, type }) {
   );
 }
 
+function HeaderChangesTable({ log }) {
+  if (!log?.old_data || !log?.new_data || log.changedHeaderKeys.length === 0) return null;
+
+  const headerChanges = [];
+  const seenUom = log.changedHeaderKeys.includes("uom_id") || log.changedHeaderKeys.includes("uom_symbol");
+
+  if (log.changedHeaderKeys.includes("quantity")) {
+    headerChanges.push({
+      key: "quantity",
+      label: HEADER_FIELD_LABELS.quantity,
+      oldValue:
+        log.old_data.quantity != null
+          ? `${formatDecimal(log.old_data.quantity)} ${log.old_data.uom_symbol ?? ""}`.trim()
+          : "—",
+      newValue:
+        log.new_data.quantity != null
+          ? `${formatDecimal(log.new_data.quantity)} ${log.new_data.uom_symbol ?? ""}`.trim()
+          : "—",
+    });
+  }
+
+  if (seenUom) {
+    const oldUom = log.old_data.uom_symbol ?? log.old_data.uom_id ?? "—";
+    const newUom = log.new_data.uom_symbol ?? log.new_data.uom_id ?? "—";
+    if (String(oldUom) !== String(newUom) && !log.changedHeaderKeys.includes("quantity")) {
+      // Si solo cambió la unidad, mostrar fila dedicada
+      headerChanges.push({
+        key: "uom",
+        label: "Unidad",
+        oldValue: String(oldUom),
+        newValue: String(newUom),
+      });
+    } else if (String(oldUom) !== String(newUom) && log.changedHeaderKeys.includes("quantity")) {
+      // Si cambió cantidad + unidad, la cantidad ya incluye el símbolo.
+      // Solo agregar fila de unidad si los símbolos son distintos y queremos explicitar el cambio de UOM.
+      // Para evitar duplicar información, no agregamos fila extra si la cantidad ya refleja el cambio.
+    }
+  }
+
+  // Fallback genérico para cualquier otro header key futuro
+  for (const k of log.changedHeaderKeys) {
+    if (k === "quantity" || k === "uom_id" || k === "uom_symbol") continue;
+    headerChanges.push({
+      key: k,
+      label: HEADER_FIELD_LABELS[k] || k,
+      oldValue: log.old_data[k] != null ? String(log.old_data[k]) : "—",
+      newValue: log.new_data[k] != null ? String(log.new_data[k]) : "—",
+    });
+  }
+
+  if (headerChanges.length === 0) return null;
+
+  return (
+    <div className="border rounded-md overflow-hidden">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-xs font-medium">Campo</TableHead>
+            <TableHead className="text-xs font-medium w-32 text-center">Antes</TableHead>
+            <TableHead className="text-xs font-medium w-32 text-center">Después</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {headerChanges.map((row) => (
+            <TableRow key={row.key}>
+              <TableCell className="py-1.5 text-sm font-medium">{row.label}</TableCell>
+              <TableCell className="py-1.5 text-center text-sm text-muted-foreground tabular-nums">
+                {row.oldValue}
+              </TableCell>
+              <TableCell className="py-1.5 text-center text-sm font-medium tabular-nums">
+                {row.newValue}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
 function LineChangesTable({ changes }) {
   if (!changes || changes.length === 0) return null;
 
   return (
-    <div className="mt-2 border rounded-md overflow-hidden">
+    <div className="border rounded-md overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
@@ -183,15 +263,8 @@ function AuditLogRow({ log }) {
       {expanded && (
         <TableRow>
           <TableCell colSpan={6} className="p-0 px-4 pb-3">
-            <div className="pt-1 space-y-2">
-              {log.changedHeaderKeys.length > 0 && (
-                <div className="text-xs text-muted-foreground">
-                  <span className="font-medium">Cambios en encabezado:</span>{" "}
-                  {log.changedHeaderKeys
-                    .map((k) => HEADER_FIELD_LABELS[k] || k)
-                    .join(", ")}
-                </div>
-              )}
+            <div className="pt-2 space-y-3">
+              <HeaderChangesTable log={log} />
               <LineChangesTable changes={log.changedLines} />
             </div>
           </TableCell>

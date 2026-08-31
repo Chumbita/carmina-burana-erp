@@ -7,9 +7,9 @@ import {
   Plus,
   Trash2,
   Save,
-  X,
   Check,
   ChevronsUpDown,
+  AlertCircle,
 } from "lucide-react";
 import { EntityDetailPage } from "@/components/shared/DetailPage/EntityDetailPage";
 import { useBom } from "../hooks/useBom";
@@ -66,36 +66,28 @@ function ItemCombobox({
           aria-expanded={open}
           aria-invalid={invalid}
           className={cn(
-            "flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs",
-            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+            "flex h-8 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-sm",
+            "focus:outline-none focus:ring-1 focus:ring-ring",
             !selected && "text-muted-foreground",
-            invalid && "border-destructive focus:ring-destructive/30",
+            invalid && "border-destructive",
           )}
         >
           <span className="truncate text-left">
             {selected ? selected.name : placeholder}
           </span>
-          <ChevronsUpDown className="ml-1 size-3.5 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ml-2 size-3.5 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-96 p-0" align="start">
+      <PopoverContent className="w-80 p-0" align="start">
         <Command>
-          <CommandInput placeholder="Buscar…" />
+          <CommandInput placeholder="Buscar insumo…" />
           <CommandList>
             <CommandEmpty>Sin resultados.</CommandEmpty>
             <CommandGroup>
               {items.map((item) => (
                 <CommandItem
                   key={item.item_id}
-                  value={
-                    item.name +
-                    " " +
-                    item.brand +
-                    " " +
-                    item.item_type +
-                    " " +
-                    item.uom_symbol
-                  }
+                  value={`${item.name} ${item.brand} ${item.item_type} ${item.uom_symbol}`}
                   onSelect={() => handleSelect(item)}
                 >
                   <Check
@@ -105,11 +97,9 @@ function ItemCombobox({
                     )}
                   />
                   <span className="flex flex-col">
-                    <span className="font-semibold text-base text-foreground">
-                      {item.name}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {item.brand} - {item.item_type} - {item.uom_symbol}
+                    <span className="text-sm font-medium leading-none">{item.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {item.brand} · {item.item_type} · {item.uom_symbol}
                     </span>
                   </span>
                 </CommandItem>
@@ -125,34 +115,29 @@ function ItemCombobox({
 function EditableLineRow({ index, control, items, isNew, onRemove, setValue }) {
   const componentItemId = useWatch({
     control,
-    name: "lines." + index + ".component_item_id",
+    name: `lines.${index}.component_item_id`,
   });
-  const quantity = useWatch({ control, name: "lines." + index + ".quantity" });
+  const quantity = useWatch({ control, name: `lines.${index}.quantity` });
   const selectedItem = items.find((i) => i.item_id === componentItemId);
   const isQtyInvalid = quantity == null || quantity === "" || quantity <= 0;
 
   return (
-    <tr className="border-b border-border last:border-0 group">
-      <td className="py-2.5 pr-3 align-top">
-        <span className="hidden sm:inline-flex size-9 items-center justify-center rounded bg-muted text-xs font-medium text-muted-foreground">
-          {index + 1}
-        </span>
-        <span className="text-xs text-muted-foreground sm:hidden">
-          {index + 1}.
-        </span>
+    <tr className="border-b last:border-0 hover:bg-muted/40">
+      <td className="py-2 pr-3 text-xs tabular-nums text-muted-foreground w-12 text-center">
+        {index + 1}
       </td>
-      <td className="py-2.5 pr-3 align-top">
+      <td className="py-2 pr-3">
         {isNew ? (
           <Controller
-            name={"lines." + index + ".component_item_id"}
+            name={`lines.${index}.component_item_id`}
             control={control}
             render={({ field: itemField, fieldState }) => (
-              <>
+              <div className="space-y-1">
                 <ItemCombobox
                   value={itemField.value}
                   onChange={(id) => itemField.onChange(id)}
                   onSelect={(item) =>
-                    setValue("lines." + index + ".uom", item.uom_id, {
+                    setValue(`lines.${index}.uom`, item.uom_id, {
                       shouldValidate: true,
                     })
                   }
@@ -161,58 +146,62 @@ function EditableLineRow({ index, control, items, isNew, onRemove, setValue }) {
                   invalid={fieldState.invalid}
                 />
                 {fieldState.invalid && (
-                  <p className="text-destructive text-xs mt-1">
-                    {fieldState.error?.message}
-                  </p>
+                  <p className="text-xs text-destructive">{fieldState.error?.message}</p>
                 )}
-              </>
+              </div>
             )}
           />
         ) : (
-          <div className="flex h-9 w-full items-center rounded-md border border-input bg-muted px-3 py-2 text-sm text-foreground">
-            <span className="truncate">
-              {selectedItem?.name ?? "Sin seleccionar"}
-            </span>
-          </div>
+          <span className="text-sm">{selectedItem?.name ?? "Sin seleccionar"}</span>
         )}
       </td>
-      <td className="py-2.5 pr-3 align-top">
+      <td className="py-2 pr-2 w-36">
         <Controller
-          name={"lines." + index + ".quantity"}
+          name={`lines.${index}.quantity`}
           control={control}
           render={({ field: qtyField }) => (
-            <InputGroup>
+            <InputGroup className="h-8">
               <DecimalInput
                 {...qtyField}
                 data-slot="input-group-control"
                 aria-invalid={isQtyInvalid ? "true" : undefined}
-                className={cn(
-                  "flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent h-9 text-sm",
-                  isQtyInvalid &&
-                    "text-destructive ring-destructive/20 ring-1 border-destructive",
-                )}
+                className="flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 h-8 text-sm tabular-nums"
               />
               <InputGroupAddon align="inline-end">
-                <InputGroupText>
-                  {selectedItem?.uom_symbol ?? ""}
-                </InputGroupText>
+                <InputGroupText className="text-xs">{selectedItem?.uom_symbol ?? "—"}</InputGroupText>
               </InputGroupAddon>
             </InputGroup>
           )}
         />
       </td>
-      <td className="py-2.5 align-top">
-        <div className="flex items-center justify-center">
-          <button
-            type="button"
-            onClick={() => onRemove(index)}
-            className="rounded p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
-            aria-label="Eliminar componente"
-          >
-            <Trash2 className="size-4" />
-          </button>
-        </div>
+      <td className="py-2 w-9">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          onClick={() => onRemove(index)}
+          className="text-muted-foreground hover:text-destructive"
+          aria-label="Eliminar componente"
+        >
+          <Trash2 className="size-4" />
+        </Button>
       </td>
+    </tr>
+  );
+}
+
+function ReadOnlyLineRow({ line, index }) {
+  return (
+    <tr className="border-b last:border-0 hover:bg-muted/40">
+      <td className="py-2 pr-3 text-xs tabular-nums text-muted-foreground w-12 text-center">
+        {index + 1}
+      </td>
+      <td className="py-2 pr-3 text-sm">{line.component_item_name}</td>
+      <td className="py-2 pr-2 w-36 text-sm tabular-nums">
+        {formatDecimal(line.quantity)}{" "}
+        <span className="text-muted-foreground text-xs">{line.uom_symbol}</span>
+      </td>
+      <td className="py-2 w-9" />
     </tr>
   );
 }
@@ -263,6 +252,169 @@ export default function BomDetailPage() {
     ? new Date(bom.valid_from).toLocaleDateString("es-AR")
     : "-";
 
+  // Contenido compartido: misma estructura en lectura y edición para transición imperceptible
+  const content = (
+    <div className="flex flex-col h-full gap-6">
+      {editMode && editError && (
+        <div className="flex items-start gap-2 rounded-md border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
+          <AlertCircle className="size-4 shrink-0 mt-0.5" />
+          <span>{typeof editError === "string" ? editError : (editError?.message ?? "Error desconocido")}</span>
+        </div>
+      )}
+
+      {/* Rendimiento base — misma jerarquía y espaciado en ambos modos */}
+      <div className="pb-5 border-b">
+        <p className="text-xs font-medium tracking-wide uppercase text-muted-foreground">
+          Rendimiento base
+        </p>
+        <div className="mt-2 flex items-baseline gap-2">
+          {editMode ? (
+            <Controller
+              name="quantity"
+              control={control}
+              render={({ field, fieldState }) => (
+                <div className="flex flex-col gap-1">
+                  <InputGroup className={cn("w-44 h-9", fieldState.invalid && "border-destructive")}>
+                    <DecimalInput
+                      {...field}
+                      id="quantity"
+                      data-slot="input-group-control"
+                      aria-invalid={fieldState.invalid ? "true" : undefined}
+                      className="flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 h-9 text-2xl font-semibold tracking-tight tabular-nums"
+                    />
+                    <InputGroupAddon align="inline-end">
+                      <InputGroupText className="text-sm">{bom?.bom_uom_symbol ?? ""}</InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
+                  {fieldState.invalid && (
+                    <p className="text-xs text-destructive">{fieldState.error?.message}</p>
+                  )}
+                </div>
+              )}
+            />
+          ) : (
+            <>
+              <span className="text-2xl font-semibold tracking-tight tabular-nums">
+                {formatDecimal(bom?.quantity)}
+              </span>
+              <span className="text-sm text-muted-foreground">{bom?.bom_uom_symbol}</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Componentes — idéntica tabla, solo cambia el contenido de las celdas y el botón de acción */}
+      <div className="flex-1 flex flex-col min-h-0 gap-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-sm font-semibold">Componentes</h3>
+          </div>
+          {editMode ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleAddLine}
+              className="h-8 text-sm cursor-pointer"
+            >
+              <Plus className="size-4" data-icon="inline-start" />
+              Agregar
+            </Button>
+          ) : (
+            bom?.is_active === true && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setEditMode(true)}
+                className="h-8 text-sm cursor-pointer"
+              >
+                <Pencil className="size-4" data-icon="inline-start" />
+                Editar
+              </Button>
+            )
+          )}
+        </div>
+
+        <div className="flex-1 overflow-auto -mx-1 px-1">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b text-muted-foreground">
+                <th className="pb-2 text-center text-xs font-medium w-12">Nro</th>
+                <th className="pb-2 text-left text-xs font-medium">Componente</th>
+                <th className="pb-2 text-left text-xs font-medium w-36">Cantidad</th>
+                <th className="pb-2 w-9" />
+              </tr>
+            </thead>
+            <tbody>
+              {editMode
+                ? fields.map((field, index) => (
+                    <EditableLineRow
+                      key={field.id}
+                      index={index}
+                      control={control}
+                      items={items}
+                      isNew={isLineNew(index)}
+                      onRemove={handleRemoveLine}
+                      setValue={setValue}
+                    />
+                  ))
+                : (bom?.lines || []).map((line, index) => (
+                    <ReadOnlyLineRow key={line.id || index} line={line} index={index} />
+                  ))}
+            </tbody>
+          </table>
+
+          {(editMode ? fields.length === 0 : !bom?.lines || bom.lines.length === 0) && (
+            <div className="py-10 text-center border border-dashed rounded-md mt-3">
+              <p className="text-sm text-muted-foreground">
+                {editMode ? "Sin componentes" : "Sin componentes en esta fórmula"}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {editMode ? "Agregá insumos para componer la receta" : bom?.is_active === true ? "Editá la receta para agregar insumos" : ""}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer — solo en edición, con mismas métricas que el header para no romper el ritmo */}
+        {editMode && (
+          <div className="flex items-center justify-end border-t pt-3 mt-auto">
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="cursor-pointer"
+                onClick={handleCancel}
+                disabled={isSaving}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={!isDirty || isSaving || !isValid}
+                className="h-8 cursor-pointer"
+              >
+                {isSaving ? (
+                  <>
+                    <Spinner data-icon="inline-start" />
+                    Guardando…
+                  </>
+                ) : (
+                  <>
+                    <Save className="size-4" data-icon="inline-start" />
+                    Guardar
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <EntityDetailPage loading={loading} error={error}>
       <EntityDetailPage.Header name={bom?.parent_item_name} />
@@ -273,231 +425,37 @@ export default function BomDetailPage() {
         <EntityDetailPage.Sidebar.Row label="Versión" value={bom?.version} />
         <EntityDetailPage.Sidebar.Row
           label="Cantidad"
-          value={formatDecimal(bom?.quantity) + " " + bom?.bom_uom_symbol}
+          value={`${formatDecimal(bom?.quantity)} ${bom?.bom_uom_symbol ?? ""}`}
         />
-        <EntityDetailPage.Sidebar.Row
-          label="Vigente desde"
-          value={validFromDate}
-        />
+        <EntityDetailPage.Sidebar.Row label="Vigente desde" value={validFromDate} />
         {bom?.is_active !== true && (
           <EntityDetailPage.Sidebar.Row
             label="Vigente hasta"
-            value={
-              bom?.valid_to
-                ? new Date(bom.valid_to).toLocaleDateString("es-AR")
-                : "-"
-            }
+            value={bom?.valid_to ? new Date(bom.valid_to).toLocaleDateString("es-AR") : "-"}
           />
         )}
-        <EntityDetailPage.Sidebar.Row
-          label="Estado"
-          value={bom?.is_active ? "Vigente" : "Descontinuado"}
-        />
-        <EntityDetailPage.Sidebar.Row
-          label="Insumos"
-          value={bom?.components_count}
-        />
+        <EntityDetailPage.Sidebar.Row label="Estado" value={bom?.is_active ? "Vigente" : "Descontinuado"} />
+        <EntityDetailPage.Sidebar.Row label="Insumos" value={bom?.components_count} />
       </EntityDetailPage.Sidebar>
 
       <EntityDetailPage.Content>
         {editMode ? (
           <form
+            id="bom-edit-form"
             onSubmit={handleSubmit(handleSaveSubmit)}
-            className="flex flex-col gap-4"
+            className="flex flex-col h-full"
           >
-            {editError && (
-              <div className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-                {typeof editError === "string"
-                  ? editError
-                  : (editError?.message ?? "Error desconocido")}
-              </div>
-            )}
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-semibold">
-                  Componentes de la fórmula
-                </h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Edite las cantidades, agregue o elimine componentes. Para
-                  cambiar un componente existente, elimínelo y agregue una nueva
-                  fila.
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddLine}
-                className="cursor-pointer"
-              >
-                <Plus data-icon="inline-start" />
-                Agregar
-              </Button>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-10">
-                      Nro
-                    </th>
-                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground">
-                      Insumo <span className="text-destructive">*</span>
-                    </th>
-                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-44">
-                      Cantidad requerida{" "}
-                      <span className="text-destructive">*</span>
-                    </th>
-                    <th className="pb-2 pt-1 text-left text-xs font-medium text-muted-foreground w-10">
-                      Acción
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {fields.map((field, index) => (
-                    <EditableLineRow
-                      key={field.id}
-                      index={index}
-                      control={control}
-                      items={items}
-                      isNew={isLineNew(index)}
-                      onRemove={handleRemoveLine}
-                      setValue={setValue}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {fields.length === 0 && (
-              <p className="text-xs text-muted-foreground text-center py-4">
-                No hay componentes agregados. Hacé clic en «Agregar» para
-                comenzar.
-              </p>
-            )}
-
-            <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-1">
-              <div className="flex items-baseline gap-2">
-                <span className="text-xs text-muted-foreground">
-                  {fields.length} componente{fields.length !== 1 ? "s" : ""}
-                </span>
-              </div>
-              <div className="flex gap-2 justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="cursor-pointer"
-                  onClick={handleCancel}
-                  disabled={isSaving}
-                >
-                  <X data-icon="inline-start" />
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={!isDirty || isSaving}
-                  className="cursor-pointer"
-                >
-                  {isSaving ? (
-                    <>
-                      <Spinner data-icon="inline-start" />
-                      Guardando…
-                    </>
-                  ) : (
-                    <>
-                      <Save data-icon="inline-start" />
-                      Guardar cambios
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
+            {content}
           </form>
         ) : (
-          <div className="space-y-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-semibold">
-                  Componentes de la fórmula
-                </h2>
-              </div>
-              {bom?.is_active === true && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setEditMode(true)}
-                  className="cursor-pointer"
-                >
-                  <Pencil data-icon="inline-start" />
-                  Editar
-                </Button>
-              )}
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-10">
-                      Nro
-                    </th>
-                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground">
-                      Insumo
-                    </th>
-                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground">
-                      Cantidad
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(bom?.lines || []).map((line, index) => (
-                    <tr
-                      key={line.id || index}
-                      className="border-b border-border last:border-0"
-                    >
-                      <td className="py-2.5 pr-3 align-top">
-                        <span className="hidden sm:inline-flex size-9 items-center justify-center rounded bg-muted text-xs font-medium text-muted-foreground">
-                          {index + 1}
-                        </span>
-                        <span className="text-xs text-muted-foreground sm:hidden">
-                          {index + 1}.
-                        </span>
-                      </td>
-                      <td className="py-2.5 pr-3 align-top">
-                        <span className="font-medium">
-                          {line.component_item_name}
-                        </span>
-                      </td>
-                      <td className="py-2.5 pr-3 align-top">
-                        <span className="font-medium">
-                          {formatDecimal(line.quantity)} {line.uom_symbol}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {(!bom?.lines || bom.lines.length === 0) && (
-              <p className="text-xs text-muted-foreground text-center py-4">
-                No hay componentes en esta fórmula.
-              </p>
-            )}
-          </div>
+          content
         )}
       </EntityDetailPage.Content>
 
       {bom?.parent_item_id && (
         <section className="lg:col-span-2 p-4">
-          <h2 className="text-lg font-bold mb-4">Historial</h2>
-          <BomAuditLogHistory
-            parentItemId={bom.parent_item_id}
-            refreshKey={auditRefreshKey}
-          />
+          <h2 className="text-sm font-semibold mb-3">Historial</h2>
+          <BomAuditLogHistory parentItemId={bom.parent_item_id} refreshKey={auditRefreshKey} />
         </section>
       )}
     </EntityDetailPage>
