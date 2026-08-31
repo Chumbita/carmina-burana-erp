@@ -12,7 +12,7 @@ import { estadoStyles } from "../utils/stockStyles"
 
 export default function PackagingSupplyDetailPage() {
   const { supplyId } = useParams()
-  const { packagingSupply, loading, error, updatePackagingSupply, deleteSupply } = usePackagingSupply(supplyId)
+  const { packagingSupply, loading, error, updatePackagingSupply, deleteSupply, refetch } = usePackagingSupply(supplyId)
   const { supplies } = useSupplies()
 
   return (
@@ -45,6 +45,7 @@ export default function PackagingSupplyDetailPage() {
           onPackagingSupplyUpdated={updatePackagingSupply}
           onDeleteSupply={deleteSupply}
           availableSupplies={supplies}
+          onStockAdjusted={refetch}
         />
       </EntityDetailPage.Content>
       <EntityDetailPage.History entityType="supply" itemId={packagingSupply?.id} />

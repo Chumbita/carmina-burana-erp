@@ -21,6 +21,7 @@ from src.infrastructure.database.models.production_order_model import (
 from src.infrastructure.database.models.bom_model import BomModel
 from src.infrastructure.database.models.item_model import ItemModel
 from src.infrastructure.database.models.uom_model import UomModel
+from src.infrastructure.database.models.inventory_lot_model import InventoryLotModel
 
 class ProductionOrderRepository(IProductionOrderRepository):
 
@@ -95,6 +96,120 @@ class ProductionOrderRepository(IProductionOrderRepository):
 
         return [self._to_entity(model) for model in models]
 
+    async def get_detailed_production_order_by_id(self, order_id: int) -> Optional[dict]:
+        """
+        Obtiene una orden de producción por su ID con toda la información detallada:
+        header con nombre del producto, versión del BOM y símbolo de la UM base,
+        más sus consumptions y outputs con nombre de item y código de lote.
+        """
+        stmt = (
+            select(
+                ProductionOrderModel.id,
+                ProductionOrderModel.item_id,
+                ItemModel.name.label("item_name"),
+                ProductionOrderModel.bom_id,
+                BomModel.version.label("bom_version"),
+                ProductionOrderModel.planned_quantity,
+                ProductionOrderModel.produced_quantity,
+                ProductionOrderModel.status,
+                UomModel.symbol.label("base_uom_symbol"),
+                ProductionOrderModel.schedule_date,
+                ProductionOrderModel.completed_at,
+                ProductionOrderModel.description,
+                ProductionOrderModel.created_at,
+            )
+            .join(ItemModel, ProductionOrderModel.item_id == ItemModel.id)
+            .join(BomModel, ProductionOrderModel.bom_id == BomModel.id)
+            .join(UomModel, ItemModel.base_uom_id == UomModel.id)
+            .where(ProductionOrderModel.id == order_id)
+        )
+
+        result = await self._session.execute(stmt)
+        header = result.first()
+
+        if header is None:
+            return None
+
+        consumptions_stmt = (
+            select(
+                ProductionConsumptionModel.id,
+                ProductionConsumptionModel.item_id,
+                ItemModel.name.label("item_name"),
+                ProductionConsumptionModel.lot_id,
+                InventoryLotModel.lot_code.label("lot_code"),
+                ProductionConsumptionModel.quantity,
+                UomModel.symbol.label("uom_symbol"),
+            )
+            .join(ItemModel, ProductionConsumptionModel.item_id == ItemModel.id)
+            .join(InventoryLotModel, ProductionConsumptionModel.lot_id == InventoryLotModel.id)
+            .outerjoin(UomModel, ItemModel.base_uom_id == UomModel.id)
+            .where(ProductionConsumptionModel.production_order_id == order_id)
+            .order_by(ProductionConsumptionModel.id)
+        )
+
+        consumptions_result = await self._session.execute(consumptions_stmt)
+
+        outputs_stmt = (
+            select(
+                ProductionOutputModel.id,
+                ProductionOutputModel.item_id,
+                ItemModel.name.label("item_name"),
+                ProductionOutputModel.lot_id,
+                InventoryLotModel.lot_code.label("lot_code"),
+                ProductionOutputModel.quantity,
+                InventoryLotModel.unit_cost.label("unit_cost"),
+                UomModel.symbol.label("uom_symbol"),
+            )
+            .join(ItemModel, ProductionOutputModel.item_id == ItemModel.id)
+            .join(InventoryLotModel, ProductionOutputModel.lot_id == InventoryLotModel.id)
+            .outerjoin(UomModel, ItemModel.base_uom_id == UomModel.id)
+            .where(ProductionOutputModel.production_order_id == order_id)
+            .order_by(ProductionOutputModel.id)
+        )
+
+        outputs_result = await self._session.execute(outputs_stmt)
+
+        return {
+            "id": header.id,
+            "item_id": header.item_id,
+            "item_name": header.item_name,
+            "bom_id": header.bom_id,
+            "bom_version": header.bom_version,
+            "planned_quantity": header.planned_quantity,
+            "produced_quantity": header.produced_quantity,
+            "status": header.status,
+            "base_uom_symbol": header.base_uom_symbol,
+            "schedule_date": header.schedule_date,
+            "completed_at": header.completed_at,
+            "description": header.description,
+            "created_at": header.created_at,
+            "consumptions": [
+                {
+                    "id": consumption.id,
+                    "item_id": consumption.item_id,
+                    "item_name": consumption.item_name,
+                    "lot_id": consumption.lot_id,
+                    "lot_code": consumption.lot_code,
+                    "quantity": consumption.quantity,
+                    "uom_symbol": consumption.uom_symbol,
+                }
+                for consumption in consumptions_result.all()
+            ],
+            "outputs": [
+                {
+                    "id": output.id,
+                    "item_id": output.item_id,
+                    "item_name": output.item_name,
+                    "lot_id": output.lot_id,
+                    "lot_code": output.lot_code,
+                    "quantity": output.quantity,
+                    "unit_cost": output.unit_cost,
+                    "uom_symbol": output.uom_symbol,
+                }
+                for output in outputs_result.all()
+            ],
+        }
+
     # ── Commands ────────────────────────────────────────────────
 
     async def add(self, order: ProductionOrder) -> ProductionOrder:
@@ -120,7 +235,8 @@ class ProductionOrderRepository(IProductionOrderRepository):
 
     async def save(self, order: ProductionOrder) -> ProductionOrder:
         """
-        Persiste cambios de estado en una orden existente.
+        Persiste cambios en una orden existente
+        (status, cantidades, fechas y descripción).
         Usa ORM-level update para que el identity map se mantenga sincronizado.
         """
         model = await self._session.get(ProductionOrderModel, order.id)
@@ -128,7 +244,9 @@ class ProductionOrderRepository(IProductionOrderRepository):
             raise ValueError(f"ProductionOrderModel with id={order.id} not found in session")
 
         model.status = order.status.value
+        model.planned_quantity = order.planned_quantity
         model.produced_quantity = order.produced_quantity
+        model.schedule_date = order.schedule_date
         model.completed_at = order.completed_at
         model.description = order.description
         await self._session.flush()

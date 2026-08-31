@@ -20,6 +20,7 @@ export function useBomEdit(bom) {
   const {
     handleSubmit,
     control,
+    setValue,
     reset,
     formState: { isDirty, isValid },
   } = useForm({
@@ -116,6 +117,7 @@ export function useBomEdit(bom) {
     handleRemoveLine,
     handleSubmit,
     handleSave,
+    setValue,
     reset,
   }
 }

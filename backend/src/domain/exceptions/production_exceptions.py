@@ -41,6 +41,16 @@ class BomNotActiveException(Exception):
         self.bom_id = bom_id
 
 
+class ProductionOrderCannotBeUpdatedException(Exception):
+    def __init__(self, order_id: int, status: str):
+        super().__init__(
+            f"Production order with id={order_id} cannot be updated "
+            f"from status '{status}'"
+        )
+        self.order_id = order_id
+        self.status = status
+
+
 class InsufficientStockForProductionException(Exception):
     def __init__(self, order_id: int, missing: list):
         self.order_id = order_id

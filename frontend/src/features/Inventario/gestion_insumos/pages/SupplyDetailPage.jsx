@@ -12,7 +12,7 @@ import { estadoStyles } from "../utils/stockStyles";
 
 export default function SupplyDetailPage() {
   const { supplyId } = useParams();
-  const { supply, loading, error } = useSupply(supplyId);
+  const { supply, loading, error, refetch } = useSupply(supplyId);
   const { supplies } = useSupplies();
 
   return (
@@ -32,7 +32,7 @@ export default function SupplyDetailPage() {
       </EntityDetailPage.Sidebar>
 
       <EntityDetailPage.Content>
-        <SupplyDetailTabs insumo={supply} base_uom_symbol={supply?.base_uom_symbol} availableSupplies={supplies} />
+        <SupplyDetailTabs insumo={supply} base_uom_symbol={supply?.base_uom_symbol} availableSupplies={supplies} onStockAdjusted={refetch} />
       </EntityDetailPage.Content>
       <EntityDetailPage.History itemId={supply?.id} entityType="supply" />
     </EntityDetailPage>

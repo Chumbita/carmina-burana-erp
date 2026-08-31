@@ -6,26 +6,28 @@ from typing import List
 
 from fastapi import APIRouter, Depends, status
 
-from src.domain.entities.user import User
-
-from src.application.dtos.bom.bom_commands_dtos import CreateBomCommand, CreateBomLineData
-from src.application.use_cases.bom.create_bom_use_case import CreateBomUseCase
-from src.application.use_cases.bom.list_active_boms_use_case import ListActiveBomsUseCase
-from src.application.use_cases.bom.get_bom_by_id_use_case import GetBomByIdUseCase
-
-from src.presentation.schemas.bom_schemas import (
-    CreateBomRequestSchema,
-    BomCreatedResponseSchema,
-    BomListItemResponseSchema,
-    BomDetailResponseSchema,
+from src.application.dtos.bom.bom_commands_dtos import (
+    CreateBomCommand,
+    CreateBomLineData,
 )
+from src.application.use_cases.bom.create_bom_use_case import CreateBomUseCase
+from src.application.use_cases.bom.get_bom_by_id_use_case import GetBomByIdUseCase
+from src.application.use_cases.bom.list_active_boms_use_case import (
+    ListActiveBomsUseCase,
+)
+from src.domain.entities.user import User
+from src.presentation.dependencies.auth import get_current_user
 from src.presentation.dependencies.use_cases.bom import (
+    get_bom_by_id_use_case,
     get_create_bom_use_case,
     get_list_active_boms_use_case,
-    get_bom_by_id_use_case,
 )
-from src.presentation.dependencies.auth import get_current_user
-
+from src.presentation.schemas.bom_schemas import (
+    BomCreatedResponseSchema,
+    BomDetailResponseSchema,
+    BomListItemResponseSchema,
+    CreateBomRequestSchema,
+)
 
 router = APIRouter(prefix="/bom", tags=["BOM"])
 
@@ -71,7 +73,8 @@ async def get_bom_by_id(
 )
 async def create_bom(
     body: CreateBomRequestSchema,
-    use_case: CreateBomUseCase = Depends(get_create_bom_use_case)
+    use_case: CreateBomUseCase = Depends(get_create_bom_use_case),
+    current_user: User = Depends(get_current_user),
 ) -> dict:
     """
     Crea una nueva versión de BOM con todas sus líneas de componente.
@@ -92,5 +95,5 @@ async def create_bom(
         ],
     )
 
-    result = await use_case.execute(command)
+    result = await use_case.execute(command, user_id=current_user.id)
     return BomCreatedResponseSchema.model_validate(result)

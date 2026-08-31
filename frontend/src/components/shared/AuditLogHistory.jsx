@@ -10,12 +10,12 @@ import { formatDecimal } from "@/lib/utils/formatters"
 const actionLabels = {
   CREATED: "Creado",
   UPDATED: "Modificado",
-}
+};
 
 const actionStyles = {
   CREATED: "bg-green-100 text-green-800",
   UPDATED: "bg-blue-100 text-blue-800",
-}
+};
 
 const FIELD_LABELS = {
   name: "Nombre",
@@ -29,25 +29,27 @@ const FIELD_LABELS = {
   address: "Dirección",
   is_active: "Activo",
   quantity: "Cantidad",
+  uom_id: "UOM",
+  lines: "Componentes",
   reason: "Motivo",
   delta: "Diferencia",
   lot_code: "Lote",
   lot_id: "Lote",
   previous_quantity: "Cantidad anterior",
   new_quantity: "Cantidad nueva",
-}
+};
 
 function label(key) {
-  return FIELD_LABELS[key] ?? key
+  return FIELD_LABELS[key] ?? key;
 }
 
 function resolveValue(key, value, brandMap, uomMap) {
-  if (value == null) return "-"
-  if (typeof value === "boolean") return value ? "Sí" : "No"
-  if (key === "brand_id" && brandMap[value]) return brandMap[value]
-  if (key === "base_uom_id" && uomMap[value]) return uomMap[value]
-  if (typeof value === "number") return formatDecimal(value)
-  return value
+  if (value == null) return "-";
+  if (typeof value === "boolean") return value ? "Sí" : "No";
+  if (key === "brand_id" && brandMap[value]) return brandMap[value];
+  if (key === "base_uom_id" && uomMap[value]) return uomMap[value];
+  if (typeof value === "number") return formatDecimal(value);
+  return value;
 }
 
 function formatDate(dateStr) {
@@ -57,24 +59,39 @@ function formatDate(dateStr) {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  })
+  });
 }
 
 function getChangedKeys(oldData, newData, action) {
   if (action === "CREATED" && !oldData) {
-    return Object.keys(newData || {})
+    return Object.keys(newData || {});
   }
   if (action === "UPDATED" && oldData && newData) {
-    return Object.keys(newData).filter(k => oldData[k] !== newData[k])
+    return Object.keys(newData).filter((k) => oldData[k] !== newData[k]);
   }
-  return []
+  return [];
 }
 
 export function AuditLogHistory({ entityType, entityId, refreshKey }) {
-  const { auditLogs, isLoading, error, page, pageSize, totalItems, totalPages, changePage, refetch } =
-    useEntityAuditLogs(entityType, entityId)
-  const [brandMap, setBrandMap] = React.useState({})
-  const [uomMap, setUomMap] = React.useState({})
+  const {
+    auditLogs,
+    isLoading,
+    error,
+    page,
+    pageSize,
+    totalItems,
+    totalPages,
+    changePage,
+    refetch,
+  } = useEntityAuditLogs(entityType, entityId);
+
+  const filteredLogs = React.useMemo(
+    () => auditLogs.filter((log) => !(log.new_data?.reason && log.old_data?.lot_id)),
+    [auditLogs]
+  );
+
+  const [brandMap, setBrandMap] = React.useState({});
+  const [uomMap, setUomMap] = React.useState({});
 
   React.useEffect(() => {
     if (refreshKey > 0) {
@@ -95,79 +112,97 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
     }).catch(() => {})
   }, []);
 
-  const columns = React.useMemo(() => [
-    {
-      accessor: "action",
-      header: "Acción",
-      render: (value) => (
-        <Badge className={actionStyles[value]}>
-          {actionLabels[value] ?? value}
-        </Badge>
-      ),
-    },
-    {
-      accessor: "changes",
-      header: "Cambios",
-      render: (_, row) => {
-        const keys = getChangedKeys(row.old_data, row.new_data, row.action)
-        if (keys.length === 0) return row.action === "CREATED" ? "Item creado" : "Sin cambios"
-        return <div className="space-y-1">{keys.map(k => <div key={k}>{label(k)}</div>)}</div>
+  const columns = React.useMemo(
+    () => [
+      {
+        accessor: "action",
+        header: "Acción",
+        render: (value) => (
+          <Badge className={actionStyles[value]}>
+            {actionLabels[value] ?? value}
+          </Badge>
+        ),
       },
-    },
-    {
-      accessor: "old_data",
-      header: "Antes",
-      render: (value, row) => {
-        const keys = getChangedKeys(row.old_data, row.new_data, row.action)
-        if (keys.length === 0) return "—"
-        return (
-          <div className="space-y-1">
-            {keys.map(k => (
-              <div key={k} className="text-muted-foreground tabular-nums">
-                {row.action === "CREATED" ? "—" : resolveValue(k, row.old_data?.[k], brandMap, uomMap)}
-              </div>
-            ))}
-          </div>
-        )
+      {
+        accessor: "changes",
+        header: "Cambios",
+        render: (_, row) => {
+          const keys = getChangedKeys(row.old_data, row.new_data, row.action);
+          if (keys.length === 0)
+            return row.action === "CREATED" ? "Item creado" : "Sin cambios";
+          return (
+            <div className="space-y-1">
+              {keys.map((k) => (
+                <div key={k}>{label(k)}</div>
+              ))}
+            </div>
+          );
+        },
       },
-    },
-    {
-      accessor: "new_data",
-      header: "Después",
-      render: (value, row) => {
-        const keys = getChangedKeys(row.old_data, row.new_data, row.action)
-        if (keys.length === 0) return "—"
-        return (
-          <div className="space-y-1">
-            {keys.map(k => (
-              <div key={k} className="tabular-nums">{resolveValue(k, row.new_data?.[k], brandMap, uomMap)}</div>
-            ))}
-          </div>
-        )
+      {
+        accessor: "old_data",
+        header: "Antes",
+        render: (value, row) => {
+          const keys = getChangedKeys(row.old_data, row.new_data, row.action);
+          if (keys.length === 0) return "—";
+          return (
+            <div className="space-y-1">
+              {keys.map((k) => (
+                <div key={k} className="text-muted-foreground tabular-nums">
+                  {row.action === "CREATED"
+                    ? "—"
+                    : resolveValue(k, row.old_data?.[k], brandMap, uomMap)}
+                </div>
+              ))}
+            </div>
+          );
+        },
       },
-    },
-    {
-      accessor: "created_at",
-      header: "Fecha",
-      render: (value) => formatDate(value),
-    },
-  ], [brandMap, uomMap])
+      {
+        accessor: "new_data",
+        header: "Después",
+        render: (value, row) => {
+          const keys = getChangedKeys(row.old_data, row.new_data, row.action);
+          if (keys.length === 0) return "—";
+          return (
+            <div className="space-y-1">
+              {keys.map((k) => (
+                <div key={k} className="tabular-nums">
+                  {resolveValue(k, row.new_data?.[k], brandMap, uomMap)}
+                </div>
+              ))}
+            </div>
+          );
+        },
+      },
+      {
+        accessor: "created_at",
+        header: "Fecha",
+        render: (value) => formatDate(value),
+      },
+    ],
+    [brandMap, uomMap],
+  );
 
   if (isLoading && !auditLogs.length) {
-    return <p className="text-sm text-muted-foreground">Cargando historial...</p>
+    return (
+      <p className="text-sm text-muted-foreground">Cargando historial...</p>
+    );
   }
 
   if (error) {
-    return <p className="text-sm text-destructive">Error al cargar el historial.</p>
+    return (
+      <p className="text-sm text-destructive">Error al cargar el historial.</p>
+    );
   }
 
-  if (!auditLogs.length && !totalItems) {
-    return <p className="text-sm text-muted-foreground">Sin registros de auditoría.</p>
+  if (!filteredLogs.length) {
+    return <p className="text-sm text-muted-foreground">Sin registros de auditoría.</p>;
   }
 
   return (
     <div className={isLoading ? "space-y-4 opacity-60" : "space-y-4"}>
-      <DataTable columns={columns} data={auditLogs} />
+      <DataTable columns={columns} data={filteredLogs} />
 
       <TablePagination
         page={page}
@@ -177,5 +212,5 @@ export function AuditLogHistory({ entityType, entityId, refreshKey }) {
         onChangePage={changePage}
       />
     </div>
-  )
+  );
 }
