@@ -77,7 +77,7 @@ function DescriptionSection({ description }) {
 
 export default function ProductionOrderDetailPage() {
   const { orderId } = useParams()
-  const { order, loading, error, refetch } = useProductionOrder(orderId)
+  const { order, loading, error, refetch, updateOrder } = useProductionOrder(orderId)
 
   const [executeOpen, setExecuteOpen] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
@@ -128,19 +128,22 @@ export default function ProductionOrderDetailPage() {
   })()
 
   async function handleExecute(target, payload) {
-    await productionService.execute(target.id, payload)
+    const result = await productionService.execute(target.id, payload)
+    updateOrder({ status: result?.status || "DONE" })
     await refetch({ silent: true })
     setAuditRefreshKey(k => k + 1)
   }
 
   async function handleCancel(id) {
-    await productionService.cancel(id)
+    const result = await productionService.cancel(id)
+    updateOrder({ status: result?.status || "CANCELLED" })
     await refetch({ silent: true })
     setAuditRefreshKey(k => k + 1)
   }
 
   async function handleDiscard(id, description) {
     await productionService.discard(id, { description: description?.trim() || undefined })
+    updateOrder({ status: "DISCARDED" })
     await refetch({ silent: true })
     setAuditRefreshKey(k => k + 1)
   }
@@ -302,7 +305,7 @@ export default function ProductionOrderDetailPage() {
           {order?.completed_at && (
             <InfoRow label="Finalización" value={formatDateTime(order.completed_at)} />
           )}
-          <InfoRow label="Costo estimado" value={costValue} />
+          <InfoRow label="Costo unitario estimado" value={costValue} />
           <InfoRow label="Costo total estimado" value={totalCostValue} />
         </div>
 
