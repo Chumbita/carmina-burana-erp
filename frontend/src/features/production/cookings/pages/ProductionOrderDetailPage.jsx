@@ -18,6 +18,7 @@ import { ExecuteProductionModal } from "../components/ExecuteProductionModal";
 import { CancelProductionModal } from "../components/CancelProductionModal";
 import { DiscardProductionModal } from "../components/DiscardProductionModal";
 import { StockInsufficientBanner } from "../components/StockInsufficientBanner";
+import { AuditLogHistory } from "@/components/shared/AuditLogHistory";
 import { formatDate, formatDateTime, formatDecimal, formatCurrency } from "@/lib/utils/formatters"
 
 const statusConfig = {
@@ -89,6 +90,7 @@ export default function ProductionOrderDetailPage() {
   const [dateValue, setDateValue] = useState("")
   const [savingEdit, setSavingEdit] = useState(false)
   const [missingIngredients, setMissingIngredients] = useState(null)
+  const [auditRefreshKey, setAuditRefreshKey] = useState(0)
   const notify = useNotification()
 
   if (order !== syncedOrder) {
@@ -128,16 +130,19 @@ export default function ProductionOrderDetailPage() {
   async function handleExecute(target, payload) {
     await productionService.execute(target.id, payload)
     await refetch({ silent: true })
+    setAuditRefreshKey(k => k + 1)
   }
 
   async function handleCancel(id) {
     await productionService.cancel(id)
     await refetch({ silent: true })
+    setAuditRefreshKey(k => k + 1)
   }
 
   async function handleDiscard(id, description) {
-    await productionService.discard(id, description)
+    await productionService.discard(id, { description: description?.trim() || undefined })
     await refetch({ silent: true })
+    setAuditRefreshKey(k => k + 1)
   }
 
   async function handleSave() {
@@ -158,6 +163,7 @@ export default function ProductionOrderDetailPage() {
         schedule_date: dateValue,
       })
       await refetch({ silent: true })
+      setAuditRefreshKey(k => k + 1)
       notify.success("Orden actualizada correctamente.")
     } catch (err) {
       const detail = err.response?.data?.detail
@@ -261,7 +267,7 @@ export default function ProductionOrderDetailPage() {
       </header>
 
       {/* Sidebar en card */}
-      <aside className="bg-white rounded-lg border shadow-sm p-4 self-start flex flex-col gap-3">
+      <aside className="bg-white rounded-lg border shadow-sm p-4 flex flex-col gap-3">
         <div className="aspect-square bg-gray-100 rounded-md flex items-center justify-center">
           <BeerIcon className="h-10 w-10 text-gray-400" />
         </div>
@@ -407,6 +413,15 @@ export default function ProductionOrderDetailPage() {
           </div>
         )}
       </main>
+
+      <section className="bg-white rounded-lg border shadow-sm p-4 space-y-4 lg:col-span-2">
+        <h2 className="text-lg font-semibold">Registro de actividad</h2>
+        <AuditLogHistory
+          entityType="production_order"
+          entityId={order?.id}
+          refreshKey={auditRefreshKey}
+        />
+      </section>
 
       <ExecuteProductionModal
         open={executeOpen}
