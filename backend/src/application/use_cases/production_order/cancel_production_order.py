@@ -14,6 +14,7 @@ from src.domain.repositories.inventory_lot_repository import IInventoryLotReposi
 from src.domain.repositories.inventory_transaction_repository import IInventoryTransactionRepository
 from src.domain.value_objects.production_order_status import ProductionOrderStatus
 from src.domain.value_objects.inventory_transaction_enums import TransactionType
+from src.domain.services.audit_log_service import AuditLogService
 from src.domain.exceptions.production_exceptions import (
     ProductionOrderNotFoundException,
     ProductionOrderCannotBeCancelledException,
@@ -42,14 +43,16 @@ class CancelProductionOrderUseCase:
         balance_repository: IInventoryBalanceRepository,
         lot_repository: IInventoryLotRepository,
         transaction_repository: IInventoryTransactionRepository,
+        audit_log_service: AuditLogService | None = None,
     ) -> None:
         self._production_order_repository = production_order_repository
         self._bom_repository = bom_repository
         self._balance_repository = balance_repository
         self._lot_repository = lot_repository
         self._transaction_repository = transaction_repository
+        self._audit_log_service = audit_log_service
 
-    async def execute(self, order_id: int) -> ProductionOrder:
+    async def execute(self, order_id: int, user_id: int | None = None) -> ProductionOrder:
 
         # 1. Obtener la orden y verificar estado
         order = await self._production_order_repository.get_by_id(order_id)
@@ -72,6 +75,16 @@ class CancelProductionOrderUseCase:
         # 4. Cancelar la orden
         order.cancel()
         await self._production_order_repository.save(order)
+
+        # 5. Registrar auditoría
+        if self._audit_log_service is not None:
+            await self._audit_log_service.log_production_order_cancelled(
+                entity_id=order.id,
+                old_data={"status": "PLANNED"},
+                new_data={"status": order.status.value},
+                user_id=user_id,
+            )
+
         return order
 
     async def _release_reservations(self, order: ProductionOrder, bom: Bom) -> None:

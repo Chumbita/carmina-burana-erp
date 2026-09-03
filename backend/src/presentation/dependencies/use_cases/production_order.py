@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
 
 from src.infrastructure.database.deps import get_db
+from src.infrastructure.database.repositories.audit_log_repository import AuditLogRepository
 from src.infrastructure.database.repositories.production_order_repository import ProductionOrderRepository
 from src.infrastructure.database.repositories.bom_repository import BomRepository
 from src.infrastructure.database.repositories.inventory_balance_repository import InventoryBalanceRepository
@@ -22,7 +23,15 @@ from src.application.use_cases.production_order.get_production_order_by_id_use_c
 from src.application.use_cases.production_order.update_production_order import (
     UpdateProductionOrderUseCase,
 )
+from src.application.use_cases.audit_logs.record_audit_log import RecordAuditLogUseCase
+from src.domain.services.audit_log_service import AuditLogService
 from src.domain.services.inventory_movement_service import InventoryDomainService
+
+
+def _build_audit_log_service(session: AsyncSession) -> AuditLogService:
+    audit_log_repo = AuditLogRepository(session)
+    record_use_case = RecordAuditLogUseCase(audit_log_repo)
+    return AuditLogService(record_use_case)
 
 
 def _get_inventory_movement_use_case(session: AsyncSession) -> InventoryMovementUseCase:
@@ -43,6 +52,7 @@ def get_plan_production_order_use_case(
         bom_repository=BomRepository(session),
         balance_repository=InventoryBalanceRepository(session),
         lot_repository=InventoryLotRepository(session),
+        audit_log_service=_build_audit_log_service(session),
     )
 
 
@@ -55,6 +65,7 @@ def get_execute_production_order_use_case(
         lot_repository=InventoryLotRepository(session),
         balance_repository=InventoryBalanceRepository(session),
         inventory_movement_use_case=_get_inventory_movement_use_case(session),
+        audit_log_service=_build_audit_log_service(session),
     )
 
 
@@ -67,6 +78,7 @@ def get_cancel_production_order_use_case(
         balance_repository=InventoryBalanceRepository(session),
         lot_repository=InventoryLotRepository(session),
         transaction_repository=InventoryTransactionRepository(session),
+        audit_log_service=_build_audit_log_service(session),
     )
 
 def get_list_incomplete_productions_use_case(
@@ -97,6 +109,7 @@ def get_discard_production_order_use_case(
         production_order_repository=ProductionOrderRepository(session),
         balance_repository=InventoryBalanceRepository(session),
         inventory_movement_use_case=_get_inventory_movement_use_case(session),
+        audit_log_service=_build_audit_log_service(session),
     )
 
 
@@ -121,4 +134,5 @@ def get_update_production_order_use_case(
         balance_repository=InventoryBalanceRepository(session),
         lot_repository=InventoryLotRepository(session),
         transaction_repository=InventoryTransactionRepository(session),
+        audit_log_service=_build_audit_log_service(session),
     )
