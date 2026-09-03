@@ -23,7 +23,11 @@ export function useProductionOrder(orderId) {
     fetchOrder()
   }, [fetchOrder])
 
-  return { order, loading, error, refetch: fetchOrder }
+  const updateOrder = useCallback((patch) => {
+    setOrder((prev) => (prev ? { ...prev, ...patch } : prev))
+  }, [])
+
+  return { order, loading, error, refetch: fetchOrder, updateOrder }
 }
 
 export default useProductionOrder

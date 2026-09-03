@@ -12,6 +12,7 @@ from src.application.dtos.inventory_movement_dtos import InventoryMovementComman
 from src.application.use_cases.inventory.inventory_movement_use_case import InventoryMovementUseCase
 from src.domain.value_objects.production_order_status import ProductionOrderStatus
 from src.domain.value_objects.inventory_transaction_enums import TransactionType
+from src.domain.services.audit_log_service import AuditLogService
 from src.domain.exceptions.production_exceptions import (
     ProductionOrderNotFoundException,
     ProductionOrderCannotBeDiscardedException,
@@ -43,15 +44,18 @@ class DiscardProductionOrderUseCase:
         production_order_repository: IProductionOrderRepository,
         balance_repository: IInventoryBalanceRepository,
         inventory_movement_use_case: InventoryMovementUseCase,
+        audit_log_service: AuditLogService | None = None,
     ) -> None:
         self._production_order_repository = production_order_repository
         self._balance_repository = balance_repository
         self._inventory_movement = inventory_movement_use_case
+        self._audit_log_service = audit_log_service
 
     async def execute(
         self,
         order_id: int,
         description: Optional[str] = None,
+        user_id: int | None = None,
     ) -> ProductionOrder:
 
         # 1. Obtener la orden y verificar estado
@@ -74,6 +78,19 @@ class DiscardProductionOrderUseCase:
 
         # 4. Persistir
         await self._production_order_repository.save(order)
+
+        # 5. Registrar auditoría
+        if self._audit_log_service is not None:
+            await self._audit_log_service.log_production_order_discarded(
+                entity_id=order.id,
+                old_data={"status": "DONE"},
+                new_data={
+                    "status": order.status.value,
+                    "description": order.description,
+                },
+                user_id=user_id,
+            )
+
         return order
 
     async def _discard_output_lots(self, order: ProductionOrder) -> None:

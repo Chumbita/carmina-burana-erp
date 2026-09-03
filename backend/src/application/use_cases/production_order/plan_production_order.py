@@ -8,6 +8,7 @@ from src.domain.repositories.production_order_repository import IProductionOrder
 from src.domain.repositories.bom_repository import IBomRepository
 from src.domain.repositories.inventory_balance_repository import IInventoryBalanceRepository
 from src.domain.repositories.inventory_lot_repository import IInventoryLotRepository
+from src.domain.services.audit_log_service import AuditLogService
 from src.domain.services.production_stock_service import ProductionStockService
 from src.application.use_cases.production_order.create_production_order import CreateProductionOrderUseCase
 from src.domain.exceptions.production_exceptions import BomNotFoundException
@@ -31,10 +32,12 @@ class PlanProductionOrderUseCase:
         bom_repository: IBomRepository,
         balance_repository: IInventoryBalanceRepository,
         lot_repository: IInventoryLotRepository,
+        audit_log_service: AuditLogService | None = None,
     ) -> None:
         self._production_order_repository = production_order_repository
         self._bom_repository = bom_repository
         self._stock_service = ProductionStockService(balance_repository, lot_repository)
+        self._audit_log_service = audit_log_service
         self._create_use_case = CreateProductionOrderUseCase(
             production_order_repository, bom_repository
         )
@@ -46,6 +49,7 @@ class PlanProductionOrderUseCase:
         planned_quantity: Decimal,
         schedule_date=None,
         description: str = None,
+        user_id: int | None = None,
     ):
         # 1. Obtener BOM detallada
         bom = await self._bom_repository.get_detailed_bom_by_id(bom_id)
@@ -79,5 +83,21 @@ class PlanProductionOrderUseCase:
             # Rollback: eliminar la orden creada si falla la reserva
             await self._production_order_repository.delete(order.id)
             raise
+
+        # 5. Registrar auditoría
+        if self._audit_log_service is not None:
+            await self._audit_log_service.log_production_order_create(
+                entity_id=order.id,
+                new_data={
+                    "item_name": bom["parent_item_name"],
+                    "bom_version": str(bom["version"]),
+                    "planned_quantity": float(order.planned_quantity),
+                    "uom_symbol": bom["bom_uom_symbol"],
+                    "schedule_date": str(order.schedule_date) if order.schedule_date else None,
+                    "description": order.description,
+                    "status": order.status.value,
+                },
+                user_id=user_id,
+            )
 
         return order

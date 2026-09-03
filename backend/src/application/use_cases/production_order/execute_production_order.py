@@ -14,6 +14,7 @@ from src.application.dtos.inventory_movement_dtos import InventoryMovementComman
 from src.application.use_cases.inventory.inventory_movement_use_case import InventoryMovementUseCase
 from src.application.dtos.inventory_lot_dtos import NewLotData
 from src.domain.value_objects.inventory_transaction_enums import TransactionType
+from src.domain.services.audit_log_service import AuditLogService
 from src.domain.exceptions.production_exceptions import (
     ProductionOrderNotFoundException,
     BomNotFoundException,
@@ -42,12 +43,14 @@ class ExecuteProductionOrderUseCase:
         lot_repository: IInventoryLotRepository,
         balance_repository: IInventoryBalanceRepository,
         inventory_movement_use_case: InventoryMovementUseCase,
+        audit_log_service: AuditLogService | None = None,
     ) -> None:
         self._production_order_repository = production_order_repository
         self._bom_repository = bom_repository
         self._lot_repository = lot_repository
         self._balance_repository = balance_repository
         self._inventory_movement = inventory_movement_use_case
+        self._audit_log_service = audit_log_service
 
     async def execute(
         self,
@@ -57,6 +60,7 @@ class ExecuteProductionOrderUseCase:
         unit_cost: Decimal,
         production_date=None,
         expiration_date=None,
+        user_id: int | None = None,
     ):
         now = datetime.now(timezone.utc).replace(tzinfo=None)
 
@@ -175,5 +179,19 @@ class ExecuteProductionOrderUseCase:
         await self._production_order_repository.add_consumptions(order)
         await self._production_order_repository.add_outputs(order)
         await self._production_order_repository.save(order)
+
+        # 7. Registrar auditoría
+        if self._audit_log_service is not None:
+            await self._audit_log_service.log_production_order_completed(
+                entity_id=order.id,
+                old_data={"status": "PLANNED"},
+                new_data={
+                    "status": order.status.value,
+                    "produced_quantity": float(order.produced_quantity),
+                    "uom_symbol": bom["bom_uom_symbol"],
+                    "lot_code": lot_code,
+                },
+                user_id=user_id,
+            )
 
         return order
