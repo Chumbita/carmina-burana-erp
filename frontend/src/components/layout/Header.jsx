@@ -23,7 +23,6 @@ const routeNames = {
   planificacion: "Planificación",
   bom: "Fórmulas",
   inventario: "Inventario",
-  cervezas: "Cervezas",
   insumos: "Insumos",
   productos: "Productos Terminados",
   alertas: "Alertas de Stock",
