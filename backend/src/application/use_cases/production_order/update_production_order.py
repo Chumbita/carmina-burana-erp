@@ -10,6 +10,7 @@ from src.domain.repositories.bom_repository import IBomRepository
 from src.domain.repositories.inventory_balance_repository import IInventoryBalanceRepository
 from src.domain.repositories.inventory_lot_repository import IInventoryLotRepository
 from src.domain.repositories.inventory_transaction_repository import IInventoryTransactionRepository
+from src.domain.services.audit_log_service import AuditLogService
 from src.domain.services.production_stock_service import ProductionStockService
 from src.domain.value_objects.production_order_status import ProductionOrderStatus
 from src.domain.exceptions.production_exceptions import (
@@ -44,18 +45,21 @@ class UpdateProductionOrderUseCase:
         balance_repository: IInventoryBalanceRepository,
         lot_repository: IInventoryLotRepository,
         transaction_repository: IInventoryTransactionRepository,
+        audit_log_service: AuditLogService | None = None,
     ) -> None:
         self._production_order_repository = production_order_repository
         self._bom_repository = bom_repository
         self._stock_service = ProductionStockService(
             balance_repository, lot_repository, transaction_repository
         )
+        self._audit_log_service = audit_log_service
 
     async def execute(
         self,
         order_id: int,
         planned_quantity: Decimal = None,
         schedule_date=None,
+        user_id: int | None = None,
     ) -> ProductionOrder:
 
         # 1. Obtener la orden y verificar estado
@@ -83,7 +87,11 @@ class UpdateProductionOrderUseCase:
             new_quantity is not None and new_quantity != order.planned_quantity
         )
 
+        old_quantity = order.planned_quantity
+        old_schedule_date = order.schedule_date
+
         # 3-5. Ajuste de reservas si cambia la cantidad planificada
+        uom_symbol = None
         if quantity_changed:
             bom = await self._bom_repository.get_detailed_bom_by_id(order.bom_id)
             if bom is None:
@@ -104,9 +112,33 @@ class UpdateProductionOrderUseCase:
                 planned_quantity=new_quantity,
             )
             order.planned_quantity = new_quantity
+            uom_symbol = bom["bom_uom_symbol"]
 
         # 6. Aplicar el resto de los cambios y persistir
         if schedule_date is not None:
             order.schedule_date = schedule_date
 
-        return await self._production_order_repository.save(order)
+        saved_order = await self._production_order_repository.save(order)
+
+        # 7. Registrar auditoría solo de los campos que cambiaron
+        if self._audit_log_service is not None:
+            old_data = {}
+            new_data = {}
+            if quantity_changed and order.planned_quantity != old_quantity:
+                old_data["planned_quantity"] = float(old_quantity) if old_quantity else None
+                new_data["planned_quantity"] = float(order.planned_quantity) if order.planned_quantity else None
+                if uom_symbol:
+                    old_data["uom_symbol"] = uom_symbol
+                    new_data["uom_symbol"] = uom_symbol
+            if order.schedule_date != old_schedule_date:
+                old_data["schedule_date"] = str(old_schedule_date) if old_schedule_date else None
+                new_data["schedule_date"] = str(order.schedule_date) if order.schedule_date else None
+            if old_data:
+                await self._audit_log_service.log_production_order_update(
+                    entity_id=order.id,
+                    old_data=old_data,
+                    new_data=new_data,
+                    user_id=user_id,
+                )
+
+        return saved_order

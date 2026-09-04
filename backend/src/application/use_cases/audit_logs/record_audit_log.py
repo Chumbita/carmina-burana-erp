@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from src.domain.entities.audit_log import AuditLog
 from src.domain.repositories.i_audit_log_repository import IAuditLogRepository
 
-VALID_ACTIONS = {"CREATED", "UPDATED"}
+VALID_ACTIONS = {"CREATED", "UPDATED", "COMPLETED", "CANCELLED", "DISCARDED"}
 
 
 class RecordAuditLogUseCase:

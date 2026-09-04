@@ -1,6 +1,3 @@
-from datetime import datetime
-
-
 class SupplyEntryNotFound(Exception):
     """La recepción no existe en el sistema."""
     def __init__(self, entry_id: int) -> None:
@@ -32,14 +29,6 @@ class InvalidSupplyEntryData(Exception):
     """Datos inválidos proporcionados para la operación."""
     def __init__(self, detail: str) -> None:
         super().__init__(detail)
-
-
-class SupplyEntryTimeWindowExceeded(Exception):
-    """La recepción supera las 48hs y ya no puede ser anulada."""
-    def __init__(self, entry_id: int, entry_date: datetime) -> None:
-        super().__init__(
-            f"Supply entry {entry_id} dated {entry_date.date()} is older than 48h and cannot be cancelled"
-        )
 
 
 class SupplyEntryLotAdjusted(Exception):

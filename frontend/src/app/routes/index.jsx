@@ -70,11 +70,11 @@ const SupplyEntryDetailPage = lazy(
 
 // BOM pages
 const BomsPage = lazy(() =>
-  import('@/features/produccion/bom/pages/BomsPage')
+  import('@/features/production/bom/pages/BomsPage')
 )
 
 const BomDetailPage = lazy(() =>
-  import('@/features/produccion/bom/pages/BomDetailPage')
+  import('@/features/production/bom/pages/BomDetailPage')
 )
 
 // Auth pages
@@ -172,10 +172,6 @@ export const router = createBrowserRouter([
       {
         path: "/produccion/cocciones/:orderId",
         element: <ProductionOrderDetailPage />,
-      },
-      {
-        path: "/production/cookings",
-        element: <ProductionPage />,
       },
       {
         path: "/production/cookings",

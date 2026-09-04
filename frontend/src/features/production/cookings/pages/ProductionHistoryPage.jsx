@@ -20,8 +20,8 @@ export default function ProductionHistoryPage() {
 
   const displayData = filteredProductions(productions);
 
-  async function handleDiscard(row, description) {
-    await discardProduction(row.id, {
+  async function handleDiscard(id, description) {
+    await discardProduction(id, {
       description: description?.trim() || undefined,
     });
   }

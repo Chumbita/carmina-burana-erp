@@ -138,7 +138,7 @@ async def update_production_order(
     order_id: int,
     body: UpdateProductionOrderRequestSchema,
     use_case: UpdateProductionOrderUseCase = Depends(get_update_production_order_use_case),
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> ProductionOrderResponseSchema:
     """
     Actualiza los campos editables de una orden en estado PLANNED.
@@ -150,6 +150,7 @@ async def update_production_order(
             order_id=order_id,
             planned_quantity=body.planned_quantity,
             schedule_date=body.schedule_date,
+            user_id=current_user.id,
         )
         return _build_response(order)
     except ProductionOrderNotFoundException as exc:
@@ -177,7 +178,7 @@ async def update_production_order(
 async def plan_production_order(
     body: CreateProductionOrderSchema,
     use_case: PlanProductionOrderUseCase = Depends(get_plan_production_order_use_case),
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> ProductionOrderResponseSchema:
     try:
         order = await use_case.execute(
@@ -186,6 +187,7 @@ async def plan_production_order(
             planned_quantity=body.planned_quantity,
             schedule_date=body.schedule_date,
             description=body.description,
+            user_id=current_user.id,
         )
         return _build_response(order)
     except BomNotFoundException as exc:
@@ -212,7 +214,7 @@ async def execute_production_order(
     order_id: int,
     body: CompleteProductionOrderRequestSchema,
     use_case: ExecuteProductionOrderUseCase = Depends(get_execute_production_order_use_case),
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> ProductionOrderResponseSchema:
     try:
         order = await use_case.execute(
@@ -222,6 +224,7 @@ async def execute_production_order(
             unit_cost=body.unit_cost,
             production_date=body.production_date,
             expiration_date=body.expiration_date,
+            user_id=current_user.id,
         )
         return _build_response(order)
     except ProductionOrderNotFoundException as exc:
@@ -247,10 +250,10 @@ async def execute_production_order(
 async def cancel_production_order(
     order_id: int,
     use_case: CancelProductionOrderUseCase = Depends(get_cancel_production_order_use_case),
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> ProductionOrderResponseSchema:
     try:
-        order = await use_case.execute(order_id)
+        order = await use_case.execute(order_id, user_id=current_user.id)
         return _build_response(order)
     except ProductionOrderNotFoundException as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
@@ -270,10 +273,10 @@ async def discard_production_order(
     order_id: int,
     body: DiscardProductionOrderRequestSchema,
     use_case: DiscardProductionOrderUseCase = Depends(get_discard_production_order_use_case),
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> ProductionOrderResponseSchema:
     try:
-        order = await use_case.execute(order_id, body.description)
+        order = await use_case.execute(order_id, body.description, user_id=current_user.id)
         return _build_response(order)
     except ProductionOrderNotFoundException as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
