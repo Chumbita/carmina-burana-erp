@@ -14,7 +14,7 @@ export const SUPPLY_ENTRY_STATUS = {
 export const ITEMS_PER_PAGE = 15
 
 export const ANNULMENT_RESTRICTIONS = {
-  HOURS_LIMIT: 48
+  HOURS_LIMIT: null,
 }
 
 export const getDefaultEntryDateTime = () => {

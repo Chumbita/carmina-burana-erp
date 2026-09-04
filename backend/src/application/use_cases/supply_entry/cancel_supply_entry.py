@@ -18,7 +18,6 @@ from src.domain.repositories.inventory_transaction_repository import IInventoryT
 from src.domain.exceptions.supply_entry_exceptions import (
     SupplyEntryNotFound,
     SupplyEntryAlreadyCancelled,
-    SupplyEntryTimeWindowExceeded,
     SupplyEntryItemsConsumed,
 )
 from src.domain.value_objects.supply_entry_status import SupplyEntryStatus
@@ -48,7 +47,6 @@ class CancelSupplyEntryUseCase:
         if raw.status == SupplyEntryStatus.CANCELED.value:
             raise SupplyEntryAlreadyCancelled(command.entry_id)
 
-        self._validate_time_window(raw, now)
         await self._validate_lots_integrity(raw)
 
         await self._reverse_inventory(raw, now)
@@ -60,12 +58,6 @@ class CancelSupplyEntryUseCase:
         return self._build_response(updated)
 
     # ── Validaciones ────────────────────────────────────────────────
-
-    @staticmethod
-    def _validate_time_window(raw: SupplyEntryDetailData, now: datetime) -> None:
-        delta = now - raw.entry_date
-        if delta.total_seconds() > 48 * 3600:
-            raise SupplyEntryTimeWindowExceeded(raw.id, raw.entry_date)
 
     async def _validate_lots_integrity(self, raw: SupplyEntryDetailData) -> None:
         consumed_lots: list[str] = []
