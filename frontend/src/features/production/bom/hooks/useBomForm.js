@@ -32,13 +32,12 @@ export function useBomForm(onSubmit, activeParentIds = []) {
 
   const { items, loading: itemsLoading } = useItems()
   const {
-    beerOptions,
-    productOptions,
+    manufacturableItems: availableItems,
     loading: manufacturableLoading,
   } = useManufacturableItems()
 
   const activeSet = new Set(activeParentIds)
-  const manufacturableItems = [...beerOptions, ...productOptions].filter(
+  const manufacturableItems = availableItems.filter(
     (item) => !activeSet.has(item.id)
   )
 

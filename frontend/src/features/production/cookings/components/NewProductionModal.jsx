@@ -13,7 +13,7 @@ import { StockInsufficientBanner } from "./StockInsufficientBanner";
 export function NewProductionModal({ open, onClose, onSubmit }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { beerOptions, productOptions, loading: optionsLoading, error: optionsError } = useManufacturableItems();
+  const { manufacturableItems, loading: optionsLoading, error: optionsError } = useManufacturableItems();
 
   // --- NUEVOS ESTADOS PARA GESTIONAR LA BOM SELECCIONADA ---
   const [selectedItemId, setSelectedItemId] = useState(undefined);
@@ -98,8 +98,7 @@ export function NewProductionModal({ open, onClose, onSubmit }) {
             cancelLabel="Cancelar"
             isSubmitting={isSubmitting}
             layout="modal"
-            beerOptions={beerOptions}
-            productOptions={productOptions}
+            manufacturableItems={manufacturableItems}
             optionsLoading={optionsLoading}
             optionsError={optionsError}
             onItemChange={(id) => {

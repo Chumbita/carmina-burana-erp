@@ -79,11 +79,6 @@ export const ENDPOINTS = {
       GET_BY_ID: (id) => `/bom/${id}`,
     },
 
-    // Beersendpoints.js
-
-    BEERS: {
-      CREATE: "/beers",
-  },
     // Products
   PRODUCTS: {
     GET_ALL: "/products",

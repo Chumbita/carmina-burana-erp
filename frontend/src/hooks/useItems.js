@@ -29,7 +29,7 @@ export function useItems() {
 }
 
 export function useManufacturableItems() {
-  const [options, setOptions] = useState({ beerOptions: [], productOptions: [] });
+  const [options, setOptions] = useState({ manufacturableItems: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
