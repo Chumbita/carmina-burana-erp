@@ -49,6 +49,21 @@ class IBomRepository(Protocol):
         """
         ...
 
+    async def list_active_boms_paginated(
+        self,
+        *,
+        offset: int,
+        limit: int,
+        q: str | None = None,
+        sort_by: str = "name",
+        sort_order: str = "asc",
+    ) -> tuple[list[dict], int]:
+        """
+        Retorna la vista paginada y filtrada de BOMs activos.
+        Devuelve (rows, total).
+        """
+        ...
+
     async def get_detailed_bom_by_id(self, bom_id: int) -> Optional[dict]:
         """
         Obtiene un BOM por su ID con toda la información detallada.
