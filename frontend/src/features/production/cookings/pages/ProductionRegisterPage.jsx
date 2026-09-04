@@ -1,34 +1,40 @@
-import { NewProductionModal } from "../components/NewProductionModal";
-import { NotificationContainer } from "@/components/shared/notifications/NotificationContainer";
-import { FilterBar } from "@/components/shared/FilterBar";
-import { useProductionsPage } from "../hooks/useProductionsPage";
-import { useProductionFilters } from "../hooks/useProductionPageFilter";
-import { Button } from "@/components/ui/Button";
-import { Plus } from "lucide-react";
-import { ProductionTable } from "../components/ProductionTable";
+import { NewProductionModal } from "../components/NewProductionModal"
+import { FilterBar } from "@/components/shared/FilterBar"
+import { TablePagination } from "@/components/shared/TablePagination"
+import { useProductionsIncompletePage } from "../hooks/useProductionsIncompletePage"
+import { Button } from "@/components/ui/Button"
+import { Plus } from "lucide-react"
+import { ProductionTable } from "../components/ProductionTable"
 
 export default function ProductionRegisterPage() {
   const {
-    productions,
+    data,
+    loading,
+    page,
+    totalItems,
+    totalPages,
+    pageSize,
+    search,
+    sortBy,
+    sortOrder,
+    setSearch,
+    setSortBy,
+    setSortOrder,
+    changePage,
+    openModal,
+    setOpenModal,
     handlePlanProduction,
     handleExecuteProduction,
     cancelProduction,
-    loading,
-    openModal,
-    setOpenModal,
     tableRef,
-  } = useProductionsPage();
-  const {
-    sortBy,
-    sortOrder,
-    search,
-    setSortBy,
-    setSortOrder,
-    setSearch,
-    filteredProductions,
-  } = useProductionFilters();
+  } = useProductionsIncompletePage()
 
-  const displayData = filteredProductions(productions);
+  const handleSearchChange = (v) => { setSearch(v); changePage(1); }
+  const handleSortByChange = (v) => { setSortBy(v); changePage(1); }
+  const handleSortOrderChange = (v) => { setSortOrder(v); changePage(1); }
+
+  const hasActiveFilters = search !== ""
+  const hasRecords = hasActiveFilters ? true : totalItems > 0 || (data && data.length > 0)
 
   return (
     <div className="space-y-4">
@@ -36,17 +42,18 @@ export default function ProductionRegisterPage() {
         <FilterBar
           search={search}
           searchPlaceholder="Buscar producto..."
-          onSearchChange={setSearch}
+          onSearchChange={handleSearchChange}
           sortFields={[{ key: "schedule_date", label: "Fecha Programada" }]}
           sortBy={sortBy}
           sortOrder={sortOrder}
-          onSortByChange={setSortBy}
-          onSortOrderChange={setSortOrder}
-          hasActiveFilters={sortBy !== "" || search !== ""}
+          onSortByChange={handleSortByChange}
+          onSortOrderChange={handleSortOrderChange}
+          hasActiveFilters={hasActiveFilters}
           onClearFilters={() => {
-            setSortBy("");
-            setSortOrder("asc");
-            setSearch("");
+            setSortBy("schedule_date")
+            setSortOrder("asc")
+            setSearch("")
+            changePage(1)
           }}
         />
 
@@ -66,20 +73,32 @@ export default function ProductionRegisterPage() {
         onSubmit={handlePlanProduction}
       />
 
-      <div ref={tableRef}>
+      <div ref={tableRef} className={loading ? "opacity-60 pointer-events-none transition-opacity" : ""}>
         {loading ? (
           <div>Cargando...</div>
         ) : (
           <ProductionTable
-            productions={displayData}
-            hasRecords={productions.length > 0}
+            productions={data}
+            hasRecords={hasRecords}
             onExecute={handleExecuteProduction}
             onCancel={cancelProduction}
+            page={page}
+            pageSize={pageSize}
           />
         )}
       </div>
 
-      <NotificationContainer />
+      {totalItems > 0 && (
+        <div className="flex justify-center">
+          <TablePagination
+            page={page}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            onChangePage={changePage}
+          />
+        </div>
+      )}
     </div>
-  );
+  )
 }

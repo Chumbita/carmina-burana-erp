@@ -1,55 +1,32 @@
-import { useState, useMemo } from 'react'
 import { BomsTable } from "../components/BomsTable"
 import { NewBomModal } from "../components/NewBomModal"
-import { useBoms } from "../hooks/useBoms"
-import { useBomFilters } from "../hooks/useBomFilters"
-import { bomService } from "../services/bomService"
-import { useNotification } from "@/components/shared/notifications/useNotification"
-
+import { useBomPage } from "../hooks/useBomPage"
 import { FilterBar } from "@/components/shared/FilterBar"
+import { TablePagination } from "@/components/shared/TablePagination"
 import { Button } from "@/components/ui/Button"
-import { Spinner } from "@/components/ui/Spinner"
 import { Plus } from "lucide-react"
 
 export default function BomsPage() {
-  const [openModal, setOpenModal] = useState(false)
-  const notify = useNotification()
-  const { boms, loading, error, getBoms } = useBoms()
   const {
+    data,
+    loading,
+    error,
+    page,
+    totalItems,
+    totalPages,
+    pageSize,
     search,
-    hasActiveFilters,
-    handleSearchChange,
-    clearFilters,
-    filteredBoms,
-  } = useBomFilters()
+    setSearch,
+    changePage,
+    openModal,
+    setOpenModal,
+    handleCreateBom,
+  } = useBomPage()
 
-  const filteredData = filteredBoms(boms)
+  const handleSearchChange = (v) => { setSearch(v); changePage(1); }
 
-  const activeParentIds = useMemo(
-    () => [...new Set(boms.map((b) => b.parent_item_id))],
-    [boms]
-  )
-
-  async function handleCreateBom(data) {
-    try {
-      await bomService.create(data)
-      await getBoms()
-      notify.success('Fórmula creada exitosamente')
-      setOpenModal(false)
-    } catch (error) {
-      const msg = error?.response?.data?.detail || error?.message || 'Error al crear la fórmula'
-      notify.error(msg)
-      throw error
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Spinner />
-      </div>
-    )
-  }
+  const hasActiveFilters = search !== ""
+  const hasRecords = hasActiveFilters ? true : totalItems > 0 || (data && data.length > 0)
 
   if (error) {
     return (
@@ -67,7 +44,10 @@ export default function BomsPage() {
           searchPlaceholder="Buscar por producto..."
           onSearchChange={handleSearchChange}
           hasActiveFilters={hasActiveFilters}
-          onClearFilters={clearFilters}
+          onClearFilters={() => {
+            setSearch("")
+            changePage(1)
+          }}
         />
         <Button
           size="sm"
@@ -78,15 +58,27 @@ export default function BomsPage() {
           Nueva fórmula
         </Button>
       </header>
-      <div>
-        <BomsTable boms={filteredData.items} />
+
+      <div className={loading ? "opacity-60 pointer-events-none transition-opacity" : ""}>
+        <BomsTable boms={data} loading={loading} page={page} pageSize={pageSize} hasRecords={hasRecords} />
       </div>
+
+      {totalItems > 0 && (
+        <div className="flex justify-center">
+          <TablePagination
+            page={page}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            onChangePage={changePage}
+          />
+        </div>
+      )}
 
       <NewBomModal
         open={openModal}
         onClose={() => setOpenModal(false)}
         onSubmit={handleCreateBom}
-        activeParentIds={activeParentIds}
       />
     </div>
   )

@@ -2,9 +2,9 @@
 # ROUTER - BOM
 # ══════════════════════════════════════════════════════════════════════════════
 
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 
 from src.application.dtos.bom.bom_commands_dtos import (
     CreateBomCommand,
@@ -28,6 +28,8 @@ from src.presentation.schemas.bom_schemas import (
     BomListItemResponseSchema,
     CreateBomRequestSchema,
 )
+from src.presentation.schemas.pagination_schema import PaginatedResponse
+from src.shared.pagination import PaginationParams
 
 router = APIRouter(prefix="/bom", tags=["BOM"])
 
@@ -36,16 +38,18 @@ router = APIRouter(prefix="/bom", tags=["BOM"])
     "",
     status_code=status.HTTP_200_OK,
     summary="Listar BOMs activos",
-    response_model=List[BomListItemResponseSchema],
 )
 async def list_active_boms(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=20),
+    q: Optional[str] = Query(None),
+    sort_by: str = Query("name"),
+    sort_order: str = Query("asc"),
     use_case: ListActiveBomsUseCase = Depends(get_list_active_boms_use_case),
-) -> dict:
-    """
-    Retorna la lista de todos los BOMs activos registrados en el sistema.
-    """
-    result = await use_case.execute()
-    return [BomListItemResponseSchema.model_validate(item) for item in result]
+) -> PaginatedResponse[BomListItemResponseSchema]:
+    params = PaginationParams(page=page, page_size=page_size)
+    result = await use_case.execute(params, q=q, sort_by=sort_by, sort_order=sort_order)
+    return PaginatedResponse.from_page(result)
 
 
 @router.get(

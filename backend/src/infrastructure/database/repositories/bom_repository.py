@@ -1,6 +1,6 @@
 from typing import Optional, Sequence
 
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,6 +10,7 @@ from src.infrastructure.database.models.bom_model import BomModel
 from src.infrastructure.database.models.bom_line_model import BomLineModel
 from src.infrastructure.database.models.item_model import ItemModel
 from src.infrastructure.database.models.uom_model import UomModel
+from src.infrastructure.database.pagination import paginate
 
 
 class BomRepository(IBomRepository):
@@ -220,6 +221,70 @@ class BomRepository(IBomRepository):
             }
             for row in rows
         ]
+
+
+    async def list_active_boms_paginated(
+        self,
+        *,
+        offset: int,
+        limit: int,
+        q: str | None = None,
+        sort_by: str = "name",
+        sort_order: str = "asc",
+    ) -> tuple[list[dict], int]:
+        line_count_sub = (
+            select(
+                BomLineModel.bom_id,
+                func.count(BomLineModel.id).label("components_count"),
+            )
+            .group_by(BomLineModel.bom_id)
+            .subquery()
+        )
+
+        stmt = (
+            select(
+                BomModel.id,
+                BomModel.parent_item_id,
+                ItemModel.name.label("parent_item_name"),
+                BomModel.version,
+                func.coalesce(line_count_sub.c.components_count, 0).label("components_count"),
+                BomModel.valid_from,
+            )
+            .join(ItemModel, BomModel.parent_item_id == ItemModel.id)
+            .outerjoin(line_count_sub, BomModel.id == line_count_sub.c.bom_id)
+            .where(BomModel.is_active == True)
+        )
+
+        if q:
+            escaped = q.strip().replace("%", "%%").replace("_", "\\_")
+            like = f"%{escaped}%"
+            stmt = stmt.where(ItemModel.name.ilike(like))
+
+        sort_dir = sort_order.strip().lower() if sort_order else "asc"
+        is_desc = sort_dir == "desc"
+
+        if sort_by == "version":
+            order_col = BomModel.version
+        else:
+            order_col = ItemModel.name
+
+        stmt = stmt.order_by(order_col.desc() if is_desc else order_col.asc())
+
+        rows, total = await paginate(self._session, stmt, offset=offset, limit=limit)
+
+        data = [
+            {
+                "id": row.id,
+                "parent_item_id": row.parent_item_id,
+                "parent_item_name": row.parent_item_name,
+                "version": row.version,
+                "components_count": row.components_count,
+                "valid_from": row.valid_from,
+            }
+            for row in rows
+        ]
+
+        return data, total
 
 
     async def get_detailed_bom_by_id(self, bom_id: int) -> Optional[dict]:
