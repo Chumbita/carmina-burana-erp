@@ -16,7 +16,7 @@ function formatDateDMY(value) {
   return y && m && d ? `${d}/${m}/${y}` : datePart;
 }
 
-export function ProductionTable({ productions, hasRecords, onExecute, onCancel }) {
+export function ProductionTable({ productions, hasRecords, onExecute, onCancel, page = 1, pageSize = 20 }) {
   const navigate = useNavigate();
 
   // Orden seleccionada para el modal de ejecutar (completar producción)
@@ -92,7 +92,7 @@ export function ProductionTable({ productions, hasRecords, onExecute, onCancel }
 
   const formattedProductions = productions?.map((production, index) => ({
     ...production,
-    row_number: index + 1,
+    row_number: (page - 1) * pageSize + index + 1,
   })) || [];
 
   return (

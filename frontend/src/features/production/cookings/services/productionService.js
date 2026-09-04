@@ -7,13 +7,25 @@ export const productionService = {
     return response.data
   },
 
-  getIncomplete: async () => {
-    const response = await privateClient.get(ENDPOINTS.PRODUCTION_ORDERS.GET_INCOMPLETE)
-    return response.data 
+  getIncomplete: async ({ page = 1, pageSize = 20, q, sortBy, sortOrder } = {}) => {
+    const params = { page, page_size: pageSize }
+    if (q) params.q = q
+    if (sortBy) params.sort_by = sortBy
+    if (sortOrder) params.sort_order = sortOrder
+    const response = await privateClient.get(ENDPOINTS.PRODUCTION_ORDERS.GET_INCOMPLETE, { params })
+    return response.data
   },
 
-  getHistory: async () => {
-    const response = await privateClient.get(ENDPOINTS.PRODUCTION_ORDERS.GET_HISTORY)
+  getHistory: async ({ page = 1, pageSize = 20, q, status, dateField, dateFrom, dateTo, sortBy, sortOrder } = {}) => {
+    const params = { page, page_size: pageSize }
+    if (q) params.q = q
+    if (status) params.status = status
+    if (dateField) params.date_field = dateField
+    if (dateFrom) params.date_from = dateFrom
+    if (dateTo) params.date_to = dateTo
+    if (sortBy) params.sort_by = sortBy
+    if (sortOrder) params.sort_order = sortOrder
+    const response = await privateClient.get(ENDPOINTS.PRODUCTION_ORDERS.GET_HISTORY, { params })
     return response.data
   },
 
