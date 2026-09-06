@@ -171,7 +171,7 @@ export function AppSidebar({ ...props }) {
               <img
                 src={MainLogo}
                 alt="Carmina Burana"
-                className="h-12 w-auto -mt-1.5 select-none"
+                className="h-12 w-auto -mt-1.5 select-none dark:invert"
               />
             }
           </div>
@@ -182,7 +182,7 @@ export function AppSidebar({ ...props }) {
               <img
                 src="../public/images/isologo_carmina.png"
                 alt="CB"
-                className="w-8 -mt-1"
+                className="w-8 -mt-1 dark:invert"
               />
             }
           </div>
