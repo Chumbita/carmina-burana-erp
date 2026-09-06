@@ -98,9 +98,7 @@ export default function NotificationsDropdown() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative cursor-pointer">
           <Bell
-            className={`h-5 w-5 ${
-              unreadCount > 0 ? "text-gray-600" : "text-gray-600"
-            }`}
+            className="h-5 w-5 text-gray-600 dark:text-gray-200"
           />
 
           {/* Badge con contador animado */}
@@ -123,7 +121,7 @@ export default function NotificationsDropdown() {
             <Button
               variant="ghost"
               size="sm"
-              className="h-auto p-0 text-xs text-blue-600 hover:text-blue-700"
+              className="h-auto p-0 text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               onClick={markAllAsRead}
             >
               Marcar todas como leídas
@@ -135,24 +133,24 @@ export default function NotificationsDropdown() {
         <ScrollArea className="h-[400px]">
           {isLoading ? (
             <div className="flex items-center justify-center py-12 px-4 text-center">
-              <p className="text-sm text-gray-500">Cargando notificaciones...</p>
+              <p className="text-sm text-muted-foreground">Cargando notificaciones...</p>
             </div>
           ) : error ? (
             <div className="flex items-center justify-center py-12 px-4 text-center">
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-              <Bell className="h-12 w-12 text-gray-300 mb-3" />
-              <p className="text-sm text-gray-500">No hay notificaciones</p>
+              <Bell className="h-12 w-12 text-muted-foreground mb-3" />
+              <p className="text-sm text-muted-foreground">No hay notificaciones</p>
             </div>
           ) : (
             <div className="divide-y">
               {notifications.map((notification) => (
                 <div
                   key={notification.key}
-                  className={`p-4 hover:bg-gray-50 transition-colors ${
-                    !notification.read ? "bg-blue-50/50" : ""
+                  className={`p-4 transition-colors hover:bg-muted/60 ${
+                    !notification.read ? "bg-blue-50/50 dark:bg-blue-950/20" : ""
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -164,7 +162,7 @@ export default function NotificationsDropdown() {
                     <div className="flex-1 min-w-0">
                       {/* Título y badge de tipo */}
                       <div className="flex items-start justify-between gap-2 mb-1">
-                        <h4 className="text-sm font-medium text-gray-900">
+                        <h4 className="text-sm font-medium text-foreground">
                           {notification.title}
                         </h4>
                         <span
@@ -177,13 +175,13 @@ export default function NotificationsDropdown() {
                       </div>
 
                       {/* Mensaje */}
-                      <p className="text-sm text-gray-600 mb-2">
+                      <p className="text-sm text-muted-foreground mb-2">
                         {notification.message}
                       </p>
 
                       {/* Footer con tiempo y acciones */}
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-muted-foreground">
                           {new Date(notification.created_at).toLocaleDateString()}
                         </span>
                         <div className="flex gap-2">
@@ -191,7 +189,7 @@ export default function NotificationsDropdown() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-auto p-0 text-xs text-blue-600 hover:text-blue-700"
+                              className="h-auto p-0 text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                               asChild
                             >
                               <Link
@@ -206,7 +204,7 @@ export default function NotificationsDropdown() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-auto p-0 text-xs text-blue-600 hover:text-blue-700"
+                              className="h-auto p-0 text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                               onClick={() => markAsRead(notification.key)}
                             >
                               Marcar como leída
@@ -218,7 +216,7 @@ export default function NotificationsDropdown() {
                             className="h-auto p-0"
                             onClick={() => deleteNotification(notification.key)}
                           >
-                            <X className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                            <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
                           </Button>
                         </div>
                       </div>
@@ -236,7 +234,7 @@ export default function NotificationsDropdown() {
             <Button
               variant="ghost"
               size="sm"
-              className="w-full text-sm text-blue-600 hover:text-blue-700"
+              className="w-full text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               asChild
             >
               <Link to="/notificaciones">Ver todas las notificaciones</Link>
