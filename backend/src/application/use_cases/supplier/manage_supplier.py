@@ -1,3 +1,5 @@
+from dataclasses import asdict
+
 from src.application.dtos.supplier.supplier_commands_dtos import UpdateSupplierCommand
 from src.application.dtos.supplier.supplier_responses_dtos import SupplierResponse
 from src.domain.exceptions.supplier_exceptions import (
@@ -51,7 +53,7 @@ class ListSuppliersUseCase:
         if total == 0:
             return Page(items=[], total_items=0, params=params)
         return Page(
-            items=[_to_response(s).model_dump() for s in suppliers],
+            items=[asdict(_to_response(s)) for s in suppliers],
             total_items=total,
             params=params,
         )
