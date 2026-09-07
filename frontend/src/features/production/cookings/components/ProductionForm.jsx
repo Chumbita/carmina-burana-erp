@@ -41,8 +41,7 @@ export function ProductionForm({
   cancelLabel = "Cancelar",
   isSubmitting = false,
   submitBlocked = false,
-  beerOptions = [],
-  productOptions = [],
+  manufacturableItems = [],
   optionsLoading = false,
   selectedBom = null,
   bomLoading = false,
@@ -162,16 +161,8 @@ export function ProductionForm({
                           Seleccionar producto...
                         </SelectItem>
                         <SelectGroup>
-                          <SelectLabel>Cervezas</SelectLabel>
-                          {beerOptions.map((item) => (
-                            <SelectItem key={item.id} value={String(item.id)}>
-                              {item.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                        <SelectGroup>
-                          <SelectLabel>Productos</SelectLabel>
-                          {productOptions.map((item) => (
+                          <SelectLabel>Productos fabricables</SelectLabel>
+                          {manufacturableItems.map((item) => (
                             <SelectItem key={item.id} value={String(item.id)}>
                               {item.name}
                             </SelectItem>

@@ -71,7 +71,7 @@ class ProductionOrder:
     """
     Cabecera de una orden de producción.
     Representa la ejecución de una BOM para producir un ítem.
-    Aplica tanto para brew (cerveza a granel) como para packaging
+    Aplica para cualquier ítem fabricable, incluyendo packaging.
     (embotellado, enlatado, barril).
 
     Flujo de estados:

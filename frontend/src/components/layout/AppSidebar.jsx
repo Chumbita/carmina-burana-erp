@@ -64,10 +64,6 @@ export function AppSidebar({ ...props }) {
             url: "/inventario/insumos",
           },
           {
-            title: "Cervezas",
-            url: "/inventario/cervezas",
-          },
-          {
             title: "Productos",
             url: "/inventario/productos",
           },
