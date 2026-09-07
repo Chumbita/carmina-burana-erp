@@ -27,3 +27,24 @@ class CreateSupplyEntryCommand:
 class CancelSupplyEntryCommand:
     entry_id: int
     reason: Optional[str] = None
+
+
+@dataclass
+class UpdateSupplyEntryLineCommand:
+    item_id: int
+    quantity: Decimal
+    unit_cost: Decimal
+    expiration_date: datetime
+    lot_code: Optional[str] = None
+    comment: Optional[str] = None
+    line_id: Optional[int] = None
+
+
+@dataclass
+class UpdateSupplyEntryCommand:
+    entry_id: int
+    supplier_id: Optional[int] = None
+    document_number: Optional[str] = None
+    entry_date: Optional[datetime] = None
+    description: Optional[str] = None
+    lines: Optional[list[UpdateSupplyEntryLineCommand]] = None
