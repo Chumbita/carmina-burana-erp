@@ -98,7 +98,7 @@ export default function NotificationsDropdown() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative cursor-pointer">
           <Bell
-            className="h-5 w-5 text-gray-600 dark:text-gray-200"
+            className="h-5 w-5 text-muted-foreground dark:text-foreground"
           />
 
           {/* Badge con contador animado */}

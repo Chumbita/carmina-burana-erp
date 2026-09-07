@@ -120,13 +120,13 @@ export function ProductionForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-4 text-neutral-800"
+      className="space-y-4 text-neutral-800 dark:text-foreground"
     >
       {/* Grid Principal */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
         <div className="md:col-span-2 space-y-4 flex flex-col justify-between">
           {/* Bloque 1: Datos principales */}
-          <div className="space-y-3 border border-neutral-200 rounded-lg p-3.5 bg-white shadow-sm">
+          <div className="space-y-3 border border-neutral-200 rounded-lg p-3.5 bg-white shadow-sm dark:border-border dark:bg-card">
             <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
               Datos principales
             </h3>
@@ -137,7 +137,7 @@ export function ProductionForm({
                 control={control}
                 render={({ field }) => (
                   <div className="flex flex-col gap-1 h-full justify-end">
-                    <label className="text-xs font-medium text-neutral-600">
+                    <label className="text-xs font-medium text-neutral-600 dark:text-muted-foreground">
                       ¿Qué se produce?
                     </label>
                     <Select
@@ -184,7 +184,7 @@ export function ProductionForm({
               />
 
               <div className="flex flex-col gap-1 h-full justify-end">
-                <label className="text-xs font-medium text-neutral-600">
+                <label className="text-xs font-medium text-neutral-600 dark:text-muted-foreground">
                   Receta
                 </label>
 
@@ -229,7 +229,7 @@ export function ProductionForm({
           </div>
 
           {/* Bloque 2: Planificación */}
-          <div className="space-y-3 border border-neutral-200 rounded-lg p-3.5 bg-white shadow-sm flex-1 flex flex-col justify-between">
+          <div className="space-y-3 border border-neutral-200 rounded-lg p-3.5 bg-white shadow-sm flex-1 flex flex-col justify-between dark:border-border dark:bg-card">
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
                 Planificación
@@ -247,7 +247,7 @@ export function ProductionForm({
                         className={`text-xs font-medium ${
                           fieldState.invalid
                             ? "text-red-500"
-                            : "text-neutral-600"
+                            : "text-neutral-600 dark:text-muted-foreground"
                         }`}
                       >
                         Cant. a producir
@@ -255,8 +255,8 @@ export function ProductionForm({
                       <InputGroup
                         className={`${
                           hasValidRecipe
-                            ? "border-neutral-300 hover:border-neutral-400"
-                            : "border-neutral-200 bg-neutral-50 cursor-not-allowed"
+                            ? "border-neutral-300 hover:border-neutral-400 dark:border-border dark:hover:border-muted-foreground"
+                            : "border-neutral-200 bg-neutral-50 cursor-not-allowed dark:border-border"
                         }`}
                       >
                         <InputGroupInput
@@ -280,7 +280,7 @@ export function ProductionForm({
                           }}
                         />
                         {selectedBom?.uom && hasValidRecipe && (
-                          <InputGroupAddon align="inline-end" className="pl-3 pr-3 text-xs text-neutral-400 font-medium border-l border-neutral-200">
+                          <InputGroupAddon align="inline-end" className="pl-3 pr-3 text-xs text-neutral-400 font-medium border-l border-neutral-200 dark:border-border">
                             {selectedBom.uom}
                           </InputGroupAddon>
                         )}
@@ -300,7 +300,7 @@ export function ProductionForm({
                         className={`text-xs font-medium ${
                           fieldState.invalid
                             ? "text-red-500"
-                            : "text-neutral-600"
+                            : "text-neutral-600 dark:text-muted-foreground"
                         }`}
                       >
                         Fecha programada
@@ -334,7 +334,7 @@ export function ProductionForm({
                 control={control}
                 render={({ field }) => (
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs font-medium text-neutral-600">
+                    <label className="text-xs font-medium text-neutral-600 dark:text-muted-foreground">
                       Notas de producción
                     </label>
                     <Textarea
@@ -350,7 +350,7 @@ export function ProductionForm({
         </div>
 
         {/* COLUMNA DERECHA: Lista de Insumos */}
-        <div className="border border-neutral-200 rounded-lg p-3.5 bg-white shadow-sm flex flex-col h-full overflow-hidden">
+        <div className="border border-neutral-200 rounded-lg p-3.5 bg-white shadow-sm flex flex-col h-full overflow-hidden dark:border-border dark:bg-card">
           <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">
             Lista de insumos
           </h3>
@@ -375,7 +375,7 @@ export function ProductionForm({
             ) : (
               <Table>
                 <TableHeader className="bg-neutral-50 sticky top-0 z-10">
-                  <TableRow className="hover:bg-transparent border-b border-neutral-200">
+                  <TableRow className="hover:bg-transparent border-b border-neutral-200 dark:border-border">
                     <TableHead className="h-6 text-[10px] uppercase font-bold p-1 text-neutral-500">
                       Insumo
                     </TableHead>
@@ -391,7 +391,7 @@ export function ProductionForm({
                   {selectedBomLines.map((line, index) => (
                     <TableRow
                       key={line.id || index}
-                      className="border-b border-neutral-100 hover:bg-neutral-50/80"
+                      className="border-b border-neutral-100 hover:bg-neutral-50/80 dark:border-border"
                     >
                       <TableCell className="p-1 py-1.5 text-xs truncate max-w-[120px] font-medium">
                         {line.name || `#${line.component_item_id}`}
@@ -414,7 +414,7 @@ export function ProductionForm({
       {beforeFooter}
 
       {/* Footer del Formulario */}
-      <div className="flex justify-end gap-2 pt-3 border-t border-neutral-100">
+      <div className="flex justify-end gap-2 pt-3 border-t border-neutral-100 dark:border-border">
         {onCancel && (
           <Button
             type="button"
