@@ -38,6 +38,40 @@ class IProductionOrderRepository(Protocol):
         """
         ...
 
+    async def list_incomplete_paginated(
+        self,
+        *,
+        offset: int,
+        limit: int,
+        q: str | None = None,
+        sort_by: str = "schedule_date",
+        sort_order: str = "asc",
+    ) -> tuple[list[dict], int]:
+        """
+        Retorna la vista paginada y filtrada de órdenes incompletas (PLANNED).
+        Devuelve (rows, total).
+        """
+        ...
+
+    async def list_history_paginated(
+        self,
+        *,
+        offset: int,
+        limit: int,
+        q: str | None = None,
+        status: str | None = None,
+        date_field: str | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        sort_by: str = "production_date",
+        sort_order: str = "desc",
+    ) -> tuple[list[dict], int]:
+        """
+        Retorna la vista paginada y filtrada del historial de órdenes.
+        Devuelve (rows, total).
+        """
+        ...
+
     async def add(self, order: ProductionOrder) -> ProductionOrder:
         """
         Persiste una nueva orden de producción.

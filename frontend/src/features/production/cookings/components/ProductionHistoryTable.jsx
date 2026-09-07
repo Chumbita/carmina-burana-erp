@@ -20,7 +20,7 @@ const statusConfig = {
   DISCARDED: { className: "bg-slate-100 text-slate-500 border-slate-200", label: "Descartada" },
 };
 
-export function ProductionHistoryTable({ productions, hasRecords, onDiscard }) {
+export function ProductionHistoryTable({ productions, hasRecords, onDiscard, page = 1, pageSize = 20 }) {
   const navigate = useNavigate();
 
   // Orden seleccionada para la confirmación de descarte
@@ -90,7 +90,7 @@ export function ProductionHistoryTable({ productions, hasRecords, onDiscard }) {
   const formattedProductions =
     productions?.map((production, index) => ({
       ...production,
-      row_number: index + 1,
+      row_number: (page - 1) * pageSize + index + 1,
     })) || [];
 
   return (

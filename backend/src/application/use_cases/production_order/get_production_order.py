@@ -8,6 +8,7 @@ from src.domain.repositories.bom_repository import IBomRepository
 from src.domain.repositories.inventory_balance_repository import IInventoryBalanceRepository
 from src.domain.repositories.inventory_lot_repository import IInventoryLotRepository
 from src.domain.services.production_stock_service import ProductionStockService
+from src.shared.pagination import Page, PaginationParams
 
 
 class ListIncompleteProductionsUseCase:
@@ -22,10 +23,23 @@ class ListIncompleteProductionsUseCase:
         self._bom_repository = bom_repository
         self._stock_service = ProductionStockService(balance_repository, lot_repository)
 
-    async def execute(self) -> list[dict]:
-        rows = await self._production_order_repository.get_all_incomplete()
-        response: list[dict] = []
+    async def execute(
+        self,
+        params: PaginationParams,
+        *,
+        q: str | None = None,
+        sort_by: str = "schedule_date",
+        sort_order: str = "asc",
+    ) -> Page[dict]:
+        rows, total = await self._production_order_repository.list_incomplete_paginated(
+            offset=params.offset,
+            limit=params.limit,
+            q=q,
+            sort_by=sort_by,
+            sort_order=sort_order,
+        )
 
+        response: list[dict] = []
         for row in rows:
             estimated_unit_cost: Decimal = Decimal("0")
             bom = await self._bom_repository.get_detailed_bom_by_id(row["bom_id"])
@@ -38,7 +52,7 @@ class ListIncompleteProductionsUseCase:
             response.append(
                 {
                     "id": row["id"],
-                    "item_name": row["item_name"], 
+                    "item_name": row["item_name"],
                     "bom_version": row["bom_version"],
                     "planned_quantity": float(row["planned_quantity"]),
                     "base_uom_symbol": row["base_uom_symbol"],
@@ -48,7 +62,7 @@ class ListIncompleteProductionsUseCase:
                 }
             )
 
-        return response
+        return Page(items=response, total_items=total, params=params)
 
 
 class ListFinishedProductionsUseCase:
@@ -63,10 +77,31 @@ class ListFinishedProductionsUseCase:
     ) -> None:
         self._production_order_repository = production_order_repository
 
-    async def execute(self) -> list[dict]:
-        rows = await self._production_order_repository.get_all_not_planned()
+    async def execute(
+        self,
+        params: PaginationParams,
+        *,
+        q: str | None = None,
+        status: str | None = None,
+        date_field: str | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        sort_by: str = "production_date",
+        sort_order: str = "desc",
+    ) -> Page[dict]:
+        rows, total = await self._production_order_repository.list_history_paginated(
+            offset=params.offset,
+            limit=params.limit,
+            q=q,
+            status=status,
+            date_field=date_field,
+            date_from=date_from,
+            date_to=date_to,
+            sort_by=sort_by,
+            sort_order=sort_order,
+        )
 
-        return [
+        items = [
             {
                 "id": row["id"],
                 "item_name": row["item_name"],
@@ -79,3 +114,5 @@ class ListFinishedProductionsUseCase:
             }
             for row in rows
         ]
+
+        return Page(items=items, total_items=total, params=params)
