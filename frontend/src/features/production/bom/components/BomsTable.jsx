@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom"
 import { DataTable } from "../../../../components/shared/DataTable";
 
-export function BomsTable({ boms }) {
+export function BomsTable({ boms, page = 1, pageSize = 20 }) {
   const navigate = useNavigate()
 
   const handleRowClick = (row) => {
@@ -9,7 +9,7 @@ export function BomsTable({ boms }) {
   }
 
   const tableHeaders = [
-    { header: "Nro", accessor: "id", render: (_value, _row, index) => index + 1 },
+    { header: "Nro", accessor: "id", render: (_value, _row, index) => (page - 1) * pageSize + index + 1 },
     {
       header: "Producto",
       accessor: "parent_item_name",

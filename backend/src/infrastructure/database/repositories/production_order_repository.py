@@ -10,6 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy import select, update
 
+from src.infrastructure.database.pagination import paginate
+
 from src.domain.entities.production_order import ProductionOrder, ProductionConsumption, ProductionOutput
 from src.domain.repositories.production_order_repository import IProductionOrderRepository
 from src.domain.value_objects.production_order_status import ProductionOrderStatus
@@ -376,6 +378,139 @@ class ProductionOrderRepository(IProductionOrderRepository):
             }
             for row in rows
         ]
+
+    async def list_incomplete_paginated(
+        self,
+        *,
+        offset: int,
+        limit: int,
+        q: str | None = None,
+        sort_by: str = "schedule_date",
+        sort_order: str = "asc",
+    ) -> tuple[list[dict], int]:
+        stmt = (
+            select(
+                ProductionOrderModel.id,
+                ItemModel.name.label("item_name"),
+                BomModel.version.label("bom_version"),
+                ProductionOrderModel.planned_quantity,
+                UomModel.symbol.label("base_uom_symbol"),
+                ProductionOrderModel.schedule_date,
+                ProductionOrderModel.status,
+                ProductionOrderModel.bom_id,
+            )
+            .join(ItemModel, ProductionOrderModel.item_id == ItemModel.id)
+            .join(BomModel, ProductionOrderModel.bom_id == BomModel.id)
+            .join(UomModel, ItemModel.base_uom_id == UomModel.id)
+            .where(ProductionOrderModel.status.in_(["PLANNED"]))
+        )
+
+        if q:
+            escaped = q.strip().replace("%", "%%").replace("_", "\\_")
+            like = f"%{escaped}%"
+            stmt = stmt.where(ItemModel.name.ilike(like))
+
+        sort_dir = sort_order.strip().lower() if sort_order else "asc"
+        is_desc = sort_dir == "desc"
+
+        order_col = ProductionOrderModel.schedule_date
+        stmt = stmt.order_by(order_col.desc() if is_desc else order_col.asc())
+
+        rows, total = await paginate(self._session, stmt, offset=offset, limit=limit)
+
+        data = [
+            {
+                "id": row.id,
+                "item_name": row.item_name,
+                "bom_version": row.bom_version,
+                "planned_quantity": row.planned_quantity,
+                "base_uom_symbol": row.base_uom_symbol,
+                "schedule_date": row.schedule_date,
+                "status": row.status,
+                "bom_id": row.bom_id,
+            }
+            for row in rows
+        ]
+
+        return data, total
+
+    async def list_history_paginated(
+        self,
+        *,
+        offset: int,
+        limit: int,
+        q: str | None = None,
+        status: str | None = None,
+        date_field: str | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        sort_by: str = "production_date",
+        sort_order: str = "desc",
+    ) -> tuple[list[dict], int]:
+        stmt = (
+            select(
+                ProductionOrderModel.id,
+                ItemModel.name.label("item_name"),
+                BomModel.version.label("bom_version"),
+                ProductionOrderModel.produced_quantity,
+                UomModel.symbol.label("base_uom_symbol"),
+                ProductionOrderModel.schedule_date,
+                ProductionOrderModel.completed_at,
+                ProductionOrderModel.status,
+                ProductionOrderModel.bom_id,
+            )
+            .join(ItemModel, ProductionOrderModel.item_id == ItemModel.id)
+            .join(BomModel, ProductionOrderModel.bom_id == BomModel.id)
+            .join(UomModel, ItemModel.base_uom_id == UomModel.id)
+            .where(ProductionOrderModel.status.notin_(["PLANNED"]))
+        )
+
+        if q:
+            escaped = q.strip().replace("%", "%%").replace("_", "\\_")
+            like = f"%{escaped}%"
+            stmt = stmt.where(ItemModel.name.ilike(like))
+
+        if status:
+            stmt = stmt.where(ProductionOrderModel.status == status.strip().upper())
+
+        if date_field:
+            date_col = (
+                ProductionOrderModel.schedule_date
+                if date_field == "schedule_date"
+                else ProductionOrderModel.completed_at
+            )
+
+            if date_from:
+                dt_from = datetime.fromisoformat(date_from) if "T" in date_from else datetime.combine(datetime.fromisoformat(date_from).date(), datetime.min.time())
+                stmt = stmt.where(date_col >= dt_from)
+            if date_to:
+                dt_to = datetime.fromisoformat(date_to) if "T" in date_to else datetime.combine(datetime.fromisoformat(date_to).date(), datetime.max.time().replace(tzinfo=None))
+                stmt = stmt.where(date_col <= dt_to)
+
+        sort_dir = sort_order.strip().lower() if sort_order else "desc"
+        is_desc = sort_dir == "desc"
+
+        order_col = ProductionOrderModel.completed_at
+        stmt = stmt.order_by(order_col.desc().nulls_last() if is_desc else order_col.asc().nulls_last())
+
+        rows, total = await paginate(self._session, stmt, offset=offset, limit=limit)
+
+        data = [
+            {
+                "id": row.id,
+                "item_name": row.item_name,
+                "bom_version": row.bom_version,
+                "produced_quantity": row.produced_quantity,
+                "base_uom_symbol": row.base_uom_symbol,
+                "schedule_date": row.schedule_date,
+                "completed_at": row.completed_at,
+                "status": row.status,
+                "bom_id": row.bom_id,
+            }
+            for row in rows
+        ]
+
+        return data, total
 
     async def delete(self, order_id: int) -> None:
         """
