@@ -209,7 +209,7 @@ export default function InventoryDashboardPage() {
                 className="grid grid-cols-[72px_minmax(0,1fr)_42px] items-center gap-3 text-[13px] sm:grid-cols-[92px_minmax(0,1fr)_48px]"
               >
                 <span className="truncate text-muted-foreground">{item.category}</span>
-                <div className="h-4 overflow-hidden rounded-sm bg-[#EEF2F7]">
+                <div className="h-4 overflow-hidden rounded-sm bg-muted">
                   <div
                     className="h-full rounded-sm"
                     style={{
