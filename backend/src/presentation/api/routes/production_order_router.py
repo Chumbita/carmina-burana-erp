@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.encoders import jsonable_encoder
 
 from src.domain.entities.user import User
@@ -35,6 +37,7 @@ from src.presentation.schemas.production_order_schemas import (
     ProductionOrderResponseSchema,
     ProductionOrderDetailSchema,
 )
+from src.presentation.schemas.pagination_schema import PaginatedResponse
 from src.presentation.dependencies.use_cases.production_order import (
     get_plan_production_order_use_case,
     get_execute_production_order_use_case,
@@ -46,6 +49,7 @@ from src.presentation.dependencies.use_cases.production_order import (
     get_update_production_order_use_case,
 )
 from src.presentation.dependencies.auth import get_current_user
+from src.shared.pagination import PaginationParams
 
 
 router = APIRouter(prefix="/production-orders", tags=["Production Orders"])
@@ -73,15 +77,20 @@ def _build_response(order: ProductionOrder) -> ProductionOrderResponseSchema:
 @router.get(
     "/incomplete",
     status_code=status.HTTP_200_OK,
-    response_model=list[dict], 
     summary="Obtener todas las órdenes de producción incompletas",
 )
 async def get_incomplete_productions(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=20),
+    q: Optional[str] = Query(None),
+    sort_by: str = Query("schedule_date"),
+    sort_order: str = Query("asc"),
     use_case: ListIncompleteProductionsUseCase = Depends(get_list_incomplete_productions_use_case),
-    # current_user: User = Depends(get_current_user),
-) -> list[dict]:
+) -> PaginatedResponse[dict]:
     try:
-        return await use_case.execute()
+        params = PaginationParams(page=page, page_size=page_size)
+        result = await use_case.execute(params, q=q, sort_by=sort_by, sort_order=sort_order)
+        return PaginatedResponse.from_page(result)
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
@@ -89,15 +98,45 @@ async def get_incomplete_productions(
 @router.get(
     "/history",
     status_code=status.HTTP_200_OK,
-    response_model=list[dict],
     summary="Obtener todas las órdenes de producción no planificadas (historial de cocciones)",
 )
 async def get_finished_productions(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=20),
+    q: Optional[str] = Query(None),
+    status_filter: Optional[str] = Query(None, alias="status"),
+    date_field: Optional[str] = Query(None),
+    date_from: Optional[str] = Query(None),
+    date_to: Optional[str] = Query(None),
+    sort_by: str = Query("production_date"),
+    sort_order: str = Query("desc"),
     use_case: ListFinishedProductionsUseCase = Depends(get_list_finished_productions_use_case),
-    # current_user: User = Depends(get_current_user),
-) -> list[dict]:
+) -> PaginatedResponse[dict]:
     try:
-        return await use_case.execute()
+        if date_field is not None and date_field not in ("schedule_date", "completed_at"):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="date_field debe ser 'schedule_date' o 'completed_at'",
+            )
+
+        if date_from and date_to and date_from > date_to:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="La fecha de inicio no puede ser mayor que la fecha de fin",
+            )
+
+        params = PaginationParams(page=page, page_size=page_size)
+        result = await use_case.execute(
+            params,
+            q=q,
+            status=status_filter,
+            date_field=date_field,
+            date_from=date_from,
+            date_to=date_to,
+            sort_by=sort_by,
+            sort_order=sort_order,
+        )
+        return PaginatedResponse.from_page(result)
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
