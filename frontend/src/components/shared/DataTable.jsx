@@ -45,7 +45,7 @@ export function DataTable({
         ) : data.map((row, rowIndex) => (
           <TableRow
             key={row.id}
-            className={onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
+            className={onRowClick ? "cursor-pointer hover:bg-muted/60" : ""}
             onClick={() => onRowClick && onRowClick(row)}
           >
             {columns.map((column) => (

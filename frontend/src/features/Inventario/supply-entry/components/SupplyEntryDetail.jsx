@@ -1,3 +1,4 @@
+import { createElement } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
@@ -25,7 +26,7 @@ import {
   AlertTriangle,
   ExternalLink,
 } from 'lucide-react'
-import { formatCurrency, formatDecimal } from '@/lib/utils/formatters'
+import { formatDecimal } from '@/lib/utils/formatters'
 
 const getStatusLabel = (status) => {
   const statusMap = {
@@ -55,12 +56,12 @@ const formatMoney = (value) => `$${Number(value || 0).toFixed(2)}`
 
 function SummaryItem({ icon: Icon, label, value }) {
   return (
-    <div className="rounded-lg border bg-white px-4 py-3">
-      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-neutral-500">
-        <Icon className="h-4 w-4" />
+    <div className="rounded-lg border bg-card px-4 py-3 text-card-foreground">
+      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {createElement(Icon, { className: 'h-4 w-4' })}
         {label}
       </div>
-      <p className="mt-2 truncate text-sm font-semibold text-neutral-900">{value}</p>
+      <p className="mt-2 truncate text-sm font-semibold">{value}</p>
     </div>
   )
 }
@@ -70,11 +71,11 @@ function InfoBlock({ label, value, detail, tone = 'default' }) {
 
   return (
     <div className="px-4 py-3">
-      <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">{label}</p>
-      <p className={isDanger ? 'mt-1 text-sm font-medium text-red-700' : 'mt-1 text-sm text-neutral-900'}>
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className={isDanger ? 'mt-1 text-sm font-medium text-destructive' : 'mt-1 text-sm text-foreground'}>
         {value}
       </p>
-      {detail && <p className="mt-1 text-xs text-neutral-500">{detail}</p>}
+      {detail && <p className="mt-1 text-xs text-muted-foreground">{detail}</p>}
     </div>
   )
 }
@@ -108,9 +109,9 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
   if (error || !entry) {
     return (
       <div className="max-w-4xl p-6">
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-destructive/30 bg-destructive/10">
           <div className="p-4">
-            <p className="text-sm text-red-600">
+            <p className="text-sm text-destructive">
               {typeof error === 'string' ? error : error?.message || 'Error al cargar el abastecimiento'}
             </p>
             <Button onClick={onBack} className="mt-4">
@@ -135,17 +136,17 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
 
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="truncate text-2xl font-semibold tracking-tight text-neutral-900">
+              <h1 className="truncate text-2xl font-semibold tracking-tight text-foreground">
                 {entry.reception_number || `REC-${entry.id}`}
               </h1>
               <Badge
                 variant={entry.status === 'active' ? 'default' : 'secondary'}
-                className={entry.status === 'cancelled' ? 'bg-red-100 text-red-700' : ''}
+                className={entry.status === 'cancelled' ? 'bg-destructive/10 text-destructive' : ''}
               >
                 {getStatusLabel(entry.status)}
               </Badge>
             </div>
-            <p className="text-sm text-neutral-500">Ingreso de insumos</p>
+            <p className="text-sm text-muted-foreground">Ingreso de insumos</p>
           </div>
         </div>
 
@@ -205,59 +206,59 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
 
       <Card className="gap-0 rounded-lg py-0 shadow-none">
         <div className="flex items-center justify-between border-b px-4 py-3">
-          <h2 className="text-base font-semibold text-neutral-900">Insumos recibidos</h2>
-          <span className="text-sm text-neutral-500">{entry.items.length} líneas</span>
+          <h2 className="text-base font-semibold text-foreground">Insumos recibidos</h2>
+          <span className="text-sm text-muted-foreground">{entry.items.length} líneas</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[920px]">
-            <thead className="border-b bg-neutral-50">
+            <thead className="border-b bg-muted">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-neutral-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Insumo
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-neutral-500">
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Cantidad
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-neutral-500">
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Costo Unitario
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-neutral-500">
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Subtotal
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-neutral-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Lote
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-neutral-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Vencimiento
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-neutral-500">
+                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y bg-white">
+            <tbody className="divide-y bg-card">
               {entry.items.map((item) => (
-                <tr key={item.id} className="hover:bg-neutral-50">
+                <tr key={item.id} className="hover:bg-muted/50">
                   <td className="px-4 py-3">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-neutral-900">
+                      <p className="truncate text-sm font-medium text-foreground">
                         {item.supply_name || `Insumo #${item.supply_id}`}
                       </p>
-                      <p className="truncate text-xs text-neutral-500">{item.comment}</p>
+                      <p className="truncate text-xs text-muted-foreground">{item.comment}</p>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-right text-sm tabular-nums text-neutral-700">{formatDecimal(item.amount)}</td>
-                  <td className="px-4 py-3 text-right text-sm tabular-nums text-neutral-700">
+                  <td className="px-4 py-3 text-right text-sm tabular-nums text-muted-foreground">{formatDecimal(item.amount)}</td>
+                  <td className="px-4 py-3 text-right text-sm tabular-nums text-muted-foreground">
                     {formatMoney(item.unit_cost)}
                   </td>
-                  <td className="px-4 py-3 text-right text-sm font-medium tabular-nums text-neutral-900">
+                  <td className="px-4 py-3 text-right text-sm font-medium tabular-nums text-foreground">
                     {formatMoney(item.amount * item.unit_cost)}
                   </td>
-                  <td className="px-4 py-3 text-sm text-neutral-700">
+                  <td className="px-4 py-3 text-sm text-muted-foreground">
                     {item.batch?.id ? `#${item.batch.id}` : 'Sin lote'}
                   </td>
-                  <td className="px-4 py-3 text-sm text-neutral-700">{formatDate(item.expire_date)}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{formatDate(item.expire_date)}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-2">
                       {item.batch?.current_amount < item.batch?.initial_amount && (
@@ -286,7 +287,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
+              <AlertTriangle className="h-5 w-5 text-destructive" />
               Anular Recepción
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -297,11 +298,11 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
 
           <form onSubmit={handleAnnulmentSubmit(handleAnnul)}>
             <div className="py-4">
-              <label className="mb-2 block text-sm font-medium text-neutral-900">
-                Motivo de anulación <span className="text-red-500">*</span>
+              <label className="mb-2 block text-sm font-medium text-foreground">
+                Motivo de anulación <span className="text-destructive">*</span>
               </label>
               <textarea
-                className="flex h-20 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder="Especifique el motivo por el cual se anula esta recepción..."
                 {...registerAnnulment('reason')}
               />
@@ -314,7 +315,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
               <AlertDialogAction
                 type="submit"
                 disabled={!isAnnulmentValid || annulling}
-                className="cursor-pointer bg-red-600 hover:bg-red-700"
+                className="cursor-pointer bg-destructive text-white hover:bg-destructive/90"
               >
                 {annulling ? 'Anulando...' : 'Anular Recepción'}
               </AlertDialogAction>

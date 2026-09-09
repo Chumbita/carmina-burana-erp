@@ -74,12 +74,12 @@ export function NavUser({ user }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onClick={() => navigate("/admin/user/settings")} className="cursor-pointer font-regular focus:bg-gray-200/70">
-              <UserCog className="text-stone-800" />
+            <DropdownMenuItem onClick={() => navigate("/admin/user/settings")} className="cursor-pointer font-regular">
+              <UserCog />
               Mi cuenta
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={logout} className="cursor-pointer text-red-600 font-medium focus:bg-gray-200/70">
-              <LogOut color="red"/>
+            <DropdownMenuItem onClick={logout} variant="destructive" className="cursor-pointer font-medium">
+              <LogOut />
               Cerrar sesión
             </DropdownMenuItem>
           </DropdownMenuContent>

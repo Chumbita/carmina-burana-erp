@@ -23,7 +23,7 @@ function Header({ name }) {
 function SidebarRow({ label, value }) {
   return (
     <div className="flex justify-between text-sm">
-      <span className="text-gray-500">{label}</span>
+      <span className="text-muted-foreground">{label}</span>
       <span className="font-medium">{value}</span>
     </div>
   );
@@ -31,9 +31,9 @@ function SidebarRow({ label, value }) {
 
 function Sidebar({ icon, children }) {
   return (
-    <aside className="bg-white rounded-lg p-4 flex flex-col gap-4">
+    <aside className="bg-card text-card-foreground rounded-lg border p-4 flex flex-col gap-4">
       {icon && (
-        <div className="aspect-square bg-gray-100 rounded-md flex items-center justify-center -mt-4">
+        <div className="aspect-square bg-muted rounded-md flex items-center justify-center">
           {icon}
         </div>
       )}
@@ -47,7 +47,7 @@ function Sidebar({ icon, children }) {
 
 function Content({ children }) {
   return (
-    <main className="border rounded-md p-4 overflow-y-auto min-h-0">
+    <main className="bg-card text-card-foreground border rounded-md p-4 overflow-y-auto min-h-0">
       {children}
     </main>
   );

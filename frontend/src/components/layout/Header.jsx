@@ -12,6 +12,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/Breadcrumb";
 import NotificationsDropdown from "@/components/layout/NotificationsDropdown";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 // Configuración de nombres legibles para las rutas
 const routeNames = {
@@ -49,7 +50,7 @@ export function Header() {
   const pathnames = location.pathname.split("/").filter((x) => x);
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 bg-white">
+    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
       <div className="flex items-center justify-between w-full px-4">
         {/* Trigger + Breadcrumb */}
         <div className="flex items-center gap-2">
@@ -100,6 +101,7 @@ export function Header() {
 
         {/* Notificaciones */}
         <div className="flex items-center gap-2 mr-2 mt-2">
+          <ThemeToggle />
           <NotificationsDropdown />
         </div>
       </div>

@@ -31,14 +31,14 @@ const statusConfig = {
 const DESCRIPTION_CLAMP_LENGTH = 35;
 
 function Divider() {
-  return <div className="border-t border-neutral-200 dark:border-gray-800" />;
+  return <div className="border-t border-border" />;
 }
 
 /** Fila de información del sidebar: título a la izquierda, dato a la derecha. */
 function InfoRow({ label, value }) {
   return (
     <div className="flex justify-between gap-3 text-sm">
-      <span className="shrink-0 text-gray-500">{label}</span>
+      <span className="shrink-0 text-muted-foreground">{label}</span>
       <span className="font-medium text-right break-words">{value}</span>
     </div>
   );
@@ -54,7 +54,7 @@ function DescriptionSection({ description }) {
 
   return (
     <div className="space-y-1">
-      <span className="block text-sm text-gray-500">Descripción</span>
+      <span className="block text-sm text-muted-foreground">Descripción</span>
       <p
         className={`text-sm font-medium break-words ${
           isLong && !expanded ? "line-clamp-2" : ""
@@ -270,9 +270,9 @@ export default function ProductionOrderDetailPage() {
       </header>
 
       {/* Sidebar en card */}
-      <aside className="bg-white rounded-lg border shadow-sm p-4 flex flex-col gap-3">
-        <div className="aspect-square bg-gray-100 rounded-md flex items-center justify-center">
-          <BeerIcon className="h-10 w-10 text-gray-400" />
+      <aside className="bg-card text-card-foreground rounded-lg border shadow-sm p-4 flex flex-col gap-3">
+        <div className="aspect-square bg-muted rounded-md flex items-center justify-center">
+          <BeerIcon className="h-10 w-10 text-muted-foreground" />
         </div>
 
         <InfoRow
@@ -321,25 +321,25 @@ export default function ProductionOrderDetailPage() {
       <main className="min-h-0 overflow-y-auto">
         {isPlanned ? (
           <div className="space-y-6">
-            <section className="bg-white rounded-lg border shadow-sm p-4 space-y-4">
+            <section className="bg-card text-card-foreground rounded-lg border shadow-sm p-4 space-y-4">
               <h2 className="text-lg font-semibold">Insumos comprometidos</h2>
               {order?.ingredients?.length ? (
                 <DataTable columns={ingredientColumns} data={order.ingredients} />
               ) : (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   No se encontró una receta activa para calcular los insumos de esta producción.
                 </p>
               )}
             </section>
 
-            <section className="bg-white rounded-lg border shadow-sm p-4 space-y-4">
+            <section className="bg-card text-card-foreground rounded-lg border shadow-sm p-4 space-y-4">
               <h2 className="text-lg font-semibold">Editar planificación</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="planned-quantity" className="text-xs font-medium text-neutral-600">
+                  <label htmlFor="planned-quantity" className="text-xs font-medium text-muted-foreground">
                     Cantidad planificada
                   </label>
-                  <InputGroup className="border-neutral-300 hover:border-neutral-400">
+                  <InputGroup className="border-border hover:border-ring">
                     <InputGroupInput
                       id="planned-quantity"
                       type="number"
@@ -351,7 +351,7 @@ export default function ProductionOrderDetailPage() {
                     />
                     <InputGroupAddon
                       align="inline-end"
-                      className="pl-3 pr-3 text-xs text-neutral-400 font-medium border-l border-neutral-200"
+                      className="pl-3 pr-3 text-xs text-muted-foreground font-medium border-l border-border"
                     >
                       {order?.base_uom_symbol}
                     </InputGroupAddon>
@@ -359,7 +359,7 @@ export default function ProductionOrderDetailPage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="schedule-date" className="text-xs font-medium text-neutral-600">
+                  <label htmlFor="schedule-date" className="text-xs font-medium text-muted-foreground">
                     Fecha programada
                   </label>
                   <Input
@@ -392,23 +392,23 @@ export default function ProductionOrderDetailPage() {
           </div>
         ) : (
           <div className="space-y-6">
-            <section className="bg-white rounded-lg border shadow-sm p-4 space-y-4">
+            <section className="bg-card text-card-foreground rounded-lg border shadow-sm p-4 space-y-4">
               <h2 className="text-lg font-semibold">Insumos consumidos</h2>
               {order?.consumptions?.length ? (
                 <DataTable columns={movementColumns} data={order.consumptions} />
               ) : (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   La orden no registra consumo de insumos.
                 </p>
               )}
             </section>
 
-            <section className="bg-white rounded-lg border shadow-sm p-4 space-y-4">
+            <section className="bg-card text-card-foreground rounded-lg border shadow-sm p-4 space-y-4">
               <h2 className="text-lg font-semibold">Producto obtenido</h2>
               {order?.outputs?.length ? (
                 <DataTable columns={movementColumns} data={order.outputs} />
               ) : (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   La orden no registra producción obtenida.
                 </p>
               )}
@@ -417,7 +417,7 @@ export default function ProductionOrderDetailPage() {
         )}
       </main>
 
-      <section className="bg-white rounded-lg border shadow-sm p-4 space-y-4 lg:col-span-2">
+      <section className="bg-card text-card-foreground rounded-lg border shadow-sm p-4 space-y-4 lg:col-span-2">
         <h2 className="text-lg font-semibold">Registro de actividad</h2>
         <AuditLogHistory
           entityType="production_order"
