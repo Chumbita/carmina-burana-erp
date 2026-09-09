@@ -14,6 +14,11 @@ import {
   AlertDialogAction,
 } from '@/components/ui/AlertDialog'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/Dialog'
+import { SupplyEntryForm } from './SupplyEntryForm'
+import { useSupplyEntryForm } from '../hooks/useSupplyEntryForm'
+import { useSuppliers as useSupplyEntrySuppliers } from '../hooks/useSuppliers'
+import { useSupplies } from '../../gestion_insumos/hooks/useSupplies'
 
 import {
   ArrowLeft,
@@ -23,6 +28,7 @@ import {
   User,
   Download,
   Trash2,
+  Pencil,
   AlertTriangle,
   ExternalLink,
 } from 'lucide-react'
@@ -38,6 +44,9 @@ const getStatusLabel = (status) => {
 
 const getAnnulmentTooltip = (canAnnul) =>
   canAnnul ? '' : 'No se puede anular: hay lotes consumidos'
+
+const getEditTooltip = (canEdit) =>
+  canEdit ? '' : 'No se puede editar: hay lotes consumidos'
 
 const formatDateTime = (date) =>
   new Date(date).toLocaleString('es-AR', {
@@ -87,16 +96,29 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
     entry,
     showAnnulDialog,
     annulling,
+    showEditDialog,
+    editing,
+    editInitialData,
     canAnnul,
+    canEdit,
     isAnnulmentValid,
     registerAnnulment,
     handleAnnulmentSubmit,
     setShowAnnulDialog,
+    setShowEditDialog,
     handleAnnul,
+    handleUpdate,
     handleExport,
     handlePrint,
     handleNavigateToBatch,
   } = detailHook
+
+  const { supplies } = useSupplies()
+  const { suppliers: supplierOptions, loading: suppliersLoading, createSupplier } = useSupplyEntrySuppliers()
+  const editFormHook = useSupplyEntryForm(supplies, handleUpdate, {
+    initialData: editInitialData,
+    mode: 'edit',
+  })
 
   if (loading) {
     return (
@@ -125,6 +147,7 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
 
   const totalItems = entry.items.reduce((total, item) => total + Number(item.amount || 0), 0)
   const annulmentBlockedReason = getAnnulmentTooltip(canAnnul)
+  const editBlockedReason = getEditTooltip(canEdit)
 
   return (
     <div className="space-y-4">
@@ -151,6 +174,25 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {entry.status === 'active' && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className={!canEdit ? 'inline-flex cursor-not-allowed' : 'inline-flex'}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowEditDialog(true)}
+                    disabled={!canEdit}
+                    className={canEdit ? 'cursor-pointer' : 'cursor-not-allowed'}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    Editar
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {!canEdit && <TooltipContent>{editBlockedReason}</TooltipContent>}
+            </Tooltip>
+          )}
           {entry.status === 'active' && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -323,6 +365,25 @@ export function SupplyEntryDetail({ detailHook, onBack }) {
           </form>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="!w-[75vw] !max-w-[75vw] !sm:max-w-[75vw] max-h-[90vh] overflow-y-auto p-8">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Editar Abastecimiento</DialogTitle>
+          </DialogHeader>
+          <SupplyEntryForm
+            formHook={editFormHook}
+            availableSupplies={supplies}
+            supplierOptions={supplierOptions}
+            suppliersLoading={suppliersLoading}
+            onCreateSupplier={createSupplier}
+            layout="modal"
+            mode="edit"
+            onCancel={() => setShowEditDialog(false)}
+            isSubmitting={editing}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

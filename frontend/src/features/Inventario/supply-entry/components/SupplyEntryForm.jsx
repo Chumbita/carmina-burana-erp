@@ -299,6 +299,7 @@ export function SupplyEntryForm({
   layout = 'page',
   onCancel,
   isSubmitting = false,
+  mode = 'create',
 }) {
   const [openCreateSupplier, setOpenCreateSupplier] = useState(false)
   const {
@@ -444,6 +445,7 @@ export function SupplyEntryForm({
                     <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-32">Costo unitario <span className="text-destructive"> *</span></th>
                     <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-36">Fecha de vencimiento </th>
                     <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-32">N° lote</th>
+                    <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-40">Comentario</th>
                     <th className="pb-2 pt-1 text-left text-xs font-medium text-muted-foreground w-10">Acción</th>
                   </tr>
                 </thead>
@@ -518,12 +520,12 @@ export function SupplyEntryForm({
               {currentLoading ? (
                 <>
                   <Spinner data-icon="inline-start" />
-                  Registrando…
+                  {mode === 'edit' ? 'Guardando…' : 'Registrando…'}
                 </>
               ) : (
                 <>
                   <Save data-icon="inline-start"/>
-                  Confirmar ingreso
+                  {mode === 'edit' ? 'Guardar cambios' : 'Confirmar ingreso'}
                 </>
               )}
             </Button>
@@ -659,6 +661,17 @@ function SupplyEntryLineRow({
           placeholder="Opcional"
           className="h-9 text-sm"
           {...register(`items.${index}.batchNumber`)}
+        />
+        <input type="hidden" {...register(`items.${index}.lineId`)} />
+      </td>
+
+      {/* Comentario */}
+      <td className="py-2.5 pr-3 align-top">
+        <span className="text-xs text-muted-foreground sm:hidden block mb-1">Comentario</span>
+        <Input
+          placeholder="Opcional"
+          className="h-9 text-sm"
+          {...register(`items.${index}.comment`)}
         />
       </td>
 

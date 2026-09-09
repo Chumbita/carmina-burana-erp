@@ -31,4 +31,9 @@ export const supplyEntryService = {
     const response = await privateClient.post(ENDPOINTS.SUPPLY_ENTRIES.CANCEL(id), { reason })
     return response.data
   },
+
+  update: async (id, data) => {
+    const response = await privateClient.patch(ENDPOINTS.SUPPLY_ENTRIES.UPDATE(id), data)
+    return response.data
+  },
 }

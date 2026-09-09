@@ -49,6 +49,33 @@ class SupplyEntryLine:
             raise ValueError("lot_code cannot be empty")
         self.lot_code = lot_code
 
+    def update(
+        self,
+        quantity: Optional[Decimal] = None,
+        unit_cost: Optional[Decimal] = None,
+        expiration_date: Optional[datetime] = None,
+        lot_code: Optional[str] = None,
+        comment: Optional[str] = None,
+    ) -> None:
+        if quantity is not None:
+            if quantity <= 0:
+                raise ValueError("quantity must be greater than zero")
+            self.quantity = quantity
+        if unit_cost is not None:
+            if unit_cost <= 0:
+                raise ValueError("unit_cost must be greater than zero")
+            self.unit_cost = unit_cost
+        if expiration_date is not None:
+            if expiration_date < datetime.now():
+                raise ValueError("expiration_date cannot be in the past")
+            self.expiration_date = expiration_date
+        if lot_code is not None:
+            if lot_code and not lot_code.strip():
+                raise ValueError("lot_code cannot be empty")
+            self.lot_code = lot_code.strip().upper() if lot_code else None
+        if comment is not None:
+            self.comment = comment
+
 
 @dataclass
 class SupplyEntryOrder:
@@ -103,6 +130,26 @@ class SupplyEntryOrder:
         self._guard_not_confirmed("add lines to")
         self._guard_not_cancelled("add lines to")
         self.lines.append(line)
+
+    def update_header(
+        self,
+        supplier_id: Optional[int] = None,
+        document_number: Optional[str] = None,
+        entry_date: Optional[datetime] = None,
+        description: Optional[str] = None,
+    ) -> None:
+        """Actualiza cabecera. Solo permitido si no está anulada."""
+        self._guard_not_cancelled("update")
+        if supplier_id is not None:
+            self.supplier_id = supplier_id
+        if document_number is not None:
+            if not document_number.strip():
+                raise ValueError("document_number cannot be empty")
+            self.document_number = document_number.strip()
+        if entry_date is not None:
+            self.entry_date = entry_date
+        if description is not None:
+            self.description = description
 
     # ── Status Checks ──────────────────────────────────────────────
 

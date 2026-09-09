@@ -16,6 +16,7 @@ export const ENDPOINTS = {
         GET_ALL: '/supply-entries',
         GET_BY_ID: (entry_id) => `/supply-entries/${entry_id}`,
         CREATE: '/supply-entries',
+        UPDATE: (entry_id) => `/supply-entries/${entry_id}`,
         CANCEL: (entry_id) => `/supply-entries/${entry_id}/cancel`,
     },
     // Audit Logs

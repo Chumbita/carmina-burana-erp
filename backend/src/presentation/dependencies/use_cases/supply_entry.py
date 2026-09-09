@@ -11,6 +11,7 @@ from src.application.use_cases.supply_entry.create_supply_entry import CreateSup
 from src.application.use_cases.supply_entry.get_supply_entry_detail import GetSupplyEntryDetail
 from src.application.use_cases.supply_entry.list_supply_entries import ListSupplyEntries
 from src.application.use_cases.supply_entry.cancel_supply_entry import CancelSupplyEntryUseCase
+from src.application.use_cases.supply_entry.update_supply_entry import UpdateSupplyEntryUseCase
 
 
 def get_create_supply_entry_use_case(
@@ -54,6 +55,23 @@ def build_cancel_supply_entry(
     txn_repo = InventoryTransactionRepository(session)
     return CancelSupplyEntryUseCase(
         supply_entry_repo=supply_entry_repo,
+        lot_repo=lot_repo,
+        balance_repo=balance_repo,
+        txn_repo=txn_repo,
+    )
+
+
+def build_update_supply_entry(
+    session: AsyncSession = Depends(get_db),
+) -> UpdateSupplyEntryUseCase:
+    supply_entry_repo = SupplyEntryRepository(session)
+    item_repo = ItemRepository(session)
+    lot_repo = InventoryLotRepository(session)
+    balance_repo = InventoryBalanceRepository(session)
+    txn_repo = InventoryTransactionRepository(session)
+    return UpdateSupplyEntryUseCase(
+        supply_entry_repo=supply_entry_repo,
+        item_repo=item_repo,
         lot_repo=lot_repo,
         balance_repo=balance_repo,
         txn_repo=txn_repo,

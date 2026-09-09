@@ -31,6 +31,26 @@ class CancelSupplyEntryRequest(BaseModel):
     reason: Optional[str] = None
 
 
+# ── Update Request ─────────────────────────────────────────────────────
+
+class UpdateSupplyEntryLineRequest(BaseModel):
+    line_id: Optional[int] = None
+    item_id: int
+    quantity: Decimal = Field(..., gt=0)
+    unit_cost: Decimal = Field(..., gt=0)
+    expiration_date: datetime
+    lot_code: Optional[str] = None
+    comment: Optional[str] = None
+
+
+class UpdateSupplyEntryRequest(BaseModel):
+    supplier_id: Optional[int] = None
+    document_number: Optional[str] = None
+    entry_date: Optional[datetime] = None
+    description: Optional[str] = None
+    lines: Optional[list[UpdateSupplyEntryLineRequest]] = None
+
+
 # ── Detail Response (GET /supply-entries/{id}) & (POST /supply_entries)───────
 
 class SupplierRef(BaseModel):
