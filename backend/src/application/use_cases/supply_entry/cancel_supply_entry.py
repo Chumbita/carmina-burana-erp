@@ -41,7 +41,9 @@ class CancelSupplyEntryUseCase:
     async def execute(self, command: CancelSupplyEntryCommand) -> SupplyEntryDetailResponse:
         now = datetime.now(timezone.utc).replace(tzinfo=None)
 
-        raw = await self._supply_entry_repo.find_by_id(command.entry_id)
+        raw = await self._supply_entry_repo.find_by_id(
+            command.entry_id, for_update=True
+        )
         if raw is None:
             raise SupplyEntryNotFound(command.entry_id)
         if raw.status == SupplyEntryStatus.CANCELED.value:

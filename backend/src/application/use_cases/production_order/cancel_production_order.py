@@ -55,7 +55,7 @@ class CancelProductionOrderUseCase:
     async def execute(self, order_id: int, user_id: int | None = None) -> ProductionOrder:
 
         # 1. Obtener la orden y verificar estado
-        order = await self._production_order_repository.get_by_id(order_id)
+        order = await self._production_order_repository.get_by_id(order_id, for_update=True)
         if order is None:
             raise ProductionOrderNotFoundException(order_id)
 

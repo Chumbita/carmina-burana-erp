@@ -14,7 +14,9 @@ class ISupplyEntryRepository(Protocol):
     async def add_line(self, line: SupplyEntryLine, supply_entry_id: int) -> None:
         ...
 
-    async def find_by_id(self, entry_id: int) -> Optional["SupplyEntryDetailData"]:
+    async def find_by_id(
+        self, entry_id: int, for_update: bool = False
+    ) -> Optional["SupplyEntryDetailData"]:
         ...
 
     async def find_all(
