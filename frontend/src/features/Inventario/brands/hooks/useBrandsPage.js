@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useNotification } from '@/components/shared/notifications/useNotification'
 import { brandService } from '../services/brandService'
@@ -13,6 +13,8 @@ export function cleanBrand(data) {
   }
 }
 
+const PAGE_SIZE = 20
+
 export function useBrandsPage() {
   const notify = useNotification()
   const [brands, setBrands] = useState([])
@@ -20,6 +22,7 @@ export function useBrandsPage() {
   const [saving, setSaving] = useState(false)
   const [search, setSearch] = useState('')
   const [openForm, setOpenForm] = useState(false)
+  const [page, setPage] = useState(1)
 
   async function loadBrands() {
     try {
@@ -46,6 +49,20 @@ export function useBrandsPage() {
       .sort((a, b) => a.id - b.id)
   }, [brands, search])
 
+  const totalItems = filteredBrands.length
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE)
+
+  const paginatedBrands = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE
+    return filteredBrands.slice(start, start + PAGE_SIZE)
+  }, [filteredBrands, page])
+
+  const changePage = useCallback((next) => setPage(next), [])
+
+  useEffect(() => {
+    setPage(1)
+  }, [search])
+
   async function saveBrand(data) {
     try {
       setSaving(true)
@@ -62,12 +79,17 @@ export function useBrandsPage() {
 
   return {
     emptyBrand,
-    filteredBrands,
+    filteredBrands: paginatedBrands,
     hasBrands: brands.length > 0,
     loading,
     openForm,
     saving,
     search,
+    page,
+    pageSize: PAGE_SIZE,
+    totalItems,
+    totalPages,
+    changePage,
     saveBrand,
     setOpenForm,
     setSearch,
