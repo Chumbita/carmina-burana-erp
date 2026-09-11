@@ -5,7 +5,7 @@ import { useNotification } from "@/components/shared/notifications/useNotificati
 import { useLocationNotification } from "./useLocationNotification"
 import { SUPPLY_CATEGORIES, PACKAGING_TYPES } from "../schemas/supply.schema"
 
-const PAGE_SIZE = 25
+const PAGE_SIZE = 20
 
 export function useSuppliesPage() {
   const notify = useNotification()

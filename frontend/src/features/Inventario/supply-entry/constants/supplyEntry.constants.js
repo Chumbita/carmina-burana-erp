@@ -11,7 +11,7 @@ export const SUPPLY_ENTRY_STATUS = {
   ANNULLED: 'annulled'
 }
 
-export const ITEMS_PER_PAGE = 15
+export const ITEMS_PER_PAGE = 20
 
 export const ANNULMENT_RESTRICTIONS = {
   HOURS_LIMIT: null,
