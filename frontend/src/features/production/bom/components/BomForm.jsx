@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Controller, useWatch } from 'react-hook-form'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -112,6 +112,12 @@ export function BomForm({
   const watchedParentItemId = useWatch({ control, name: 'parent_item_id' })
   const parentItemSelected = manufacturableItems.find((i) => i.id === watchedParentItemId)
 
+  const watchedLines = useWatch({ control, name: 'lines' })
+  const selectedComponentIds = useMemo(() => {
+    const ids = (watchedLines ?? []).map((l) => l.component_item_id).filter((id) => id > 0)
+    return new Set(ids)
+  }, [watchedLines])
+
   return (
     <div className="flex flex-col gap-5">
       {/* Error */}
@@ -151,9 +157,6 @@ export function BomForm({
                       placeholder={manufacturableLoading ? 'Cargando elementos…' : 'Seleccionar producto…'}
                       invalid={fieldState.invalid}
                     />
-                    {fieldState.invalid && (
-                      <p className="text-destructive text-sm mt-1">{fieldState.error?.message}</p>
-                    )}
                   </Field>
                 )}
               />
@@ -247,6 +250,7 @@ export function BomForm({
                       index={index}
                       control={control}
                       items={items}
+                      selectedComponentIds={selectedComponentIds}
                       onRemove={handleRemoveLine}
                       setValue={setValue}
                     />
@@ -311,11 +315,16 @@ export function BomForm({
 /**
  * BomLineRow — fila de componente con auto-asignación de UOM.
  */
-function BomLineRow({ index, control, items, onRemove, setValue }) {
+function BomLineRow({ index, control, items, selectedComponentIds, onRemove, setValue }) {
   const componentItem = useWatch({ control, name: `lines.${index}.component_item_id` })
   const quantity = useWatch({ control, name: `lines.${index}.quantity` })
   const selectedItem = items.find((i) => i.item_id === componentItem)
   const isQtyInvalid = quantity == null || quantity === '' || quantity <= 0
+
+  const availableItems = useMemo(
+    () => items.filter((item) => !selectedComponentIds.has(item.item_id) || item.item_id === componentItem),
+    [items, selectedComponentIds, componentItem]
+  )
 
   return (
     <tr className="border-b border-border last:border-0 group">
@@ -341,13 +350,10 @@ function BomLineRow({ index, control, items, onRemove, setValue }) {
                 onSelect={(item) => {
                   setValue(`lines.${index}.uom`, item.uom_id, { shouldValidate: true })
                 }}
-                items={items}
+                items={availableItems}
                 placeholder="Seleccionar…"
                 invalid={fieldState.invalid}
               />
-              {fieldState.invalid && (
-                <p className="text-destructive text-xs mt-1">{fieldState.error?.message}</p>
-              )}
             </>
           )}
         />
