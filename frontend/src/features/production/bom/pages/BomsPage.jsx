@@ -21,6 +21,7 @@ export default function BomsPage() {
     openModal,
     setOpenModal,
     handleCreateBom,
+    refreshKey,
   } = useBomPage()
 
   const handleSearchChange = (v) => { setSearch(v); changePage(1); }
@@ -76,6 +77,7 @@ export default function BomsPage() {
       )}
 
       <NewBomModal
+        key={refreshKey}
         open={openModal}
         onClose={() => setOpenModal(false)}
         onSubmit={handleCreateBom}
