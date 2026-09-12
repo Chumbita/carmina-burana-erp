@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { itemService } from "@/features/Inventario/items/services/itemService";
 
 export function useItems() {
@@ -32,6 +32,7 @@ export function useManufacturableItems() {
   const [options, setOptions] = useState({ manufacturableItems: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [refreshToken, setRefreshToken] = useState(0);
 
   useEffect(() => {
     let mounted = true;
@@ -50,7 +51,9 @@ export function useManufacturableItems() {
 
     load();
     return () => (mounted = false);
-  }, []);
+  }, [refreshToken]);
 
-  return { ...options, loading, error };
+  const refetch = useCallback(() => setRefreshToken((t) => t + 1), []);
+
+  return { ...options, loading, error, refetch };
 }
