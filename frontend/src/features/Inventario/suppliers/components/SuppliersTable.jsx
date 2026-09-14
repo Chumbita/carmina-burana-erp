@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { DataTable } from '@/components/shared/DataTable'
 
-export function SuppliersTable({ suppliers, hasRecords, loading, page = 1, pageSize = 15 }) {
+export function SuppliersTable({ suppliers, hasRecords, loading, page = 1, pageSize = 20 }) {
   const navigate = useNavigate()
 
   const columns = [

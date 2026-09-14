@@ -4,7 +4,7 @@ import { estadoStyles } from "../utils/stockStyles";
 import { useNavigate } from "react-router-dom";
 import { formatDecimal } from "@/lib/utils/formatters";
 
-export function SuppliesTable({ insumos, loading, page = 1, pageSize = 25, hasRecords }) {
+export function SuppliesTable({ insumos, loading, page = 1, pageSize = 20, hasRecords }) {
   const navigate = useNavigate();
 
   const handleRowClick = (insumo) => {

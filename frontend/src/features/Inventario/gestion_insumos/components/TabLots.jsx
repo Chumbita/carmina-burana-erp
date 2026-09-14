@@ -36,7 +36,7 @@ export function TabLots({ itemId, base_uom_symbol, onStockAdjusted }) {
   }, [])
 
   const columns = useMemo(() => buildLotsColumns(base_uom_symbol, handleAdjust), [base_uom_symbol, handleAdjust])
-  const rows = useMemo(() => lots.map((lot, i) => ({ ...lot, _index: i + 1 })), [lots])
+  const rows = useMemo(() => lots.map((lot, i) => ({ ...lot, _index: (page - 1) * pageSize + i + 1 })), [lots, page, pageSize])
 
   const handleAdjustSuccess = useCallback(() => {
     refresh()

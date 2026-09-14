@@ -2,7 +2,7 @@ import { ENDPOINTS } from '@/lib/api/endpoints'
 import privateClient from '@/lib/api/privateClient'
 
 export const supplierService = {
-  getAll: async ({ page = 1, pageSize = 15, q, status } = {}) => {
+  getAll: async ({ page = 1, pageSize = 20, q, status } = {}) => {
     const params = { page, page_size: pageSize }
     if (q) params.q = q
     if (status && status !== 'all') params.status = status

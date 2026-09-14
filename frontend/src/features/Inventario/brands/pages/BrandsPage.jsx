@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react'
 
 import { FilterBar } from '@/components/shared/FilterBar'
+import { TablePagination } from '@/components/shared/TablePagination'
 import { Button } from '@/components/ui/Button'
 import { BrandForm } from '../components/BrandForm'
 import { BrandsTable } from '../components/BrandsTable'
@@ -15,6 +16,11 @@ export default function BrandsPage() {
     openForm,
     saving,
     search,
+    page,
+    pageSize,
+    totalItems,
+    totalPages,
+    changePage,
     saveBrand,
     setOpenForm,
     setSearch,
@@ -48,7 +54,25 @@ export default function BrandsPage() {
         onSubmit={saveBrand}
       />
 
-      <BrandsTable brands={filteredBrands} hasRecords={hasBrands} loading={loading} />
+      <BrandsTable
+        brands={filteredBrands}
+        hasRecords={hasBrands}
+        loading={loading}
+        page={page}
+        pageSize={pageSize}
+      />
+
+      {totalItems > 0 && (
+        <div className="flex justify-center">
+          <TablePagination
+            page={page}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            onChangePage={changePage}
+          />
+        </div>
+      )}
     </div>
   )
 }
