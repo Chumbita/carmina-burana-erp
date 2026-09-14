@@ -27,18 +27,18 @@ function extractErrorMessage(err) {
   return 'Error al crear la fórmula'
 }
 
-export function useBomForm(onSubmit, activeParentIds = []) {
+export function useBomForm(onSubmit) {
   const [error, setError] = useState(null)
 
   const { items, loading: itemsLoading } = useItems()
   const {
     manufacturableItems: availableItems,
     loading: manufacturableLoading,
+    refetch: refetchManufacturableItems,
   } = useManufacturableItems()
 
-  const activeSet = new Set(activeParentIds)
   const manufacturableItems = availableItems.filter(
-    (item) => !activeSet.has(item.id)
+    (item) => !item.has_active_bom
   )
 
   const {
@@ -104,5 +104,6 @@ export function useBomForm(onSubmit, activeParentIds = []) {
     handleFormSubmit,
     handleSubmit,
     setValue,
+    refetchManufacturableItems,
   }
 }

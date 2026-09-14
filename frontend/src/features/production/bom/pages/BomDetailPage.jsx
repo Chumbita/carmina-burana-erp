@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Controller, useWatch } from "react-hook-form";
 import {
@@ -112,7 +112,7 @@ function ItemCombobox({
   );
 }
 
-function EditableLineRow({ index, control, items, isNew, onRemove, setValue }) {
+function EditableLineRow({ index, control, items, selectedComponentIds, isNew, onRemove, setValue }) {
   const componentItemId = useWatch({
     control,
     name: `lines.${index}.component_item_id`,
@@ -120,6 +120,11 @@ function EditableLineRow({ index, control, items, isNew, onRemove, setValue }) {
   const quantity = useWatch({ control, name: `lines.${index}.quantity` });
   const selectedItem = items.find((i) => i.item_id === componentItemId);
   const isQtyInvalid = quantity == null || quantity === "" || quantity <= 0;
+
+  const availableItems = useMemo(
+    () => items.filter((item) => !selectedComponentIds.has(item.item_id) || item.item_id === componentItemId),
+    [items, selectedComponentIds, componentItemId]
+  );
 
   return (
     <tr className="border-b last:border-0 hover:bg-muted/40">
@@ -141,13 +146,10 @@ function EditableLineRow({ index, control, items, isNew, onRemove, setValue }) {
                       shouldValidate: true,
                     })
                   }
-                  items={items}
+                  items={availableItems}
                   placeholder="Seleccionar insumo…"
                   invalid={fieldState.invalid}
                 />
-                {fieldState.invalid && (
-                  <p className="text-xs text-destructive">{fieldState.error?.message}</p>
-                )}
               </div>
             )}
           />
@@ -230,6 +232,12 @@ export default function BomDetailPage() {
     setValue,
     reset,
   } = useBomEdit(bom);
+
+  const watchedLines = useWatch({ control, name: "lines" });
+  const selectedComponentIds = useMemo(() => {
+    const ids = (watchedLines ?? []).map((l) => l.component_item_id).filter((id) => id > 0);
+    return new Set(ids);
+  }, [watchedLines]);
 
   async function handleSaveSubmit(data) {
     setIsSaving(true);
@@ -353,6 +361,7 @@ export default function BomDetailPage() {
                       index={index}
                       control={control}
                       items={items}
+                      selectedComponentIds={selectedComponentIds}
                       isNew={isLineNew(index)}
                       onRemove={handleRemoveLine}
                       setValue={setValue}

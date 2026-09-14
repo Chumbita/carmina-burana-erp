@@ -11,5 +11,13 @@ export const createBomSchema = z.object({
   quantity: z.number().gt(0, "La cantidad debe ser mayor a 0"),
   uom_id: z.number().min(1, "Seleccione una unidad de medida"),
   valid_from: z.string().optional(),
-  lines: z.array(bomLineSchema).min(1, "Agregue al menos un componente"),
+  lines: z.array(bomLineSchema)
+    .min(1, "Agregue al menos un componente")
+    .refine(
+      (lines) => {
+        const ids = lines.map((l) => l.component_item_id).filter((id) => id > 0)
+        return ids.length === new Set(ids).size
+      },
+      { message: "Componentes duplicados" }
+    ),
 })

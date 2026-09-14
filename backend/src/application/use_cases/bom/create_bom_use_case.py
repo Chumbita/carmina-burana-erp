@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional
 
-from src.application.dtos.bom.bom_commands_dtos import CreateBomCommand
+from src.application.dtos.bom.bom_commands_dtos import CreateBomCommand, CreateBomLineData
 from src.application.dtos.bom.bom_responses_dtos import BomCreatedResponse
 from src.domain.entities.bom import Bom, BomLine
 from src.domain.exceptions.bom_exceptions import (
@@ -38,6 +38,25 @@ class CreateBomUseCase:
         self._uom_repository = uom_repository
         self._audit_log_service = audit_log_service
 
+    @staticmethod
+    def _deduplicate_lines(lines: list[CreateBomLineData]) -> list[CreateBomLineData]:
+        """
+        Consolida líneas duplicadas sumando cantidades.
+        Conserva el UOM de la primera línea encontrada para cada componente.
+        """
+        merged: dict[int, CreateBomLineData] = {}
+        for line in lines:
+            if line.component_item_id in merged:
+                existing = merged[line.component_item_id]
+                merged[line.component_item_id] = CreateBomLineData(
+                    component_item_id=line.component_item_id,
+                    quantity=existing.quantity + line.quantity,
+                    uom=existing.uom,
+                )
+            else:
+                merged[line.component_item_id] = line
+        return list(merged.values())
+
     async def execute(
         self, command: CreateBomCommand, user_id: int | None = None
     ) -> BomCreatedResponse:
@@ -62,6 +81,9 @@ class CreateBomUseCase:
 
             # Paso 4: Calcular nueva versión
             new_version = (previous_bom.version + 1) if previous_bom else 1
+
+            # Paso 4.1: Deduplicar componentes (suma cantidades de ítems repetidos)
+            command.lines = self._deduplicate_lines(command.lines)
 
             # Paso 5: Crear nuevo BOM con snapshot completo
             bom = Bom(
