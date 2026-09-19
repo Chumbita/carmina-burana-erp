@@ -59,21 +59,21 @@ export function FilterBar({
   }
 
   return (
-    <div className="flex gap-3 flex-1">
+    <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:flex-1">
       {/* Búsqueda */}
       {onSearchChange && (
         <Input
           placeholder={searchPlaceholder}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="max-w-sm border-none bg-neutral-100 focus-visible:outline-none focus-visible:ring-2"
+          className="w-full border-none bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 sm:max-w-sm"
         />
       )}
 
       {/* Selects dinámicos */}
       {filters.map((filter) => (
         <Select key={filter.key} value={filter.value} onValueChange={filter.onChange}>
-          <SelectTrigger className="w-50 cursor-pointer bg-neutral-100 border-none text-muted-foreground">
+          <SelectTrigger className="w-full cursor-pointer bg-neutral-100 border-none text-muted-foreground sm:w-50">
             <SelectValue placeholder={filter.placeholder} />
           </SelectTrigger>
           <SelectContent>
@@ -92,7 +92,7 @@ export function FilterBar({
           key={field.key}
           variant="outline"
           size="sm"
-          className="cursor-pointer bg-neutral-100 border-none"
+          className="w-full cursor-pointer bg-neutral-100 border-none sm:w-auto"
           onClick={() => handleSortToggle(field.key)}
           title={`Ordenar por ${field.label} (${
             sortBy === field.key
@@ -109,7 +109,7 @@ export function FilterBar({
         <Button
           variant="outline"
           size="icon"
-          className="cursor-pointer"
+          className="w-full cursor-pointer sm:w-9"
           onClick={onClearFilters}
           title="Limpiar filtros"
         >

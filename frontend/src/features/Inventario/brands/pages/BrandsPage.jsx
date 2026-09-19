@@ -23,7 +23,7 @@ export default function BrandsPage() {
 
   return (
     <div className="space-y-4">
-      <header className="flex items-center justify-between gap-4">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <FilterBar
           search={search}
           searchPlaceholder="Buscar por nombre..."
@@ -34,7 +34,7 @@ export default function BrandsPage() {
             setSearch('')
           }}
         />
-        <Button size="sm" className="cursor-pointer" onClick={startCreate}>
+        <Button size="sm" className="w-full cursor-pointer sm:w-auto" onClick={startCreate}>
           <Plus />
           Agregar marca
         </Button>

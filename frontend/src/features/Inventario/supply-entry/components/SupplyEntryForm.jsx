@@ -38,7 +38,7 @@ function SupplierCombobox({ value, onChange, suppliers = [], loading = false, on
   const selected = suppliers.find((supplier) => supplier.id === value)
 
   return (
-    <div className="flex gap-2">
+    <div className="flex w-full min-w-0 gap-2">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
@@ -61,7 +61,7 @@ function SupplierCombobox({ value, onChange, suppliers = [], loading = false, on
             <ChevronsUpDown className="ml-1 size-3.5 shrink-0 opacity-50" />
           </button>
         </PopoverTrigger>
-        <PopoverContent className="w-80 p-0" align="start">
+        <PopoverContent className="w-[calc(100vw-2rem)] p-0 sm:w-80" align="start">
           <Command>
             <CommandInput placeholder="Buscar proveedor..." />
             <CommandList>
@@ -248,7 +248,7 @@ function SupplyCombobox({ value, onChange, supplies = [], invalid = false }) {
           <ChevronsUpDown className="ml-1 size-3.5 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-72 p-0" align="start">
+      <PopoverContent className="w-[calc(100vw-2rem)] p-0 sm:w-72" align="start">
         <Command>
           <CommandInput placeholder="Buscar insumo…" />
           <CommandList>
@@ -329,7 +329,7 @@ export function SupplyEntryForm({
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex min-w-0 flex-col gap-5">
       {/* Error */}
       {error && (
         <div className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
@@ -337,11 +337,11 @@ export function SupplyEntryForm({
         </div>
       )}
 
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="flex min-w-0 flex-col gap-5">
 
         {/* ── Cabecera ─────────────────────────────────────────── */}
-        <Card className='py-0'>
-          <div className="p-6 flex flex-col gap-4">
+        <Card className='min-w-0 py-0'>
+          <div className="flex min-w-0 flex-col gap-4 p-4 sm:p-6">
             <div>
               <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                 Información de la recepción
@@ -410,10 +410,10 @@ export function SupplyEntryForm({
         </Card>
 
         {/* ── Artículos — tabla compacta ────────────────────────── */}
-        <Card className="py-0">
-          <div className="p-6 flex flex-col gap-3">
-            <div className="flex items-start justify-between gap-3">
-              <div>
+        <Card className="min-w-0 py-0">
+          <div className="flex min-w-0 flex-col gap-3 p-4 sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
                 <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                   Detalle de insumos recibidos
                 </p>
@@ -427,16 +427,16 @@ export function SupplyEntryForm({
                 variant="outline"
                 size="sm"
                 onClick={handleAddItem}
-                className="cursor-pointer"
+                className="w-full cursor-pointer sm:w-auto"
               >
                 <Plus data-icon="inline-start" />
                 Agregar
               </Button>
             </div>
 
-            <div className="-mx-5 overflow-x-auto px-5">
-              <table className="w-full border-collapse text-sm">
-                <thead>
+            <div className="w-full max-w-full overflow-x-auto">
+              <table className="w-full border-collapse text-sm sm:min-w-[760px]">
+                <thead className="hidden sm:table-header-group">
                   <tr className="border-b border-border">
                     <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground w-10">Nro</th>
                     <th className="pb-2 pt-1 pr-3 text-left text-xs font-medium text-muted-foreground">Insumo <span className="text-destructive"> *</span></th>
@@ -447,7 +447,7 @@ export function SupplyEntryForm({
                     <th className="pb-2 pt-1 text-left text-xs font-medium text-muted-foreground w-10">Acción</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="block sm:table-row-group">
                   {fields.map((field, index) => (
                     <SupplyEntryLineRow
                       key={field.id}
@@ -484,13 +484,13 @@ export function SupplyEntryForm({
             </span>
           </div>
 
-          <div className="flex gap-2 justify-end">
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
             {layout === 'modal' ? (
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="cursor-pointer"
+                className="w-full cursor-pointer sm:w-auto"
                 onClick={onCancel}
                 disabled={currentLoading}
               >
@@ -512,7 +512,7 @@ export function SupplyEntryForm({
             <Button
               type="submit"
               size="sm"
-              className="cursor-pointer"
+              className="w-full cursor-pointer sm:w-auto"
               disabled={!isDirty || !isValid || currentLoading}
             >
               {currentLoading ? (
@@ -566,9 +566,9 @@ function SupplyEntryLineRow({
     (Number(watchedItems[index]?.unitCost ?? 0) || 0)
 
   return (
-    <tr className="border-b border-border last:border-0 group">
+    <tr className="mb-3 block rounded-md border border-border p-3 last:mb-0 sm:table-row sm:rounded-none sm:border-x-0 sm:border-t-0 sm:p-0 group">
       {/* Nro */}
-      <td className="py-2.5 pr-3 align-top">
+      <td className="block py-2 sm:table-cell sm:py-2.5 sm:pr-3 sm:align-top">
         <span className="hidden sm:inline-flex size-9 items-center justify-center rounded bg-muted text-xs font-medium text-muted-foreground">
           {index + 1}
         </span>
@@ -576,7 +576,7 @@ function SupplyEntryLineRow({
       </td>
 
       {/* Insumo */}
-      <td className="py-2.5 pr-3 align-top">
+      <td className="block py-2 sm:table-cell sm:py-2.5 sm:pr-3 sm:align-top">
         <span className={`text-xs sm:hidden block mb-1 ${itemErrors?.supplyId ? 'text-destructive' : 'text-muted-foreground'}`}>Insumo *</span>
         <SupplyCombobox
           value={watchedItems[index]?.supplyId ?? 0}
@@ -587,7 +587,7 @@ function SupplyEntryLineRow({
       </td>
 
       {/* Cantidad */}
-      <td className="py-2.5 pr-3 align-top">
+      <td className="block py-2 sm:table-cell sm:py-2.5 sm:pr-3 sm:align-top">
         <span className={cn('text-xs sm:hidden block mb-1', isQtyInvalid ? 'text-destructive' : 'text-muted-foreground')}>Cantidad *</span>
         <Controller
           name={`items.${index}.quantity`}
@@ -614,7 +614,7 @@ function SupplyEntryLineRow({
       </td>
 
       {/* Costo unitario */}
-      <td className="py-2.5 pr-3 align-top">
+      <td className="block py-2 sm:table-cell sm:py-2.5 sm:pr-3 sm:align-top">
         <span className={cn('text-xs sm:hidden block mb-1', isCostInvalid ? 'text-destructive' : 'text-muted-foreground')}>Costo unit. *</span>
         <Controller
           name={`items.${index}.unitCost`}
@@ -639,7 +639,7 @@ function SupplyEntryLineRow({
       </td>
 
       {/* Vencimiento */}
-      <td className="py-2.5 pr-3 align-top">
+      <td className="block py-2 sm:table-cell sm:py-2.5 sm:pr-3 sm:align-top">
         <span className={cn('text-xs sm:hidden block mb-1', itemErrors?.expirationDate ? 'text-destructive' : 'text-muted-foreground')}>Vencimiento *</span>
         <Input
           type="date"
@@ -653,7 +653,7 @@ function SupplyEntryLineRow({
       </td>
 
       {/* N° lote */}
-      <td className="py-2.5 pr-3 align-top">
+      <td className="block py-2 sm:table-cell sm:py-2.5 sm:pr-3 sm:align-top">
         <span className="text-xs text-muted-foreground sm:hidden block mb-1">N° lote</span>
         <Input
           placeholder="Opcional"
@@ -663,8 +663,8 @@ function SupplyEntryLineRow({
       </td>
 
       {/* Acción */}
-      <td className="py-2.5 align-top">
-        <div className="flex items-center justify-center gap-1">
+      <td className="block py-2 sm:table-cell sm:py-2.5 sm:align-top">
+        <div className="flex items-center justify-between gap-1 sm:justify-center">
           {subtotal > 0 && (
             <span className="text-xs text-muted-foreground sm:hidden">
               {formatCurrency(subtotal)}

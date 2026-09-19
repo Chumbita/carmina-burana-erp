@@ -1,24 +1,23 @@
 import { LoginForm } from "../components/LoginForm";
-import loginImage from "../../../../public/assets/images/login-image.jpg";
 
 export default function LoginPage() {
   return (
-    <div className="w-full h-screen flex flex-row items-center justify-center">
-      <div className="w-4xl h-fit flex flex-row shadow-lg rounded-l-2xl rounded-r-2xl">
-        <section className="w-full p-8 rounded-l-2xl border-t-1 border-l-1 border-b-1 border-gray-200 flex flex-col justify-center gap-10">
+    <div className="flex min-h-screen w-full items-center justify-center bg-background p-4">
+      <div className="flex w-full max-w-4xl overflow-hidden rounded-2xl border border-gray-200 shadow-lg md:flex-row">
+        <section className="flex w-full flex-col justify-center gap-8 p-6 sm:p-8 md:w-1/2">
           <div className="flex flex-col gap-2">
-            <h2 className="text-3xl font-extrabold text-center">Bienvenido</h2>
+            <h2 className="text-center text-2xl font-extrabold sm:text-3xl">Bienvenido</h2>
             <p className="text-base font-normal text-center text-gray-600">
               Ingresa a tu cuenta de Carmina Burana ERP
             </p>
           </div>
           <LoginForm />
         </section>
-        <section className="w-full">
+        <section className="hidden md:block md:w-1/2">
           <img
-            src={loginImage}
+            src="/assets/images/login-image.jpg"
             alt="Carmina Burana Image"
-            className="w-full rounded-r-2xl"
+            className="h-full w-full object-cover"
           />
         </section>
       </div>
