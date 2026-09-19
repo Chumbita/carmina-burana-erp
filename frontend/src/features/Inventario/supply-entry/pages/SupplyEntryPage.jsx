@@ -58,7 +58,7 @@ export default function SupplyEntryPage() {
   return (
     <div className="space-y-4">
       {/* Header with filters and actions */}
-      <header className="flex items-center justify-between gap-4">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <SupplyEntryFilters
           filters={{
             searchTerm: search,
@@ -85,7 +85,7 @@ export default function SupplyEntryPage() {
 
         <Button
           size="sm"
-          className="cursor-pointer"
+          className="w-full cursor-pointer sm:w-auto"
           onClick={() => {
             formHook.handleReset()
             setOpenModal(true)
@@ -117,7 +117,7 @@ export default function SupplyEntryPage() {
 
       {/* Modal for new supply entry */}
       <Dialog open={openModal} onOpenChange={setOpenModal}>
-        <DialogContent className="!w-[75vw] !max-w-[75vw] !sm:max-w-[75vw] max-h-[90vh] overflow-y-auto p-8">
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-5xl sm:max-w-[75vw] max-h-[90vh] overflow-y-auto p-4 sm:p-8">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Ingreso de insumos</DialogTitle>
           </DialogHeader>
