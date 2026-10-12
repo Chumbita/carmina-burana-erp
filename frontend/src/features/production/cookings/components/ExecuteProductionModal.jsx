@@ -47,7 +47,12 @@ export function ExecuteProductionModal({ open, order, onExecute, onClose }) {
     control: completeControl,
     setValue: setCompleteValue,
     reset: resetCompleteForm,
-    formState: { errors: completeErrors, isSubmitting: isCompleting }
+    formState: {
+      errors: completeErrors,
+      isSubmitting: isCompleting,
+      isDirty: isCompleteDirty,
+      isValid: isCompleteValid,
+    }
   } = useForm({
     resolver: zodResolver(schemaComplete),
     defaultValues: {
@@ -63,21 +68,19 @@ export function ExecuteProductionModal({ open, order, onExecute, onClose }) {
   // Sincroniza los datos de la orden con el formulario de Zod
   useEffect(() => {
     if (open && order) {
-      setCompleteValue("produced_quantity", Number(order.planned_quantity || 1));
-
       const productionDate = order.schedule_date
         ? order.schedule_date.split('T')[0]
         : "";
 
-      setCompleteValue("production_date", productionDate);
-      setCompleteValue("lot_code", "");
-      setCompleteValue("expiration_date", "");
-      setCompleteValue(
-        "unit_cost",
-        Number(order.unit_cost ?? order.estimated_unit_cost ?? 0)
-      );
+      resetCompleteForm({
+        produced_quantity: Number(order.planned_quantity || 1),
+        production_date: productionDate,
+        lot_code: "",
+        expiration_date: "",
+        unit_cost: Number(order.unit_cost ?? order.estimated_unit_cost ?? 0),
+      });
     }
-  }, [open, order, setCompleteValue]);
+  }, [open, order, resetCompleteForm]);
 
   // En latas el código de lote es la fecha de producción (autogenerado)
   const isLata = (order?.item_name || "").toLowerCase().includes("lata");
@@ -162,7 +165,7 @@ export function ExecuteProductionModal({ open, order, onExecute, onClose }) {
                     <FieldLabel htmlFor={field.name} className="text-sm">
                       Código de Lote
                     </FieldLabel>
-                    <Input {...field} id={field.name} type="text" placeholder={isLata ? "Autogenerado (fecha)" : "Ej: IPA-2026-001"} className="h-9 text-sm" />
+                    <Input {...field} id={field.name} type="text" placeholder={isLata ? "Autogenerado (fecha)" : ""} className="h-9 text-sm" />
                   </Field>
                 )}
               />
@@ -267,7 +270,7 @@ export function ExecuteProductionModal({ open, order, onExecute, onClose }) {
             <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isCompleting}>
               Cancelar
             </Button>
-            <Button type="submit" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={isCompleting}>
+            <Button type="submit" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={!isCompleteDirty || !isCompleteValid || isCompleting}>
               {isCompleting ? "Ejecutando..." : "Ejecutar Producción"}
             </Button>
           </div>

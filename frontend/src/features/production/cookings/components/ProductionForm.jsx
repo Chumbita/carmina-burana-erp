@@ -55,7 +55,7 @@ export function ProductionForm({
     handleSubmit,
     control,
     setValue,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isDirty },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -73,6 +73,8 @@ export function ProductionForm({
     selectedItemId !== undefined && selectedItemId !== null;
 
   const plannedQuantity = useWatch({ control, name: "planned_quantity" }) || 0;
+  const scheduleDate = useWatch({ control, name: "schedule_date" });
+  const isDateSelected = !!scheduleDate;
 
   const selectedBomLines = useMemo(() => {
     const lines = selectedBom?.lines || [];
@@ -422,7 +424,7 @@ export function ProductionForm({
           size="sm"
           type="submit"
           className="cursor-pointer"
-          disabled={isSubmitting || !hasValidRecipe || submitBlocked}
+          disabled={isSubmitting || !hasValidRecipe || submitBlocked || !isDirty || !isValid || !isDateSelected}
         >
           {isSubmitting ? (
             <>
