@@ -5,7 +5,7 @@
 from typing import Optional, List
 import logging
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func, case
 
 from src.domain.entities.item import Item
 from src.infrastructure.database.models.item_model import ItemModel
@@ -13,6 +13,7 @@ from src.infrastructure.database.models.inventory_balance_model import Inventory
 from src.infrastructure.database.models.item_type_model import ItemTypeModel
 from src.infrastructure.database.models.brand_model import BrandModel
 from src.infrastructure.database.models.uom_model import UomModel
+from src.infrastructure.database.models.bom_model import BomModel
 from src.application.dtos.items.item_responses_dtos import ItemOptionResponseDTO
 
 logger = logging.getLogger(__name__)
@@ -232,8 +233,19 @@ class ItemRepository:
     async def get_manufacturable(self) -> list[dict]:
         """
         Obtiene todos los items marcados como manufacturables (no eliminados).
-        Retorna dicts con: id, item_type, name, brand, brand_id, uom_symbol, uom_id.
+        Retorna dicts con: id, item_type, name, brand, brand_id, uom_symbol, uom_id,
+        y has_active_bom (True si el item ya posee una fórmula activa).
         """
+        has_bom = (
+            select(BomModel.parent_item_id)
+            .where(
+                BomModel.is_active.is_(True),
+                BomModel.parent_item_id == ItemModel.id,
+            )
+            .correlate(ItemModel)
+            .exists()
+        ).label("has_active_bom")
+
         stmt = (
             select(
                 ItemModel.id,
@@ -243,6 +255,7 @@ class ItemRepository:
                 ItemModel.brand_id,
                 UomModel.symbol.label("uom_symbol"),
                 ItemModel.base_uom_id.label("uom_id"),
+                has_bom,
             )
             .join(ItemTypeModel, ItemModel.item_type_id == ItemTypeModel.id)
             .join(BrandModel, ItemModel.brand_id == BrandModel.id)
@@ -263,6 +276,7 @@ class ItemRepository:
                 "brand_id": r.brand_id,
                 "uom_symbol": r.uom_symbol,
                 "uom_id": r.uom_id,
+                "has_active_bom": r.has_active_bom,
             }
             for r in rows
         ]
