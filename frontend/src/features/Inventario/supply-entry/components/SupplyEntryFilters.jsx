@@ -13,41 +13,41 @@ import { Search, Calendar } from 'lucide-react'
  */
 export function SupplyEntryFilters({ filters, updateFilter, clearFilters, supplierOptions = [] }) {
   return (
-    <div className="flex gap-3 flex-1 flex-wrap">
-      <div className="relative">
+    <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:flex-1">
+      <div className="relative w-full sm:max-w-sm">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-neutral-400" />
         <Input
           placeholder="Buscar por ID o proveedor..."
           value={filters.searchTerm}
           onChange={(e) => updateFilter('searchTerm', e.target.value)}
-          className="max-w-sm border-none bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 pl-10"
+          className="w-full border-none bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 pl-10"
         />
       </div>
 
-      <div className="relative">
+      <div className="relative w-full sm:w-40">
         <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-neutral-400" />
         <Input
           type="date"
           placeholder="Desde"
           value={filters.dateFrom}
           onChange={(e) => updateFilter('dateFrom', e.target.value)}
-          className="w-40 border-none bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 pl-10"
+          className="w-full border-none bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 pl-10"
         />
       </div>
 
-      <div className="relative">
+      <div className="relative w-full sm:w-40">
         <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-neutral-400" />
         <Input
           type="date"
           placeholder="Hasta"
           value={filters.dateTo}
           onChange={(e) => updateFilter('dateTo', e.target.value)}
-          className="w-40 border-none bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 pl-10"
+          className="w-full border-none bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 pl-10"
         />
       </div>
 
       <Select value={filters.selectedSupplier} onValueChange={(value) => updateFilter('selectedSupplier', value)}>
-        <SelectTrigger className="w-48 cursor-pointer bg-neutral-100 border-none text-muted-foreground">
+        <SelectTrigger className="w-full cursor-pointer bg-neutral-100 border-none text-muted-foreground sm:w-48">
           <SelectValue placeholder="Proveedor" />
         </SelectTrigger>
         <SelectContent>
@@ -66,7 +66,7 @@ export function SupplyEntryFilters({ filters, updateFilter, clearFilters, suppli
           variant="outline"
           size="sm"
           onClick={clearFilters}
-          className="cursor-pointer"
+          className="w-full cursor-pointer sm:w-auto"
         >
           Limpiar filtros
         </Button>

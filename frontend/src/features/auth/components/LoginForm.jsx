@@ -61,7 +61,7 @@ export function LoginForm() {
   };
 
   return (
-    <form className="w-full max-w-md" onSubmit={handleSubmit(onSubmit)}>
+    <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
       <FieldSet>
         <FieldGroup>
           <Field data-invalid={errors.username ? true : false}>
@@ -108,7 +108,7 @@ export function LoginForm() {
             <Button
               type="submit"
               size="lg"
-              className="cursor-pointer"
+              className="w-full cursor-pointer"
               variant={loading ? "outline" : ""}
               disabled={loading || !isValid}
             >

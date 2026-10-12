@@ -23,9 +23,6 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 
-// Logo Carmina
-import MainLogo from "../../../public/images/logo_carmina.png"
-
 export function AppSidebar({ ...props }) {
   const { authUser, isLoading } = useAuth();
 
@@ -165,7 +162,7 @@ export function AppSidebar({ ...props }) {
           <div className="flex flex-col items-center gap-2 group-data-[collapsible=icon]:hidden transition-all">
             {
               <img
-                src={MainLogo}
+                src="/images/logo_carmina.png"
                 alt="Carmina Burana"
                 className="h-12 w-auto -mt-1.5 select-none dark:invert"
               />
@@ -176,7 +173,7 @@ export function AppSidebar({ ...props }) {
           <div className="hidden group-data-[collapsible=icon]:flex items-center justify-center transition-all">
             {
               <img
-                src="../public/images/isologo_carmina.png"
+                src="/images/isologo_carmina.png"
                 alt="CB"
                 className="w-8 -mt-1 dark:invert"
               />

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom"
+import { flushSync } from "react-dom"
 
 // Componentes shadcn
 import {
@@ -15,6 +16,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/Sidebar"
 
 // Iconos
@@ -23,6 +25,13 @@ import { ChevronRight } from "lucide-react";
 export function NavMain({
   items
 }) {
+  const { isMobile, setOpenMobile } = useSidebar()
+  const closeMobileSidebar = () => {
+    if (isMobile) {
+      flushSync(() => setOpenMobile(false))
+    }
+  }
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Sistema de Gestión</SidebarGroupLabel>
@@ -37,7 +46,12 @@ export function NavMain({
               {/* Si no tiene items es un link directo */}
               {!item.items ? (
                 <SidebarMenuButton asChild tooltip={item.title}>
-                  <Link to={item.url}  className="cursor-pointer">
+                  <Link
+                    to={item.url}
+                    className="cursor-pointer"
+                    onClick={closeMobileSidebar}
+                    onPointerDown={closeMobileSidebar}
+                  >
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                   </Link>
@@ -57,7 +71,11 @@ export function NavMain({
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
-                            <Link to={subItem.url}>
+                            <Link
+                              to={subItem.url}
+                              onClick={closeMobileSidebar}
+                              onPointerDown={closeMobileSidebar}
+                            >
                               <span>{subItem.title}</span>
                             </Link>
                           </SidebarMenuSubButton>

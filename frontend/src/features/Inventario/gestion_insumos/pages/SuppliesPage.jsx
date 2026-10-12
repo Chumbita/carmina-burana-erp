@@ -54,7 +54,7 @@ export default function SuppliesPage() {
 
   return (
     <div className="space-y-4">
-      <header className="flex items-center justify-between gap-4">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <FilterBar
           search={search}
           searchPlaceholder="Buscar por nombre o marca..."
@@ -101,7 +101,7 @@ export default function SuppliesPage() {
         />
         <Button
           size="sm"
-          className="cursor-pointer"
+          className="w-full cursor-pointer sm:w-auto"
           onClick={() => setOpenModal(true)}
         >
           <Plus />
