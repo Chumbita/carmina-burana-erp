@@ -100,6 +100,8 @@ export default function SupplyEntryPage() {
         entries={data}
         hasRecords={hasEntries}
         loading={loading}
+        page={page}
+        pageSize={ITEMS_PER_PAGE}
       />
 
       {/* Pagination */}

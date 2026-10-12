@@ -2,11 +2,11 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { DataTable } from '@/components/shared/DataTable'
 
-export function BrandsTable({ brands, hasRecords, loading }) {
+export function BrandsTable({ brands, hasRecords, loading, page = 1, pageSize = 20 }) {
   const navigate = useNavigate()
 
   const columns = [
-    { header: 'Nro', accessor: 'row_number', render: (_value, _brand, rowIndex) => rowIndex + 1 },
+    { header: 'Nro', accessor: 'row_number', render: (_value, _brand, index) => (page - 1) * pageSize + index + 1 },
     {
       header: 'Nombre',
       accessor: 'name',

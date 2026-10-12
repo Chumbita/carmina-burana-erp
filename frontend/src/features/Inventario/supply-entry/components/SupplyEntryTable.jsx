@@ -9,7 +9,7 @@ import { formatCurrency } from '@/lib/utils/formatters'
  * @param {Array} props.entries - Array of supply entries
  * @param {boolean} props.loading - Loading state
  */
-export function SupplyEntryTable({ entries, hasRecords, loading }) {
+export function SupplyEntryTable({ entries, hasRecords, loading, page = 1, pageSize = 20 }) {
   const navigate = useNavigate()
 
   const handleRowClick = (entry) => {
@@ -18,7 +18,7 @@ export function SupplyEntryTable({ entries, hasRecords, loading }) {
 
   const tableData = entries.map((entry, index) => ({
     ...entry,
-    row_number: index + 1,
+    row_number: (page - 1) * pageSize + index + 1,
   }))
 
   const columns = [

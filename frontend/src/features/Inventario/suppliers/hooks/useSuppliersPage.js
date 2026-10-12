@@ -19,7 +19,7 @@ export function cleanSupplier(data) {
   }
 }
 
-const PAGE_SIZE = 15
+const PAGE_SIZE = 20
 
 export function useSuppliersPage() {
   const notify = useNotification()
