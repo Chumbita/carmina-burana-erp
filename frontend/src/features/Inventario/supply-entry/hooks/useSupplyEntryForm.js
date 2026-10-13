@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -7,6 +7,7 @@ import { FORM_DEFAULT_VALUES, getDefaultEntryDateTime } from '../constants/suppl
 
 // Schema validation
 const supplyItemSchema = z.object({
+  lineId: z.number().optional(),
   supplyId: z.number().min(1, 'Seleccione un insumo'),
   quantity: z.number().min(0.01, 'La cantidad debe ser mayor a 0'),
   unitCost: z.number().min(0.01, 'El costo unitario debe ser mayor a 0'),
@@ -32,12 +33,18 @@ const getDefaultValues = () => ({
  * Custom hook for managing supply entry form logic
  * @param {Array} availableSupplies - List of available supplies
  * @param {Function} onSubmit - Submit callback function
+ * @param {Object} options - { initialData, mode: 'create' | 'edit' }
  */
-export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
+export function useSupplyEntryForm(availableSupplies = [], onSubmit, { initialData = null, mode = 'create' } = {}) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
   const [receptionId, setReceptionId] = useState(null)
+
+  const initialFormValues = useMemo(() => {
+    if (mode === 'edit' && initialData) return initialData
+    return getDefaultValues()
+  }, [initialData, mode])
 
   const {
     register,
@@ -49,9 +56,15 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
     formState: { isDirty, isValid, errors },
   } = useForm({
     resolver: zodResolver(supplyEntrySchema),
-    defaultValues: getDefaultValues(),
+    defaultValues: initialFormValues,
     mode: 'onChange',
   })
+
+  useEffect(() => {
+    if (mode === 'edit' && initialData) {
+      reset(initialData)
+    }
+  }, [initialData, mode, reset])
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -74,6 +87,7 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
   // Add new item
   const handleAddItem = useCallback(() => {
     append({
+      lineId: undefined,
       supplyId: 0,
       quantity: 1,
       unitCost: "",
@@ -111,12 +125,14 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
       
       setSuccess(true)
       
-      // Reset after success
-      setTimeout(() => {
-        reset(getDefaultValues())
-        setSuccess(false)
-        setReceptionId(null)
-      }, 3000)
+      // Reset after success only in create mode
+      if (mode !== 'edit') {
+        setTimeout(() => {
+          reset(getDefaultValues())
+          setSuccess(false)
+          setReceptionId(null)
+        }, 3000)
+      }
       
     } catch (err) {
       console.error('Error creating supply entry:', err)
@@ -135,7 +151,7 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
     } finally {
       setLoading(false)
     }
-  }, [totalCost, availableSupplies, onSubmit, reset])
+  }, [totalCost, availableSupplies, onSubmit, reset, mode])
 
   // Reset form
   const handleReset = useCallback(() => {

@@ -33,6 +33,18 @@ class ISupplyEntryRepository(Protocol):
     ) -> None:
         ...
 
+    async def update_order(self, order: SupplyEntryOrder) -> None:
+        ...
+
+    async def update_line(self, line: SupplyEntryLine) -> None:
+        ...
+
+    async def delete_line(self, line_id: int) -> None:
+        ...
+
+    async def get_line_by_id(self, line_id: int) -> Optional[SupplyEntryLine]:
+        ...
+
 
 # ═══════════════════════════════════════════════════
 # Raw query result types  —  devueltos por find_by_id

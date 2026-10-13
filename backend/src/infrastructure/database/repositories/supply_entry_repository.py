@@ -106,6 +106,49 @@ class SupplyEntryRepository(ISupplyEntryRepository):
         await self._session.execute(stmt)
         await self._session.flush()
 
+    async def update_order(self, order: SupplyEntryOrder) -> None:
+        stmt = (
+            update(SupplyEntryOrderModel)
+            .where(SupplyEntryOrderModel.id == order.id)
+            .values(
+                supplier_id=order.supplier_id,
+                document_number=order.document_number,
+                entry_date=order.entry_date,
+                description=order.description,
+            )
+        )
+        await self._session.execute(stmt)
+        await self._session.flush()
+
+    async def update_line(self, line: SupplyEntryLine) -> None:
+        stmt = (
+            update(SupplyEntryLineModel)
+            .where(SupplyEntryLineModel.id == line.id)
+            .values(
+                item_id=line.item_id,
+                quantity=line.quantity,
+                unit_cost=line.unit_cost,
+                expiration_date=line.expiration_date,
+                lot_code=line.lot_code,
+                comment=line.comment,
+            )
+        )
+        await self._session.execute(stmt)
+        await self._session.flush()
+
+    async def delete_line(self, line_id: int) -> None:
+        from sqlalchemy import delete
+
+        stmt = delete(SupplyEntryLineModel).where(SupplyEntryLineModel.id == line_id)
+        await self._session.execute(stmt)
+        await self._session.flush()
+
+    async def get_line_by_id(self, line_id: int) -> Optional[SupplyEntryLine]:
+        result = await self._session.get(SupplyEntryLineModel, line_id)
+        if result is None:
+            return None
+        return self._line_to_entity(result)
+
     # ── Queries ──────────────────────────────────────────────────
 
     async def find_by_id(self, entry_id: int) -> Optional[SupplyEntryDetailData]:

@@ -9,6 +9,7 @@ from src.presentation.schemas.supply_entry_schema import (
     CancelSupplyEntryRequest,
     SupplyEntryDetailResponse,
     SupplyEntryListItemResponse,
+    UpdateSupplyEntryRequest,
 )
 from src.presentation.schemas.pagination_schema import PaginatedResponse
 from src.shared.pagination import parse_pagination
@@ -17,15 +18,19 @@ from src.presentation.dependencies.use_cases.supply_entry import (
     build_get_supply_entry_detail,
     build_list_supply_entries,
     build_cancel_supply_entry,
+    build_update_supply_entry,
 )
 from src.application.use_cases.supply_entry.create_supply_entry import CreateSupplyEntryUseCase
 from src.application.use_cases.supply_entry.get_supply_entry_detail import GetSupplyEntryDetail
 from src.application.use_cases.supply_entry.list_supply_entries import ListSupplyEntries
 from src.application.use_cases.supply_entry.cancel_supply_entry import CancelSupplyEntryUseCase
+from src.application.use_cases.supply_entry.update_supply_entry import UpdateSupplyEntryUseCase
 from src.application.dtos.supply_entry.supply_entry_commands_dtos import (
     CreateSupplyEntryCommand,
     SupplyEntryLineCommand,
     CancelSupplyEntryCommand,
+    UpdateSupplyEntryCommand,
+    UpdateSupplyEntryLineCommand,
 )
 
 
@@ -134,5 +139,46 @@ async def cancel_supply_entry(
     command = CancelSupplyEntryCommand(
         entry_id=entry_id,
         reason=body.reason,
+    )
+    return await use_case.execute(command)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# PATCH /supply-entries/{entry_id}  —  Editar recepción de insumos
+# ──────────────────────────────────────────────────────────────────────────────
+
+@router.patch(
+    "/{entry_id}",
+    status_code=status.HTTP_200_OK,
+    summary="Editar recepción de insumos",
+    response_model=SupplyEntryDetailResponse,
+)
+async def update_supply_entry(
+    entry_id: int,
+    body: UpdateSupplyEntryRequest,
+    use_case: UpdateSupplyEntryUseCase = Depends(build_update_supply_entry),
+    current_user: User = Depends(get_current_user),
+) -> SupplyEntryDetailResponse:
+    lines = None
+    if body.lines is not None:
+        lines = [
+            UpdateSupplyEntryLineCommand(
+                line_id=line.line_id,
+                item_id=line.item_id,
+                quantity=line.quantity,
+                unit_cost=line.unit_cost,
+                expiration_date=line.expiration_date,
+                lot_code=line.lot_code,
+                comment=line.comment,
+            )
+            for line in body.lines
+        ]
+    command = UpdateSupplyEntryCommand(
+        entry_id=entry_id,
+        supplier_id=body.supplier_id,
+        document_number=body.document_number,
+        entry_date=body.entry_date,
+        description=body.description,
+        lines=lines,
     )
     return await use_case.execute(command)
