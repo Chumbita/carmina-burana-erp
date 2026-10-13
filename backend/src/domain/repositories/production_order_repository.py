@@ -8,10 +8,16 @@ from src.domain.entities.production_order import ProductionOrder
 
 class IProductionOrderRepository(Protocol):
 
-    async def get_by_id(self, order_id: int) -> Optional[ProductionOrder]:
+    async def get_by_id(
+        self,
+        order_id: int,
+        *,
+        for_update: bool = False,
+    ) -> Optional[ProductionOrder]:
         """
         Obtiene una orden de producción por su ID incluyendo
         consumptions y outputs.
+        Si for_update=True, bloquea la fila hasta el fin de la transacción.
         Retorna None si no existe.
         """
         ...

@@ -9,6 +9,7 @@ from src.domain.exceptions.production_exceptions import (
     ProductionOrderNotFoundException,
     ProductionOrderCannotBeCancelledException,
     ProductionOrderCannotBeDiscardedException,
+    ProductionOrderCannotBeExecutedException,
     ProductionOrderCannotBeUpdatedException,
     BomNotFoundException,
     InsufficientStockForProductionException,
@@ -268,6 +269,8 @@ async def execute_production_order(
         return _build_response(order)
     except ProductionOrderNotFoundException as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ProductionOrderCannotBeExecutedException as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     except InsufficientStockForProductionException as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -323,4 +326,3 @@ async def discard_production_order(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-

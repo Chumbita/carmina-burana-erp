@@ -18,6 +18,7 @@ from src.domain.services.audit_log_service import AuditLogService
 from src.domain.exceptions.production_exceptions import (
     ProductionOrderNotFoundException,
     BomNotFoundException,
+    ProductionOrderCannotBeExecutedException,
 )
 
 
@@ -65,15 +66,12 @@ class ExecuteProductionOrderUseCase:
         now = datetime.now(timezone.utc).replace(tzinfo=None)
 
         # 1. Obtener la orden y verificar estado
-        order = await self._production_order_repository.get_by_id(order_id)
+        order = await self._production_order_repository.get_by_id(order_id, for_update=True)
         if order is None:
             raise ProductionOrderNotFoundException(order_id)
 
         if order.status.value != "PLANNED":
-            raise ValueError(
-                f"Cannot execute order in status '{order.status}'. "
-                f"Expected PLANNED."
-            )
+            raise ProductionOrderCannotBeExecutedException(order_id, order.status.value)
 
         # 2. Obtener la BOM detallada
         bom = await self._bom_repository.get_detailed_bom_by_id(order.bom_id)

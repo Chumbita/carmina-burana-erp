@@ -80,12 +80,20 @@ class ProductionOrderRepository(IProductionOrderRepository):
 
     # ── Queries ────────────────────────────────────────────────
 
-    async def get_by_id(self, order_id: int) -> Optional[ProductionOrder]:
+    async def get_by_id(
+        self,
+        order_id: int,
+        *,
+        for_update: bool = False,
+    ) -> Optional[ProductionOrder]:
         stmt = (
             select(ProductionOrderModel)
             .where(ProductionOrderModel.id == order_id)
             .options(*self._load_options())
         )
+        if for_update:
+            stmt = stmt.with_for_update()
+
         result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
 

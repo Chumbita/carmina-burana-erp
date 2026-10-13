@@ -108,7 +108,9 @@ class SupplyEntryRepository(ISupplyEntryRepository):
 
     # ── Queries ──────────────────────────────────────────────────
 
-    async def find_by_id(self, entry_id: int) -> Optional[SupplyEntryDetailData]:
+    async def find_by_id(
+        self, entry_id: int, for_update: bool = False
+    ) -> Optional[SupplyEntryDetailData]:
         stmt_order = select(
             SupplyEntryOrderModel,
             SupplierModel.name.label("supplier_name"),
@@ -117,6 +119,9 @@ class SupplyEntryRepository(ISupplyEntryRepository):
             SupplierModel,
             SupplyEntryOrderModel.supplier_id == SupplierModel.id,
         ).where(SupplyEntryOrderModel.id == entry_id)
+
+        if for_update:
+            stmt_order = stmt_order.with_for_update(of=SupplyEntryOrderModel)
 
         result = await self._session.execute(stmt_order)
         row = result.one_or_none()
