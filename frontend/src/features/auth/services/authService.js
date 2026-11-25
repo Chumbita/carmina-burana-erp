@@ -26,4 +26,14 @@ export const authService = {
       // Si falla, el AuthContext se encargará de limpiar el estado
     }
   },
+
+  me: async () => {
+    const response = await privateClient.get(ENDPOINTS.AUTH.ME);
+    return response.data;
+  },
+
+  refresh: async () => {
+    const response = await publicClient.post(ENDPOINTS.AUTH.REFRESH);
+    return response.data;
+  },
 };

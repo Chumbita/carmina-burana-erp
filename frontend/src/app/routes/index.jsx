@@ -73,11 +73,15 @@ const BomDetailPage = lazy(() =>
 )
 
 // Auth pages
-const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));
+const LoginPage = lazy(() =>
+  import("@/features/auth").then((module) => ({ default: module.LoginPage })),
+);
 
 // User pages
-const UserSettingsPage = lazy(
-  () => import("@/features/user/pages/UserSettingsPage"),
+const UserSettingsPage = lazy(() =>
+  import("@/features/user").then((module) => ({
+    default: module.UserSettingsPage,
+  })),
 );
 
 // Error pages

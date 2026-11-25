@@ -2,6 +2,10 @@ import { useState } from "react";
 import { userService } from "../services/userService";
 import { buildChangePasswordPayload } from "../dto/user.dto";
 
+/**
+ * useChangePassword - Mutación de cambio de contraseña.
+ * Expone estado de carga, error y éxito; no lanza hacia el componente.
+ */
 export function useChangePassword() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -20,7 +24,7 @@ export function useChangePassword() {
       return response;
     } catch (err) {
       setError(err.message);
-      throw err;
+      return null;
     } finally {
       setLoading(false);
     }

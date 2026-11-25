@@ -1,7 +1,7 @@
 import * as React from "react";
 import { NavMain } from "@/components/layout/NavMain";
 import { NavUser } from "@/components/layout/NavUser";
-import { useAuth } from "@/app/providers/AuthContext";
+import { useAuth } from "@/features/auth";
 
 // Componentes de shadcn
 import {

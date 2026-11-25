@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
-import privateClient from "@/lib/api/privateClient";
-import { ENDPOINTS } from "@/lib/api/endpoints";
+import { useCallback, useEffect, useState } from "react";
 
-const AuthContext = React.createContext();
+import { AuthContext } from "../context/authContext";
+import { authService } from "../services/authService";
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
-
+/**
+ * AuthProvider - Dueño del estado de sesión de la aplicación.
+ *
+ * Toda la comunicación con el backend pasa por `authService`; el provider
+ * solo guarda el usuario en memoria (las cookies las maneja el backend).
+ */
 export function AuthProvider({ children }) {
   const [authUser, setAuthUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -17,10 +18,9 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        // Intentar obtener datos del usuario con la cookie existente
-        // Si la cookie es válida, el backend retornará los datos del usuario
-        const response = await privateClient.get(ENDPOINTS.AUTH.ME);
-        setAuthUser(response.data.user);
+        // Si la cookie es válida, el backend retorna los datos del usuario
+        const data = await authService.me();
+        setAuthUser(data.user);
         setIsLoggedIn(true);
       } catch {
         // No hay sesión válida o cookie expirada
@@ -46,18 +46,15 @@ export function AuthProvider({ children }) {
   }, []);
 
   // Login: almacena datos del usuario en memoria
-  // Las cookies (access_token, refresh_token) las maneja el backend automáticamente
   const login = useCallback((userData) => {
     setAuthUser(userData);
     setIsLoggedIn(true);
   }, []);
 
-  // Logout: llama al backend para limpiar cookies y resetea estado local
+  // Logout: delega el cierre de sesión al backend y resetea el estado local
   const logout = useCallback(async () => {
     try {
-      await privateClient.post(ENDPOINTS.AUTH.LOGOUT);
-    } catch {
-      // Si falla, limpiar estado de todas formas
+      await authService.logout();
     } finally {
       setAuthUser(null);
       setIsLoggedIn(false);

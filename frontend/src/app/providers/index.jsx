@@ -1,5 +1,5 @@
 // Componente que centraliza todos los providers de la aplicación.
-import { AuthProvider } from "./AuthContext";
+import { AuthProvider } from "@/features/auth";
 import { NotificationProvider } from "@/components/shared/notifications/NotificationContext";
 import { NotificationContainer } from "@/components/shared/notifications/NotificationContainer";
 

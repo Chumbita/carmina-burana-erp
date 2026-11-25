@@ -11,9 +11,6 @@ export const userService = {
 
       return response.data;
     } catch (error) {
-      console.log(
-        `[ERROR ${error.response?.status}] ${error.response?.data?.detail}`,
-      );
       throw new Error(error.response?.data?.detail);
     }
   },

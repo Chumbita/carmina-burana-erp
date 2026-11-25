@@ -1,28 +1,35 @@
-import { useAuth } from "@/app/providers/AuthContext";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
+import { useAuth } from "@/features/auth";
 
-// Componentes
 import UserProfileForm from "../components/UserProfileForm";
 import ChangePasswordForm from "../components/ChangePasswordForm";
+import { useUserSettingsTabs } from "../hooks/useUserSettingsTabs";
 
-// Componentes de shadcn
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { useState } from "react";
-import { User } from "lucide-react";
-
+/**
+ * UserSettingsPage - Página de configuración de la cuenta.
+ * Solo compone el layout: pestañas y paneles; la lógica vive en los hooks.
+ */
 export default function UserSettingsPage() {
   const { authUser } = useAuth();
-  const [contentOption, setContentOption] = useState("my-account");
+  const { activeTab, setActiveTab, tabs } = useUserSettingsTabs();
 
   return (
     <div>
-      <Tabs defaultValue="my-account" onValueChange={setContentOption}>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList variant="line">
-          <TabsTrigger value="my-account" className="cursor-pointer">Mi cuenta</TabsTrigger>
-          <TabsTrigger value="change-password" className="cursor-pointer">Cambiar contraseña</TabsTrigger>
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className="cursor-pointer"
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
-        {contentOption === "my-account" && <UserProfileForm />}
-        {contentOption === "change-password" && <ChangePasswordForm />}
+        {activeTab === "my-account" && <UserProfileForm user={authUser} />}
+        {activeTab === "change-password" && <ChangePasswordForm />}
       </Tabs>
     </div>
   );

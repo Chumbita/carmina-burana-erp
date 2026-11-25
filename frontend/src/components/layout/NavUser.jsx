@@ -1,5 +1,5 @@
 import { Navigate, useNavigate } from "react-router-dom";
-import { useAuth } from "@/app/providers/AuthContext";
+import { useAuth } from "@/features/auth";
 
 // Componentes shadcn
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
