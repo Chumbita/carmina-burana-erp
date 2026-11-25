@@ -31,7 +31,7 @@ const NOTIFICATION_STYLES = {
 export function AlertIndicator({ variant, message, onClose, duration = 6000, onClick }) {
   const [isVisible, setIsVisible] = useState(false)
   const [isExiting, setIsExiting] = useState(false)
-  const styles = NOTIFICATION_STYLES[variant]
+  const styles = NOTIFICATION_STYLES[variant] ?? NOTIFICATION_STYLES.error
   const Icon = styles.icon
 
   useEffect(() => {

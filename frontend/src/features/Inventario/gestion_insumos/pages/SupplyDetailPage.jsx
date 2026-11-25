@@ -7,7 +7,10 @@ import { useSupply } from "../hooks/useSupply";
 import { useSupplies } from "../hooks/useSupplies";
 
 import { SupplyDetailTabs } from "../components/SupplyDetailTabs";
+import { TransactionsTable } from "../components/TransactionsTable";
 import { EntityDetailPage } from "@/components/shared/DetailPage/EntityDetailPage";
+import { AuditLogHistory } from "@/components/shared/AuditLogHistory";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { estadoStyles } from "../utils/stockStyles";
 
 export default function SupplyDetailPage() {
@@ -34,7 +37,22 @@ export default function SupplyDetailPage() {
       <EntityDetailPage.Content>
         <SupplyDetailTabs insumo={supply} base_uom_symbol={supply?.base_uom_symbol} availableSupplies={supplies} onStockAdjusted={refetch} />
       </EntityDetailPage.Content>
-      <EntityDetailPage.History itemId={supply?.id} entityType="supply" />
+      <EntityDetailPage.History>
+        {({ refreshKey }) => (
+          <Tabs defaultValue="stock">
+            <TabsList variant="line">
+              <TabsTrigger value="stock" className="cursor-pointer">Movimientos</TabsTrigger>
+              <TabsTrigger value="audit" className="cursor-pointer">Registro de actividad</TabsTrigger>
+            </TabsList>
+            <TabsContent value="stock">
+              <TransactionsTable itemId={supply?.id} refreshKey={refreshKey} />
+            </TabsContent>
+            <TabsContent value="audit">
+              <AuditLogHistory entityType="supply" entityId={supply?.id} refreshKey={refreshKey} />
+            </TabsContent>
+          </Tabs>
+        )}
+      </EntityDetailPage.History>
     </EntityDetailPage>
   );
 }

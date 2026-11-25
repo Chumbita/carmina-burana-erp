@@ -8,7 +8,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import AuthGuard from "./guards/AuthGuard";
 import PublicGuard from "./guards/PublicGuard";
 
-// Paǵinas con lazy loading
+// Páginas con lazy loading
 const DashboardPage = lazy(
   () => import("@/features/dashboard/pages/DashboardPage"),
 );
@@ -174,7 +174,7 @@ export const router = createBrowserRouter([
     path: "/auth/login",
     element: (
       <PublicGuard>
-        <LoginPage />,
+        <LoginPage />
       </PublicGuard>
     ),
   },

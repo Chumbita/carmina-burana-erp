@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { transactionService } from "@/services/transactionService"
+import { transactionService } from "@/lib/api/transactionService"
 
 const PAGE_SIZE = 10
 

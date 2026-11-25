@@ -1,8 +1,5 @@
 // EntityDetailPage.jsx
 import { Spinner } from "@/components/ui/Spinner";
-import { TransactionsTable } from "@/features/Inventario/gestion_insumos/components/TransactionsTable";
-import { AuditLogHistory } from "@/components/shared/AuditLogHistory";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EntityDetailProvider, useEntityDetail } from "./EntityDetailContext";
@@ -53,24 +50,22 @@ function Content({ children }) {
   );
 }
 
-function History({ itemId, entityType }) {
+/**
+ * History - Slot de composición puro.
+ *
+ * No conoce entidades ni tablas de dominio. La feature decide qué renderizar
+ * dentro de él y recibe `refreshKey` vía render-prop para refrescar su contenido
+ * cuando la entidad cambia.
+ *
+ * @param {React.ReactNode | ((args: { refreshKey: number }) => React.ReactNode)} children
+ */
+function History({ children }) {
   const { refreshKey } = useEntityDetail();
 
   return (
     <section className="lg:col-span-2">
       <h2 className="text-lg font-bold mb-4">Historial</h2>
-      <Tabs defaultValue="stock">
-        <TabsList variant="line">
-          <TabsTrigger value="stock" className="cursor-pointer">Movimientos</TabsTrigger>
-          <TabsTrigger value="audit" className="cursor-pointer">Registro de actividad</TabsTrigger>
-        </TabsList>
-        <TabsContent value="stock">
-          <TransactionsTable itemId={itemId} refreshKey={refreshKey} />
-        </TabsContent>
-        <TabsContent value="audit">
-          <AuditLogHistory entityType={entityType} entityId={itemId} refreshKey={refreshKey} />
-        </TabsContent>
-      </Tabs>
+      {typeof children === "function" ? children({ refreshKey }) : children}
     </section>
   );
 }

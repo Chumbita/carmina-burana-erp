@@ -12,7 +12,7 @@ import { ScrollArea } from "@/components/ui/ScrollArea";
 
 // Iconoa
 import { Bell, X } from "lucide-react";
-import { notificationService } from "./notificationService";
+import { notificationService } from "@/lib/api/notificationService";
 
 export default function NotificationsDropdown() {
   const [notifications, setNotifications] = useState([]);

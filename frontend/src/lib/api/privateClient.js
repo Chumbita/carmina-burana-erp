@@ -1,14 +1,9 @@
 import axios from "axios";
-
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+import { API_BASE_URL, createHttpClient } from "./httpClient";
+import { ENDPOINTS } from "./endpoints";
 
 // Cliente HTTP reutilizable para peticiones autenticadas
-const privateClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: { "Content-Type": "application/json" },
-  timeout: 10000,
-  withCredentials: true,
-});
+const privateClient = createHttpClient();
 
 // Flag para evitar múltiples intentos de refresh simultáneos
 let isRefreshing = false;
@@ -52,7 +47,7 @@ privateClient.interceptors.response.use(
     try {
       // Intentar refresh del token
       await axios.post(
-        `${API_BASE_URL}/auth/refresh`,
+        `${API_BASE_URL}${ENDPOINTS.AUTH.REFRESH}`,
         {},
         { withCredentials: true }
       );

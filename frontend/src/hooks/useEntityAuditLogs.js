@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { auditLogService } from "../services/auditLogService"
+import { auditLogService } from "@/lib/api/auditLogService"
 
 const PAGE_SIZE = 10
 

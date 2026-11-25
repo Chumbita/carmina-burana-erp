@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { auditLogService } from "@/services/auditLogService";
+import { auditLogService } from "@/lib/api/auditLogService";
 import privateClient from "@/lib/api/privateClient";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 
