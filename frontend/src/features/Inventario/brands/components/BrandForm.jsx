@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react'
+import { Save } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
-import { Save } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -13,6 +12,25 @@ import {
 } from '@/components/ui/Dialog'
 import { Field, FieldError, FieldLabel } from '@/components/ui/Field'
 import { Input } from '@/components/ui/Input'
+import { useBrandForm } from '../hooks/useBrandForm'
+
+function SubmitLabel({ saving, submitLabel }) {
+  if (saving) {
+    return (
+      <>
+        <Spinner data-icon="inline-start" />
+        Guardando…
+      </>
+    )
+  }
+
+  return (
+    <>
+      <Save data-icon="inline-start" />
+      {submitLabel}
+    </>
+  )
+}
 
 export function BrandForm({
   open,
@@ -26,27 +44,14 @@ export function BrandForm({
   showDeleteButton = false,
   onDelete,
 }) {
-  const [form, setForm] = useState(emptyBrand)
-  const [error, setError] = useState('')
   const isModal = layout === 'modal'
-
-  useEffect(() => {
-    setForm(brand || emptyBrand)
-    setError('')
-  }, [brand, emptyBrand, open])
-
-  function submit(event) {
-    event.preventDefault()
-    event.stopPropagation()
-    if (!form.name.trim()) {
-      setError('El nombre es obligatorio')
-      return
-    }
-    onSubmit(form)
-  }
+  const { error, form, setField, submit } = useBrandForm({ brand, emptyBrand, open, onSubmit })
 
   const formContent = (
-    <form className={isModal ? 'space-y-4' : 'grid grid-cols-1 gap-4 md:grid-cols-4'} onSubmit={submit}>
+    <form
+      className={isModal ? 'space-y-4' : 'grid grid-cols-1 gap-4 md:grid-cols-4'}
+      onSubmit={submit}
+    >
       <Field className="md:col-span-2">
         <FieldLabel htmlFor="brandName">
           Nombre <span className="text-red-500 -ml-1">*</span>
@@ -55,7 +60,7 @@ export function BrandForm({
           id="brandName"
           className={isModal ? undefined : 'bg-neutral-100 border-none'}
           value={form.name}
-          onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+          onChange={(event) => setField('name', event.target.value)}
         />
       </Field>
 
@@ -81,21 +86,17 @@ export function BrandForm({
       <div className={isModal ? undefined : 'md:col-span-4 flex justify-end'}>
         {isModal ? (
           <DialogFooter>
-            <Button type="button" variant="outline" size="sm" className="cursor-pointer" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="cursor-pointer"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button type="submit" size="sm" className="cursor-pointer" disabled={saving}>
-              {saving ? (
-                <>
-                  <Spinner data-icon="inline-start" />
-                  Guardando…
-                </>
-              ) : (
-                <>
-                  <Save data-icon="inline-start" />
-                  {submitLabel}
-                </>
-              )}
+              <SubmitLabel saving={saving} submitLabel={submitLabel} />
             </Button>
           </DialogFooter>
         ) : (
@@ -111,21 +112,18 @@ export function BrandForm({
                 Eliminar marca
               </Button>
             )}
-            <Button type="button" variant="outline" size="sm" className="cursor-pointer" onClick={() => onOpenChange(false)} disabled={saving}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="cursor-pointer"
+              onClick={() => onOpenChange(false)}
+              disabled={saving}
+            >
               Cancelar
             </Button>
             <Button type="submit" size="sm" className="cursor-pointer" disabled={saving}>
-              {saving ? (
-                <>
-                  <Spinner data-icon="inline-start" />
-                  Guardando…
-                </>
-              ) : (
-                <>
-                  <Save data-icon="inline-start" />
-                  {submitLabel}
-                </>
-              )}
+              <SubmitLabel saving={saving} submitLabel={submitLabel} />
             </Button>
           </div>
         )}

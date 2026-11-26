@@ -5,46 +5,38 @@ import { TablePagination } from '@/components/shared/TablePagination'
 import { Button } from '@/components/ui/Button'
 import { SupplierForm } from '../components/SupplierForm'
 import { SuppliersTable } from '../components/SuppliersTable'
+import { emptySupplier } from '../dto/supplier.dto'
 import { useSuppliersPage } from '../hooks/useSuppliersPage'
+
+const STATUS_OPTIONS = [
+  { label: 'Activos', value: 'ACTIVE' },
+  { label: 'Inactivos', value: 'INACTIVE' },
+  { label: 'Todos', value: 'all' },
+]
 
 export default function SuppliersPage() {
   const {
-    emptySupplier,
-    editingSupplier,
     data,
+    editingSupplier,
+    hasActiveFilters,
     hasRecords,
     loading,
-    page,
-    totalItems,
-    totalPages,
-    pageSize,
     openForm,
+    page,
+    pageSize,
     saving,
     search,
     statusFilter,
+    totalItems,
+    totalPages,
+    changePage,
+    changeSearch,
+    changeStatus,
+    clearFilters,
     saveSupplier,
     setOpenForm,
-    setSearch,
-    setStatusFilter,
-    changePage,
     startCreate,
   } = useSuppliersPage()
-
-  const handleSearchChange = (v) => {
-    setSearch(v)
-    changePage(1)
-  }
-
-  const handleStatusChange = (v) => {
-    setStatusFilter(v)
-    changePage(1)
-  }
-
-  const handleClearFilters = () => {
-    setSearch('')
-    setStatusFilter('ACTIVE')
-    changePage(1)
-  }
 
   return (
     <div className="space-y-4">
@@ -52,22 +44,18 @@ export default function SuppliersPage() {
         <FilterBar
           search={search}
           searchPlaceholder="Buscar por nombre, email o teléfono..."
-          onSearchChange={handleSearchChange}
+          onSearchChange={changeSearch}
           filters={[
             {
               key: 'status',
               placeholder: 'Estado',
               value: statusFilter,
-              options: [
-                { label: 'Activos', value: 'ACTIVE' },
-                { label: 'Inactivos', value: 'INACTIVE' },
-                { label: 'Todos', value: 'all' },
-              ],
-              onChange: handleStatusChange,
+              options: STATUS_OPTIONS,
+              onChange: changeStatus,
             },
           ]}
-          hasActiveFilters={search || statusFilter !== 'ACTIVE'}
-          onClearFilters={handleClearFilters}
+          hasActiveFilters={hasActiveFilters}
+          onClearFilters={clearFilters}
         />
         <Button size="sm" className="cursor-pointer" onClick={startCreate}>
           <Plus />

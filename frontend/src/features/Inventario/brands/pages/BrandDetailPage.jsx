@@ -1,34 +1,18 @@
-import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { AuditLogHistory } from '@/components/shared/AuditLogHistory'
 import { EntityDetailPage } from '@/components/shared/DetailPage/EntityDetailPage'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/AlertDialog'
 import { BrandForm } from '../components/BrandForm'
-import { emptyBrand } from '../hooks/useBrandsPage'
+import { DeleteBrandDialog } from '../components/DeleteBrandDialog'
+import { emptyBrand } from '../dto/brand.dto'
+import { useBrandDeleteDialog } from '../hooks/useBrandDeleteDialog'
 import { useBrandDetail } from '../hooks/useBrandDetail'
 
 export default function BrandDetailPage() {
   const { brandId } = useParams()
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
-  const {
-    auditRefreshKey,
-    brand,
-    deleteBrand,
-    error,
-    loading,
-    saveBrand,
-    saving,
-  } = useBrandDetail(brandId)
+  const { auditRefreshKey, brand, deleteBrand, error, loading, saveBrand, saving } =
+    useBrandDetail(brandId)
+  const deleteDialog = useBrandDeleteDialog(deleteBrand)
 
   return (
     <EntityDetailPage loading={loading} error={error} layout="stack">
@@ -43,7 +27,7 @@ export default function BrandDetailPage() {
           layout="page"
           submitLabel="Guardar cambios"
           showDeleteButton={brand?.is_active}
-          onDelete={() => setOpenDeleteDialog(true)}
+          onDelete={deleteDialog.openDialog}
         />
       </EntityDetailPage.Content>
 
@@ -52,28 +36,12 @@ export default function BrandDetailPage() {
         <AuditLogHistory entityType="brand" entityId={brand?.id} refreshKey={auditRefreshKey} />
       </section>
 
-      <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar marca</AlertDialogTitle>
-            <AlertDialogDescription>
-              La marca dejará de estar disponible para nuevos insumos, pero se mantendrá en registros existentes.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={saving}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={saving}
-              onClick={async () => {
-                await deleteBrand()
-                setOpenDeleteDialog(false)
-              }}
-            >
-              {saving ? 'Eliminando...' : 'Eliminar'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteBrandDialog
+        open={deleteDialog.open}
+        onOpenChange={deleteDialog.setOpen}
+        saving={saving}
+        onConfirm={deleteDialog.confirm}
+      />
     </EntityDetailPage>
   )
 }

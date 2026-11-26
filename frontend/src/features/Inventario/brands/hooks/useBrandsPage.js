@@ -1,17 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useNotification } from '@/components/shared/notifications/useNotification'
+import { cleanBrand } from '../dto/brand.dto'
 import { brandService } from '../services/brandService'
-
-export const emptyBrand = {
-  name: '',
-}
-
-export function cleanBrand(data) {
-  return {
-    name: data.name.trim(),
-  }
-}
 
 const PAGE_SIZE = 20
 
@@ -59,6 +50,8 @@ export function useBrandsPage() {
 
   const changePage = useCallback((next) => setPage(next), [])
 
+  const clearFilters = useCallback(() => setSearch(''), [])
+
   useEffect(() => {
     setPage(1)
   }, [search])
@@ -78,8 +71,7 @@ export function useBrandsPage() {
   }
 
   return {
-    emptyBrand,
-    filteredBrands: paginatedBrands,
+    brands: paginatedBrands,
     hasBrands: brands.length > 0,
     loading,
     openForm,
@@ -90,6 +82,7 @@ export function useBrandsPage() {
     totalItems,
     totalPages,
     changePage,
+    clearFilters,
     saveBrand,
     setOpenForm,
     setSearch,

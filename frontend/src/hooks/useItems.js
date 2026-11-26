@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { itemService } from "@/features/Inventario/items/services/itemService";
+import { itemService } from "@/lib/api/itemService";
 
 export function useItems() {
   const [items, setItems] = useState([]);

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useNotification } from '@/components/shared/notifications/useNotification'
-import { cleanSupplier } from './useSuppliersPage'
+import { cleanSupplier } from '../dto/supplier.dto'
 import { supplierService } from '../services/supplierService'
 
 export function useSupplierDetail(supplierId) {

@@ -1,3 +1,1 @@
-import { itemService } from "@/features/Inventario/items/services/itemService";
-
-export { itemService };
+export { itemService } from "@/lib/api/itemService";

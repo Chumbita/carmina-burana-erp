@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useNotification } from '@/components/shared/notifications/useNotification'
-import { cleanBrand } from './useBrandsPage'
+import { cleanBrand } from '../dto/brand.dto'
 import { brandService } from '../services/brandService'
 
 export function useBrandDetail(brandId) {

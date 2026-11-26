@@ -35,19 +35,27 @@ const SupplyEntryPage = lazy(() =>
 );
 
 const SuppliersPage = lazy(() =>
-  import('@/features/Inventario/suppliers/pages/SuppliersPage')
+  import('@/features/Inventario/suppliers').then((module) => ({
+    default: module.SuppliersPage,
+  })),
 );
 
 const SupplierDetailPage = lazy(() =>
-  import('@/features/Inventario/suppliers/pages/SupplierDetailPage')
+  import('@/features/Inventario/suppliers').then((module) => ({
+    default: module.SupplierDetailPage,
+  })),
 );
 
 const BrandsPage = lazy(() =>
-  import('@/features/Inventario/brands/pages/BrandsPage')
+  import('@/features/Inventario/brands').then((module) => ({
+    default: module.BrandsPage,
+  })),
 );
 
 const BrandDetailPage = lazy(() =>
-  import('@/features/Inventario/brands/pages/BrandDetailPage')
+  import('@/features/Inventario/brands').then((module) => ({
+    default: module.BrandDetailPage,
+  })),
 );
 
 const ProductionPage = lazy(

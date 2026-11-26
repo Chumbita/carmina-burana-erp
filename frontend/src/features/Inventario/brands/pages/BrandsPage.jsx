@@ -5,12 +5,12 @@ import { TablePagination } from '@/components/shared/TablePagination'
 import { Button } from '@/components/ui/Button'
 import { BrandForm } from '../components/BrandForm'
 import { BrandsTable } from '../components/BrandsTable'
+import { emptyBrand } from '../dto/brand.dto'
 import { useBrandsPage } from '../hooks/useBrandsPage'
 
 export default function BrandsPage() {
   const {
-    emptyBrand,
-    filteredBrands,
+    brands,
     hasBrands,
     loading,
     openForm,
@@ -21,6 +21,7 @@ export default function BrandsPage() {
     totalItems,
     totalPages,
     changePage,
+    clearFilters,
     saveBrand,
     setOpenForm,
     setSearch,
@@ -36,9 +37,7 @@ export default function BrandsPage() {
           onSearchChange={setSearch}
           filters={[]}
           hasActiveFilters={search}
-          onClearFilters={() => {
-            setSearch('')
-          }}
+          onClearFilters={clearFilters}
         />
         <Button size="sm" className="cursor-pointer" onClick={startCreate}>
           <Plus />
@@ -55,7 +54,7 @@ export default function BrandsPage() {
       />
 
       <BrandsTable
-        brands={filteredBrands}
+        brands={brands}
         hasRecords={hasBrands}
         loading={loading}
         page={page}

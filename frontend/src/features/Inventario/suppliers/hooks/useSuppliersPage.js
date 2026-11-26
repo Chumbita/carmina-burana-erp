@@ -1,25 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { useNotification } from '@/components/shared/notifications/useNotification'
+import { cleanSupplier } from '../dto/supplier.dto'
 import { supplierService } from '../services/supplierService'
 
-export const emptySupplier = {
-  name: '',
-  email: '',
-  phone: '',
-  address: '',
-}
-
-export function cleanSupplier(data) {
-  return {
-    name: data.name.trim(),
-    email: data.email.trim() || null,
-    phone: data.phone.trim() || null,
-    address: data.address.trim() || null,
-  }
-}
-
 const PAGE_SIZE = 20
+const DEFAULT_STATUS = 'ACTIVE'
 
 export function useSuppliersPage() {
   const notify = useNotification()
@@ -28,7 +14,7 @@ export function useSuppliersPage() {
   const [saving, setSaving] = useState(false)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('ACTIVE')
+  const [statusFilter, setStatusFilter] = useState(DEFAULT_STATUS)
   const [page, setPage] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
@@ -67,12 +53,28 @@ export function useSuppliersPage() {
 
   const changePage = useCallback((next) => setPage(next), [])
 
+  const changeSearch = useCallback((value) => {
+    setSearch(value)
+    setPage(1)
+  }, [])
+
+  const changeStatus = useCallback((value) => {
+    setStatusFilter(value)
+    setPage(1)
+  }, [])
+
+  const clearFilters = useCallback(() => {
+    setSearch('')
+    setStatusFilter(DEFAULT_STATUS)
+    setPage(1)
+  }, [])
+
   const refresh = useCallback(() => {
     setPage(1)
     setRefreshKey((k) => k + 1)
   }, [])
 
-  const hasActiveFilters = Boolean(search.trim() || statusFilter !== 'ACTIVE')
+  const hasActiveFilters = Boolean(search.trim() || statusFilter !== DEFAULT_STATUS)
   const hasRecords = hasActiveFilters ? true : totalItems > 0 || data.length > 0
 
   function startCreate() {
@@ -101,26 +103,26 @@ export function useSuppliersPage() {
   }
 
   return {
-    emptySupplier,
-    editingSupplier,
     data,
+    editingSupplier,
+    hasActiveFilters,
     hasRecords,
     loading,
+    openForm,
+    page,
+    pageSize: PAGE_SIZE,
     saving,
     search,
-    debouncedSearch,
     statusFilter,
-    page,
     totalItems,
     totalPages,
-    pageSize: PAGE_SIZE,
-    openForm,
-    setOpenForm,
-    setSearch,
-    setStatusFilter,
     changePage,
+    changeSearch,
+    changeStatus,
+    clearFilters,
     refresh,
     saveSupplier,
+    setOpenForm,
     startCreate,
   }
 }

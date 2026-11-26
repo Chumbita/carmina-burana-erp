@@ -1,5 +1,5 @@
-import { ENDPOINTS } from "@/lib/api/endpoints";
-import privateClient from "@/lib/api/privateClient";
+import { ENDPOINTS } from '@/lib/api/endpoints'
+import privateClient from '@/lib/api/privateClient'
 
 export const itemService = {
   getOptions: async () => {
@@ -8,11 +8,11 @@ export const itemService = {
   },
 
   getManufacturableItems: async () => {
-    const response = await privateClient.get(ENDPOINTS.ITEMS.GET_MANUFACTURABLE);
-    const items = response.data;
+    const response = await privateClient.get(ENDPOINTS.ITEMS.GET_MANUFACTURABLE)
+    const items = response.data
 
     return {
       manufacturableItems: items.map((item) => ({ ...item, boms: item.boms || [] })),
-    };
+    }
   },
 }

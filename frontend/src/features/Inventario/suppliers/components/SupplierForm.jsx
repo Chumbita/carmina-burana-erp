@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react'
+import { Save } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
-import { Save } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -14,6 +13,25 @@ import {
 import { Field, FieldError, FieldLabel } from '@/components/ui/Field'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/TextArea'
+import { useSupplierForm } from '../hooks/useSupplierForm'
+
+function SubmitLabel({ saving, submitLabel }) {
+  if (saving) {
+    return (
+      <>
+        <Spinner data-icon="inline-start" />
+        Guardando…
+      </>
+    )
+  }
+
+  return (
+    <>
+      <Save data-icon="inline-start" />
+      {submitLabel}
+    </>
+  )
+}
 
 export function SupplierForm({
   open,
@@ -27,38 +45,19 @@ export function SupplierForm({
   showDeleteButton = false,
   onDelete,
 }) {
-  const [form, setForm] = useState(emptySupplier)
-  const [error, setError] = useState('')
   const isModal = layout === 'modal'
-
-  useEffect(() => {
-    setForm(supplier || emptySupplier)
-    setError('')
-  }, [emptySupplier, supplier, open])
-
-  function updateField(field, value) {
-    setForm((current) => ({ ...current, [field]: value }))
-  }
-
-  function submit(event) {
-    event.preventDefault()
-    if (!form.name.trim()) {
-      setError('El nombre es obligatorio')
-      return
-    }
-    if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-      setError('El email no es válido')
-      return
-    }
-    if (form.phone.trim() && !/^\d+$/.test(form.phone.trim())) {
-      setError('El teléfono solo puede contener números')
-      return
-    }
-    onSubmit(form)
-  }
+  const { error, form, setField, submit } = useSupplierForm({
+    supplier,
+    emptySupplier,
+    open,
+    onSubmit,
+  })
 
   const formContent = (
-    <form className={isModal ? 'space-y-4' : 'grid grid-cols-1 gap-4 md:grid-cols-4'} onSubmit={submit}>
+    <form
+      className={isModal ? 'space-y-4' : 'grid grid-cols-1 gap-4 md:grid-cols-4'}
+      onSubmit={submit}
+    >
       <Field className="md:col-span-2">
         <FieldLabel htmlFor="supplierName">
           Nombre <span className="text-red-500 -ml-1">*</span>
@@ -67,7 +66,7 @@ export function SupplierForm({
           id="supplierName"
           className={isModal ? undefined : 'bg-neutral-100 border-none'}
           value={form.name}
-          onChange={(event) => updateField('name', event.target.value)}
+          onChange={(event) => setField('name', event.target.value)}
         />
       </Field>
 
@@ -78,7 +77,7 @@ export function SupplierForm({
           className={isModal ? undefined : 'bg-neutral-100 border-none'}
           type="email"
           value={form.email || ''}
-          onChange={(event) => updateField('email', event.target.value)}
+          onChange={(event) => setField('email', event.target.value)}
         />
       </Field>
 
@@ -89,7 +88,7 @@ export function SupplierForm({
           className={isModal ? undefined : 'bg-neutral-100 border-none'}
           inputMode="numeric"
           value={form.phone || ''}
-          onChange={(event) => updateField('phone', event.target.value)}
+          onChange={(event) => setField('phone', event.target.value)}
         />
       </Field>
 
@@ -99,7 +98,7 @@ export function SupplierForm({
           id="supplierAddress"
           className={isModal ? undefined : 'bg-neutral-100 border-none'}
           value={form.address || ''}
-          onChange={(event) => updateField('address', event.target.value)}
+          onChange={(event) => setField('address', event.target.value)}
         />
       </Field>
 
@@ -112,21 +111,17 @@ export function SupplierForm({
       <div className={isModal ? undefined : 'md:col-span-4 flex justify-end'}>
         {isModal ? (
           <DialogFooter>
-            <Button type="button" variant="outline" size="sm" className="cursor-pointer" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="cursor-pointer"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button type="submit" size="sm" className="cursor-pointer" disabled={saving}>
-              {saving ? (
-                <>
-                  <Spinner data-icon="inline-start" />
-                  Guardando…
-                </>
-              ) : (
-                <>
-                  <Save data-icon="inline-start" />
-                  {submitLabel}
-                </>
-              )}
+              <SubmitLabel saving={saving} submitLabel={submitLabel} />
             </Button>
           </DialogFooter>
         ) : (
@@ -142,21 +137,18 @@ export function SupplierForm({
                 Eliminar proveedor
               </Button>
             )}
-            <Button type="button" variant="outline" size="sm" className="cursor-pointer" onClick={() => onOpenChange(false)} disabled={saving}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="cursor-pointer"
+              onClick={() => onOpenChange(false)}
+              disabled={saving}
+            >
               Cancelar
             </Button>
             <Button type="submit" size="sm" className="cursor-pointer" disabled={saving}>
-              {saving ? (
-                <>
-                  <Spinner data-icon="inline-start" />
-                  Guardando…
-                </>
-              ) : (
-                <>
-                  <Save data-icon="inline-start" />
-                  {submitLabel}
-                </>
-              )}
+              <SubmitLabel saving={saving} submitLabel={submitLabel} />
             </Button>
           </div>
         )}
