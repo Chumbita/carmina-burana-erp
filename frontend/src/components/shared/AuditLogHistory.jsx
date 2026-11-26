@@ -3,8 +3,8 @@ import { DataTable } from "@/components/shared/DataTable"
 import { TablePagination } from "@/components/shared/TablePagination"
 import { Badge } from "@/components/ui/Badge"
 import { useEntityAuditLogs } from "../../hooks/useEntityAuditLogs"
-import { brandService } from "@/features/Inventario/brands/services/brandService"
-import { uomService } from "@/features/Inventario/gestion_insumos/services/uomService"
+import { brandService } from "@/lib/api/brandService"
+import { uomService } from "@/lib/api/uomService"
 import { formatDecimal } from "@/lib/utils/formatters"
 
 const actionLabels = {

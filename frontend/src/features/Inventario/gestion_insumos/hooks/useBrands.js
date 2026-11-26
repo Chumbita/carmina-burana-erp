@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { brandService } from "@/features/Inventario/brands/services/brandService"
+import { brandService } from "@/lib/api/brandService"
 
 export function useBrands() {
   const [brands, setBrands] = useState([])

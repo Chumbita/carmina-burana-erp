@@ -1,34 +1,21 @@
-import { useState } from "react"
-import { Controller, useForm } from "react-hook-form"
+import { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { createPackagingSupplySchema, PACKAGING_TYPES } from "../schemas/supply.schema"
 
+import { createPackagingSupplySchema } from "../schemas/supply.schema"
 import { useBrands } from "../hooks/useBrands"
 import { useUoms } from "../hooks/useUoms"
 
 import { Button } from "@/components/ui/Button"
-import { Input } from "@/components/ui/Input"
-import { DecimalInput } from "@/components/shared/DecimalInput"
-import { Save, Plus } from 'lucide-react'
-import { BrandForm } from "@/features/Inventario/brands/components/BrandForm"
-import { brandService } from "@/features/Inventario/brands/services/brandService"
-import { useNotification } from "@/components/shared/notifications/useNotification"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/Select"
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/Field"
+import { Save } from "lucide-react"
 
+import { PackagingSupplyFormFields } from "./PackagingSupplyFormFields"
+import { BrandQuickCreateDialog } from "./BrandQuickCreateDialog"
+
+/**
+ * Contenedor del formulario de envase.
+ * Dueño del estado de react-hook-form; la presentación vive en PackagingSupplyFormFields.
+ */
 export function PackagingSupplyForm({
   defaultValues,
   onSubmit,
@@ -46,8 +33,6 @@ export function PackagingSupplyForm({
   const { brands, loading: brandsLoading, addBrand } = useBrands()
   const { uoms, loading: uomsLoading } = useUoms()
   const [brandDialogOpen, setBrandDialogOpen] = useState(false)
-  const [brandSaving, setBrandSaving] = useState(false)
-  const notify = useNotification()
 
   const schema = createPackagingSupplySchema(existingSupplies, excludeId)
 
@@ -60,206 +45,54 @@ export function PackagingSupplyForm({
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      name:             defaultValues?.name             ?? "",
-      brand_id:         defaultValues?.brand_id         ?? undefined,
-      base_uom_id:      defaultValues?.base_uom_id      ?? undefined,
-      min_stock_level:  defaultValues?.min_stock_level != null ? Number(defaultValues.min_stock_level) : 1,
-      packaging_type:   defaultValues?.packaging_type   ?? "",
-      material:         defaultValues?.material         ?? "",
-      capacity_ml:      defaultValues?.capacity_ml != null ? Number(defaultValues.capacity_ml) : undefined,
+      name: defaultValues?.name ?? "",
+      brand_id: defaultValues?.brand_id ?? undefined,
+      base_uom_id: defaultValues?.base_uom_id ?? undefined,
+      min_stock_level:
+        defaultValues?.min_stock_level != null ? Number(defaultValues.min_stock_level) : 1,
+      packaging_type: defaultValues?.packaging_type ?? "",
+      material: defaultValues?.material ?? "",
+      capacity_ml:
+        defaultValues?.capacity_ml != null ? Number(defaultValues.capacity_ml) : undefined,
     },
     mode: "onChange",
   })
 
-  if (formRef) {
+  useEffect(() => {
+    if (!formRef) return
+
     formRef.current = {
       submit: () => handleSubmit(onSubmit)(),
       reset,
       isDirty,
     }
-  }
+  }, [formRef, handleSubmit, isDirty, onSubmit, reset])
 
   const isModal = layout === "modal"
+
+  function handleBrandCreated(brand) {
+    addBrand(brand)
+    setValue("brand_id", brand.id, { shouldDirty: true, shouldValidate: true })
+  }
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
       className={isModal ? "space-y-4" : "grid grid-cols-1 md:grid-cols-4 gap-4"}
     >
-      <FieldGroup className={isModal ? "-space-y-4" : "contents"}>
-        {/* Nombre */}
-        <Controller
-          name="name"
-          control={control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid} className="md:col-span-2">
-              <FieldLabel htmlFor={field.name}>
-                Nombre <span className="text-red-500 -ml-1">*</span>
-              </FieldLabel>
-              <Input {...field} id={field.name} aria-invalid={fieldState.invalid} placeholder="Ej. Lata 375cc" />
-            </Field>
-          )}
-        />
+      <PackagingSupplyFormFields
+        control={control}
+        isModal={isModal}
+        brands={brands}
+        brandsLoading={brandsLoading}
+        uoms={uoms}
+        uomsLoading={uomsLoading}
+        onRequestCreateBrand={() => setBrandDialogOpen(true)}
+      />
 
-        {/* Marca */}
-        <Controller
-          name="brand_id"
-          control={control}
-          render={({ field }) => (
-            <Field>
-              <FieldLabel htmlFor={field.name}>
-                Marca <span className="text-red-500 -ml-1">*</span>
-              </FieldLabel>
-              <div className="flex gap-1">
-                <Select
-                  name={field.name}
-                  value={field.value !== undefined ? String(field.value) : ""}
-                  onValueChange={(val) => field.onChange(Number(val))}
-                  disabled={brandsLoading}
-                >
-                  <SelectTrigger id={field.name} className="flex-1 min-w-0">
-                    <SelectValue placeholder={brandsLoading ? "Cargando marcas..." : "Seleccione marca..."} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Marcas</SelectLabel>
-                      {brands.map((brand) => (
-                        <SelectItem key={brand.id} value={String(brand.id)}>
-                          {brand.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0"
-                  aria-label="Crear marca"
-                  onClick={() => setBrandDialogOpen(true)}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </Field>
-          )}
-        />
-
-        {/* Tipo de insumo */}
-        <Controller
-            name="packaging_type"
-            control={control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>
-                  Tipo <span className="text-red-500 -ml-1">*</span>
-                </FieldLabel>
-                <Select name={field.name} value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
-                    <SelectValue placeholder="Seleccione tipo..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Tipos de envase</SelectLabel>
-                      {PACKAGING_TYPES.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </Field>
-            )}
-          />
-
-          {/* Material */}
-          <Controller
-            name="material"
-            control={control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>
-                  Material del envase <span className="text-red-500 -ml-1">*</span>
-                </FieldLabel>
-                <Input {...field} id={field.name} aria-invalid={fieldState.invalid} placeholder="Vidrio, aluminio..." />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-
-          <Controller
-            name="base_uom_id"
-            control={control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>
-                  Unidad <span className="text-red-500 -ml-1">*</span>
-                </FieldLabel>
-                <Select
-                  name={field.name}
-                  value={field.value !== undefined ? String(field.value) : ""}
-                  onValueChange={(val) => field.onChange(Number(val))}
-                  disabled={uomsLoading}
-                >
-                  <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
-                    <SelectValue placeholder={uomsLoading ? "Cargando..." : "Seleccione unidad..."} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Unidades</SelectLabel>
-                      {uoms.map((uom) => (
-                        <SelectItem key={uom.id} value={String(uom.id)}>
-                          {uom.symbol}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-
-        {/* Capacidad */}
-          <Controller
-            name="capacity_ml"
-            control={control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>Capacidad del envase (ml)</FieldLabel>
-                <DecimalInput
-                  {...field}
-                  id={field.name}
-                  placeholder="Ej: 330"
-                  aria-invalid={fieldState.invalid}
-                />
-              </Field>
-            )}
-          />
-
-          {/* Stock mínimo */}
-          <Controller
-            name="min_stock_level"
-            control={control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>Stock mínimo</FieldLabel>
-                <Input
-                  {...field}
-                  id={field.name}
-                  type="number"
-                  step="1"
-                  aria-invalid={fieldState.invalid}
-                  onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
-                />
-              </Field>
-            )}
-          />
-      </FieldGroup>
-
-      <div className={isModal ? "flex justify-end gap-2" : "md:col-span-4 flex justify-end mt-4 gap-2"}>
+      <div
+        className={isModal ? "flex justify-end gap-2" : "md:col-span-4 flex justify-end mt-4 gap-2"}
+      >
         {showDeleteButton && (
           <Button
             type="button"
@@ -290,7 +123,9 @@ export function PackagingSupplyForm({
           disabled={isModal ? isSubmitting || !isValid : !isDirty || !isValid || isSubmitting}
           className="cursor-pointer"
         >
-          {isSubmitting ? "Guardando..." : (
+          {isSubmitting ? (
+            "Guardando..."
+          ) : (
             <>
               <Save data-icon="inline-start" />
               {submitLabel}
@@ -299,27 +134,10 @@ export function PackagingSupplyForm({
         </Button>
       </div>
 
-      <BrandForm
+      <BrandQuickCreateDialog
         open={brandDialogOpen}
         onOpenChange={setBrandDialogOpen}
-        brand={{ name: "" }}
-        emptyBrand={{ name: "" }}
-        saving={brandSaving}
-        submitLabel="Crear marca"
-        onSubmit={async (data) => {
-          try {
-            setBrandSaving(true)
-            const newBrand = await brandService.create({ name: data.name.trim() })
-            addBrand(newBrand)
-            setValue("brand_id", newBrand.id, { shouldDirty: true, shouldValidate: true })
-            notify.success("Marca creada correctamente")
-            setBrandDialogOpen(false)
-          } catch (error) {
-            notify.error(error.response?.data?.detail || "Error al crear marca")
-          } finally {
-            setBrandSaving(false)
-          }
-        }}
+        onCreated={handleBrandCreated}
       />
     </form>
   )

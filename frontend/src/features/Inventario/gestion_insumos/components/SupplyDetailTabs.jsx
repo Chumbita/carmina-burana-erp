@@ -1,28 +1,45 @@
-import { useState } from 'react';
-import { TabSupply } from './TabSupply'
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs"
 
-import { TabLots } from './TabLots'
+import { TabSupply } from "./TabSupply"
+import { TabLots } from "./TabLots"
+import { useSupplyDetailTabs, SUPPLY_DETAIL_TABS } from "../hooks/useSupplyDetailTabs"
 
-//componentes shadcn
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs'
-
-export function SupplyDetailTabs({ insumo, base_uom_symbol, onSupplyUpdated, availableSupplies = [], onStockAdjusted }) {
-
-  const [contentOption, setContentOption] = useState("insumos");
+/**
+ * Pestañas del panel de detalle de un insumo de producción.
+ */
+export function SupplyDetailTabs({
+  insumo,
+  base_uom_symbol,
+  availableSupplies = [],
+  onStockAdjusted,
+}) {
+  const { activeTab, setActiveTab } = useSupplyDetailTabs()
 
   return (
     <div>
-      <Tabs defaultValue="insumos" onValueChange={setContentOption}>
+      <Tabs defaultValue={SUPPLY_DETAIL_TABS.DETAIL} onValueChange={setActiveTab}>
         <TabsList variant="line">
-          <TabsTrigger value="insumos" className="cursor-pointer">Detalle</TabsTrigger>
-          <TabsTrigger value="lotes" className="cursor-pointer">Lotes</TabsTrigger>
+          <TabsTrigger value={SUPPLY_DETAIL_TABS.DETAIL} className="cursor-pointer">
+            Detalle
+          </TabsTrigger>
+          <TabsTrigger value={SUPPLY_DETAIL_TABS.LOTS} className="cursor-pointer">
+            Lotes
+          </TabsTrigger>
         </TabsList>
 
         <div className="overflow-y-auto min-h-0">
-          {contentOption === "insumos" && <TabSupply insumo={insumo} onSupplyUpdated={onSupplyUpdated} availableSupplies={availableSupplies} />}
-          {contentOption === "lotes" && <TabLots itemId={insumo?.id} base_uom_symbol={base_uom_symbol} onStockAdjusted={onStockAdjusted} />}
+          {activeTab === SUPPLY_DETAIL_TABS.DETAIL && (
+            <TabSupply insumo={insumo} availableSupplies={availableSupplies} />
+          )}
+          {activeTab === SUPPLY_DETAIL_TABS.LOTS && (
+            <TabLots
+              itemId={insumo?.id}
+              base_uom_symbol={base_uom_symbol}
+              onStockAdjusted={onStockAdjusted}
+            />
+          )}
         </div>
       </Tabs>
     </div>
-  );
+  )
 }

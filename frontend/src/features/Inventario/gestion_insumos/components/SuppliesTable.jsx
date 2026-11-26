@@ -1,20 +1,21 @@
-import { DataTable } from "../../../../components/shared/DataTable";
-import { Badge } from "@/components/ui/Badge";
-import { estadoStyles } from "../utils/stockStyles";
-import { useNavigate } from "react-router-dom";
-import { formatDecimal } from "@/lib/utils/formatters";
+import { DataTable } from "@/components/shared/DataTable"
+import { Badge } from "@/components/ui/Badge"
+import { useNavigate } from "react-router-dom"
+import { formatDecimal } from "@/lib/utils/formatters"
+
+import { estadoStyles } from "../utils/stockStyles"
+import {
+  getSupplyDetailRoute,
+  isPackagingItemType,
+  resolveSupplyCategory,
+} from "../dto/supply.dto"
 
 export function SuppliesTable({ insumos, loading, page = 1, pageSize = 20, hasRecords }) {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const handleRowClick = (insumo) => {
-    if (insumo.item_type?.toUpperCase() === "PACKAGING_SUPPLY") {
-      navigate(`/inventario/insumos/envases/${insumo.id}`);
-      return;
-    }
-
-    navigate(`/inventario/insumos/${insumo.id}`);
-  };
+    navigate(getSupplyDetailRoute(insumo))
+  }
 
   if (loading && !insumos?.length) {
     return (
@@ -25,20 +26,26 @@ export function SuppliesTable({ insumos, loading, page = 1, pageSize = 20, hasRe
   }
 
   const tableHeaders = [
-    { header: "Nro", accessor: "id", render: (_value, _row, index) => (page - 1) * pageSize + index + 1 },
+    {
+      header: "Nro",
+      accessor: "id",
+      render: (_value, _row, index) => (page - 1) * pageSize + index + 1,
+    },
     { header: "Nombre", accessor: "name" },
     { header: "Marca", accessor: "brand_name" },
     {
       header: "Categoria",
       accessor: "category",
-      render: (value, insumo) => value ?? insumo.supply_category ?? insumo.packaging_type ?? "-",
+      render: (_value, insumo) => resolveSupplyCategory(insumo),
     },
     {
       header: "Tipo",
       accessor: "item_type",
-      render: (value) => value?.toUpperCase() === "PACKAGING_SUPPLY" ? "Envase" : "Producción",
+      render: (value) => (isPackagingItemType(value) ? "Envase" : "Producción"),
     },
-    { header: "Stock", accessor: "stock_total" ,
+    {
+      header: "Stock",
+      accessor: "stock_total",
       render: (value, insumo) => (
         <div className="w-8">
           {formatDecimal(value)} {insumo.base_uom_symbol}
@@ -54,7 +61,7 @@ export function SuppliesTable({ insumos, loading, page = 1, pageSize = 20, hasRe
         </Badge>
       ),
     },
-  ];
+  ]
 
   return (
     <DataTable
@@ -65,5 +72,5 @@ export function SuppliesTable({ insumos, loading, page = 1, pageSize = 20, hasRe
       hasRecords={hasRecords}
       onRowClick={handleRowClick}
     />
-  );
+  )
 }

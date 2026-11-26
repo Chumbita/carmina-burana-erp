@@ -1,135 +1,97 @@
-import { useRef, useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs"
-import { useNotification } from "@/components/shared/notifications/useNotification"
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/AlertDialog"
-import { useFormBlocker } from "../hooks/useFormBlocker"
+
 import { ConfirmNavigationModal } from "./ConfirmNavigationModal"
+import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog"
 import { PackagingSupplyForm } from "./PackagingSupplyForm"
 import { TabLots } from "./TabLots"
-import { useSupplies } from "../hooks/useSupplies"
-import { useEntityDetail } from "@/components/shared/DetailPage/EntityDetailContext"
+import {
+  usePackagingSupplyDetailTabs,
+  PACKAGING_DETAIL_TABS,
+} from "../hooks/usePackagingSupplyDetailTabs"
 
-export function PackagingSupplyDetailTabs({ packagingSupply, onPackagingSupplyUpdated, onDeleteSupply, availableSupplies = [], onStockAdjusted }) {
-  const [contentOption, setContentOption] = useState("detalle")
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-  const formRef = useRef(null)
-  const notify = useNotification()
-  const navigate = useNavigate()
-  const { blocker } = useFormBlocker(formRef)
-  const { getSupplies } = useSupplies()
-  const { handleUpdated } = useEntityDetail()
-
-  async function handleSubmit(data) {
-    try {
-      await onPackagingSupplyUpdated(data)
-      await getSupplies()
-      handleUpdated?.()
-      notify.success("Packaging actualizado correctamente")
-
-      formRef.current?.reset(data, {
-        keepDirty: false,
-        keepDirtyValues: false,
-      })
-
-      return true
-    } catch (error) {
-      notify.error(`Error al actualizar el packaging ${error?.message ?? ""}`)
-      return false
-    }
-  }
-
-  async function handleDelete() {
-    setIsDeleting(true)
-    try {
-      await onDeleteSupply()
-      setOpenDeleteDialog(false)
-      navigate("/inventario/insumos", {
-        state: {
-          notification: { type: "success", message: `"${packagingSupply?.name}" eliminado con éxito` },
-        },
-      })
-    } catch (error) {
-      notify.error(`Error al eliminar: ${error?.message ?? ""}`)
-    } finally {
-      setIsDeleting(false)
-    }
-  }
+/**
+ * Pestañas del panel de detalle de un envase.
+ */
+export function PackagingSupplyDetailTabs({
+  packagingSupply,
+  onPackagingSupplyUpdated,
+  onDeleteSupply,
+  availableSupplies = [],
+  onStockAdjusted,
+}) {
+  const {
+    activeTab,
+    setActiveTab,
+    formRef,
+    blocker,
+    openDeleteDialog,
+    setOpenDeleteDialog,
+    isDeleting,
+    submitDetail,
+    confirmDelete,
+    requestDelete,
+    saveAndLeave,
+    discardChanges,
+    cancelNavigation,
+  } = usePackagingSupplyDetailTabs({
+    packagingSupply,
+    onUpdate: onPackagingSupplyUpdated,
+    onDelete: onDeleteSupply,
+  })
 
   return (
     <div>
-      <Tabs defaultValue="detalle" onValueChange={setContentOption}>
+      <Tabs defaultValue={PACKAGING_DETAIL_TABS.DETAIL} onValueChange={setActiveTab}>
         <TabsList variant="line">
-          <TabsTrigger value="detalle" className="cursor-pointer">Detalle</TabsTrigger>
-          <TabsTrigger value="lotes" className="cursor-pointer">Lotes</TabsTrigger>
+          <TabsTrigger value={PACKAGING_DETAIL_TABS.DETAIL} className="cursor-pointer">
+            Detalle
+          </TabsTrigger>
+          <TabsTrigger value={PACKAGING_DETAIL_TABS.LOTS} className="cursor-pointer">
+            Lotes
+          </TabsTrigger>
         </TabsList>
 
-        {contentOption === "detalle" && (
+        {activeTab === PACKAGING_DETAIL_TABS.DETAIL && (
           <div className="space-y-4">
             <PackagingSupplyForm
               formRef={formRef}
               defaultValues={packagingSupply}
-              onSubmit={handleSubmit}
+              onSubmit={submitDetail}
               submitLabel="Guardar cambios"
               layout="page"
               showDeleteButton
-              onDelete={() => setOpenDeleteDialog(true)}
+              onDelete={requestDelete}
               existingSupplies={availableSupplies}
               excludeId={packagingSupply?.id}
             />
           </div>
         )}
 
-        {contentOption === "lotes" && <TabLots itemId={packagingSupply?.id} base_uom_symbol={packagingSupply?.base_uom_symbol} onStockAdjusted={onStockAdjusted} />}
+        {activeTab === PACKAGING_DETAIL_TABS.LOTS && (
+          <TabLots
+            itemId={packagingSupply?.id}
+            base_uom_symbol={packagingSupply?.base_uom_symbol}
+            onStockAdjusted={onStockAdjusted}
+          />
+        )}
       </Tabs>
 
       {blocker.state === "blocked" && (
         <ConfirmNavigationModal
-          onSave={async () => {
-            await formRef.current?.submit()
-            blocker.proceed()
-            navigate("/inventario/insumos")
-          }}
-          onDiscard={() => {
-            formRef.current?.reset(packagingSupply)
-            blocker.proceed()
-          }}
-          onCancel={() => blocker.reset()}
+          onSave={saveAndLeave}
+          onDiscard={discardChanges}
+          onCancel={cancelNavigation}
         />
       )}
 
-      <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar envase?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción no se puede deshacer. El envase será eliminado permanentemente.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting} className="hover:bg-neutral-200 cursor-pointer">
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700 cursor-pointer"
-            >
-              {isDeleting ? "Eliminando..." : "Eliminar"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        open={openDeleteDialog}
+        onOpenChange={setOpenDeleteDialog}
+        onConfirm={confirmDelete}
+        isDeleting={isDeleting}
+        title="¿Eliminar envase?"
+        description="Esta acción no se puede deshacer. El envase será eliminado permanentemente."
+      />
     </div>
   )
 }

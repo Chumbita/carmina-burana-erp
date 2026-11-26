@@ -1,8 +1,8 @@
-import { ENDPOINTS } from "@/lib/api/endpoints"
-import privateClient from "@/lib/api/privateClient"
-import { cachedRequest } from "@/lib/api/cachedRequest"
+import { ENDPOINTS } from '@/lib/api/endpoints'
+import privateClient from '@/lib/api/privateClient'
+import { cachedRequest } from '@/lib/api/cachedRequest'
 
-const UOMS_KEY = "uoms"
+const UOMS_KEY = 'uoms'
 
 export const uomService = {
   getOptions: async () => {

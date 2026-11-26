@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useNotification } from '@/components/shared/notifications/useNotification'
 import { cleanBrand } from '../dto/brand.dto'
-import { brandService } from '../services/brandService'
+import { brandService } from '@/lib/api/brandService'
 
 const PAGE_SIZE = 20
 

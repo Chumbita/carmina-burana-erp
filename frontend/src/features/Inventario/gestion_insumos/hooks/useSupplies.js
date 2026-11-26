@@ -1,18 +1,7 @@
 import { useState, useEffect } from "react"
 import { supplyService } from "../services/supplyService"
 import { packagingSupplyService } from "../services/packagingSupplyService"
-
-function mapItemOptionToSupply(option) {
-  return {
-    id: option.item_id,
-    name: option.name,
-    brand_name: option.brand,
-    base_uom_symbol: option.uom_symbol,
-    // compat: los validadores solo usan id/name; el combobox de abastecimiento
-    // pierde supply_category (muestra "marca · unidad")
-    item_type: option.item_type,
-  }
-}
+import { mapItemOptionsToSupplies } from "../dto/supply.dto"
 
 export function useSupplies() {
   const [supplies, setSupplies] = useState([])
@@ -22,11 +11,8 @@ export function useSupplies() {
   async function getSupplies() {
     try {
       setLoading(true)
-      const data = await supplyService.getOptions()
-      const filtered = data
-        .filter((o) => o.item_type === "supply" || o.item_type === "packaging_supply")
-        .map(mapItemOptionToSupply)
-      setSupplies(filtered)
+      const options = await supplyService.getOptions()
+      setSupplies(mapItemOptionsToSupplies(options))
     } catch (err) {
       setError(err)
     } finally {

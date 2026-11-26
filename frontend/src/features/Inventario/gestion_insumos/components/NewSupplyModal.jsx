@@ -1,11 +1,39 @@
 import { useState } from "react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/Dialog"
-import { Button } from "@/components/ui/Button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/Dialog"
+
 import { SupplyForm } from "./SupplyForm"
 import { PackagingSupplyForm } from "./PackagingSupplyForm"
+import { NewSupplyTypeSelector } from "./NewSupplyTypeSelector"
 import { useSupplies } from "../hooks/useSupplies"
-import { Boxes, Package } from "lucide-react"
 
+const EMPTY_SUPPLY = {
+  name: "",
+  brand_id: undefined,
+  supply_category: "",
+  base_uom_id: undefined,
+  min_stock_level: 1,
+}
+
+const EMPTY_PACKAGING_SUPPLY = {
+  name: "",
+  brand_id: undefined,
+  base_uom_id: undefined,
+  min_stock_level: 1,
+  packaging_type: "",
+  material: "",
+  capacity_ml: undefined,
+}
+
+/**
+ * Modal de alta de insumos. Primero elige el tipo, luego delega en el
+ * formulario correspondiente.
+ */
 export function NewSupplyModal({ open, onClose, onSubmit, existingSupplies }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedType, setSelectedType] = useState(null)
@@ -31,54 +59,17 @@ export function NewSupplyModal({ open, onClose, onSubmit, existingSupplies }) {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className='text-xl font-bold'>Nuevo insumo</DialogTitle>
+          <DialogTitle className="text-xl font-bold">Nuevo insumo</DialogTitle>
           {!selectedType && (
-            <DialogDescription>
-              Seleccioná el tipo de insumo a crear.
-            </DialogDescription>
+            <DialogDescription>Seleccioná el tipo de insumo a crear.</DialogDescription>
           )}
         </DialogHeader>
 
-        {!selectedType && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              className="h-auto justify-start gap-3 p-4"
-              onClick={() => setSelectedType("SUPPLY")}
-            >
-              <Boxes className="h-5 w-5" />
-              <span className="text-left">
-                <span className="block font-medium">Producción</span>
-                <span className="block text-xs text-muted-foreground">Malta, lúpulo, levadura</span>
-              </span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="h-auto justify-start gap-3 p-4"
-              onClick={() => setSelectedType("PACKAGING_SUPPLY")}
-            >
-              <Package className="h-5 w-5" />
-              <span className="text-left">
-                <span className="block font-medium">Envase</span>
-                <span className="block text-xs text-muted-foreground">Botellas, latas, tapas</span>
-              </span>
-            </Button>
-          </div>
-        )}
+        {!selectedType && <NewSupplyTypeSelector onSelect={setSelectedType} />}
 
         {selectedType === "SUPPLY" && (
           <SupplyForm
-            defaultValues={{
-              name: "",
-              brand: "",
-              category: "",
-              unit: "",
-              minimum_stock: 0,
-              image: "",
-            }}
+            defaultValues={EMPTY_SUPPLY}
             onSubmit={handleSubmit}
             onCancel={handleClose}
             submitLabel="Guardar"
@@ -91,15 +82,7 @@ export function NewSupplyModal({ open, onClose, onSubmit, existingSupplies }) {
 
         {selectedType === "PACKAGING_SUPPLY" && (
           <PackagingSupplyForm
-            defaultValues={{
-              name: "",
-              brand_id: undefined,
-              base_uom_id: undefined,
-              min_stock_level: 1,
-              packaging_type: "",
-              material: "",
-              capacity_ml: undefined,
-            }}
+            defaultValues={EMPTY_PACKAGING_SUPPLY}
             onSubmit={handleSubmit}
             onCancel={handleClose}
             submitLabel="Guardar"

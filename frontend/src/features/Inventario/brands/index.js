@@ -3,4 +3,4 @@
 export { default as BrandsPage } from './pages/BrandsPage'
 export { default as BrandDetailPage } from './pages/BrandDetailPage'
 export { BrandForm } from './components/BrandForm'
-export { brandService } from './services/brandService'
+export { brandService } from '@/lib/api/brandService'

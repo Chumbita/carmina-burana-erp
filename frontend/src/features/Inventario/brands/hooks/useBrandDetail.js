@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useNotification } from '@/components/shared/notifications/useNotification'
 import { cleanBrand } from '../dto/brand.dto'
-import { brandService } from '../services/brandService'
+import { brandService } from '@/lib/api/brandService'
 
 export function useBrandDetail(brandId) {
   const navigate = useNavigate()

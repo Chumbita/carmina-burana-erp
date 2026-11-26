@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { uomService } from "../services/uomService"
+import { uomService } from "@/lib/api/uomService"
 
 export function useUoms() {
   const [uoms, setUoms] = useState([])
