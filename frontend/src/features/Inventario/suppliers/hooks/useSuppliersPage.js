@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { useNotification } from '@/components/shared/notifications/useNotification'
 import { cleanSupplier } from '../dto/supplier.dto'
-import { supplierService } from '../services/supplierService'
+import { supplierService } from '@/lib/api/supplierService'
 
 const PAGE_SIZE = 20
 const DEFAULT_STATUS = 'ACTIVE'

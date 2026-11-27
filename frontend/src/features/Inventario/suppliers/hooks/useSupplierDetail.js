@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useNotification } from '@/components/shared/notifications/useNotification'
 import { cleanSupplier } from '../dto/supplier.dto'
-import { supplierService } from '../services/supplierService'
+import { supplierService } from '@/lib/api/supplierService'
 
 export function useSupplierDetail(supplierId) {
   const notify = useNotification()

@@ -1,27 +1,9 @@
 import { useState, useCallback } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 
 import { FORM_DEFAULT_VALUES, getDefaultEntryDateTime } from '../constants/supplyEntry.constants'
-
-// Schema validation
-const supplyItemSchema = z.object({
-  supplyId: z.number().min(1, 'Seleccione un insumo'),
-  quantity: z.number().min(0.01, 'La cantidad debe ser mayor a 0'),
-  unitCost: z.number().min(0.01, 'El costo unitario debe ser mayor a 0'),
-  expirationDate: z.string().min(1, 'La fecha de vencimiento es requerida'),
-  batchNumber: z.string().optional(),
-  comment: z.string().optional(),
-})
-
-const supplyEntrySchema = z.object({
-  supplierId: z.number().min(1, 'Seleccione un proveedor'),
-  entryDate: z.string().min(1, 'La fecha de ingreso es requerida'),
-  invoiceNumber: z.string().optional(),
-  description: z.string().optional(),
-  items: z.array(supplyItemSchema).min(1, 'Debe agregar al menos un artículo'),
-})
+import { supplyEntrySchema } from '../schemas/supplyEntry.schema'
 
 const getDefaultValues = () => ({
   ...FORM_DEFAULT_VALUES,
@@ -108,19 +90,18 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
       }
 
       await onSubmit(submissionData)
-      
+
       setSuccess(true)
-      
+
       // Reset after success
       setTimeout(() => {
         reset(getDefaultValues())
         setSuccess(false)
         setReceptionId(null)
       }, 3000)
-      
     } catch (err) {
       console.error('Error creating supply entry:', err)
-      
+
       // Extraer mensaje de error de diferentes formatos
       let errorMessage = 'Error al registrar el abastecimiento'
       if (err.message) {
@@ -130,7 +111,7 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
       } else if (typeof err === 'string') {
         errorMessage = err
       }
-      
+
       setError(errorMessage)
     } finally {
       setLoading(false)
@@ -158,13 +139,13 @@ export function useSupplyEntryForm(availableSupplies = [], onSubmit) {
     isValid,
     setValue,
     errors,
-    
+
     // Loading states
     loading,
     error,
     success,
     receptionId,
-    
+
     // Actions
     handleAddItem,
     handleRemoveItem,

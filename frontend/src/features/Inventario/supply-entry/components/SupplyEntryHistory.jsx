@@ -12,7 +12,7 @@ import {
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Spinner } from '@/components/ui/Spinner'
-import { Pagination } from "../../gestion_insumos/components/Pagination"
+import { Pagination } from "@/features/Inventario/gestion_insumos"
 
 import { Search, Calendar, Filter, Eye, Download, ArrowLeft, Package } from 'lucide-react'
 

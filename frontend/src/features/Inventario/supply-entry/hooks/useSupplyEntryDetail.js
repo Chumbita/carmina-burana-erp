@@ -1,48 +1,14 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 
 import { supplyEntryService } from '../services/supplyEntryService'
-
-// Schema for annulment confirmation
-const annulmentSchema = z.object({
-  reason: z.string().min(1, 'Debe especificar un motivo para anular'),
-})
-
-function normalizeEntry(entry) {
-  if (!entry) return entry
-
-  return {
-    ...entry,
-    status: entry.status === 'CANCELED' ? 'cancelled' : 'active',
-    reception_number: entry.document_number,
-    supplier: entry.supplier?.name ?? 'Sin proveedor',
-    invoiceNumber: entry.document_number,
-    total_cost: Number(entry.total_cost ?? 0),
-    annulledAt: entry.canceled_at,
-    annulmentReason: entry.cancellation_reason,
-    items: (entry.lines ?? []).map((line) => ({
-      id: line.lot_id ?? line.item?.id,
-      supply_id: line.item?.id,
-      supply_name: line.item?.name,
-      amount: Number(line.quantity ?? 0),
-      unit_cost: Number(line.unit_cost ?? 0),
-      expire_date: line.expiration_date?.split('T')[0],
-      comment: line.comment,
-      batch: {
-        id: line.lot_id,
-        initial_amount: Number(line.quantity ?? 0),
-        current_amount: Number(line.quantity ?? 0),
-      },
-    })),
-  }
-}
+import { annulmentSchema } from '../schemas/supplyEntry.schema'
+import { normalizeEntry } from '../dto/supplyEntry.dto'
 
 /**
  * Custom hook for managing supply entry detail logic
  * @param {string} entryId - ID of the entry to load
- * @param {Function} onAnnul - Callback for annulment
  */
 export function useSupplyEntryDetail(entryId) {
   const [loading, setLoading] = useState(true)
@@ -71,10 +37,9 @@ export function useSupplyEntryDetail(entryId) {
     try {
       setLoading(true)
       setError(null)
-      
-      // Llamada real a la API
+
       const entryData = await supplyEntryService.getById(entryId)
-      
+
       setEntry(normalizeEntry(entryData))
     } catch (err) {
       console.error('Error loading entry detail:', err)
@@ -99,16 +64,15 @@ export function useSupplyEntryDetail(entryId) {
     try {
       setAnnulling(true)
       setError(null)
-      
+
       await supplyEntryService.cancel(entryId, data.reason)
-      
+
       // Reload data from backend to get updated state
       const updatedEntry = await supplyEntryService.getById(entryId)
       setEntry(normalizeEntry(updatedEntry))
-      
+
       setShowAnnulDialog(false)
       resetAnnulment()
-      
     } catch (err) {
       console.error('Error annulling entry:', err)
       const errorMessage = err.response?.data?.detail || err.message || 'Error al anular el abastecimiento'
@@ -147,15 +111,15 @@ export function useSupplyEntryDetail(entryId) {
     entry,
     showAnnulDialog,
     annulling,
-    
+
     // Computed values
     canAnnul,
     isAnnulmentValid,
-    
+
     // Form
     registerAnnulment,
     handleAnnulmentSubmit,
-    
+
     // Actions
     setShowAnnulDialog,
     handleAnnul,

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { supplierService } from '../services/supplierService'
+import { supplierService } from '@/lib/api/supplierService'
 
 export function useSuppliers() {
   const [suppliers, setSuppliers] = useState([])

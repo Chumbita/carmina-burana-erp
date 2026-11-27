@@ -12,7 +12,7 @@ import { SupplyEntryTable } from '../components/SupplyEntryTable'
 import { useSupplyEntryForm } from '../hooks/useSupplyEntryForm'
 import { useSupplyEntryPage } from '../hooks/useSupplyEntryPage'
 import { useSuppliers as useSupplyEntrySuppliers } from '../hooks/useSuppliers'
-import { useSupplies } from '../../gestion_insumos/hooks/useSupplies'
+import { useSupplies } from '@/features/Inventario/gestion_insumos'
 
 // Constants
 import { ITEMS_PER_PAGE } from '../constants/supplyEntry.constants'

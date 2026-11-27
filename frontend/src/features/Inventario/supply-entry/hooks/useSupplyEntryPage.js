@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
-import { ITEMS_PER_PAGE, parseSupplyEntryDateTime } from '../constants/supplyEntry.constants'
+import { ITEMS_PER_PAGE } from '../constants/supplyEntry.constants'
 import { supplyEntryService } from '../services/supplyEntryService'
+import { buildSupplyEntryPayload } from '../dto/supplyEntry.dto'
 import { useNotification } from '@/components/shared/notifications/useNotification'
 
 export function useSupplyEntryPage() {
@@ -74,22 +75,7 @@ export function useSupplyEntryPage() {
 
   const handleCreateSupplyEntry = useCallback(async (formData) => {
     try {
-      const submissionData = {
-        supplier_id: formData.supplierId,
-        document_number: formData.invoiceNumber || undefined,
-        entry_date: parseSupplyEntryDateTime(formData.entryDate),
-        description: formData.description || undefined,
-        lines: formData.items.map(item => ({
-          item_id: item.supplyId,
-          quantity: item.quantity,
-          unit_cost: item.unitCost,
-          expiration_date: new Date(item.expirationDate).toISOString(),
-          lot_code: item.batchNumber || undefined,
-          comment: item.comment || undefined,
-        }))
-      }
-
-      const createdEntry = await supplyEntryService.create(submissionData)
+      const createdEntry = await supplyEntryService.create(buildSupplyEntryPayload(formData))
 
       notify.success(`Abastecimiento ${createdEntry.document_number} registrado correctamente`)
       setOpenModal(false)
